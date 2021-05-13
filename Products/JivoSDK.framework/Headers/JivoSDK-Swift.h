@@ -191,7 +191,6 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 #pragma clang diagnostic ignored "-Watimport-in-framework-header"
 #endif
 @import Foundation;
-@import JMShared;
 @import ObjectiveC;
 #endif
 
@@ -211,70 +210,67 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 #endif
 
 
-@interface Agent (SWIFT_EXTENSION(JivoSDK))
-- (id _Nonnull)copy SWIFT_WARN_UNUSED_RESULT;
-@end
-
-
-SWIFT_CLASS("_TtC7JivoSDK20ChattingVisualConfig")
-@interface ChattingVisualConfig : NSObject
-- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
-@end
-
 
 @class NSString;
-@class UIViewController;
-@class NSNumber;
+@class UIColor;
+@class UINavigationController;
 
-SWIFT_PROTOCOL("_TtP7JivoSDK11IChattingUI_")
-@protocol IChattingUI
-@property (nonatomic, copy) NSString * _Nullable activeMessage;
-@property (nonatomic, copy) NSString * _Nullable inputPlaceholder;
-@property (nonatomic, strong) ChattingVisualConfig * _Nullable visualConfig;
-- (void)presentChatWithOver:(UIViewController * _Nonnull)presentingViewController animated:(BOOL)animated;
+SWIFT_PROTOCOL("_TtP7JivoSDK18IJivoSDKChattingUI_")
+@protocol IJivoSDKChattingUI
+- (void)setActiveMessage:(NSString * _Nonnull)text;
+- (void)setInputPlaceholder:(NSString * _Nonnull)text;
+- (void)adjustHeaderBarWithTitleColor:(UIColor * _Nonnull)titleColor subtitleColor:(UIColor * _Nonnull)subtitleColor;
+- (void)placeInto:(UINavigationController * _Nonnull)navigationController;
 @end
 
 @protocol JivoSDKSessionDelegate;
-@class SessionCustomData;
+@class NSNumber;
+@class JivoSDKSessionCustomData;
+@class NSObject;
 @class NSDate;
 
-SWIFT_PROTOCOL("_TtP7JivoSDK11ISdkSession_")
-@protocol ISdkSession
-@property (nonatomic, copy) NSString * _Nullable serverPrefix;
-@property (nonatomic, copy) NSString * _Nullable apnsDeviceLiveToken;
-@property (nonatomic, strong) id <JivoSDKSessionDelegate> _Nullable delegate;
-- (void)startUpWithClientToken:(NSString * _Nonnull)clientToken siteId:(NSInteger)siteId channelId:(NSString * _Nonnull)channelId customData:(SessionCustomData * _Nullable)customData resumeIfPossible:(BOOL)isResumeNeeded secureConnection:(BOOL)secureConnection;
+SWIFT_PROTOCOL("_TtP7JivoSDK15IJivoSDKSession_")
+@protocol IJivoSDKSession
+- (void)setDelegate:(id <JivoSDKSessionDelegate> _Nonnull)object;
+- (void)startUpWithSiteID:(NSInteger)siteID channelID:(NSString * _Nonnull)channelID userKey:(NSString * _Nonnull)userKey;
+- (void)startUpWithinSandbox:(NSString * _Nonnull)sandbox withSiteID:(NSInteger)siteID channelID:(NSString * _Nonnull)channelID userKey:(NSString * _Nonnull)userKey;
+- (void)updateCustomData:(JivoSDKSessionCustomData * _Nullable)data;
+- (void)setPushToken:(NSString * _Nullable)token;
+- (void)handlePushPayload:(NSDictionary * _Nonnull)payload deliveryDate:(NSDate * _Nullable)deliveryDate;
 - (void)shutDown;
-- (void)reset;
-- (void)logout;
-- (void)processPushNotificationWithUserInfo:(NSDictionary * _Nonnull)userInfo andDeliveryDate:(NSDate * _Nullable)deliveryDate;
-- (void)updateContactInfoWithName:(NSString * _Nonnull)name email:(NSString * _Nonnull)email phone:(NSString * _Nonnull)phone description:(NSString * _Nonnull)description;
 @end
 
 
 SWIFT_CLASS("_TtC7JivoSDK7JivoSDK")
 @interface JivoSDK : NSObject
-SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <ISdkSession> _Nonnull session;)
-+ (id <ISdkSession> _Nonnull)session SWIFT_WARN_UNUSED_RESULT;
-SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <IChattingUI> _Nonnull UI;)
-+ (id <IChattingUI> _Nonnull)UI SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <IJivoSDKSession> _Nonnull session;)
++ (id <IJivoSDKSession> _Nonnull)session SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <IJivoSDKChattingUI> _Nonnull chattingUI;)
++ (id <IJivoSDKChattingUI> _Nonnull)chattingUI SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
+SWIFT_CLASS("_TtC7JivoSDK27JivoSDKChattingHeaderConfig")
+@interface JivoSDKChattingHeaderConfig : NSObject
+- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
+SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData")
+@interface JivoSDKSessionCustomData : NSObject
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 
 SWIFT_PROTOCOL("_TtP7JivoSDK22JivoSDKSessionDelegate_")
 @protocol JivoSDKSessionDelegate
-- (void)sessionStarted;
+- (void)sessionDidStart;
 @end
 
 
 
-
-SWIFT_CLASS("_TtC7JivoSDK17SessionCustomData")
-@interface SessionCustomData : NSObject
-- (nonnull instancetype)init SWIFT_UNAVAILABLE;
-+ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
-@end
 
 
 
@@ -476,7 +472,6 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 #pragma clang diagnostic ignored "-Watimport-in-framework-header"
 #endif
 @import Foundation;
-@import JMShared;
 @import ObjectiveC;
 #endif
 
@@ -496,70 +491,67 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 #endif
 
 
-@interface Agent (SWIFT_EXTENSION(JivoSDK))
-- (id _Nonnull)copy SWIFT_WARN_UNUSED_RESULT;
-@end
-
-
-SWIFT_CLASS("_TtC7JivoSDK20ChattingVisualConfig")
-@interface ChattingVisualConfig : NSObject
-- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
-@end
-
 
 @class NSString;
-@class UIViewController;
-@class NSNumber;
+@class UIColor;
+@class UINavigationController;
 
-SWIFT_PROTOCOL("_TtP7JivoSDK11IChattingUI_")
-@protocol IChattingUI
-@property (nonatomic, copy) NSString * _Nullable activeMessage;
-@property (nonatomic, copy) NSString * _Nullable inputPlaceholder;
-@property (nonatomic, strong) ChattingVisualConfig * _Nullable visualConfig;
-- (void)presentChatWithOver:(UIViewController * _Nonnull)presentingViewController animated:(BOOL)animated;
+SWIFT_PROTOCOL("_TtP7JivoSDK18IJivoSDKChattingUI_")
+@protocol IJivoSDKChattingUI
+- (void)setActiveMessage:(NSString * _Nonnull)text;
+- (void)setInputPlaceholder:(NSString * _Nonnull)text;
+- (void)adjustHeaderBarWithTitleColor:(UIColor * _Nonnull)titleColor subtitleColor:(UIColor * _Nonnull)subtitleColor;
+- (void)placeInto:(UINavigationController * _Nonnull)navigationController;
 @end
 
 @protocol JivoSDKSessionDelegate;
-@class SessionCustomData;
+@class NSNumber;
+@class JivoSDKSessionCustomData;
+@class NSObject;
 @class NSDate;
 
-SWIFT_PROTOCOL("_TtP7JivoSDK11ISdkSession_")
-@protocol ISdkSession
-@property (nonatomic, copy) NSString * _Nullable serverPrefix;
-@property (nonatomic, copy) NSString * _Nullable apnsDeviceLiveToken;
-@property (nonatomic, strong) id <JivoSDKSessionDelegate> _Nullable delegate;
-- (void)startUpWithClientToken:(NSString * _Nonnull)clientToken siteId:(NSInteger)siteId channelId:(NSString * _Nonnull)channelId customData:(SessionCustomData * _Nullable)customData resumeIfPossible:(BOOL)isResumeNeeded secureConnection:(BOOL)secureConnection;
+SWIFT_PROTOCOL("_TtP7JivoSDK15IJivoSDKSession_")
+@protocol IJivoSDKSession
+- (void)setDelegate:(id <JivoSDKSessionDelegate> _Nonnull)object;
+- (void)startUpWithSiteID:(NSInteger)siteID channelID:(NSString * _Nonnull)channelID userKey:(NSString * _Nonnull)userKey;
+- (void)startUpWithinSandbox:(NSString * _Nonnull)sandbox withSiteID:(NSInteger)siteID channelID:(NSString * _Nonnull)channelID userKey:(NSString * _Nonnull)userKey;
+- (void)updateCustomData:(JivoSDKSessionCustomData * _Nullable)data;
+- (void)setPushToken:(NSString * _Nullable)token;
+- (void)handlePushPayload:(NSDictionary * _Nonnull)payload deliveryDate:(NSDate * _Nullable)deliveryDate;
 - (void)shutDown;
-- (void)reset;
-- (void)logout;
-- (void)processPushNotificationWithUserInfo:(NSDictionary * _Nonnull)userInfo andDeliveryDate:(NSDate * _Nullable)deliveryDate;
-- (void)updateContactInfoWithName:(NSString * _Nonnull)name email:(NSString * _Nonnull)email phone:(NSString * _Nonnull)phone description:(NSString * _Nonnull)description;
 @end
 
 
 SWIFT_CLASS("_TtC7JivoSDK7JivoSDK")
 @interface JivoSDK : NSObject
-SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <ISdkSession> _Nonnull session;)
-+ (id <ISdkSession> _Nonnull)session SWIFT_WARN_UNUSED_RESULT;
-SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <IChattingUI> _Nonnull UI;)
-+ (id <IChattingUI> _Nonnull)UI SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <IJivoSDKSession> _Nonnull session;)
++ (id <IJivoSDKSession> _Nonnull)session SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <IJivoSDKChattingUI> _Nonnull chattingUI;)
++ (id <IJivoSDKChattingUI> _Nonnull)chattingUI SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
+SWIFT_CLASS("_TtC7JivoSDK27JivoSDKChattingHeaderConfig")
+@interface JivoSDKChattingHeaderConfig : NSObject
+- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@end
+
+
+SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData")
+@interface JivoSDKSessionCustomData : NSObject
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 
 SWIFT_PROTOCOL("_TtP7JivoSDK22JivoSDKSessionDelegate_")
 @protocol JivoSDKSessionDelegate
-- (void)sessionStarted;
+- (void)sessionDidStart;
 @end
 
 
 
-
-SWIFT_CLASS("_TtC7JivoSDK17SessionCustomData")
-@interface SessionCustomData : NSObject
-- (nonnull instancetype)init SWIFT_UNAVAILABLE;
-+ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
-@end
 
 
 

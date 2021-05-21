@@ -6,7 +6,35 @@
 	<dict>
 		<key>Assets.car</key>
 		<data>
-		tDlQdobmxjAK5Ye/WEQjo2Rv6nw=
+		p8u7iRjM4LjqnvddXpH7ls74mp8=
+		</data>
+		<key>Frameworks/Pods_JivoSDK.framework/Info.plist</key>
+		<data>
+		Y6qVGq6sz8wXc5oKOYJzvi6SwL4=
+		</data>
+		<key>Frameworks/Pods_JivoSDK.framework/Pods_JivoSDK</key>
+		<data>
+		xhleSodkW3MYxUKenbdu3xCypYU=
+		</data>
+		<key>Frameworks/Pods_JivoSDK.framework/_CodeSignature/CodeDirectory</key>
+		<data>
+		J8O5GGwnT6BhkHgc3r/glXYAKt4=
+		</data>
+		<key>Frameworks/Pods_JivoSDK.framework/_CodeSignature/CodeRequirements</key>
+		<data>
+		zcgUOapzgqrucLeIhuwEX2KowBI=
+		</data>
+		<key>Frameworks/Pods_JivoSDK.framework/_CodeSignature/CodeRequirements-1</key>
+		<data>
+		xpi2f0uth7GgVgWcHBt3rVzpGDw=
+		</data>
+		<key>Frameworks/Pods_JivoSDK.framework/_CodeSignature/CodeResources</key>
+		<data>
+		5hYgJCg8drX//JB7//XaCTz5AuM=
+		</data>
+		<key>Frameworks/Pods_JivoSDK.framework/_CodeSignature/CodeSignature</key>
+		<data>
+		e4KCFlzLq7cpJJoUpYs5Xd1+t/E=
 		</data>
 		<key>Headers/JivoSDK-Swift.h</key>
 		<data>
@@ -189,11 +217,88 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			tDlQdobmxjAK5Ye/WEQjo2Rv6nw=
+			p8u7iRjM4LjqnvddXpH7ls74mp8=
 			</data>
 			<key>hash2</key>
 			<data>
-			9b+jsoCks94DYtBAbaUhnElt7W+lS4ttmiCBfwp9BuQ=
+			eRuLQC/H8yqB3GTZxP5khAeSKzgGI/FaPL7YudEWfuY=
+			</data>
+		</dict>
+		<key>Frameworks/Pods_JivoSDK.framework/Info.plist</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			Y6qVGq6sz8wXc5oKOYJzvi6SwL4=
+			</data>
+			<key>hash2</key>
+			<data>
+			cLJUCBNPgIRBBFQu2GXLlx2IbhWBddMgdTJkfU5CykM=
+			</data>
+		</dict>
+		<key>Frameworks/Pods_JivoSDK.framework/Pods_JivoSDK</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			xhleSodkW3MYxUKenbdu3xCypYU=
+			</data>
+			<key>hash2</key>
+			<data>
+			1bo5+OaW+zNTgkOmGBvbYjg0mIsfYiQLlblr5aMw8nI=
+			</data>
+		</dict>
+		<key>Frameworks/Pods_JivoSDK.framework/_CodeSignature/CodeDirectory</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			J8O5GGwnT6BhkHgc3r/glXYAKt4=
+			</data>
+			<key>hash2</key>
+			<data>
+			R24amgZHuGyhhl8yRVfxzEoBVMoztGeXtjEzEG7ynY4=
+			</data>
+		</dict>
+		<key>Frameworks/Pods_JivoSDK.framework/_CodeSignature/CodeRequirements</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			zcgUOapzgqrucLeIhuwEX2KowBI=
+			</data>
+			<key>hash2</key>
+			<data>
+			llHqYI+pfpHbqy+IFGMuC1GOh+K/XTSxi/QfcuwGJnE=
+			</data>
+		</dict>
+		<key>Frameworks/Pods_JivoSDK.framework/_CodeSignature/CodeRequirements-1</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			xpi2f0uth7GgVgWcHBt3rVzpGDw=
+			</data>
+			<key>hash2</key>
+			<data>
+			M+hzGYtqlFsIan1CPifMPnR0lN/bW1uawBTaAkCsMUk=
+			</data>
+		</dict>
+		<key>Frameworks/Pods_JivoSDK.framework/_CodeSignature/CodeResources</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			5hYgJCg8drX//JB7//XaCTz5AuM=
+			</data>
+			<key>hash2</key>
+			<data>
+			lELZ8FuBjc4yMI4WgHmPddis4blzQySurUHz6Yc0IXc=
+			</data>
+		</dict>
+		<key>Frameworks/Pods_JivoSDK.framework/_CodeSignature/CodeSignature</key>
+		<dict>
+			<key>hash</key>
+			<data>
+			e4KCFlzLq7cpJJoUpYs5Xd1+t/E=
+			</data>
+			<key>hash2</key>
+			<data>
+			QmNBZ01noc8wtNpdL49dwa2Ycxo1ZMnPnAT1GsMR30s=
 			</data>
 		</dict>
 		<key>Headers/JivoSDK-Swift.h</key>

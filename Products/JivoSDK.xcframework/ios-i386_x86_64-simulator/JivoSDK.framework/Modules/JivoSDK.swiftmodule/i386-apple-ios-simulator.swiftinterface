@@ -44,17 +44,17 @@ public enum JivoSDKSessionEnvironmentItem {
   case contactInfo
   case agentInfo
   case agentName
-  public static func == (a: JivoSDKSessionEnvironmentItem, b: JivoSDKSessionEnvironmentItem) -> Swift.Bool
+  public static func == (a: JivoSDK.JivoSDKSessionEnvironmentItem, b: JivoSDK.JivoSDKSessionEnvironmentItem) -> Swift.Bool
   public func hash(into hasher: inout Swift.Hasher)
   public var hashValue: Swift.Int {
     get
   }
 }
 @objc public protocol IJivoSDKSession {
-  @objc(setDelegate:) func setDelegate(_ object: JivoSDKSessionDelegate)
+  @objc(setDelegate:) func setDelegate(_ object: JivoSDK.JivoSDKSessionDelegate)
   @objc(startUpWithSiteID:channelID:userKey:) func startUp(siteID: Swift.Int, channelID: Swift.String, userKey: Swift.String)
   @objc(startUpWithinSandbox:withSiteID:channelID:userKey:) func startUp(sandbox: Swift.String, siteID: Swift.Int, channelID: Swift.String, userKey: Swift.String)
-  @objc(updateCustomData:) func updateCustomData(_ data: JivoSDKSessionCustomData?)
+  @objc(updateCustomData:) func updateCustomData(_ data: JivoSDK.JivoSDKSessionCustomData?)
   @objc(setPushToken:) func setPushToken(_ token: Swift.String?)
   @objc(handlePushPayload:deliveryDate:) func handlePushPayload(_ payload: [Swift.AnyHashable : Any], deliveryDate: Foundation.Date?)
   @objc(shutDown) func shutDown()
@@ -106,16 +106,16 @@ public enum JournalLevel : Swift.String {
 }
 public struct JournalTarget : Swift.OptionSet {
   public let rawValue: Swift.Int
-  public static let local: JournalTarget
-  public static let remote: JournalTarget
+  public static let local: JivoSDK.JournalTarget
+  public static let remote: JivoSDK.JournalTarget
   public init(rawValue: Swift.Int)
-  public typealias ArrayLiteralElement = JournalTarget
-  public typealias Element = JournalTarget
+  public typealias ArrayLiteralElement = JivoSDK.JournalTarget
+  public typealias Element = JivoSDK.JournalTarget
   public typealias RawValue = Swift.Int
 }
-public func setJournalLevel(_ level: JournalLevel)
-public func journal(layer: JournalLayer = .debug, subsystem: JournalSubsystem = .general, key: Swift.String? = nil, unimessage: @escaping () -> Swift.String, target: JournalTarget = .local, params: [Swift.String] = [], function: Swift.String = #function, file: Swift.String = #file, line: Swift.Int = #line, includeCaches: Swift.Bool = true)
-public func journal(layer: JournalLayer = .debug, subsystem: JournalSubsystem = .general, messages: [JournalLevel : () -> Swift.String], function: Swift.String = #function, file: Swift.String = #file, line: Swift.Int = #line)
+public func setJournalLevel(_ level: JivoSDK.JournalLevel)
+public func journal(layer: JivoSDK.JournalLayer = .debug, subsystem: JivoSDK.JournalSubsystem = .general, key: Swift.String? = nil, unimessage: @escaping () -> Swift.String, target: JivoSDK.JournalTarget = .local, params: [Swift.String] = [], function: Swift.String = #function, file: Swift.String = #file, line: Swift.Int = #line, includeCaches: Swift.Bool = true)
+public func journal(layer: JivoSDK.JournalLayer = .debug, subsystem: JivoSDK.JournalSubsystem = .general, messages: [JivoSDK.JournalLevel : () -> Swift.String], function: Swift.String = #function, file: Swift.String = #file, line: Swift.Int = #line)
 public func debug(_ message: @escaping () -> Swift.String, function: Swift.String = #function, file: Swift.String = #file, line: Swift.Int = #line)
 public enum MentionsItem {
   case agent(JMShared.Agent)
@@ -128,8 +128,8 @@ public enum MentionsDetection<T> {
   case found(T)
 }
 public protocol IMentioningService : AnyObject {
-  func extractPossibleQuery(text: Swift.String?, caret: Swift.Int?) -> MentionsDetection<Swift.String>
-  func detectMentionWhileTyping(text: Swift.String?, caret: Swift.Int?) -> MentionsDetection<[MentionsItem]>
+  func extractPossibleQuery(text: Swift.String?, caret: Swift.Int?) -> JivoSDK.MentionsDetection<Swift.String>
+  func detectMentionWhileTyping(text: Swift.String?, caret: Swift.Int?) -> JivoSDK.MentionsDetection<[JivoSDK.MentionsItem]>
   func convertPlainToMarkup(text: Swift.String) -> Swift.String
   func convertMarkupToPlain(text: Swift.String) -> Swift.String
   func detectMissingAgents(markup: Swift.String, chat: JMShared.Chat) -> [JMShared.Agent]
@@ -142,10 +142,10 @@ extension CharacterSet {
 public protocol IMentioningProvider {
   func retrieveAgentName(forID ID: Swift.Int, generateDefault: Swift.Bool) -> Swift.String?
 }
-final public class MentioningService : IMentioningService {
-  public init(rosterContext: IMentioningProvider, databaseDriver: JMShared.IDatabaseDriver)
-  final public func extractPossibleQuery(text: Swift.String?, caret: Swift.Int?) -> MentionsDetection<Swift.String>
-  final public func detectMentionWhileTyping(text: Swift.String?, caret: Swift.Int?) -> MentionsDetection<[MentionsItem]>
+final public class MentioningService : JivoSDK.IMentioningService {
+  public init(rosterContext: JivoSDK.IMentioningProvider, databaseDriver: JMShared.IDatabaseDriver)
+  final public func extractPossibleQuery(text: Swift.String?, caret: Swift.Int?) -> JivoSDK.MentionsDetection<Swift.String>
+  final public func detectMentionWhileTyping(text: Swift.String?, caret: Swift.Int?) -> JivoSDK.MentionsDetection<[JivoSDK.MentionsItem]>
   final public func convertPlainToMarkup(text: Swift.String) -> Swift.String
   final public func convertMarkupToPlain(text: Swift.String) -> Swift.String
   final public func detectMissingAgents(markup: Swift.String, chat: JMShared.Chat) -> [JMShared.Agent]
@@ -155,20 +155,20 @@ public protocol IJournalDriver : AnyObject {
   var activeURL: Foundation.URL { get }
   var fileSizeLimit: Swift.UInt64 { get }
   var lastLogURLs: [Foundation.URL] { get }
-  var level: JournalLevel { get set }
+  var level: JivoSDK.JournalLevel { get set }
   func clear()
 }
-final public class JournalDriver : IJournalDriver {
+final public class JournalDriver : JivoSDK.IJournalDriver {
   final public let activeURL: Foundation.URL
   final public var fileSizeLimit: Swift.UInt64 {
     get
   }
-  final public let fileDestination: AutoRotatingFileDestination
+  final public let fileDestination: XCGLogger.AutoRotatingFileDestination
   public init(activeURL: Foundation.URL, archiveURL: Foundation.URL)
   final public var lastLogURLs: [Foundation.URL] {
     get
   }
-  final public var level: JournalLevel {
+  final public var level: JivoSDK.JournalLevel {
     get
     set
   }
@@ -189,7 +189,7 @@ public enum FormattingDateStyle {
   case reminderFireDate
   case reminderFireTime
   case worktime
-  public static func == (a: FormattingDateStyle, b: FormattingDateStyle) -> Swift.Bool
+  public static func == (a: JivoSDK.FormattingDateStyle, b: JivoSDK.FormattingDateStyle) -> Swift.Bool
   public func hash(into hasher: inout Swift.Hasher)
   public var hashValue: Swift.Int {
     get
@@ -198,7 +198,7 @@ public enum FormattingDateStyle {
 public enum FormattingIntervalStyle {
   case sessionDuration
   case timeToTermination
-  public static func == (a: FormattingIntervalStyle, b: FormattingIntervalStyle) -> Swift.Bool
+  public static func == (a: JivoSDK.FormattingIntervalStyle, b: JivoSDK.FormattingIntervalStyle) -> Swift.Bool
   public func hash(into hasher: inout Swift.Hasher)
   public var hashValue: Swift.Int {
     get
@@ -226,7 +226,7 @@ public protocol IPreferencesAccessor : AnyObject {
   var locale: Foundation.Locale { get set }
   func erase()
 }
-final public class PreferencesAccessor : IPreferencesAccessor {
+final public class PreferencesAccessor : JivoSDK.IPreferencesAccessor {
   final public let storage: Foundation.UserDefaults
   final public let key: Swift.String
   public init(storage: Foundation.UserDefaults, key: Swift.String)
@@ -274,27 +274,27 @@ public struct PreferencesToken {
   public init(key: Swift.String, hint: Any)
 }
 extension PreferencesToken {
-  public static let initialLaunchDate: PreferencesToken
-  public static let devserverPrefix: PreferencesToken
-  public static let sdkDevserverPrefix: PreferencesToken
-  public static let sdkSiteId: PreferencesToken
-  public static let sdkChannelId: PreferencesToken
-  public static let installationID: PreferencesToken
-  public static let deviceLiveToken: PreferencesToken
-  public static let deviceVoipToken: PreferencesToken
-  public static let activeLocale: PreferencesToken
-  public static let vibroEnabled: PreferencesToken
+  public static let initialLaunchDate: JivoSDK.PreferencesToken
+  public static let devserverPrefix: JivoSDK.PreferencesToken
+  public static let sdkDevserverPrefix: JivoSDK.PreferencesToken
+  public static let sdkSiteId: JivoSDK.PreferencesToken
+  public static let sdkChannelId: JivoSDK.PreferencesToken
+  public static let installationID: JivoSDK.PreferencesToken
+  public static let deviceLiveToken: JivoSDK.PreferencesToken
+  public static let deviceVoipToken: JivoSDK.PreferencesToken
+  public static let activeLocale: JivoSDK.PreferencesToken
+  public static let vibroEnabled: JivoSDK.PreferencesToken
 }
 public protocol IPreferencesDriver : AnyObject {
   var signal: JMShared.BroadcastTool<Swift.Void> { get }
   func migrate(keys: [Swift.String])
   func register(defaults: [Swift.String : Any])
   func detectFirstLaunch() -> Swift.Bool
-  func retrieveAccessor(forToken token: PreferencesToken) -> IPreferencesAccessor
+  func retrieveAccessor(forToken token: JivoSDK.PreferencesToken) -> JivoSDK.IPreferencesAccessor
   func baseURL(module: Swift.String) -> Foundation.URL
   func clearAll()
 }
-open class PreferencesDriver : IPreferencesDriver {
+open class PreferencesDriver : JivoSDK.IPreferencesDriver {
   final public let storage: Foundation.UserDefaults
   final public let namespace: Swift.String
   final public let signal: JMShared.BroadcastTool<Swift.Void>
@@ -302,7 +302,7 @@ open class PreferencesDriver : IPreferencesDriver {
   public func migrate(keys: [Swift.String])
   public func register(defaults: [Swift.String : Any])
   final public func detectFirstLaunch() -> Swift.Bool
-  final public func retrieveAccessor(forToken token: PreferencesToken) -> IPreferencesAccessor
+  final public func retrieveAccessor(forToken token: JivoSDK.PreferencesToken) -> JivoSDK.IPreferencesAccessor
   final public func baseURL(module: Swift.String) -> Foundation.URL
   public func clearAll()
   @objc deinit
@@ -312,7 +312,7 @@ public protocol IPureParserTool : AnyObject {
   func activate(alias: Swift.String, _ rule: Swift.Bool)
   func execute(_ formula: Swift.String, collapseSpaces: Swift.Bool) -> Swift.String
 }
-final public class PureParserTool : IPureParserTool {
+final public class PureParserTool : JivoSDK.IPureParserTool {
   public init()
   final public func assign(variable name: Swift.String, value: Swift.String?)
   final public func activate(alias: Swift.String, _ rule: Swift.Bool)
@@ -323,10 +323,10 @@ final public class PureParserTool : IPureParserTool {
   @objc func sessionDidStart()
 }
 @_inheritsConvenienceInitializers @objc public class JivoSDK : ObjectiveC.NSObject {
-  @objc public static var session: IJivoSDKSession {
+  @objc public static var session: JivoSDK.IJivoSDKSession {
     get
   }
-  @objc public static var chattingUI: IJivoSDKChattingUI {
+  @objc public static var chattingUI: JivoSDK.IJivoSDKChattingUI {
     get
   }
   @objc override dynamic public init()
@@ -334,13 +334,13 @@ final public class PureParserTool : IPureParserTool {
 }
 public struct APILiveConnectionHandlers {
   public let openHandler: () -> Swift.Void
-  public let closeHandler: (APIConnectionCloseCode, Swift.Error?) -> Swift.Void
-  public init(openHandler: @escaping () -> Swift.Void, closeHandler: @escaping (APIConnectionCloseCode, Swift.Error?) -> Swift.Void)
+  public let closeHandler: (JivoSDK.APIConnectionCloseCode, Swift.Error?) -> Swift.Void
+  public init(openHandler: @escaping () -> Swift.Void, closeHandler: @escaping (JivoSDK.APIConnectionCloseCode, Swift.Error?) -> Swift.Void)
 }
 public enum APIAgentStatus {
   case present
   case away
-  public static func == (a: APIAgentStatus, b: APIAgentStatus) -> Swift.Bool
+  public static func == (a: JivoSDK.APIAgentStatus, b: JivoSDK.APIAgentStatus) -> Swift.Bool
   public func hash(into hasher: inout Swift.Hasher)
   public var hashValue: Swift.Int {
     get
@@ -401,7 +401,7 @@ public protocol APISelectableType {
   var publicCode: Swift.String { get }
   var isNone: Swift.Bool { get }
 }
-public enum APIChatType : Swift.String, APISelectableType {
+public enum APIChatType : Swift.String, JivoSDK.APISelectableType {
   case none
   case incoming
   case outgoing
@@ -414,7 +414,7 @@ public enum APIChatType : Swift.String, APISelectableType {
   public var isNone: Swift.Bool {
     get
   }
-  public static var allCases: [APIChatType] {
+  public static var allCases: [JivoSDK.APIChatType] {
     get
   }
   public init?(rawValue: Swift.String)
@@ -425,27 +425,27 @@ public enum APIChatType : Swift.String, APISelectableType {
 }
 public struct APICallInvite {
   public let ID: Swift.String
-  public let direction: PhoneCallDirection?
+  public let direction: JivoSDK.PhoneCallDirection?
   public let webhookLink: Swift.String
   public let token: Swift.String
   public let clientID: Swift.Int
   public let displayName: Swift.String
   public let phone: Swift.String
-  public init(ID: Swift.String, direction: PhoneCallDirection?, webhookLink: Swift.String, token: Swift.String, clientID: Swift.Int, displayName: Swift.String, phone: Swift.String)
-  public static func parse(json: JMCodingKit.JsonElement) -> APICallInvite?
-  public func copy(phone: Swift.String, displayName: Swift.String) -> APICallInvite
+  public init(ID: Swift.String, direction: JivoSDK.PhoneCallDirection?, webhookLink: Swift.String, token: Swift.String, clientID: Swift.Int, displayName: Swift.String, phone: Swift.String)
+  public static func parse(json: JMCodingKit.JsonElement) -> JivoSDK.APICallInvite?
+  public func copy(phone: Swift.String, displayName: Swift.String) -> JivoSDK.APICallInvite
 }
 public struct APICallReject {
   public let callID: Swift.String
   public let agentID: Swift.Int?
   public init(callID: Swift.String, agentID: Swift.Int?)
-  public static func parse(json: JMCodingKit.JsonElement) -> APICallReject?
+  public static func parse(json: JMCodingKit.JsonElement) -> JivoSDK.APICallReject?
 }
 public enum APICallEvent {
-  case invite(APICallInvite, () -> Swift.Void)
-  case reject(APICallReject)
+  case invite(JivoSDK.APICallInvite, () -> Swift.Void)
+  case reject(JivoSDK.APICallReject)
 }
-public enum APICallType : Swift.String, APISelectableType {
+public enum APICallType : Swift.String, JivoSDK.APISelectableType {
   case none
   case incoming
   case outgoing
@@ -459,7 +459,7 @@ public enum APICallType : Swift.String, APISelectableType {
   public var isNone: Swift.Bool {
     get
   }
-  public static var allCases: [APICallType] {
+  public static var allCases: [JivoSDK.APICallType] {
     get
   }
   public init?(rawValue: Swift.String)
@@ -468,7 +468,7 @@ public enum APICallType : Swift.String, APISelectableType {
     get
   }
 }
-public enum APIReminderType : Swift.String, APISelectableType {
+public enum APIReminderType : Swift.String, JivoSDK.APISelectableType {
   case none
   case with
   case fired
@@ -481,7 +481,7 @@ public enum APIReminderType : Swift.String, APISelectableType {
   public var isNone: Swift.Bool {
     get
   }
-  public static var allCases: [APIReminderType] {
+  public static var allCases: [JivoSDK.APIReminderType] {
     get
   }
   public init?(rawValue: Swift.String)
@@ -511,9 +511,9 @@ public struct APIPhone {
   public init(ID: Swift.Int, active: Swift.Bool, number: Swift.String, countryCode: Swift.String, channelID: Swift.Int, type: Swift.String)
 }
 public struct APITelephony {
-  public let phones: [APIPhone]
-  public let balance: APIBalance?
-  public init(phones: [APIPhone], balance: APIBalance?)
+  public let phones: [JivoSDK.APIPhone]
+  public let balance: JivoSDK.APIBalance?
+  public init(phones: [JivoSDK.APIPhone], balance: JivoSDK.APIBalance?)
 }
 public struct APIPromo {
   public let demoDuration: Swift.Int?
@@ -527,35 +527,35 @@ public struct APIPromo {
   @objc override dynamic public init()
   @objc deinit
 }
-extension JivoSDKSessionEnvironmentItem : Swift.Equatable {}
-extension JivoSDKSessionEnvironmentItem : Swift.Hashable {}
-extension PhoneCallDirection : Swift.Equatable {}
-extension PhoneCallDirection : Swift.Hashable {}
-extension PhoneCallDirection : Swift.RawRepresentable {}
-extension JournalSubsystem : Swift.Equatable {}
-extension JournalSubsystem : Swift.Hashable {}
-extension JournalSubsystem : Swift.RawRepresentable {}
-extension JournalLayer : Swift.Equatable {}
-extension JournalLayer : Swift.Hashable {}
-extension JournalLayer : Swift.RawRepresentable {}
-extension JournalLevel : Swift.Equatable {}
-extension JournalLevel : Swift.Hashable {}
-extension JournalLevel : Swift.RawRepresentable {}
-extension FormattingDateStyle : Swift.Equatable {}
-extension FormattingDateStyle : Swift.Hashable {}
-extension FormattingIntervalStyle : Swift.Equatable {}
-extension FormattingIntervalStyle : Swift.Hashable {}
-extension APIAgentStatus : Swift.Equatable {}
-extension APIAgentStatus : Swift.Hashable {}
-extension APIAgentRelation : Swift.Equatable {}
-extension APIAgentRelation : Swift.Hashable {}
-extension APIAgentRelation : Swift.RawRepresentable {}
-extension APIChatType : Swift.Equatable {}
-extension APIChatType : Swift.Hashable {}
-extension APIChatType : Swift.RawRepresentable {}
-extension APICallType : Swift.Equatable {}
-extension APICallType : Swift.Hashable {}
-extension APICallType : Swift.RawRepresentable {}
-extension APIReminderType : Swift.Equatable {}
-extension APIReminderType : Swift.Hashable {}
-extension APIReminderType : Swift.RawRepresentable {}
+extension JivoSDK.JivoSDKSessionEnvironmentItem : Swift.Equatable {}
+extension JivoSDK.JivoSDKSessionEnvironmentItem : Swift.Hashable {}
+extension JivoSDK.PhoneCallDirection : Swift.Equatable {}
+extension JivoSDK.PhoneCallDirection : Swift.Hashable {}
+extension JivoSDK.PhoneCallDirection : Swift.RawRepresentable {}
+extension JivoSDK.JournalSubsystem : Swift.Equatable {}
+extension JivoSDK.JournalSubsystem : Swift.Hashable {}
+extension JivoSDK.JournalSubsystem : Swift.RawRepresentable {}
+extension JivoSDK.JournalLayer : Swift.Equatable {}
+extension JivoSDK.JournalLayer : Swift.Hashable {}
+extension JivoSDK.JournalLayer : Swift.RawRepresentable {}
+extension JivoSDK.JournalLevel : Swift.Equatable {}
+extension JivoSDK.JournalLevel : Swift.Hashable {}
+extension JivoSDK.JournalLevel : Swift.RawRepresentable {}
+extension JivoSDK.FormattingDateStyle : Swift.Equatable {}
+extension JivoSDK.FormattingDateStyle : Swift.Hashable {}
+extension JivoSDK.FormattingIntervalStyle : Swift.Equatable {}
+extension JivoSDK.FormattingIntervalStyle : Swift.Hashable {}
+extension JivoSDK.APIAgentStatus : Swift.Equatable {}
+extension JivoSDK.APIAgentStatus : Swift.Hashable {}
+extension JivoSDK.APIAgentRelation : Swift.Equatable {}
+extension JivoSDK.APIAgentRelation : Swift.Hashable {}
+extension JivoSDK.APIAgentRelation : Swift.RawRepresentable {}
+extension JivoSDK.APIChatType : Swift.Equatable {}
+extension JivoSDK.APIChatType : Swift.Hashable {}
+extension JivoSDK.APIChatType : Swift.RawRepresentable {}
+extension JivoSDK.APICallType : Swift.Equatable {}
+extension JivoSDK.APICallType : Swift.Hashable {}
+extension JivoSDK.APICallType : Swift.RawRepresentable {}
+extension JivoSDK.APIReminderType : Swift.Equatable {}
+extension JivoSDK.APIReminderType : Swift.Hashable {}
+extension JivoSDK.APIReminderType : Swift.RawRepresentable {}

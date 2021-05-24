@@ -1,5 +1,5 @@
 // swift-interface-format-version: 1.0
-// swift-compiler-version: Apple Swift version 5.4 (swiftlang-1205.0.26.9 clang-1205.0.19.55)
+// swift-compiler-version: Apple Swift version 5.3 (swiftlang-1200.0.29.2 clang-1200.0.30.1)
 // swift-module-flags: -target arm64-apple-ios10.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name JivoSDK
 import AVFoundation
 import Alamofire
@@ -44,17 +44,17 @@ public enum JivoSDKSessionEnvironmentItem {
   case contactInfo
   case agentInfo
   case agentName
-  public static func == (a: JivoSDK.JivoSDKSessionEnvironmentItem, b: JivoSDK.JivoSDKSessionEnvironmentItem) -> Swift.Bool
-  public func hash(into hasher: inout Swift.Hasher)
+  public static func == (a: JivoSDKSessionEnvironmentItem, b: JivoSDKSessionEnvironmentItem) -> Swift.Bool
   public var hashValue: Swift.Int {
     get
   }
+  public func hash(into hasher: inout Swift.Hasher)
 }
 @objc public protocol IJivoSDKSession {
-  @objc(setDelegate:) func setDelegate(_ object: JivoSDK.JivoSDKSessionDelegate)
+  @objc(setDelegate:) func setDelegate(_ object: JivoSDKSessionDelegate)
   @objc(startUpWithSiteID:channelID:userKey:) func startUp(siteID: Swift.Int, channelID: Swift.String, userKey: Swift.String)
   @objc(startUpWithinSandbox:withSiteID:channelID:userKey:) func startUp(sandbox: Swift.String, siteID: Swift.Int, channelID: Swift.String, userKey: Swift.String)
-  @objc(updateCustomData:) func updateCustomData(_ data: JivoSDK.JivoSDKSessionCustomData?)
+  @objc(updateCustomData:) func updateCustomData(_ data: JivoSDKSessionCustomData?)
   @objc(setPushToken:) func setPushToken(_ token: Swift.String?)
   @objc(handlePushPayload:deliveryDate:) func handlePushPayload(_ payload: [Swift.AnyHashable : Any], deliveryDate: Foundation.Date?)
   @objc(shutDown) func shutDown()
@@ -77,19 +77,19 @@ public enum JivoSDKSessionEnvironmentItem {
   @objc func sessionDidStart()
 }
 @_inheritsConvenienceInitializers @objc public class JivoSDK : ObjectiveC.NSObject {
-  @objc public static var session: JivoSDK.IJivoSDKSession {
+  @objc public static var session: IJivoSDKSession {
     get
   }
-  @objc public static var chattingUI: JivoSDK.IJivoSDKChattingUI {
+  @objc public static var chattingUI: IJivoSDKChattingUI {
     get
   }
-  @objc override dynamic public init()
   @objc deinit
+  @objc override dynamic public init()
 }
 @objc public class JivoSDKSessionCustomData : ObjectiveC.NSObject {
   public init(name: Swift.String? = nil, email: Swift.String? = nil, phone: Swift.String? = nil, brief: Swift.String? = nil)
-  @objc override dynamic public init()
   @objc deinit
+  @objc override dynamic public init()
 }
-extension JivoSDK.JivoSDKSessionEnvironmentItem : Swift.Equatable {}
-extension JivoSDK.JivoSDKSessionEnvironmentItem : Swift.Hashable {}
+extension JivoSDKSessionEnvironmentItem : Swift.Equatable {}
+extension JivoSDKSessionEnvironmentItem : Swift.Hashable {}

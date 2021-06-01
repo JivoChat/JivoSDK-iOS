@@ -1,5 +1,5 @@
 // swift-interface-format-version: 1.0
-// swift-compiler-version: Apple Swift version 5.3 (swiftlang-1200.0.29.2 clang-1200.0.30.1)
+// swift-compiler-version: Apple Swift version 5.4 (swiftlang-1205.0.26.9 clang-1205.0.19.55)
 // swift-module-flags: -target armv7-apple-ios10.0 -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name JivoSDK
 import AVFoundation
 import Alamofire
@@ -45,10 +45,10 @@ public enum JivoSDKSessionEnvironmentItem {
   case agentInfo
   case agentName
   public static func == (a: JivoSDKSessionEnvironmentItem, b: JivoSDKSessionEnvironmentItem) -> Swift.Bool
+  public func hash(into hasher: inout Swift.Hasher)
   public var hashValue: Swift.Int {
     get
   }
-  public func hash(into hasher: inout Swift.Hasher)
 }
 @objc public protocol IJivoSDKSession {
   @objc(setDelegate:) func setDelegate(_ object: JivoSDKSessionDelegate)
@@ -68,7 +68,17 @@ public enum JivoSDKSessionEnvironmentItem {
   @objc(setActiveMessage:) func setActiveMessage(text: Swift.String)
   @objc(setInputPlaceholder:) func setInputPlaceholder(text: Swift.String)
   @objc(adjustHeaderBarWithTitleColor:subtitleColor:) func adjustHeaderBar(titleColor: UIKit.UIColor, subtitleColor: UIKit.UIColor)
-  @objc(placeInto:) func place(into navigationController: UIKit.UINavigationController)
+  @objc(pushInto:) func push(into navigationController: UIKit.UINavigationController)
+  @objc(placeWithin:) func place(within navigationController: UIKit.UINavigationController)
+  @objc(presentOver:) func present(over viewController: UIKit.UIViewController)
+}
+@objc @_inheritsConvenienceInitializers open class JivoSDKContainer : UIKit.UINavigationController {
+  @available(iOS 5.0, *)
+  @objc override dynamic public init(navigationBarClass: Swift.AnyClass?, toolbarClass: Swift.AnyClass?)
+  @objc override dynamic public init(rootViewController: UIKit.UIViewController)
+  @objc override dynamic public init(nibName nibNameOrNil: Swift.String?, bundle nibBundleOrNil: Foundation.Bundle?)
+  @objc required dynamic public init?(coder aDecoder: Foundation.NSCoder)
+  @objc deinit
 }
 @_hasMissingDesignatedInitializers open class PreferencesDriver {
   @objc deinit
@@ -83,13 +93,13 @@ public enum JivoSDKSessionEnvironmentItem {
   @objc public static var chattingUI: IJivoSDKChattingUI {
     get
   }
-  @objc deinit
   @objc override dynamic public init()
+  @objc deinit
 }
 @objc public class JivoSDKSessionCustomData : ObjectiveC.NSObject {
   public init(name: Swift.String? = nil, email: Swift.String? = nil, phone: Swift.String? = nil, brief: Swift.String? = nil)
-  @objc deinit
   @objc override dynamic public init()
+  @objc deinit
 }
 extension JivoSDKSessionEnvironmentItem : Swift.Equatable {}
 extension JivoSDKSessionEnvironmentItem : Swift.Hashable {}

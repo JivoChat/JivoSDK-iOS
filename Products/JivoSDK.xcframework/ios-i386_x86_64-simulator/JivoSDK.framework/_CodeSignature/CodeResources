@@ -6,11 +6,11 @@
 	<dict>
 		<key>Assets.car</key>
 		<data>
-		RS+mgBFhm26/PHqxpASNvujqmfE=
+		xJ3D1/o9crE7D6RF6u4HSpB0OG8=
 		</data>
 		<key>Headers/JivoSDK-Swift.h</key>
 		<data>
-		iehwWGBVHGGPCriWN7FdpQyz56c=
+		3XR0QJZuI34GK2E5DpPRlEmQ0Xc=
 		</data>
 		<key>Headers/JivoSDK.h</key>
 		<data>
@@ -18,55 +18,55 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		7Em4ZPOY7OV3RI3B6a0JVnw+i4k=
+		PmADa5R88sZCrWndQL95i9op6To=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/i386-apple-ios-simulator.swiftdoc</key>
 		<data>
-		tTTHBaV8lv0ujN4LCtuXT+Pcj3Q=
+		gVdZGmPniWM1dpcopAccQwZ4I7I=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/i386-apple-ios-simulator.swiftinterface</key>
 		<data>
-		EIPnu+uLnT2J9S/i4A4uRjKcnn8=
+		iGaYTFOlKnLBJOaMB+wMZfNG/1U=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/i386-apple-ios-simulator.swiftmodule</key>
 		<data>
-		MYGzYgRUnSXdsXsZ7mPCmVCuVG0=
+		j6LNWH262lX8SOuqmIlv1I5X2Ig=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/i386.swiftdoc</key>
 		<data>
-		tTTHBaV8lv0ujN4LCtuXT+Pcj3Q=
+		gVdZGmPniWM1dpcopAccQwZ4I7I=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/i386.swiftinterface</key>
 		<data>
-		EIPnu+uLnT2J9S/i4A4uRjKcnn8=
+		iGaYTFOlKnLBJOaMB+wMZfNG/1U=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/i386.swiftmodule</key>
 		<data>
-		MYGzYgRUnSXdsXsZ7mPCmVCuVG0=
+		j6LNWH262lX8SOuqmIlv1I5X2Ig=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
-		Om4v+/EtDhEhuiLkZKCVmbCbWmI=
+		TDislPCzPZXRux4SDnpjzZl7SFc=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		Qoq+vBaVUEVdR429kVt+VaFubuQ=
+		3R7bL6WYT2J01dF0XpBcP1rConQ=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		78PkYQs2F0AHn8W5wicOGCSFpUg=
+		Df1mTngmj+Mz+g01wMwnAI5013g=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftdoc</key>
 		<data>
-		Om4v+/EtDhEhuiLkZKCVmbCbWmI=
+		TDislPCzPZXRux4SDnpjzZl7SFc=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftinterface</key>
 		<data>
-		Qoq+vBaVUEVdR429kVt+VaFubuQ=
+		3R7bL6WYT2J01dF0XpBcP1rConQ=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftmodule</key>
 		<data>
-		78PkYQs2F0AHn8W5wicOGCSFpUg=
+		Df1mTngmj+Mz+g01wMwnAI5013g=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -177,22 +177,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			RS+mgBFhm26/PHqxpASNvujqmfE=
+			xJ3D1/o9crE7D6RF6u4HSpB0OG8=
 			</data>
 			<key>hash2</key>
 			<data>
-			zvWbXKpki5g6i9MXWNOMJJ8nbW8weh5zLn78fZErGeQ=
+			r6OvLRYGrS7x2ImgUwOU3QwWjfAs9NnLy41AHlSswuY=
 			</data>
 		</dict>
 		<key>Headers/JivoSDK-Swift.h</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			iehwWGBVHGGPCriWN7FdpQyz56c=
+			3XR0QJZuI34GK2E5DpPRlEmQ0Xc=
 			</data>
 			<key>hash2</key>
 			<data>
-			g2qv8oO4wxkuh1PsFwBHlc8Maa3G3PxWp5TFgOEVEw0=
+			QHT/2N/BcVdYkekwfFACu2QQjj0JAMnEAh5HCD184Sw=
 			</data>
 		</dict>
 		<key>Headers/JivoSDK.h</key>
@@ -210,132 +210,132 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			tTTHBaV8lv0ujN4LCtuXT+Pcj3Q=
+			gVdZGmPniWM1dpcopAccQwZ4I7I=
 			</data>
 			<key>hash2</key>
 			<data>
-			gS6Kru2j5cTHgeKgOiBiafm2u6EnGC4BN6XNC/0uiNg=
+			20pGXN6x+1K4ysdPlbNvUw9DbJCC//PtIdTta4G8OW0=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/i386-apple-ios-simulator.swiftinterface</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			EIPnu+uLnT2J9S/i4A4uRjKcnn8=
+			iGaYTFOlKnLBJOaMB+wMZfNG/1U=
 			</data>
 			<key>hash2</key>
 			<data>
-			Mq3kG1K/DIsRtgzSY/2MuyUaWflbtE3laadp6DDWeWo=
+			jPmjc3WWaLVo8Vnqp79jaNdWvoBLxgW+Li8GhtLmBzI=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/i386-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			MYGzYgRUnSXdsXsZ7mPCmVCuVG0=
+			j6LNWH262lX8SOuqmIlv1I5X2Ig=
 			</data>
 			<key>hash2</key>
 			<data>
-			gZfGNIlngRuUAZINV/Ww6E7K5bmKKdVGOssAi5auDLA=
+			SjRFdiOfnOBxGtwGsTB47aLU0OcvpbVMu+hwPIFFaeg=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/i386.swiftdoc</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			tTTHBaV8lv0ujN4LCtuXT+Pcj3Q=
+			gVdZGmPniWM1dpcopAccQwZ4I7I=
 			</data>
 			<key>hash2</key>
 			<data>
-			gS6Kru2j5cTHgeKgOiBiafm2u6EnGC4BN6XNC/0uiNg=
+			20pGXN6x+1K4ysdPlbNvUw9DbJCC//PtIdTta4G8OW0=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/i386.swiftinterface</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			EIPnu+uLnT2J9S/i4A4uRjKcnn8=
+			iGaYTFOlKnLBJOaMB+wMZfNG/1U=
 			</data>
 			<key>hash2</key>
 			<data>
-			Mq3kG1K/DIsRtgzSY/2MuyUaWflbtE3laadp6DDWeWo=
+			jPmjc3WWaLVo8Vnqp79jaNdWvoBLxgW+Li8GhtLmBzI=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/i386.swiftmodule</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			MYGzYgRUnSXdsXsZ7mPCmVCuVG0=
+			j6LNWH262lX8SOuqmIlv1I5X2Ig=
 			</data>
 			<key>hash2</key>
 			<data>
-			gZfGNIlngRuUAZINV/Ww6E7K5bmKKdVGOssAi5auDLA=
+			SjRFdiOfnOBxGtwGsTB47aLU0OcvpbVMu+hwPIFFaeg=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			Om4v+/EtDhEhuiLkZKCVmbCbWmI=
+			TDislPCzPZXRux4SDnpjzZl7SFc=
 			</data>
 			<key>hash2</key>
 			<data>
-			Wqi0fHjZkMnjzGwxSxpmSzzzDzOWipN3G6uYbMzTftU=
+			OoFFZ6Z7EqneaTIJ1+iBJ0yojlVdZ7DvDvnrD6FToQY=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftinterface</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			Qoq+vBaVUEVdR429kVt+VaFubuQ=
+			3R7bL6WYT2J01dF0XpBcP1rConQ=
 			</data>
 			<key>hash2</key>
 			<data>
-			2IYdlObtRlR+P6qR/61xgVVfvEEESjJmeNFQFonkdsY=
+			8MsupZnJqP6p4wtDoi9tn8/KR0jogtesqjDzTAS22hk=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			78PkYQs2F0AHn8W5wicOGCSFpUg=
+			Df1mTngmj+Mz+g01wMwnAI5013g=
 			</data>
 			<key>hash2</key>
 			<data>
-			aoJx0P282TqB77QVoBFdeSSCJSPu5stpePZ2bxzoUXc=
+			lFX4F7VhMWXezUaDczE2+xAuUwOOlhn2i476MkGlnF8=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftdoc</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			Om4v+/EtDhEhuiLkZKCVmbCbWmI=
+			TDislPCzPZXRux4SDnpjzZl7SFc=
 			</data>
 			<key>hash2</key>
 			<data>
-			Wqi0fHjZkMnjzGwxSxpmSzzzDzOWipN3G6uYbMzTftU=
+			OoFFZ6Z7EqneaTIJ1+iBJ0yojlVdZ7DvDvnrD6FToQY=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftinterface</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			Qoq+vBaVUEVdR429kVt+VaFubuQ=
+			3R7bL6WYT2J01dF0XpBcP1rConQ=
 			</data>
 			<key>hash2</key>
 			<data>
-			2IYdlObtRlR+P6qR/61xgVVfvEEESjJmeNFQFonkdsY=
+			8MsupZnJqP6p4wtDoi9tn8/KR0jogtesqjDzTAS22hk=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftmodule</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			78PkYQs2F0AHn8W5wicOGCSFpUg=
+			Df1mTngmj+Mz+g01wMwnAI5013g=
 			</data>
 			<key>hash2</key>
 			<data>
-			aoJx0P282TqB77QVoBFdeSSCJSPu5stpePZ2bxzoUXc=
+			lFX4F7VhMWXezUaDczE2+xAuUwOOlhn2i476MkGlnF8=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

@@ -213,35 +213,47 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 
 
 
-@class NSString;
-@class UIColor;
 @class UINavigationController;
+@class JivoSDKChattingConfig;
 @class UIViewController;
 
 SWIFT_PROTOCOL("_TtP7JivoSDK18IJivoSDKChattingUI_")
 @protocol IJivoSDKChattingUI
-- (void)setActiveMessage:(NSString * _Nonnull)text;
-- (void)setInputPlaceholder:(NSString * _Nonnull)text;
-- (void)adjustHeaderBarWithTitleColor:(UIColor * _Nonnull)titleColor subtitleColor:(UIColor * _Nonnull)subtitleColor;
 - (void)pushInto:(UINavigationController * _Nonnull)navigationController;
+- (void)pushInto:(UINavigationController * _Nonnull)navigationController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
 - (void)placeWithin:(UINavigationController * _Nonnull)navigationController;
+- (void)placeWithin:(UINavigationController * _Nonnull)navigationController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
 - (void)presentOver:(UIViewController * _Nonnull)viewController;
+- (void)presentOver:(UIViewController * _Nonnull)viewController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
+@end
+
+enum JivoSDKDebuggingLevel : NSInteger;
+@class NSURL;
+enum JivoSDKArchivingStatus : NSInteger;
+
+SWIFT_PROTOCOL("_TtP7JivoSDK17IJivoSDKDebugging_")
+@protocol IJivoSDKDebugging
+@property (nonatomic) enum JivoSDKDebuggingLevel level;
+- (void)archiveLogsWithCompletion:(void (^ _Nonnull)(NSURL * _Nullable, enum JivoSDKArchivingStatus))completion;
 @end
 
 @protocol JivoSDKSessionDelegate;
 @class NSNumber;
+@class NSString;
 @class JivoSDKSessionCustomData;
+@class NSData;
 @class NSObject;
 @class NSDate;
 
 SWIFT_PROTOCOL("_TtP7JivoSDK15IJivoSDKSession_")
 @protocol IJivoSDKSession
-- (void)setDelegate:(id <JivoSDKSessionDelegate> _Nonnull)object;
+/// You can set a delegate for JivoSDKSession object using this property. The property type protocol is empty for now but we suppose that you will suggest some ideas of callback methods for us.
+@property (nonatomic, strong) id <JivoSDKSessionDelegate> _Nullable delegate;
 - (void)startUpWithSiteID:(NSInteger)siteID channelID:(NSString * _Nonnull)channelID userKey:(NSString * _Nonnull)userKey;
-- (void)startUpWithinSandbox:(NSString * _Nonnull)sandbox withSiteID:(NSInteger)siteID channelID:(NSString * _Nonnull)channelID userKey:(NSString * _Nonnull)userKey;
 - (void)updateCustomData:(JivoSDKSessionCustomData * _Nullable)data;
-- (void)setPushToken:(NSString * _Nullable)token;
-- (void)handlePushPayload:(NSDictionary * _Nonnull)payload deliveryDate:(NSDate * _Nullable)deliveryDate;
+- (void)setPushTokenData:(NSData * _Nullable)data;
+- (void)setPushTokenHex:(NSString * _Nullable)hex;
+- (BOOL)handlePushPayload:(NSDictionary * _Nonnull)payload deliveryDate:(NSDate * _Nullable)deliveryDate SWIFT_WARN_UNUSED_RESULT;
 - (void)shutDown;
 @end
 
@@ -252,13 +264,26 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <IJivoSDK
 + (id <IJivoSDKSession> _Nonnull)session SWIFT_WARN_UNUSED_RESULT;
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <IJivoSDKChattingUI> _Nonnull chattingUI;)
 + (id <IJivoSDKChattingUI> _Nonnull)chattingUI SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <IJivoSDKDebugging> _Nonnull debugging;)
++ (id <IJivoSDKDebugging> _Nonnull)debugging SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
+typedef SWIFT_ENUM(NSInteger, JivoSDKArchivingStatus, open) {
+  JivoSDKArchivingStatusSuccess = 0,
+  JivoSDKArchivingStatusFailedAccessing = 1,
+  JivoSDKArchivingStatusFailedPreparing = 2,
+};
 
-SWIFT_CLASS("_TtC7JivoSDK27JivoSDKChattingHeaderConfig")
-@interface JivoSDKChattingHeaderConfig : NSObject
-- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@class NSLocale;
+@class UIImage;
+@class UIColor;
+
+SWIFT_CLASS("_TtC7JivoSDK21JivoSDKChattingConfig")
+@interface JivoSDKChattingConfig : NSObject
+- (nonnull instancetype)initWithLocale:(NSLocale * _Nullable)locale icon:(UIImage * _Nullable)icon titlePlaceholder:(NSString * _Nullable)titlePlaceholder titleColor:(UIColor * _Nullable)titleColor subtitleCaption:(NSString * _Nullable)subtitleCaption subtitleColor:(UIColor * _Nullable)subtitleColor inputPlaceholder:(NSString * _Nullable)inputPlaceholder OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 @class NSBundle;
@@ -273,6 +298,17 @@ SWIFT_CLASS("_TtC7JivoSDK16JivoSDKContainer")
 @end
 
 
+SWIFT_PROTOCOL("_TtP7JivoSDK24JivoSDKDebuggingDelegate_")
+@protocol JivoSDKDebuggingDelegate
+- (void)didLogWithMessage:(NSString * _Nonnull)message;
+@end
+
+typedef SWIFT_ENUM(NSInteger, JivoSDKDebuggingLevel, open) {
+  JivoSDKDebuggingLevelSilent = 0,
+  JivoSDKDebuggingLevelFull = 1,
+};
+
+
 SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData")
 @interface JivoSDKSessionCustomData : NSObject
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
@@ -282,7 +318,6 @@ SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData")
 
 SWIFT_PROTOCOL("_TtP7JivoSDK22JivoSDKSessionDelegate_")
 @protocol JivoSDKSessionDelegate
-- (void)sessionDidStart;
 @end
 
 
@@ -510,35 +545,47 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 
 
 
-@class NSString;
-@class UIColor;
 @class UINavigationController;
+@class JivoSDKChattingConfig;
 @class UIViewController;
 
 SWIFT_PROTOCOL("_TtP7JivoSDK18IJivoSDKChattingUI_")
 @protocol IJivoSDKChattingUI
-- (void)setActiveMessage:(NSString * _Nonnull)text;
-- (void)setInputPlaceholder:(NSString * _Nonnull)text;
-- (void)adjustHeaderBarWithTitleColor:(UIColor * _Nonnull)titleColor subtitleColor:(UIColor * _Nonnull)subtitleColor;
 - (void)pushInto:(UINavigationController * _Nonnull)navigationController;
+- (void)pushInto:(UINavigationController * _Nonnull)navigationController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
 - (void)placeWithin:(UINavigationController * _Nonnull)navigationController;
+- (void)placeWithin:(UINavigationController * _Nonnull)navigationController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
 - (void)presentOver:(UIViewController * _Nonnull)viewController;
+- (void)presentOver:(UIViewController * _Nonnull)viewController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
+@end
+
+enum JivoSDKDebuggingLevel : NSInteger;
+@class NSURL;
+enum JivoSDKArchivingStatus : NSInteger;
+
+SWIFT_PROTOCOL("_TtP7JivoSDK17IJivoSDKDebugging_")
+@protocol IJivoSDKDebugging
+@property (nonatomic) enum JivoSDKDebuggingLevel level;
+- (void)archiveLogsWithCompletion:(void (^ _Nonnull)(NSURL * _Nullable, enum JivoSDKArchivingStatus))completion;
 @end
 
 @protocol JivoSDKSessionDelegate;
 @class NSNumber;
+@class NSString;
 @class JivoSDKSessionCustomData;
+@class NSData;
 @class NSObject;
 @class NSDate;
 
 SWIFT_PROTOCOL("_TtP7JivoSDK15IJivoSDKSession_")
 @protocol IJivoSDKSession
-- (void)setDelegate:(id <JivoSDKSessionDelegate> _Nonnull)object;
+/// You can set a delegate for JivoSDKSession object using this property. The property type protocol is empty for now but we suppose that you will suggest some ideas of callback methods for us.
+@property (nonatomic, strong) id <JivoSDKSessionDelegate> _Nullable delegate;
 - (void)startUpWithSiteID:(NSInteger)siteID channelID:(NSString * _Nonnull)channelID userKey:(NSString * _Nonnull)userKey;
-- (void)startUpWithinSandbox:(NSString * _Nonnull)sandbox withSiteID:(NSInteger)siteID channelID:(NSString * _Nonnull)channelID userKey:(NSString * _Nonnull)userKey;
 - (void)updateCustomData:(JivoSDKSessionCustomData * _Nullable)data;
-- (void)setPushToken:(NSString * _Nullable)token;
-- (void)handlePushPayload:(NSDictionary * _Nonnull)payload deliveryDate:(NSDate * _Nullable)deliveryDate;
+- (void)setPushTokenData:(NSData * _Nullable)data;
+- (void)setPushTokenHex:(NSString * _Nullable)hex;
+- (BOOL)handlePushPayload:(NSDictionary * _Nonnull)payload deliveryDate:(NSDate * _Nullable)deliveryDate SWIFT_WARN_UNUSED_RESULT;
 - (void)shutDown;
 @end
 
@@ -549,13 +596,26 @@ SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <IJivoSDK
 + (id <IJivoSDKSession> _Nonnull)session SWIFT_WARN_UNUSED_RESULT;
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <IJivoSDKChattingUI> _Nonnull chattingUI;)
 + (id <IJivoSDKChattingUI> _Nonnull)chattingUI SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <IJivoSDKDebugging> _Nonnull debugging;)
++ (id <IJivoSDKDebugging> _Nonnull)debugging SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
+typedef SWIFT_ENUM(NSInteger, JivoSDKArchivingStatus, open) {
+  JivoSDKArchivingStatusSuccess = 0,
+  JivoSDKArchivingStatusFailedAccessing = 1,
+  JivoSDKArchivingStatusFailedPreparing = 2,
+};
 
-SWIFT_CLASS("_TtC7JivoSDK27JivoSDKChattingHeaderConfig")
-@interface JivoSDKChattingHeaderConfig : NSObject
-- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+@class NSLocale;
+@class UIImage;
+@class UIColor;
+
+SWIFT_CLASS("_TtC7JivoSDK21JivoSDKChattingConfig")
+@interface JivoSDKChattingConfig : NSObject
+- (nonnull instancetype)initWithLocale:(NSLocale * _Nullable)locale icon:(UIImage * _Nullable)icon titlePlaceholder:(NSString * _Nullable)titlePlaceholder titleColor:(UIColor * _Nullable)titleColor subtitleCaption:(NSString * _Nullable)subtitleCaption subtitleColor:(UIColor * _Nullable)subtitleColor inputPlaceholder:(NSString * _Nullable)inputPlaceholder OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 @class NSBundle;
@@ -570,6 +630,17 @@ SWIFT_CLASS("_TtC7JivoSDK16JivoSDKContainer")
 @end
 
 
+SWIFT_PROTOCOL("_TtP7JivoSDK24JivoSDKDebuggingDelegate_")
+@protocol JivoSDKDebuggingDelegate
+- (void)didLogWithMessage:(NSString * _Nonnull)message;
+@end
+
+typedef SWIFT_ENUM(NSInteger, JivoSDKDebuggingLevel, open) {
+  JivoSDKDebuggingLevelSilent = 0,
+  JivoSDKDebuggingLevelFull = 1,
+};
+
+
 SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData")
 @interface JivoSDKSessionCustomData : NSObject
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
@@ -579,7 +650,6 @@ SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData")
 
 SWIFT_PROTOCOL("_TtP7JivoSDK22JivoSDKSessionDelegate_")
 @protocol JivoSDKSessionDelegate
-- (void)sessionDidStart;
 @end
 
 

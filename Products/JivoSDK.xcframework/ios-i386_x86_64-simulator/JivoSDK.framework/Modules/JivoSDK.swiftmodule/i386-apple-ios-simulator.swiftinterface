@@ -51,26 +51,21 @@ public enum JivoSDKSessionEnvironmentItem {
   }
 }
 @objc public protocol IJivoSDKSession {
-  @objc(setDelegate:) func setDelegate(_ object: JivoSDKSessionDelegate)
+  @objc(delegate) var delegate: JivoSDKSessionDelegate? { get set }
   @objc(startUpWithSiteID:channelID:userKey:) func startUp(siteID: Swift.Int, channelID: Swift.String, userKey: Swift.String)
-  @objc(startUpWithinSandbox:withSiteID:channelID:userKey:) func startUp(sandbox: Swift.String, siteID: Swift.Int, channelID: Swift.String, userKey: Swift.String)
   @objc(updateCustomData:) func updateCustomData(_ data: JivoSDKSessionCustomData?)
-  @objc(setPushToken:) func setPushToken(_ token: Swift.String?)
-  @objc(handlePushPayload:deliveryDate:) func handlePushPayload(_ payload: [Swift.AnyHashable : Any], deliveryDate: Foundation.Date?)
+  @objc(setPushTokenData:) func setPushToken(data: Foundation.Data?)
+  @objc(setPushTokenHex:) func setPushToken(hex: Swift.String?)
+  @objc(handlePushPayload:deliveryDate:) func handlePushPayload(_ payload: [Swift.AnyHashable : Any], deliveryDate: Foundation.Date?) -> Swift.Bool
   @objc(shutDown) func shutDown()
 }
-@_inheritsConvenienceInitializers @objc public class JivoSDKChattingHeaderConfig : ObjectiveC.NSObject {
-  @objc override dynamic public init()
-  public init(titleColor: UIKit.UIColor, subtitleColor: UIKit.UIColor)
-  @objc deinit
-}
 @objc public protocol IJivoSDKChattingUI {
-  @objc(setActiveMessage:) func setActiveMessage(text: Swift.String)
-  @objc(setInputPlaceholder:) func setInputPlaceholder(text: Swift.String)
-  @objc(adjustHeaderBarWithTitleColor:subtitleColor:) func adjustHeaderBar(titleColor: UIKit.UIColor, subtitleColor: UIKit.UIColor)
   @objc(pushInto:) func push(into navigationController: UIKit.UINavigationController)
+  @objc(pushInto:withConfig:) func push(into navigationController: UIKit.UINavigationController, config: JivoSDKChattingConfig)
   @objc(placeWithin:) func place(within navigationController: UIKit.UINavigationController)
+  @objc(placeWithin:withConfig:) func place(within navigationController: UIKit.UINavigationController, config: JivoSDKChattingConfig)
   @objc(presentOver:) func present(over viewController: UIKit.UIViewController)
+  @objc(presentOver:withConfig:) func present(over viewController: UIKit.UIViewController, config: JivoSDKChattingConfig)
 }
 @objc @_inheritsConvenienceInitializers open class JivoSDKContainer : UIKit.UINavigationController {
   @available(iOS 5.0, *)
@@ -80,17 +75,50 @@ public enum JivoSDKSessionEnvironmentItem {
   @objc required dynamic public init?(coder aDecoder: Foundation.NSCoder)
   @objc deinit
 }
+@objc public protocol JivoSDKDebuggingDelegate {
+  @objc func didLog(message: Swift.String)
+}
 @_hasMissingDesignatedInitializers open class PreferencesDriver {
   @objc deinit
 }
+@objc public class JivoSDKChattingConfig : ObjectiveC.NSObject {
+  @objc public init(locale: Foundation.Locale? = nil, icon: UIKit.UIImage? = nil, titlePlaceholder: Swift.String? = nil, titleColor: UIKit.UIColor? = nil, subtitleCaption: Swift.String? = nil, subtitleColor: UIKit.UIColor? = nil, inputPlaceholder: Swift.String? = nil)
+  @objc override dynamic public init()
+  @objc deinit
+}
+@objc public enum JivoSDKDebuggingLevel : Swift.Int {
+  case silent
+  case full
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+@objc public enum JivoSDKArchivingStatus : Swift.Int {
+  case success
+  case failedAccessing
+  case failedPreparing
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+@objc public protocol IJivoSDKDebugging {
+  @objc var level: JivoSDKDebuggingLevel { get set }
+  @objc func archiveLogs(completion: @escaping (Foundation.URL?, JivoSDKArchivingStatus) -> Swift.Void)
+}
 @objc public protocol JivoSDKSessionDelegate {
-  @objc func sessionDidStart()
 }
 @_inheritsConvenienceInitializers @objc public class JivoSDK : ObjectiveC.NSObject {
   @objc public static var session: IJivoSDKSession {
     get
   }
   @objc public static var chattingUI: IJivoSDKChattingUI {
+    get
+  }
+  @objc public static var debugging: IJivoSDKDebugging {
     get
   }
   @objc override dynamic public init()
@@ -103,3 +131,9 @@ public enum JivoSDKSessionEnvironmentItem {
 }
 extension JivoSDKSessionEnvironmentItem : Swift.Equatable {}
 extension JivoSDKSessionEnvironmentItem : Swift.Hashable {}
+extension JivoSDKDebuggingLevel : Swift.Equatable {}
+extension JivoSDKDebuggingLevel : Swift.Hashable {}
+extension JivoSDKDebuggingLevel : Swift.RawRepresentable {}
+extension JivoSDKArchivingStatus : Swift.Equatable {}
+extension JivoSDKArchivingStatus : Swift.Hashable {}
+extension JivoSDKArchivingStatus : Swift.RawRepresentable {}

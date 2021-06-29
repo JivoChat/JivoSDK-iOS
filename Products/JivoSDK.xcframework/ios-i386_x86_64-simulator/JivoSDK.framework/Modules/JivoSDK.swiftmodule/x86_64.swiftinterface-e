@@ -52,7 +52,7 @@ public enum JivoSDKSessionEnvironmentItem {
 }
 @objc public protocol IJivoSDKSession {
   @objc(delegate) var delegate: JivoSDKSessionDelegate? { get set }
-  @objc(startUpWithSiteID:channelID:userKey:) func startUp(siteID: Swift.Int, channelID: Swift.String, userKey: Swift.String)
+  @objc(startUpWithChannelID:userToken:) func startUp(channelID: Swift.String, userToken: Swift.String)
   @objc(updateCustomData:) func updateCustomData(_ data: JivoSDKSessionCustomData?)
   @objc(setPushTokenData:) func setPushToken(data: Foundation.Data?)
   @objc(setPushTokenHex:) func setPushToken(hex: Swift.String?)

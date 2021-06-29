@@ -243,7 +243,7 @@ SWIFT_PROTOCOL("_TtP7JivoSDK15IJivoSDKSession_")
 @protocol IJivoSDKSession
 /// You can set a delegate for JivoSDKSession object using this property. The property type protocol is empty for now but we suppose that you will suggest some ideas of callback methods for us.
 @property (nonatomic, strong) id <JivoSDKSessionDelegate> _Nullable delegate;
-- (void)startUpWithSiteID:(NSInteger)siteID channelID:(NSString * _Nonnull)channelID userKey:(NSString * _Nonnull)userKey;
+- (void)startUpWithChannelID:(NSString * _Nonnull)channelID userToken:(NSString * _Nonnull)userToken;
 - (void)updateCustomData:(JivoSDKSessionCustomData * _Nullable)data;
 - (void)setPushTokenData:(NSData * _Nullable)data;
 - (void)setPushTokenHex:(NSString * _Nullable)hex;
@@ -568,7 +568,7 @@ SWIFT_PROTOCOL("_TtP7JivoSDK15IJivoSDKSession_")
 @protocol IJivoSDKSession
 /// You can set a delegate for JivoSDKSession object using this property. The property type protocol is empty for now but we suppose that you will suggest some ideas of callback methods for us.
 @property (nonatomic, strong) id <JivoSDKSessionDelegate> _Nullable delegate;
-- (void)startUpWithSiteID:(NSInteger)siteID channelID:(NSString * _Nonnull)channelID userKey:(NSString * _Nonnull)userKey;
+- (void)startUpWithChannelID:(NSString * _Nonnull)channelID userToken:(NSString * _Nonnull)userToken;
 - (void)updateCustomData:(JivoSDKSessionCustomData * _Nullable)data;
 - (void)setPushTokenData:(NSData * _Nullable)data;
 - (void)setPushTokenHex:(NSString * _Nullable)hex;

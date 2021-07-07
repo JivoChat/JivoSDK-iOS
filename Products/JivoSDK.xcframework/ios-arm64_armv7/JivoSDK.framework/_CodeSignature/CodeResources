@@ -6,11 +6,11 @@
 	<dict>
 		<key>Assets.car</key>
 		<data>
-		VbAAMqrajMZu3cZadHsMGxLX2I0=
+		AlUxdBictrrOLFW95bhVeMc3Mwc=
 		</data>
 		<key>Headers/JivoSDK-Swift.h</key>
 		<data>
-		8+hyR+CSNWp6UuxGuq/RGeEtqeY=
+		nnsdBe0a1MwNaJDvaRxP3Se2ghs=
 		</data>
 		<key>Headers/JivoSDK.h</key>
 		<data>
@@ -18,67 +18,67 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		PV5Z0IpUd2bryrwvWYzQOsCEbKc=
+		9m77s7qsGrmkNLP3jbHD4s6NJcA=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm.swiftdoc</key>
 		<data>
-		e8fG4nBK5vkslpJFUetgBHuZxEk=
+		FypszPQAa61GusMTgxLY9AUvYwk=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm.swiftinterface</key>
 		<data>
-		RPmqV1IHRLue0V9hy8ZGT8j2ZIY=
+		N85NpP4KUwjvho+/mxienNtgktI=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm.swiftmodule</key>
 		<data>
-		LWSwPCmCzIiUHUDtVeSuMwZkb+0=
+		cRjYWiD1GZSWo17ydIeFaXkrF5c=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios.swiftdoc</key>
 		<data>
-		Z8R32ReqDJUdauI7LAv4OPwaBqs=
+		YO+gRnz58ottwXdqXHEdx0t0FTw=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios.swiftinterface</key>
 		<data>
-		YlX5JEdNDRHu8+JqIz1kice6lH4=
+		c54t3QMzOYuoHi7fKMBtSMwQF8E=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios.swiftmodule</key>
 		<data>
-		ANdM7rw6S6+7tp21tjLA9rgaMQM=
+		oq+J6gQ9aZXSFiX8EO7rYip0wlM=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftdoc</key>
 		<data>
-		Z8R32ReqDJUdauI7LAv4OPwaBqs=
+		YO+gRnz58ottwXdqXHEdx0t0FTw=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftinterface</key>
 		<data>
-		YlX5JEdNDRHu8+JqIz1kice6lH4=
+		c54t3QMzOYuoHi7fKMBtSMwQF8E=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftmodule</key>
 		<data>
-		ANdM7rw6S6+7tp21tjLA9rgaMQM=
+		oq+J6gQ9aZXSFiX8EO7rYip0wlM=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/armv7-apple-ios.swiftdoc</key>
 		<data>
-		e8fG4nBK5vkslpJFUetgBHuZxEk=
+		FypszPQAa61GusMTgxLY9AUvYwk=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/armv7-apple-ios.swiftinterface</key>
 		<data>
-		RPmqV1IHRLue0V9hy8ZGT8j2ZIY=
+		N85NpP4KUwjvho+/mxienNtgktI=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/armv7-apple-ios.swiftmodule</key>
 		<data>
-		LWSwPCmCzIiUHUDtVeSuMwZkb+0=
+		cRjYWiD1GZSWo17ydIeFaXkrF5c=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/armv7.swiftdoc</key>
 		<data>
-		e8fG4nBK5vkslpJFUetgBHuZxEk=
+		FypszPQAa61GusMTgxLY9AUvYwk=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/armv7.swiftinterface</key>
 		<data>
-		RPmqV1IHRLue0V9hy8ZGT8j2ZIY=
+		N85NpP4KUwjvho+/mxienNtgktI=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/armv7.swiftmodule</key>
 		<data>
-		LWSwPCmCzIiUHUDtVeSuMwZkb+0=
+		cRjYWiD1GZSWo17ydIeFaXkrF5c=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -189,22 +189,22 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			VbAAMqrajMZu3cZadHsMGxLX2I0=
+			AlUxdBictrrOLFW95bhVeMc3Mwc=
 			</data>
 			<key>hash2</key>
 			<data>
-			x34l2KmcVCHcMG/6g4S/JIH34L7gFVYuWOAAk9kj/50=
+			EOE0gwOs6+DMS+1DvRB1S1xV/CRprKJbhwUjFQwvYEk=
 			</data>
 		</dict>
 		<key>Headers/JivoSDK-Swift.h</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			8+hyR+CSNWp6UuxGuq/RGeEtqeY=
+			nnsdBe0a1MwNaJDvaRxP3Se2ghs=
 			</data>
 			<key>hash2</key>
 			<data>
-			wVo2mUDvaBjGdfZq/wOgwLaYmUFYvNlAm8yr9uSpk5A=
+			26uKBevvaFhsa4Nh44PovzFPcGJwODgNXmZ37Cvs54Y=
 			</data>
 		</dict>
 		<key>Headers/JivoSDK.h</key>
@@ -222,165 +222,165 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			e8fG4nBK5vkslpJFUetgBHuZxEk=
+			FypszPQAa61GusMTgxLY9AUvYwk=
 			</data>
 			<key>hash2</key>
 			<data>
-			1tVPlngkMa75RupcfnZmS0W/1hwRtuJKHNvtAoZqxEM=
+			qD1BQ16h6Q4TAxxTpjqV85jGgM1FIJ2/iduTpZRJUNw=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/arm.swiftinterface</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			RPmqV1IHRLue0V9hy8ZGT8j2ZIY=
+			N85NpP4KUwjvho+/mxienNtgktI=
 			</data>
 			<key>hash2</key>
 			<data>
-			gGDXJSVrNy6x2CrtXxpEwbJRllA9+HYijG1KCK7snQQ=
+			Herymsz6bWDB0eMnjOtRMoDrWFAgezjRtOyNulYyApE=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/arm.swiftmodule</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			LWSwPCmCzIiUHUDtVeSuMwZkb+0=
+			cRjYWiD1GZSWo17ydIeFaXkrF5c=
 			</data>
 			<key>hash2</key>
 			<data>
-			cNtfFAoa8BrqtqvX5QHTcDxPKCc352bCcGnetK7DApU=
+			GHtJ02zj8VuxLa/HqieivwudVmFOPqWuIE5IY/heFnA=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios.swiftdoc</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			Z8R32ReqDJUdauI7LAv4OPwaBqs=
+			YO+gRnz58ottwXdqXHEdx0t0FTw=
 			</data>
 			<key>hash2</key>
 			<data>
-			UPcF8Z6rHBokRqpSdnXy2dm+WuG78oMxRou4BDhWA+E=
+			3zkf/t6N9FWXWXHs2/u8yQCvRbHx7EowSpxkiHR1JyU=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios.swiftinterface</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			YlX5JEdNDRHu8+JqIz1kice6lH4=
+			c54t3QMzOYuoHi7fKMBtSMwQF8E=
 			</data>
 			<key>hash2</key>
 			<data>
-			FbrU6n4Vf1OtVfO557E2RJn8ZRFczA3y3SY1kUJQ6gM=
+			JY0ljkOpvQ4eiMBIe42qIyuNHnGSQPM/T1ggskuIAos=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios.swiftmodule</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			ANdM7rw6S6+7tp21tjLA9rgaMQM=
+			oq+J6gQ9aZXSFiX8EO7rYip0wlM=
 			</data>
 			<key>hash2</key>
 			<data>
-			ifFWfYxPcSDLaUcTQbykkufLab+f23lBfMBxIvUl310=
+			YNwZtytaWF4uT8edKiPeO2on76AyKTneX4uAMtrge3Y=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftdoc</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			Z8R32ReqDJUdauI7LAv4OPwaBqs=
+			YO+gRnz58ottwXdqXHEdx0t0FTw=
 			</data>
 			<key>hash2</key>
 			<data>
-			UPcF8Z6rHBokRqpSdnXy2dm+WuG78oMxRou4BDhWA+E=
+			3zkf/t6N9FWXWXHs2/u8yQCvRbHx7EowSpxkiHR1JyU=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftinterface</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			YlX5JEdNDRHu8+JqIz1kice6lH4=
+			c54t3QMzOYuoHi7fKMBtSMwQF8E=
 			</data>
 			<key>hash2</key>
 			<data>
-			FbrU6n4Vf1OtVfO557E2RJn8ZRFczA3y3SY1kUJQ6gM=
+			JY0ljkOpvQ4eiMBIe42qIyuNHnGSQPM/T1ggskuIAos=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftmodule</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			ANdM7rw6S6+7tp21tjLA9rgaMQM=
+			oq+J6gQ9aZXSFiX8EO7rYip0wlM=
 			</data>
 			<key>hash2</key>
 			<data>
-			ifFWfYxPcSDLaUcTQbykkufLab+f23lBfMBxIvUl310=
+			YNwZtytaWF4uT8edKiPeO2on76AyKTneX4uAMtrge3Y=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/armv7-apple-ios.swiftdoc</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			e8fG4nBK5vkslpJFUetgBHuZxEk=
+			FypszPQAa61GusMTgxLY9AUvYwk=
 			</data>
 			<key>hash2</key>
 			<data>
-			1tVPlngkMa75RupcfnZmS0W/1hwRtuJKHNvtAoZqxEM=
+			qD1BQ16h6Q4TAxxTpjqV85jGgM1FIJ2/iduTpZRJUNw=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/armv7-apple-ios.swiftinterface</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			RPmqV1IHRLue0V9hy8ZGT8j2ZIY=
+			N85NpP4KUwjvho+/mxienNtgktI=
 			</data>
 			<key>hash2</key>
 			<data>
-			gGDXJSVrNy6x2CrtXxpEwbJRllA9+HYijG1KCK7snQQ=
+			Herymsz6bWDB0eMnjOtRMoDrWFAgezjRtOyNulYyApE=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/armv7-apple-ios.swiftmodule</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			LWSwPCmCzIiUHUDtVeSuMwZkb+0=
+			cRjYWiD1GZSWo17ydIeFaXkrF5c=
 			</data>
 			<key>hash2</key>
 			<data>
-			cNtfFAoa8BrqtqvX5QHTcDxPKCc352bCcGnetK7DApU=
+			GHtJ02zj8VuxLa/HqieivwudVmFOPqWuIE5IY/heFnA=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/armv7.swiftdoc</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			e8fG4nBK5vkslpJFUetgBHuZxEk=
+			FypszPQAa61GusMTgxLY9AUvYwk=
 			</data>
 			<key>hash2</key>
 			<data>
-			1tVPlngkMa75RupcfnZmS0W/1hwRtuJKHNvtAoZqxEM=
+			qD1BQ16h6Q4TAxxTpjqV85jGgM1FIJ2/iduTpZRJUNw=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/armv7.swiftinterface</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			RPmqV1IHRLue0V9hy8ZGT8j2ZIY=
+			N85NpP4KUwjvho+/mxienNtgktI=
 			</data>
 			<key>hash2</key>
 			<data>
-			gGDXJSVrNy6x2CrtXxpEwbJRllA9+HYijG1KCK7snQQ=
+			Herymsz6bWDB0eMnjOtRMoDrWFAgezjRtOyNulYyApE=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/armv7.swiftmodule</key>
 		<dict>
 			<key>hash</key>
 			<data>
-			LWSwPCmCzIiUHUDtVeSuMwZkb+0=
+			cRjYWiD1GZSWo17ydIeFaXkrF5c=
 			</data>
 			<key>hash2</key>
 			<data>
-			cNtfFAoa8BrqtqvX5QHTcDxPKCc352bCcGnetK7DApU=
+			GHtJ02zj8VuxLa/HqieivwudVmFOPqWuIE5IY/heFnA=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

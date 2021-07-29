@@ -108,22 +108,37 @@ RCT_EXPORT_METHOD(presentChattingUIWithConfig:(nullable NSDictionary *)uiConfigD
       RCTLogWarn(@"Invalid 'localeIdentifier' field type: you should pass a value of the string type.");
     }
     
-    NSDictionary * _Nullable iconAsset = [uiConfigDictionary objectForKey:@"iconAsset"];
-    NSURL  * _Nullable iconURL;
-    if ([iconAsset isKindOfClass:[NSDictionary class]] || iconAsset == NULL) {
-      NSString *uriValue = [iconAsset objectForKey:@"uri"];
+    NSObject * _Nullable iconValue = [uiConfigDictionary objectForKey:@"icon"];
+    BOOL useDefaultIcon;
+    UIImage * _Nullable icon;
+    if ([iconValue isKindOfClass:[NSDictionary class]]) {
+      useDefaultIcon = NO;
+      NSString *uriValue = [(NSDictionary * _Nullable)iconValue objectForKey:@"uri"];
       if ([uriValue isKindOfClass:[NSString class]]) {
-        iconURL = [[NSURL alloc] initWithString:uriValue];
+        NSURL * _Nullable iconURL = [[NSURL alloc] initWithString:uriValue];
+        NSData *iconData = [[NSData alloc] initWithContentsOfURL:iconURL];
+        icon = [[UIImage alloc] initWithData:iconData];
       } else {
-        if (iconAsset != NULL) {
-          RCTLogWarn(@"Invalid 'iconAsset.uri' field type: you should pass a value of the string type.");
+        if (iconValue != NULL) {
+          RCTLogWarn(@"Invalid 'icon.uri' field type: you should pass a value of the string type.");
         }
       }
+    } else if ([iconValue isKindOfClass:[NSString class]]) {
+      NSString * _Nullable iconStringValue = (NSString * _Nullable)iconValue;
+      if ([iconStringValue isEqual:@"default"]) {
+        useDefaultIcon = YES;
+      } else if ([iconStringValue isEqual:@"hidden"]) {
+        useDefaultIcon = NO;
+      } else {
+        useDefaultIcon = YES;
+        RCTLogWarn(@"Invalid 'icon' field string value: you should pass a value that takes one of the following values: 'default', 'hidden'");
+      }
+    } else if (iconValue == NULL) {
+      useDefaultIcon = YES;
     } else {
-      RCTLogWarn(@"Invalid 'iconAsset' field type: you should pass a value of the Object type.");
+      useDefaultIcon = YES;
+      RCTLogWarn(@"Invalid 'icon' field type: you should pass a value of the Object type (image asset) or string type that takes one of the following values: 'default', 'hidden'");
     }
-    NSData *iconData = [[NSData alloc] initWithContentsOfURL:iconURL];
-    UIImage *icon = [[UIImage alloc] initWithData:iconData];
     
     NSString * _Nullable titlePlaceholderValue = [uiConfigDictionary objectForKey:@"titlePlaceholder"];
     NSString * _Nullable titlePlaceholder;
@@ -165,14 +180,24 @@ RCT_EXPORT_METHOD(presentChattingUIWithConfig:(nullable NSDictionary *)uiConfigD
       RCTLogWarn(@"Invalid 'inputPlaceholder' field type: you should pass a value of the string type.");
     }
     
+    NSString * _Nullable activeMessageValue = [uiConfigDictionary objectForKey:@"activeMessage"];
+    NSString * _Nullable activeMessage;
+    if ([activeMessageValue isKindOfClass:[NSString class]] || activeMessageValue == NULL) {
+      activeMessage = activeMessageValue;
+    } else {
+      RCTLogWarn(@"Invalid 'activeMessage' field type: you should pass a value of the string type.");
+    }
+    
     JivoSDKChattingConfig *uiConfig = [[JivoSDKChattingConfig alloc]
-                                         initWithLocale:locale
-                                         icon:icon
-                                         titlePlaceholder:titlePlaceholder
-                                         titleColor:titleColor
-                                         subtitleCaption:subtitleCaption
-                                         subtitleColor:subtitleColor
-                                         inputPlaceholder:inputPlaceholder
+                                       initWithLocale:locale
+                                       useDefaultIcon:useDefaultIcon
+                                       customIcon:icon
+                                       titlePlaceholder:titlePlaceholder
+                                       titleColor:titleColor
+                                       subtitleCaption:subtitleCaption
+                                       subtitleColor:subtitleColor
+                                       inputPlaceholder:inputPlaceholder
+                                       activeMessage:activeMessage
                                       ];
 
     UIViewController *rootViewController = [[[[UIApplication sharedApplication] delegate] window] rootViewController];

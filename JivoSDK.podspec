@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = 'JivoSDK'
-  spec.version      = '1.4.0-rc.0'
+  spec.version      = '1.5.0-test.0'
   spec.license      = { :type => 'MIT' }
   spec.homepage     = 'https://github.com/JivoChat'
   spec.authors      = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
@@ -46,17 +46,16 @@ Pod::Spec.new do |spec|
   spec.dependency      'SwiftGraylog'
   spec.dependency      'SwiftDate'
   spec.dependency      'SwiftMime'
-  spec.dependency      'Moya'
   spec.dependency      'KeychainSwift'
   spec.dependency      'GzipSwift'
   spec.dependency      'SafeURL'
   spec.dependency      'CollectionAndTableViewCompatible'
 
 # JMSpecsRepo dependencies
-  spec.dependency      'JMShared', '2.3.4'
+  spec.dependency      'JMShared', '2.4.9'
   spec.dependency      'JMCodingKit', '5.0.2'
-  spec.dependency      'JMRepicKit', '1.0.1'
-  spec.dependency      'JMTimelineKit', '1.3.0'
+  spec.dependency      'JMRepicKit', '~> 1.0.2-beta.0'
+  spec.dependency      'JMTimelineKit', '1.3.2'
   spec.dependency      'JMMarkdownKit', '1.1.2'
   spec.dependency      'JMDesignKit', '1.0.0'
   spec.dependency      'JMOnetimeCalculator', '1.0.0'

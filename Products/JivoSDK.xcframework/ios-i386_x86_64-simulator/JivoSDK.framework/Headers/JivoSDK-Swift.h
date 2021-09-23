@@ -245,6 +245,9 @@ SWIFT_PROTOCOL("_TtP7JivoSDK17IJivoSDKDebugging_")
 @class NSObject;
 @class NSNumber;
 @class NSDate;
+@class UNNotification;
+enum JivoSDKSessionNotificationKind : NSInteger;
+@class UNNotificationResponse;
 
 SWIFT_PROTOCOL("_TtP7JivoSDK15IJivoSDKSession_")
 @protocol IJivoSDKSession
@@ -256,6 +259,8 @@ SWIFT_PROTOCOL("_TtP7JivoSDK15IJivoSDKSession_")
 - (void)setPushTokenHex:(NSString * _Nullable)hex;
 - (BOOL)detectPushPayload:(NSDictionary * _Nonnull)payload SWIFT_WARN_UNUSED_RESULT;
 - (BOOL)handlePushPayload:(NSDictionary * _Nonnull)payload deliveryDate:(NSDate * _Nullable)deliveryDate SWIFT_WARN_UNUSED_RESULT;
+- (enum JivoSDKSessionNotificationKind)handleNotification:(UNNotification * _Nonnull)notification SWIFT_WARN_UNUSED_RESULT;
+- (BOOL)handleNotificationResponse:(UNNotificationResponse * _Nonnull)response SWIFT_WARN_UNUSED_RESULT;
 - (void)shutDown;
 @end
 
@@ -319,13 +324,18 @@ SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData")
 @end
 
 
+@interface JivoSDKSessionCustomData (SWIFT_EXTENSION(JivoSDK))
+@property (nonatomic, readonly, copy) NSString * _Nonnull debugDescription;
+@end
+
+
 SWIFT_PROTOCOL("_TtP7JivoSDK22JivoSDKSessionDelegate_")
 @protocol JivoSDKSessionDelegate
 @end
 
 typedef SWIFT_ENUM(NSInteger, JivoSDKSessionNotificationKind, open) {
-  JivoSDKSessionNotificationKindRemote = 0,
-  JivoSDKSessionNotificationKindLocal = 1,
+  JivoSDKSessionNotificationKindRemoteIncome = 0,
+  JivoSDKSessionNotificationKindLocalBanner = 1,
   JivoSDKSessionNotificationKindUnknown = 2,
 };
 
@@ -587,6 +597,9 @@ SWIFT_PROTOCOL("_TtP7JivoSDK17IJivoSDKDebugging_")
 @class NSObject;
 @class NSNumber;
 @class NSDate;
+@class UNNotification;
+enum JivoSDKSessionNotificationKind : NSInteger;
+@class UNNotificationResponse;
 
 SWIFT_PROTOCOL("_TtP7JivoSDK15IJivoSDKSession_")
 @protocol IJivoSDKSession
@@ -598,6 +611,8 @@ SWIFT_PROTOCOL("_TtP7JivoSDK15IJivoSDKSession_")
 - (void)setPushTokenHex:(NSString * _Nullable)hex;
 - (BOOL)detectPushPayload:(NSDictionary * _Nonnull)payload SWIFT_WARN_UNUSED_RESULT;
 - (BOOL)handlePushPayload:(NSDictionary * _Nonnull)payload deliveryDate:(NSDate * _Nullable)deliveryDate SWIFT_WARN_UNUSED_RESULT;
+- (enum JivoSDKSessionNotificationKind)handleNotification:(UNNotification * _Nonnull)notification SWIFT_WARN_UNUSED_RESULT;
+- (BOOL)handleNotificationResponse:(UNNotificationResponse * _Nonnull)response SWIFT_WARN_UNUSED_RESULT;
 - (void)shutDown;
 @end
 
@@ -661,13 +676,18 @@ SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData")
 @end
 
 
+@interface JivoSDKSessionCustomData (SWIFT_EXTENSION(JivoSDK))
+@property (nonatomic, readonly, copy) NSString * _Nonnull debugDescription;
+@end
+
+
 SWIFT_PROTOCOL("_TtP7JivoSDK22JivoSDKSessionDelegate_")
 @protocol JivoSDKSessionDelegate
 @end
 
 typedef SWIFT_ENUM(NSInteger, JivoSDKSessionNotificationKind, open) {
-  JivoSDKSessionNotificationKindRemote = 0,
-  JivoSDKSessionNotificationKindLocal = 1,
+  JivoSDKSessionNotificationKindRemoteIncome = 0,
+  JivoSDKSessionNotificationKindLocalBanner = 1,
   JivoSDKSessionNotificationKindUnknown = 2,
 };
 

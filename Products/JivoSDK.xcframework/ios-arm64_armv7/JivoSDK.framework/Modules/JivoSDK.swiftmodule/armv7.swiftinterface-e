@@ -50,8 +50,8 @@ public enum JivoSDKSessionEnvironmentItem {
   }
 }
 @objc public enum JivoSDKSessionNotificationKind : Swift.Int {
-  case remote
-  case local
+  case remoteIncome
+  case localBanner
   case unknown
   public init?(rawValue: Swift.Int)
   public typealias RawValue = Swift.Int
@@ -67,6 +67,8 @@ public enum JivoSDKSessionEnvironmentItem {
   @objc(setPushTokenHex:) func setPushToken(hex: Swift.String?)
   @objc(detectPushPayload:) func detectPushPayload(_ payload: [Swift.AnyHashable : Any]) -> Swift.Bool
   @objc(handlePushPayload:deliveryDate:) func handlePushPayload(_ payload: [Swift.AnyHashable : Any], deliveryDate: Foundation.Date?) -> Swift.Bool
+  @objc(handleNotification:) func handleNotification(_ notification: UserNotifications.UNNotification) -> JivoSDKSessionNotificationKind
+  @objc(handleNotificationResponse:) func handleNotificationResponse(_ response: UserNotifications.UNNotificationResponse) -> Swift.Bool
   @objc(shutDown) func shutDown()
 }
 public enum AFError : Swift.Error {
@@ -449,6 +451,11 @@ public enum JivoSDKTitleBarIconStyle {
   @objc public init(name: Swift.String? = nil, email: Swift.String? = nil, phone: Swift.String? = nil, brief: Swift.String? = nil)
   @objc override dynamic public init()
   @objc deinit
+}
+extension JivoSDKSessionCustomData {
+  @objc override dynamic public var debugDescription: Swift.String {
+    @objc get
+  }
 }
 extension JivoSDKSessionEnvironmentItem : Swift.Equatable {}
 extension JivoSDKSessionEnvironmentItem : Swift.Hashable {}

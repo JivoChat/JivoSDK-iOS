@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = 'JivoSDK'
-  spec.version      = '1.5.0-test.4'
+  spec.version      = '1.5.0-test.5'
   spec.license      = { :type => 'MIT' }
   spec.homepage     = 'https://github.com/JivoChat'
   spec.authors      = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
@@ -17,14 +17,6 @@ Pod::Spec.new do |spec|
   spec.resource_bundles = { 'JivoSDK' => ['Resources/Assets.xcassets', 'Resources/*.lproj'] }
   # spec.source_files = 'JivoSDK/**/*.{h,swift}', 'SharedSources/**/*.swift'
   # spec.resource    = 'JivoSDK/Assets.xcassets', 'JivoSDK/*.lproj'
-
-  spec.pod_target_xcconfig = {
-    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
-  }
-
-  spec.user_target_xcconfig = {
-    'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'arm64'
-  }
 
   spec.framework    = 'SystemConfiguration'
 

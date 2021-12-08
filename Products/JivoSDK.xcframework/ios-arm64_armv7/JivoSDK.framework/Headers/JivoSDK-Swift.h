@@ -213,6 +213,7 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 
 
 
+
 @class UINavigationController;
 @class JivoSDKChattingConfig;
 @class UIViewController;
@@ -247,6 +248,7 @@ SWIFT_PROTOCOL("_TtP7JivoSDK15IJivoSDKSession_")
 - (void)updateCustomData:(JivoSDKSessionCustomData * _Nullable)data;
 - (void)setPushTokenData:(NSData * _Nullable)data;
 - (void)setPushTokenHex:(NSString * _Nullable)hex;
+- (BOOL)detectPushPayload:(NSDictionary * _Nonnull)payload SWIFT_WARN_UNUSED_RESULT;
 - (BOOL)handlePushPayload:(NSDictionary * _Nonnull)payload deliveryDate:(NSDate * _Nullable)deliveryDate SWIFT_WARN_UNUSED_RESULT;
 - (void)shutDown;
 @end
@@ -310,9 +312,23 @@ SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData")
 @end
 
 
+@interface JivoSDKSessionCustomData (SWIFT_EXTENSION(JivoSDK))
+@property (nonatomic, readonly, copy) NSString * _Nonnull debugDescription;
+@end
+
+
 SWIFT_PROTOCOL("_TtP7JivoSDK22JivoSDKSessionDelegate_")
 @protocol JivoSDKSessionDelegate
 @end
+
+typedef SWIFT_ENUM(NSInteger, JivoSDKSessionNotificationKind, open) {
+  JivoSDKSessionNotificationKindRemoteIncome = 0,
+  JivoSDKSessionNotificationKindLocalBanner = 1,
+  JivoSDKSessionNotificationKindUnknown = 2,
+};
+
+
+
 
 
 
@@ -539,6 +555,7 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 
 
 
+
 @class UINavigationController;
 @class JivoSDKChattingConfig;
 @class UIViewController;
@@ -573,6 +590,7 @@ SWIFT_PROTOCOL("_TtP7JivoSDK15IJivoSDKSession_")
 - (void)updateCustomData:(JivoSDKSessionCustomData * _Nullable)data;
 - (void)setPushTokenData:(NSData * _Nullable)data;
 - (void)setPushTokenHex:(NSString * _Nullable)hex;
+- (BOOL)detectPushPayload:(NSDictionary * _Nonnull)payload SWIFT_WARN_UNUSED_RESULT;
 - (BOOL)handlePushPayload:(NSDictionary * _Nonnull)payload deliveryDate:(NSDate * _Nullable)deliveryDate SWIFT_WARN_UNUSED_RESULT;
 - (void)shutDown;
 @end
@@ -636,9 +654,23 @@ SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData")
 @end
 
 
+@interface JivoSDKSessionCustomData (SWIFT_EXTENSION(JivoSDK))
+@property (nonatomic, readonly, copy) NSString * _Nonnull debugDescription;
+@end
+
+
 SWIFT_PROTOCOL("_TtP7JivoSDK22JivoSDKSessionDelegate_")
 @protocol JivoSDKSessionDelegate
 @end
+
+typedef SWIFT_ENUM(NSInteger, JivoSDKSessionNotificationKind, open) {
+  JivoSDKSessionNotificationKindRemoteIncome = 0,
+  JivoSDKSessionNotificationKindLocalBanner = 1,
+  JivoSDKSessionNotificationKindUnknown = 2,
+};
+
+
+
 
 
 

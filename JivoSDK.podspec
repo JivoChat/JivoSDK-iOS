@@ -62,7 +62,7 @@ Pod::Spec.new do |spec|
   spec.exclude_files = [
     'JivoSDK/Info.plist',
     'SharedSources/**/*Unit.swift',
-    '**/ChatSubStorageTests.swift'
+    '**/ChatSubStorageTests.swift',
     '**/DevicePlaybackAudioPlayer.swift',
     '**/DevicePlaybackDriver.swift'
   ]

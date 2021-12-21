@@ -2,9 +2,9 @@
 // swift-compiler-version: Apple Swift version 5.3 (swiftlang-1200.0.29.2 clang-1200.0.30.1)
 // swift-module-flags: -target x86_64-apple-ios10.0-simulator -enable-objc-interop -enable-library-evolution -swift-version 5 -enforce-exclusivity=checked -O -module-name JivoSDK
 import AVFoundation
-import AudioToolbox
 import BABFrameObservingInputAccessoryView
 import CollectionAndTableViewCompatible
+import CommonCrypto
 import CoreLocation
 import DTModelStorage
 import Foundation
@@ -32,6 +32,7 @@ import Swift
 import SwiftDate
 import SwiftGraylog
 import SwiftMime
+import SwiftUI
 import TypedTextAttributes
 import UIKit
 import UserNotifications
@@ -67,8 +68,6 @@ public enum JivoSDKSessionEnvironmentItem {
   @objc(setPushTokenHex:) func setPushToken(hex: Swift.String?)
   @objc(detectPushPayload:) func detectPushPayload(_ payload: [Swift.AnyHashable : Any]) -> Swift.Bool
   @objc(handlePushPayload:deliveryDate:) func handlePushPayload(_ payload: [Swift.AnyHashable : Any], deliveryDate: Foundation.Date?) -> Swift.Bool
-  @objc(handleNotification:) func handleNotification(_ notification: UserNotifications.UNNotification) -> JivoSDKSessionNotificationKind
-  @objc(handleNotificationResponse:) func handleNotificationResponse(_ response: UserNotifications.UNNotificationResponse) -> Swift.Bool
   @objc(shutDown) func shutDown()
 }
 public enum AFError : Swift.Error {
@@ -375,6 +374,7 @@ open class MultipartFormData {
   public func writeEncodedData(to fileURL: Foundation.URL) throws
   @objc deinit
 }
+#warning("TODO: Anton Karpushko, 26.11.2021 – Make MemoryRepository thread-safe.")
 @objc public protocol IJivoSDKChattingUI {
   @objc(pushInto:) func push(into navigationController: UIKit.UINavigationController)
   @objc(pushInto:withConfig:) func push(into navigationController: UIKit.UINavigationController, config: JivoSDKChattingConfig)
@@ -394,6 +394,10 @@ open class MultipartFormData {
 @objc public protocol JivoSDKDebuggingDelegate {
   @objc func didLog(message: Swift.String)
 }
+@_hasMissingDesignatedInitializers open class RemoteStorageSubFilesUp {
+  @objc deinit
+}
+#warning("TODO: Anton Karpushko, 26.11.2021 – Make PersistentRepository thread-safe.")
 @_hasMissingDesignatedInitializers open class PreferencesDriver {
   @objc deinit
 }

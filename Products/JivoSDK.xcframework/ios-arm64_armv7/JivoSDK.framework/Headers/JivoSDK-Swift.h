@@ -239,9 +239,6 @@ SWIFT_PROTOCOL("_TtP7JivoSDK17IJivoSDKDebugging_")
 
 @protocol JivoSDKSessionDelegate;
 @class JivoSDKSessionCustomData;
-@class UNNotification;
-enum JivoSDKSessionNotificationKind : NSInteger;
-@class UNNotificationResponse;
 
 SWIFT_PROTOCOL("_TtP7JivoSDK15IJivoSDKSession_")
 @protocol IJivoSDKSession
@@ -253,8 +250,6 @@ SWIFT_PROTOCOL("_TtP7JivoSDK15IJivoSDKSession_")
 - (void)setPushTokenHex:(NSString * _Nullable)hex;
 - (BOOL)detectPushPayload:(NSDictionary * _Nonnull)payload SWIFT_WARN_UNUSED_RESULT;
 - (BOOL)handlePushPayload:(NSDictionary * _Nonnull)payload deliveryDate:(NSDate * _Nullable)deliveryDate SWIFT_WARN_UNUSED_RESULT;
-- (enum JivoSDKSessionNotificationKind)handleNotification:(UNNotification * _Nonnull)notification SWIFT_WARN_UNUSED_RESULT;
-- (BOOL)handleNotificationResponse:(UNNotificationResponse * _Nonnull)response SWIFT_WARN_UNUSED_RESULT;
 - (void)shutDown;
 @end
 
@@ -331,6 +326,8 @@ typedef SWIFT_ENUM(NSInteger, JivoSDKSessionNotificationKind, open) {
   JivoSDKSessionNotificationKindLocalBanner = 1,
   JivoSDKSessionNotificationKindUnknown = 2,
 };
+
+
 
 
 
@@ -584,9 +581,6 @@ SWIFT_PROTOCOL("_TtP7JivoSDK17IJivoSDKDebugging_")
 
 @protocol JivoSDKSessionDelegate;
 @class JivoSDKSessionCustomData;
-@class UNNotification;
-enum JivoSDKSessionNotificationKind : NSInteger;
-@class UNNotificationResponse;
 
 SWIFT_PROTOCOL("_TtP7JivoSDK15IJivoSDKSession_")
 @protocol IJivoSDKSession
@@ -598,8 +592,6 @@ SWIFT_PROTOCOL("_TtP7JivoSDK15IJivoSDKSession_")
 - (void)setPushTokenHex:(NSString * _Nullable)hex;
 - (BOOL)detectPushPayload:(NSDictionary * _Nonnull)payload SWIFT_WARN_UNUSED_RESULT;
 - (BOOL)handlePushPayload:(NSDictionary * _Nonnull)payload deliveryDate:(NSDate * _Nullable)deliveryDate SWIFT_WARN_UNUSED_RESULT;
-- (enum JivoSDKSessionNotificationKind)handleNotification:(UNNotification * _Nonnull)notification SWIFT_WARN_UNUSED_RESULT;
-- (BOOL)handleNotificationResponse:(UNNotificationResponse * _Nonnull)response SWIFT_WARN_UNUSED_RESULT;
 - (void)shutDown;
 @end
 
@@ -676,6 +668,8 @@ typedef SWIFT_ENUM(NSInteger, JivoSDKSessionNotificationKind, open) {
   JivoSDKSessionNotificationKindLocalBanner = 1,
   JivoSDKSessionNotificationKindUnknown = 2,
 };
+
+
 
 
 

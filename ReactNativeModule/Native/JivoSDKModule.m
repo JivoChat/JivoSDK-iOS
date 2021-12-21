@@ -84,7 +84,7 @@ RCT_EXPORT_METHOD(handlePushRawPayload:
                   callback:(RCTResponseSenderBlock)callback) {
   dispatch_async(dispatch_get_main_queue(), ^{
     NSDate *deliveryDate = [[NSDate alloc] initWithTimeIntervalSince1970:deliveryDateDouble];
-    bool isPushFromJivoBool = [[JivoSDK session] handlePushPayload:rawPayload deliveryDate:deliveryDate];
+    bool isPushFromJivoBool = [[JivoSDK session] detectPushPayload:rawPayload];
     NSNumber *isPushFromJivoNSNumber = [[NSNumber alloc] initWithBool:isPushFromJivoBool];
     
     NSArray *callbackData = @[isPushFromJivoNSNumber];

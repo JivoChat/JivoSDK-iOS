@@ -6,7 +6,7 @@
 	<dict>
 		<key>Assets.car</key>
 		<data>
-		TCKiNSq8yNTsaEwL7mCoznOM7h8=
+		bNvrZ5cG5lRlaIv0h7/b96GPzOc=
 		</data>
 		<key>Headers/JivoSDK-Swift.h</key>
 		<data>
@@ -18,7 +18,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		1e5wVvVoEMdMlCr5c816JNuisFk=
+		hYec3YBACs8Oz7Bh5nIu5du4dkg=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
@@ -30,7 +30,7 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		+HFLrmJAikx3OC6HXbYHBSs/5ZE=
+		2TTbeLoQpBcqhGL4bter1E3uhIs=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftdoc</key>
 		<data>
@@ -42,7 +42,7 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftmodule</key>
 		<data>
-		+HFLrmJAikx3OC6HXbYHBSs/5ZE=
+		2TTbeLoQpBcqhGL4bter1E3uhIs=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/i386-apple-ios-simulator.swiftdoc</key>
 		<data>
@@ -54,7 +54,7 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/i386-apple-ios-simulator.swiftmodule</key>
 		<data>
-		Q8I/wToS15i6DY7t4IMKAQPGQec=
+		FbdOSz/oZE2aTNJuf/QyhcfQGrc=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/i386.swiftdoc</key>
 		<data>
@@ -66,7 +66,7 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/i386.swiftmodule</key>
 		<data>
-		Q8I/wToS15i6DY7t4IMKAQPGQec=
+		FbdOSz/oZE2aTNJuf/QyhcfQGrc=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
@@ -78,7 +78,7 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		i6tvpBJkuptWh2JfM7K4j+llg3Y=
+		GCZnx+Lit/a4JkVWJbuBnSaTVG0=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftdoc</key>
 		<data>
@@ -90,7 +90,7 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftmodule</key>
 		<data>
-		i6tvpBJkuptWh2JfM7K4j+llg3Y=
+		GCZnx+Lit/a4JkVWJbuBnSaTVG0=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -201,11 +201,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			TCKiNSq8yNTsaEwL7mCoznOM7h8=
+			bNvrZ5cG5lRlaIv0h7/b96GPzOc=
 			</data>
 			<key>hash2</key>
 			<data>
-			33smuzoaaAbsg4fYSqv9Ta3aWVsG0aXotniDqtZrA7w=
+			ycKplqdZJSypPV4PMk5AsNmSp6bYt+mVmi2BDl9oH0E=
 			</data>
 		</dict>
 		<key>Headers/JivoSDK-Swift.h</key>
@@ -256,11 +256,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			+HFLrmJAikx3OC6HXbYHBSs/5ZE=
+			2TTbeLoQpBcqhGL4bter1E3uhIs=
 			</data>
 			<key>hash2</key>
 			<data>
-			Kazga/mMQMVa7rMjhy9Vgrh5Knp1cYBS3OywNl8Pw6M=
+			m0m+d9kPmoxvApHId0Ly9neVh4QaP/3tcEPUR8zmTc0=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftdoc</key>
@@ -289,11 +289,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			+HFLrmJAikx3OC6HXbYHBSs/5ZE=
+			2TTbeLoQpBcqhGL4bter1E3uhIs=
 			</data>
 			<key>hash2</key>
 			<data>
-			Kazga/mMQMVa7rMjhy9Vgrh5Knp1cYBS3OywNl8Pw6M=
+			m0m+d9kPmoxvApHId0Ly9neVh4QaP/3tcEPUR8zmTc0=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/i386-apple-ios-simulator.swiftdoc</key>
@@ -322,11 +322,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			Q8I/wToS15i6DY7t4IMKAQPGQec=
+			FbdOSz/oZE2aTNJuf/QyhcfQGrc=
 			</data>
 			<key>hash2</key>
 			<data>
-			7opxgbiz8g4gDM4ZdIc4+CPHPxkmY+45bGEzAk2muYM=
+			zajQfxvOhzjfVDCS7GiKyxRFy4BeaYIpujLoNzQSiPU=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/i386.swiftdoc</key>
@@ -355,11 +355,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			Q8I/wToS15i6DY7t4IMKAQPGQec=
+			FbdOSz/oZE2aTNJuf/QyhcfQGrc=
 			</data>
 			<key>hash2</key>
 			<data>
-			7opxgbiz8g4gDM4ZdIc4+CPHPxkmY+45bGEzAk2muYM=
+			zajQfxvOhzjfVDCS7GiKyxRFy4BeaYIpujLoNzQSiPU=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
@@ -388,11 +388,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			i6tvpBJkuptWh2JfM7K4j+llg3Y=
+			GCZnx+Lit/a4JkVWJbuBnSaTVG0=
 			</data>
 			<key>hash2</key>
 			<data>
-			VcvlutWCxTaMPOEdhQ532uw2PXSgDxH/mB2AwdGB13M=
+			HxTyS4c5XO2O/PTP36VsXutiJ3wGrgkOtdUW7/w66yE=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftdoc</key>
@@ -421,11 +421,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			i6tvpBJkuptWh2JfM7K4j+llg3Y=
+			GCZnx+Lit/a4JkVWJbuBnSaTVG0=
 			</data>
 			<key>hash2</key>
 			<data>
-			VcvlutWCxTaMPOEdhQ532uw2PXSgDxH/mB2AwdGB13M=
+			HxTyS4c5XO2O/PTP36VsXutiJ3wGrgkOtdUW7/w66yE=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

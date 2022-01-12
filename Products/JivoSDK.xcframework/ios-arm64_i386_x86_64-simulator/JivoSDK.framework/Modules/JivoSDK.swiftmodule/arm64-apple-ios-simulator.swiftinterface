@@ -376,6 +376,7 @@ open class MultipartFormData {
 }
 #warning("TODO: Anton Karpushko, 26.11.2021 – Make MemoryRepository thread-safe.")
 @objc public protocol IJivoSDKChattingUI {
+  @objc(isDisplaying) var isDisplaying: Swift.Bool { get }
   @objc(pushInto:) func push(into navigationController: UIKit.UINavigationController)
   @objc(pushInto:withConfig:) func push(into navigationController: UIKit.UINavigationController, config: JivoSDKChattingConfig)
   @objc(placeWithin:) func place(within navigationController: UIKit.UINavigationController)

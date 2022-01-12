@@ -220,6 +220,7 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 
 SWIFT_PROTOCOL("_TtP7JivoSDK18IJivoSDKChattingUI_")
 @protocol IJivoSDKChattingUI
+@property (nonatomic, readonly) BOOL isDisplaying;
 - (void)pushInto:(UINavigationController * _Nonnull)navigationController;
 - (void)pushInto:(UINavigationController * _Nonnull)navigationController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
 - (void)placeWithin:(UINavigationController * _Nonnull)navigationController;
@@ -562,6 +563,7 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 
 SWIFT_PROTOCOL("_TtP7JivoSDK18IJivoSDKChattingUI_")
 @protocol IJivoSDKChattingUI
+@property (nonatomic, readonly) BOOL isDisplaying;
 - (void)pushInto:(UINavigationController * _Nonnull)navigationController;
 - (void)pushInto:(UINavigationController * _Nonnull)navigationController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
 - (void)placeWithin:(UINavigationController * _Nonnull)navigationController;
@@ -904,6 +906,7 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 
 SWIFT_PROTOCOL("_TtP7JivoSDK18IJivoSDKChattingUI_")
 @protocol IJivoSDKChattingUI
+@property (nonatomic, readonly) BOOL isDisplaying;
 - (void)pushInto:(UINavigationController * _Nonnull)navigationController;
 - (void)pushInto:(UINavigationController * _Nonnull)navigationController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
 - (void)placeWithin:(UINavigationController * _Nonnull)navigationController;

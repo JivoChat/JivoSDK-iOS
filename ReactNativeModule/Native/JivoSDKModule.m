@@ -98,6 +98,16 @@ RCT_EXPORT_METHOD(shutDownSession) {
   });
 }
 
+RCT_EXPORT_METHOD(isChattingUIPresented:(RCTResponseSenderBlock)callback) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        bool isChattingUIDisplaying = [JivoSDK.chattingUI isDisplaying];
+        NSNumber *isChattingUIDisplayingNSNumber = [[NSNumber alloc] initWithBool:isChattingUIDisplaying];
+        
+        NSArray *callbackData = @[isChattingUIDisplayingNSNumber];
+        callback(callbackData);
+    });
+}
+
 RCT_EXPORT_METHOD(presentChattingUIWithConfig:(nullable NSDictionary *)uiConfigDictionary) {
   dispatch_async(dispatch_get_main_queue(), ^{
     NSString * _Nullable localeIdentifier = [uiConfigDictionary objectForKey:@"localeIdentifier"];

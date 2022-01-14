@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = 'JivoSDK'
-  spec.version      = '1.6.0-test.0'
+  spec.version      = '1.6.0-test.1'
   spec.license      = { :type => 'MIT' }
   spec.homepage     = 'https://github.com/JivoChat'
   spec.authors      = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
@@ -11,7 +11,7 @@ Pod::Spec.new do |spec|
   spec.swift_version = "5.1"
   spec.platform = :ios, "10.0"
 
-  spec.source       = { :git => "https://github.com/JivoChat/JivoSDK.git", :tag => "#{spec.version}" }
+  spec.source       = { :git => "https://github.com/JivoChat/JivoSDK-iOS.git", :tag => "#{spec.version}" }
   # spec.source       = { :git => "" }
   spec.ios.vendored_frameworks = 'Products/JivoSDK.xcframework'
   spec.resource_bundles = { 'JivoSDK' => ['Resources/Assets.xcassets', 'Resources/*.lproj'] }

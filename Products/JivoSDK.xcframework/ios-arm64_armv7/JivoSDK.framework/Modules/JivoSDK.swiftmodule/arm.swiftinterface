@@ -39,35 +39,12 @@ import UserNotifications
 import WebKit
 import XCGLogger
 import libPhoneNumber_iOS
-public enum JivoSDKSessionEnvironmentItem {
-  case chatState
-  case contactInfo
-  case agentInfo
-  case agentName
-  public static func == (a: JivoSDKSessionEnvironmentItem, b: JivoSDKSessionEnvironmentItem) -> Swift.Bool
-  public var hashValue: Swift.Int {
-    get
-  }
-  public func hash(into hasher: inout Swift.Hasher)
-}
-@objc public enum JivoSDKSessionNotificationKind : Swift.Int {
-  case remoteIncome
-  case localBanner
-  case unknown
-  public typealias RawValue = Swift.Int
-  public init?(rawValue: Swift.Int)
-  public var rawValue: Swift.Int {
-    get
-  }
-}
-@objc public protocol IJivoSDKSession {
+@objc public protocol JivoSDKSession {
   @objc(delegate) var delegate: JivoSDKSessionDelegate? { get set }
   @objc(startUpWithChannelID:userToken:) func startUp(channelID: Swift.String, userToken: Swift.String)
   @objc(updateCustomData:) func updateCustomData(_ data: JivoSDKSessionCustomData?)
   @objc(setPushTokenData:) func setPushToken(data: Foundation.Data?)
   @objc(setPushTokenHex:) func setPushToken(hex: Swift.String?)
-  @objc(detectPushPayload:) func detectPushPayload(_ payload: [Swift.AnyHashable : Any]) -> Swift.Bool
-  @objc(handlePushPayload:deliveryDate:) func handlePushPayload(_ payload: [Swift.AnyHashable : Any], deliveryDate: Foundation.Date?) -> Swift.Bool
   @objc(shutDown) func shutDown()
 }
 public enum AFError : Swift.Error {
@@ -375,7 +352,11 @@ open class MultipartFormData {
   @objc deinit
 }
 #warning("TODO: Anton Karpushko, 26.11.2021 – Make MemoryRepository thread-safe.")
-@objc public protocol IJivoSDKChattingUI {
+@objc public protocol JivoSDKChattingUIDelegate {
+  @objc func jivoDidRequestUIDisplaying()
+}
+@objc public protocol JivoSDKChattingUI {
+  @objc(delegate) var delegate: JivoSDKChattingUIDelegate? { get set }
   @objc(isDisplaying) var isDisplaying: Swift.Bool { get }
   @objc(pushInto:) func push(into navigationController: UIKit.UINavigationController)
   @objc(pushInto:withConfig:) func push(into navigationController: UIKit.UINavigationController, config: JivoSDKChattingConfig)
@@ -392,13 +373,15 @@ open class MultipartFormData {
   @objc override dynamic public init(nibName nibNameOrNil: Swift.String?, bundle nibBundleOrNil: Foundation.Bundle?)
   @objc required dynamic public init?(coder aDecoder: Foundation.NSCoder)
 }
-@objc public protocol JivoSDKDebuggingDelegate {
-  @objc func didLog(message: Swift.String)
-}
 @_hasMissingDesignatedInitializers open class RemoteStorageSubFilesUp {
   @objc deinit
 }
 #warning("TODO: Anton Karpushko, 26.11.2021 – Make PersistentRepository thread-safe.")
+@objc public protocol JivoSDKNotifications {
+  @objc(handleRemoteNotificationContainingUserInfo:) func handleRemoteNotification(containingUserInfo userInfo: [Swift.AnyHashable : Any]) -> Swift.Bool
+  @objc func handleNotification(_ notification: UserNotifications.UNNotification) -> Swift.Bool
+  @objc(handleNotificationResponse:) func handleNotification(response: UserNotifications.UNNotificationResponse) -> Swift.Bool
+}
 @_hasMissingDesignatedInitializers open class PreferencesDriver {
   @objc deinit
 }
@@ -433,22 +416,17 @@ public enum JivoSDKTitleBarIconStyle {
     get
   }
 }
-@objc public protocol IJivoSDKDebugging {
+@objc public protocol JivoSDKDebugging {
   @objc var level: JivoSDKDebuggingLevel { get set }
   @objc func archiveLogs(completion: @escaping (Foundation.URL?, JivoSDKArchivingStatus) -> Swift.Void)
 }
 @objc public protocol JivoSDKSessionDelegate {
 }
 @_inheritsConvenienceInitializers @objc public class JivoSDK : ObjectiveC.NSObject {
-  @objc public static var session: IJivoSDKSession {
-    get
-  }
-  @objc public static var chattingUI: IJivoSDKChattingUI {
-    get
-  }
-  @objc public static var debugging: IJivoSDKDebugging {
-    get
-  }
+  @objc public static let session: JivoSDKSession
+  @objc public static let chattingUI: JivoSDKChattingUI
+  @objc public static let notifications: JivoSDKNotifications
+  @objc public static let debugging: JivoSDKDebugging
   @objc deinit
   @objc override dynamic public init()
 }
@@ -462,11 +440,6 @@ extension JivoSDKSessionCustomData {
     @objc get
   }
 }
-extension JivoSDKSessionEnvironmentItem : Swift.Equatable {}
-extension JivoSDKSessionEnvironmentItem : Swift.Hashable {}
-extension JivoSDKSessionNotificationKind : Swift.Equatable {}
-extension JivoSDKSessionNotificationKind : Swift.Hashable {}
-extension JivoSDKSessionNotificationKind : Swift.RawRepresentable {}
 extension JivoSDKDebuggingLevel : Swift.Equatable {}
 extension JivoSDKDebuggingLevel : Swift.Hashable {}
 extension JivoSDKDebuggingLevel : Swift.RawRepresentable {}

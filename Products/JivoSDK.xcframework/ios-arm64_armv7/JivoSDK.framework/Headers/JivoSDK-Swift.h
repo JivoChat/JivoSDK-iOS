@@ -214,55 +214,21 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 
 
 
-@class UINavigationController;
-@class JivoSDKChattingConfig;
-@class UIViewController;
-
-SWIFT_PROTOCOL("_TtP7JivoSDK18IJivoSDKChattingUI_")
-@protocol IJivoSDKChattingUI
-@property (nonatomic, readonly) BOOL isDisplaying;
-- (void)pushInto:(UINavigationController * _Nonnull)navigationController;
-- (void)pushInto:(UINavigationController * _Nonnull)navigationController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
-- (void)placeWithin:(UINavigationController * _Nonnull)navigationController;
-- (void)placeWithin:(UINavigationController * _Nonnull)navigationController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
-- (void)presentOver:(UIViewController * _Nonnull)viewController;
-- (void)presentOver:(UIViewController * _Nonnull)viewController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
-@end
-
-enum JivoSDKDebuggingLevel : NSInteger;
-enum JivoSDKArchivingStatus : NSInteger;
-
-SWIFT_PROTOCOL("_TtP7JivoSDK17IJivoSDKDebugging_")
-@protocol IJivoSDKDebugging
-@property (nonatomic) enum JivoSDKDebuggingLevel level;
-- (void)archiveLogsWithCompletion:(void (^ _Nonnull)(NSURL * _Nullable, enum JivoSDKArchivingStatus))completion;
-@end
-
-@protocol JivoSDKSessionDelegate;
-@class JivoSDKSessionCustomData;
-
-SWIFT_PROTOCOL("_TtP7JivoSDK15IJivoSDKSession_")
-@protocol IJivoSDKSession
-/// You can set a delegate for JivoSDKSession object using this property. The property type protocol is empty for now but we suppose that you will suggest some ideas of callback methods for us.
-@property (nonatomic, strong) id <JivoSDKSessionDelegate> _Nullable delegate;
-- (void)startUpWithChannelID:(NSString * _Nonnull)channelID userToken:(NSString * _Nonnull)userToken;
-- (void)updateCustomData:(JivoSDKSessionCustomData * _Nullable)data;
-- (void)setPushTokenData:(NSData * _Nullable)data;
-- (void)setPushTokenHex:(NSString * _Nullable)hex;
-- (BOOL)detectPushPayload:(NSDictionary * _Nonnull)payload SWIFT_WARN_UNUSED_RESULT;
-- (BOOL)handlePushPayload:(NSDictionary * _Nonnull)payload deliveryDate:(NSDate * _Nullable)deliveryDate SWIFT_WARN_UNUSED_RESULT;
-- (void)shutDown;
-@end
-
+@protocol JivoSDKSession;
+@protocol JivoSDKChattingUI;
+@protocol JivoSDKNotifications;
+@protocol JivoSDKDebugging;
 
 SWIFT_CLASS("_TtC7JivoSDK7JivoSDK")
 @interface JivoSDK : NSObject
-SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <IJivoSDKSession> _Nonnull session;)
-+ (id <IJivoSDKSession> _Nonnull)session SWIFT_WARN_UNUSED_RESULT;
-SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <IJivoSDKChattingUI> _Nonnull chattingUI;)
-+ (id <IJivoSDKChattingUI> _Nonnull)chattingUI SWIFT_WARN_UNUSED_RESULT;
-SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <IJivoSDKDebugging> _Nonnull debugging;)
-+ (id <IJivoSDKDebugging> _Nonnull)debugging SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <JivoSDKSession> _Nonnull session;)
++ (id <JivoSDKSession> _Nonnull)session SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <JivoSDKChattingUI> _Nonnull chattingUI;)
++ (id <JivoSDKChattingUI> _Nonnull)chattingUI SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <JivoSDKNotifications> _Nonnull notifications;)
++ (id <JivoSDKNotifications> _Nonnull)notifications SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <JivoSDKDebugging> _Nonnull debugging;)
++ (id <JivoSDKDebugging> _Nonnull)debugging SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
@@ -282,6 +248,28 @@ SWIFT_CLASS("_TtC7JivoSDK21JivoSDKChattingConfig")
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
+@protocol JivoSDKChattingUIDelegate;
+@class UINavigationController;
+@class UIViewController;
+
+SWIFT_PROTOCOL("_TtP7JivoSDK17JivoSDKChattingUI_")
+@protocol JivoSDKChattingUI
+@property (nonatomic, strong) id <JivoSDKChattingUIDelegate> _Nullable delegate;
+@property (nonatomic, readonly) BOOL isDisplaying;
+- (void)pushInto:(UINavigationController * _Nonnull)navigationController;
+- (void)pushInto:(UINavigationController * _Nonnull)navigationController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
+- (void)placeWithin:(UINavigationController * _Nonnull)navigationController;
+- (void)placeWithin:(UINavigationController * _Nonnull)navigationController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
+- (void)presentOver:(UIViewController * _Nonnull)viewController;
+- (void)presentOver:(UIViewController * _Nonnull)viewController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
+@end
+
+
+SWIFT_PROTOCOL("_TtP7JivoSDK25JivoSDKChattingUIDelegate_")
+@protocol JivoSDKChattingUIDelegate
+- (void)jivoDidRequestUIDisplaying;
+@end
+
 @class NSBundle;
 @class NSCoder;
 
@@ -293,16 +281,42 @@ SWIFT_CLASS("_TtC7JivoSDK16JivoSDKContainer")
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)aDecoder OBJC_DESIGNATED_INITIALIZER;
 @end
 
+enum JivoSDKDebuggingLevel : NSInteger;
 
-SWIFT_PROTOCOL("_TtP7JivoSDK24JivoSDKDebuggingDelegate_")
-@protocol JivoSDKDebuggingDelegate
-- (void)didLogWithMessage:(NSString * _Nonnull)message;
+SWIFT_PROTOCOL("_TtP7JivoSDK16JivoSDKDebugging_")
+@protocol JivoSDKDebugging
+@property (nonatomic) enum JivoSDKDebuggingLevel level;
+- (void)archiveLogsWithCompletion:(void (^ _Nonnull)(NSURL * _Nullable, enum JivoSDKArchivingStatus))completion;
 @end
 
 typedef SWIFT_ENUM(NSInteger, JivoSDKDebuggingLevel, open) {
   JivoSDKDebuggingLevelSilent = 0,
   JivoSDKDebuggingLevelFull = 1,
 };
+
+@class UNNotification;
+@class UNNotificationResponse;
+
+SWIFT_PROTOCOL("_TtP7JivoSDK20JivoSDKNotifications_")
+@protocol JivoSDKNotifications
+- (BOOL)handleRemoteNotificationContainingUserInfo:(NSDictionary * _Nonnull)userInfo SWIFT_WARN_UNUSED_RESULT;
+- (BOOL)handleNotification:(UNNotification * _Nonnull)notification SWIFT_WARN_UNUSED_RESULT;
+- (BOOL)handleNotificationResponse:(UNNotificationResponse * _Nonnull)response SWIFT_WARN_UNUSED_RESULT;
+@end
+
+@protocol JivoSDKSessionDelegate;
+@class JivoSDKSessionCustomData;
+
+SWIFT_PROTOCOL("_TtP7JivoSDK14JivoSDKSession_")
+@protocol JivoSDKSession
+/// You can set a delegate for JivoSDKSession object using this property. The property type protocol is empty for now but we suppose that you will suggest some ideas of callback methods for us.
+@property (nonatomic, strong) id <JivoSDKSessionDelegate> _Nullable delegate;
+- (void)startUpWithChannelID:(NSString * _Nonnull)channelID userToken:(NSString * _Nonnull)userToken;
+- (void)updateCustomData:(JivoSDKSessionCustomData * _Nullable)data;
+- (void)setPushTokenData:(NSData * _Nullable)data;
+- (void)setPushTokenHex:(NSString * _Nullable)hex;
+- (void)shutDown;
+@end
 
 
 SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData")
@@ -321,12 +335,6 @@ SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData")
 SWIFT_PROTOCOL("_TtP7JivoSDK22JivoSDKSessionDelegate_")
 @protocol JivoSDKSessionDelegate
 @end
-
-typedef SWIFT_ENUM(NSInteger, JivoSDKSessionNotificationKind, open) {
-  JivoSDKSessionNotificationKindRemoteIncome = 0,
-  JivoSDKSessionNotificationKindLocalBanner = 1,
-  JivoSDKSessionNotificationKindUnknown = 2,
-};
 
 
 
@@ -557,55 +565,21 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 
 
 
-@class UINavigationController;
-@class JivoSDKChattingConfig;
-@class UIViewController;
-
-SWIFT_PROTOCOL("_TtP7JivoSDK18IJivoSDKChattingUI_")
-@protocol IJivoSDKChattingUI
-@property (nonatomic, readonly) BOOL isDisplaying;
-- (void)pushInto:(UINavigationController * _Nonnull)navigationController;
-- (void)pushInto:(UINavigationController * _Nonnull)navigationController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
-- (void)placeWithin:(UINavigationController * _Nonnull)navigationController;
-- (void)placeWithin:(UINavigationController * _Nonnull)navigationController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
-- (void)presentOver:(UIViewController * _Nonnull)viewController;
-- (void)presentOver:(UIViewController * _Nonnull)viewController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
-@end
-
-enum JivoSDKDebuggingLevel : NSInteger;
-enum JivoSDKArchivingStatus : NSInteger;
-
-SWIFT_PROTOCOL("_TtP7JivoSDK17IJivoSDKDebugging_")
-@protocol IJivoSDKDebugging
-@property (nonatomic) enum JivoSDKDebuggingLevel level;
-- (void)archiveLogsWithCompletion:(void (^ _Nonnull)(NSURL * _Nullable, enum JivoSDKArchivingStatus))completion;
-@end
-
-@protocol JivoSDKSessionDelegate;
-@class JivoSDKSessionCustomData;
-
-SWIFT_PROTOCOL("_TtP7JivoSDK15IJivoSDKSession_")
-@protocol IJivoSDKSession
-/// You can set a delegate for JivoSDKSession object using this property. The property type protocol is empty for now but we suppose that you will suggest some ideas of callback methods for us.
-@property (nonatomic, strong) id <JivoSDKSessionDelegate> _Nullable delegate;
-- (void)startUpWithChannelID:(NSString * _Nonnull)channelID userToken:(NSString * _Nonnull)userToken;
-- (void)updateCustomData:(JivoSDKSessionCustomData * _Nullable)data;
-- (void)setPushTokenData:(NSData * _Nullable)data;
-- (void)setPushTokenHex:(NSString * _Nullable)hex;
-- (BOOL)detectPushPayload:(NSDictionary * _Nonnull)payload SWIFT_WARN_UNUSED_RESULT;
-- (BOOL)handlePushPayload:(NSDictionary * _Nonnull)payload deliveryDate:(NSDate * _Nullable)deliveryDate SWIFT_WARN_UNUSED_RESULT;
-- (void)shutDown;
-@end
-
+@protocol JivoSDKSession;
+@protocol JivoSDKChattingUI;
+@protocol JivoSDKNotifications;
+@protocol JivoSDKDebugging;
 
 SWIFT_CLASS("_TtC7JivoSDK7JivoSDK")
 @interface JivoSDK : NSObject
-SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <IJivoSDKSession> _Nonnull session;)
-+ (id <IJivoSDKSession> _Nonnull)session SWIFT_WARN_UNUSED_RESULT;
-SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <IJivoSDKChattingUI> _Nonnull chattingUI;)
-+ (id <IJivoSDKChattingUI> _Nonnull)chattingUI SWIFT_WARN_UNUSED_RESULT;
-SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <IJivoSDKDebugging> _Nonnull debugging;)
-+ (id <IJivoSDKDebugging> _Nonnull)debugging SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <JivoSDKSession> _Nonnull session;)
++ (id <JivoSDKSession> _Nonnull)session SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <JivoSDKChattingUI> _Nonnull chattingUI;)
++ (id <JivoSDKChattingUI> _Nonnull)chattingUI SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <JivoSDKNotifications> _Nonnull notifications;)
++ (id <JivoSDKNotifications> _Nonnull)notifications SWIFT_WARN_UNUSED_RESULT;
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <JivoSDKDebugging> _Nonnull debugging;)
++ (id <JivoSDKDebugging> _Nonnull)debugging SWIFT_WARN_UNUSED_RESULT;
 - (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
@@ -625,6 +599,28 @@ SWIFT_CLASS("_TtC7JivoSDK21JivoSDKChattingConfig")
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
+@protocol JivoSDKChattingUIDelegate;
+@class UINavigationController;
+@class UIViewController;
+
+SWIFT_PROTOCOL("_TtP7JivoSDK17JivoSDKChattingUI_")
+@protocol JivoSDKChattingUI
+@property (nonatomic, strong) id <JivoSDKChattingUIDelegate> _Nullable delegate;
+@property (nonatomic, readonly) BOOL isDisplaying;
+- (void)pushInto:(UINavigationController * _Nonnull)navigationController;
+- (void)pushInto:(UINavigationController * _Nonnull)navigationController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
+- (void)placeWithin:(UINavigationController * _Nonnull)navigationController;
+- (void)placeWithin:(UINavigationController * _Nonnull)navigationController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
+- (void)presentOver:(UIViewController * _Nonnull)viewController;
+- (void)presentOver:(UIViewController * _Nonnull)viewController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
+@end
+
+
+SWIFT_PROTOCOL("_TtP7JivoSDK25JivoSDKChattingUIDelegate_")
+@protocol JivoSDKChattingUIDelegate
+- (void)jivoDidRequestUIDisplaying;
+@end
+
 @class NSBundle;
 @class NSCoder;
 
@@ -636,16 +632,42 @@ SWIFT_CLASS("_TtC7JivoSDK16JivoSDKContainer")
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)aDecoder OBJC_DESIGNATED_INITIALIZER;
 @end
 
+enum JivoSDKDebuggingLevel : NSInteger;
 
-SWIFT_PROTOCOL("_TtP7JivoSDK24JivoSDKDebuggingDelegate_")
-@protocol JivoSDKDebuggingDelegate
-- (void)didLogWithMessage:(NSString * _Nonnull)message;
+SWIFT_PROTOCOL("_TtP7JivoSDK16JivoSDKDebugging_")
+@protocol JivoSDKDebugging
+@property (nonatomic) enum JivoSDKDebuggingLevel level;
+- (void)archiveLogsWithCompletion:(void (^ _Nonnull)(NSURL * _Nullable, enum JivoSDKArchivingStatus))completion;
 @end
 
 typedef SWIFT_ENUM(NSInteger, JivoSDKDebuggingLevel, open) {
   JivoSDKDebuggingLevelSilent = 0,
   JivoSDKDebuggingLevelFull = 1,
 };
+
+@class UNNotification;
+@class UNNotificationResponse;
+
+SWIFT_PROTOCOL("_TtP7JivoSDK20JivoSDKNotifications_")
+@protocol JivoSDKNotifications
+- (BOOL)handleRemoteNotificationContainingUserInfo:(NSDictionary * _Nonnull)userInfo SWIFT_WARN_UNUSED_RESULT;
+- (BOOL)handleNotification:(UNNotification * _Nonnull)notification SWIFT_WARN_UNUSED_RESULT;
+- (BOOL)handleNotificationResponse:(UNNotificationResponse * _Nonnull)response SWIFT_WARN_UNUSED_RESULT;
+@end
+
+@protocol JivoSDKSessionDelegate;
+@class JivoSDKSessionCustomData;
+
+SWIFT_PROTOCOL("_TtP7JivoSDK14JivoSDKSession_")
+@protocol JivoSDKSession
+/// You can set a delegate for JivoSDKSession object using this property. The property type protocol is empty for now but we suppose that you will suggest some ideas of callback methods for us.
+@property (nonatomic, strong) id <JivoSDKSessionDelegate> _Nullable delegate;
+- (void)startUpWithChannelID:(NSString * _Nonnull)channelID userToken:(NSString * _Nonnull)userToken;
+- (void)updateCustomData:(JivoSDKSessionCustomData * _Nullable)data;
+- (void)setPushTokenData:(NSData * _Nullable)data;
+- (void)setPushTokenHex:(NSString * _Nullable)hex;
+- (void)shutDown;
+@end
 
 
 SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData")
@@ -664,12 +686,6 @@ SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData")
 SWIFT_PROTOCOL("_TtP7JivoSDK22JivoSDKSessionDelegate_")
 @protocol JivoSDKSessionDelegate
 @end
-
-typedef SWIFT_ENUM(NSInteger, JivoSDKSessionNotificationKind, open) {
-  JivoSDKSessionNotificationKindRemoteIncome = 0,
-  JivoSDKSessionNotificationKindLocalBanner = 1,
-  JivoSDKSessionNotificationKindUnknown = 2,
-};
 
 
 

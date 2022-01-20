@@ -14,17 +14,24 @@
 
 RCT_EXPORT_MODULE(JivoSDK);
 
+_Nullable RCTResponseSenderBlock chattingUIDisplayRequestHandler;
+
++ (BOOL)requiresMainQueueSetup {
+  return true;
+}
+
+- (id)init {
+  if (self = [super init]) {
+    [[JivoSDK chattingUI] setDelegate:self];
+  }
+  return self;
+}
+
 RCT_EXPORT_METHOD(startUpSession:
                   (NSString *)channelID
                   userToken:(NSString *)userToken) {
   dispatch_async(dispatch_get_main_queue(), ^{
     [[JivoSDK session] startUpWithChannelID:channelID userToken:userToken];
-  });
-}
-
-RCT_EXPORT_METHOD(setSessionCallbacks) {
-  dispatch_async(dispatch_get_main_queue(), ^{
-    [[JivoSDK session] setDelegate:self];
   });
 }
 
@@ -80,11 +87,9 @@ RCT_EXPORT_METHOD(setPushToken:(NSString *)hex) {
 
 RCT_EXPORT_METHOD(handlePushRawPayload:
                   (NSDictionary *)rawPayload
-                  deliveryDate:(double)deliveryDateDouble
                   callback:(RCTResponseSenderBlock)callback) {
   dispatch_async(dispatch_get_main_queue(), ^{
-    NSDate *deliveryDate = [[NSDate alloc] initWithTimeIntervalSince1970:deliveryDateDouble];
-    bool isPushFromJivoBool = [[JivoSDK session] detectPushPayload:rawPayload];
+    bool isPushFromJivoBool = [[JivoSDK notifications] handleRemoteNotificationContainingUserInfo:rawPayload];
     NSNumber *isPushFromJivoNSNumber = [[NSNumber alloc] initWithBool:isPushFromJivoBool];
     
     NSArray *callbackData = @[isPushFromJivoNSNumber];
@@ -99,13 +104,25 @@ RCT_EXPORT_METHOD(shutDownSession) {
 }
 
 RCT_EXPORT_METHOD(isChattingUIPresented:(RCTResponseSenderBlock)callback) {
-    dispatch_async(dispatch_get_main_queue(), ^{
-        bool isChattingUIDisplaying = [JivoSDK.chattingUI isDisplaying];
-        NSNumber *isChattingUIDisplayingNSNumber = [[NSNumber alloc] initWithBool:isChattingUIDisplaying];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    bool isChattingUIDisplaying = [JivoSDK.chattingUI isDisplaying];
+    NSNumber *isChattingUIDisplayingNSNumber = [[NSNumber alloc] initWithBool:isChattingUIDisplaying];
         
-        NSArray *callbackData = @[isChattingUIDisplayingNSNumber];
-        callback(callbackData);
-    });
+    NSArray *callbackData = @[isChattingUIDisplayingNSNumber];
+    callback(callbackData);
+  });
+}
+
+RCT_EXPORT_METHOD(setChattingUIDisplayRequestHandler:(RCTResponseSenderBlock)callback) {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    chattingUIDisplayRequestHandler = callback;
+  });
+}
+
+RCT_EXPORT_METHOD(removeChattingUIDisplayRequestHandler) {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    chattingUIDisplayRequestHandler = NULL;
+  });
 }
 
 RCT_EXPORT_METHOD(presentChattingUIWithConfig:(nullable NSDictionary *)uiConfigDictionary) {
@@ -248,10 +265,12 @@ RCT_EXPORT_METHOD(archiveLogs:(RCTResponseSenderBlock)callback) {
   });
 }
 
-RCTResponseSenderBlock sessionDelegateRCTCallback;
-
-+ (BOOL)requiresMainQueueSetup {
-  return true;
+- (void)jivoDidRequestUIDisplaying {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    if (chattingUIDisplayRequestHandler != NULL) {
+      chattingUIDisplayRequestHandler(@[]);
+    }
+  });
 }
 
 - (JivoSDKDebuggingLevel)debuggingLevelForString:(NSString *)string {

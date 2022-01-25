@@ -6,7 +6,7 @@
 	<dict>
 		<key>Assets.car</key>
 		<data>
-		icxcv3nSFTBaK5ThV7j1dpyJ+GI=
+		rk4dnZysDYy52DWFpbj1Hnxg2n4=
 		</data>
 		<key>Headers/JivoSDK-Swift.h</key>
 		<data>
@@ -18,7 +18,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		gQWocxrfT8yMG08iTPJH7+8H3N8=
+		1aXQzF6aFXN6CSQ4wYI/OT7qE+4=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
@@ -201,11 +201,11 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			icxcv3nSFTBaK5ThV7j1dpyJ+GI=
+			rk4dnZysDYy52DWFpbj1Hnxg2n4=
 			</data>
 			<key>hash2</key>
 			<data>
-			D5z4EWogEKGc3Df4QFuIaB6F8+JUz/jinaee22kCdG8=
+			XWqwPtfTAbqNEv1D/pY6vsCFQuqK0DtKdlJw+QxuU40=
 			</data>
 		</dict>
 		<key>Headers/JivoSDK-Swift.h</key>

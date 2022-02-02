@@ -1,15 +1,14 @@
 Pod::Spec.new do |spec|
   spec.name         = 'JivoSDK'
-  spec.version      = '2.0.0-test.1'
+  spec.version      = '2.0.0-test.2'
   spec.license      = { :type => 'MIT' }
   spec.homepage     = 'https://github.com/JivoChat'
   spec.authors      = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
   spec.summary      = 'Jivo business chat mobile SDK'
 
-  spec.ios.deployment_target  = '10.0'
+  spec.ios.deployment_target  = '11.0'
 
   spec.swift_version = "5.1"
-  spec.platform = :ios, "10.0"
 
   spec.source       = { :git => "https://github.com/JivoChat/JivoSDK-iOS.git", :tag => "#{spec.version}" }
   # spec.source       = { :git => "" }
@@ -49,10 +48,10 @@ Pod::Spec.new do |spec|
   spec.dependency      'CollectionAndTableViewCompatible'
 
 # JMSpecsRepo dependencies
-  spec.dependency      'JMShared', '2.5.11'
+  spec.dependency      'JMShared', '4.0.0-dev.1'
   spec.dependency      'JMCodingKit', '5.0.2'
   spec.dependency      'JMRepicKit', '~> 1.0.3'
-  spec.dependency      'JMTimelineKit', '3.1.1'
+  spec.dependency      'JMTimelineKit', '3.1.2'
   spec.dependency      'JMMarkdownKit', '1.1.2'
   spec.dependency      'JMDesignKit', '1.0.0'
   spec.dependency      'JMOnetimeCalculator', '1.0.0'
@@ -61,6 +60,16 @@ Pod::Spec.new do |spec|
 
   spec.exclude_files = [
     'JivoSDK/Info.plist',
+    'SharedSources/Models/Message/Message+Access.swift',
+    'SharedSources/ChatTimelineFactory.swift',
+    'SharedSources/Managers/CommonProto.swift',
+    'SharedSources/Managers/CommonSubStorage.swift',
+    'SharedSources/Services/ChatCacheService/ChatCacheTypes.swift',
+    'SharedSources/Services/ChatCacheService/ChatCacheService.swift',
+    'SharedSources/Services/MentioningService/MentioningService.swift',
+    'SharedSources/Services/TypingCacheService/TypingCacheService.swift',
+    'SharedSources/Services/SystemMessagingService/SystemMessagingService.swift',
+    'SharedSources/Modules/Chat/Timeline/ChatTimelineProvider.swift',
     'SharedSources/**/*Unit.swift',
     '**/ChatSubStorageTests.swift',
     '**/DevicePlaybackAudioPlayer.swift',

@@ -1,0 +1,11 @@
+framework module JivoSDK {
+  umbrella header "JivoSDK.h"
+
+  export *
+  module * { export * }
+}
+
+module JivoSDK.Swift {
+    header "JivoSDK-Swift.h"
+    requires objc
+}

@@ -1,7 +1,12 @@
 # **Jivo Mobile SDK для iOS (beta)**
 ## Документация для React Native проектов
 
-В этом документе содержатся некоторые разделы основного документа, адаптированные под интеграцию Jivo SDK в React Native проекты. Остальные разделы, не имеющие адаптации здесь, сохраняют свою актуальность и для React Native проектов.
+В этом документе содержатся некоторые разделы [основного документа](https://github.com/JivoChat/JivoSDK-iOS#jivo-mobile-sdk-для-ios-beta), адаптированные под интеграцию Jivo SDK в проекты, использующие React Native. Остальные разделы, не имеющие адаптации здесь, сохраняют свою актуальность и для React Native проектов.
+
+## Содержание
+- [Установка](https://github.com/JivoChat/JivoSDK-iOS/blob/develop/Docs/SetUpGuideForReactNativeProjects.md#установка)
+- [Использование](https://github.com/JivoChat/JivoSDK-iOS/blob/develop/Docs/SetUpGuideForReactNativeProjects.md#использование)
+- [Описание методов и свойств](https://github.com/JivoChat/JivoSDK-iOS/blob/develop/Docs/SetUpGuideForReactNativeProjects.md#описание-методов)
 
 ## Установка
 
@@ -17,7 +22,7 @@
 > Также вам необходим проект Xcode, в который интегрирован UI приложения на React Native и для которого посредством CocoaPods установлены модули React. Обычно такой проект Xcode уже сгенерирован и находится в директории ios/. Если такой проект отсутствует, вы можете создать его, опираясь на [эту документацию](https://reactnative.dev/docs/integration-with-existing-apps).
 
 #### Шаги установки
-1. Установите плагин `cocoapods-user-defined-build-types` для CocoaPods.
+1. Установите плагин [`cocoapods-user-defined-build-types`](https://github.com/joncardasis/cocoapods-user-defined-build-types) для CocoaPods.
 
    Для этого:
      - выполните в терминале следующую команду:
@@ -73,7 +78,7 @@ post_install do |installer|
 end
 ```
 
-> Блок post-install добавляет поддержку module stability для всех pod'ов в вашем проекте. Это необходимо для того, чтобы один и тот же пакет JivoSDK.xcframework можно было использовать, не пересобирая на всех версиях Xcode выше 12.0 (версия, на которой JivoSDK.xcframework был собран). Корректная работа JivoSDK возможна только в том случае, если все его зависимости также будут поддерживать module stability.
+> Блок post-install добавляет поддержку [module stability](https://www.swift.org/blog/library-evolution/) для всех pod'ов в вашем проекте. Это необходимо для того, чтобы один и тот же пакет JivoSDK.xcframework можно было использовать, не пересобирая на всех версиях Xcode выше 12.0 (версия, на которой JivoSDK.xcframework был собран). Корректная работа JivoSDK возможна только в том случае, если все его зависимости также будут поддерживать module stability.
 
 Посмотреть, какая версия iOS указана в качестве основного deployment target, можно в настройках основного таргета:
 
@@ -85,7 +90,7 @@ end
 $ pod install
 ```
 
-6. Добавьте в проект Xcode файлы `JivoSDKModule.h` и `JivoSDKModule.m`, которые находятся в репозитории JivoSDK по пути `ReactNativeModule/Native`, как показано на скриншотах:
+6. Добавьте в проект Xcode файлы `JivoSDKModule.h` и `JivoSDKModule.m`, которые находятся в [репозитории JivoSDK](https://github.com/JivoChat/JivoSDK-iOS) по пути `ReactNativeModule/Native`, как показано на скриншотах:
 
 ![](https://drive.google.com/uc?id=1KE20XzyIYmGFeob0vMxueFLv_NF-KjRW)
 
@@ -93,7 +98,7 @@ $ pod install
 
    `Не забудьте отметить чекбокс “Copy items if needed”!`
 
-7. Добавьте в свой React Native проект файл `JivoSDKModule.js`, рпсполагающийся в репозитории JivoSDK по пути `ReactNativeModule/JivoSDKModule.js`.
+7. Добавьте в свой React Native проект файл `JivoSDKModule.js`, рпсполагающийся в [репозитории JivoSDK](https://github.com/JivoChat/JivoSDK-iOS) по пути `ReactNativeModule/JivoSDKModule.js`.
 
 ## Использование
 

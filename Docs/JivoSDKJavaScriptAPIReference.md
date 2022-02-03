@@ -1,4 +1,4 @@
-# Описание функций Jivo SDK JavaScript API
+# Описание методов Jivo SDK JavaScript API
 
 ### `startUpSession(channelID, userToken)`
 

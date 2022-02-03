@@ -161,5 +161,5 @@ const App: () => Node = () => {
 
 ## Описание методов
 
-Описание методов, составляющих Jivo SDK JavaScript API, вы можете найти (здесь)[].
+Описание методов, составляющих Jivo SDK JavaScript API, вы можете найти [здесь](https://github.com/JivoChat/JivoSDK-iOS/blob/develop/Docs/JivoSDKJavaScriptAPIReference.md#описание-функций-jivo-sdk-javascript-api).
 

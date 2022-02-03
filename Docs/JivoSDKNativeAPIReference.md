@@ -1,7 +1,7 @@
 # Описание методов и свойтсв Jivo SDK Swift/Objective-C API
 
-### **session**
-#### `delegate`
+## **session**
+### `delegate`
 Объявлен как: 
 
 ```swift
@@ -11,7 +11,7 @@ var delegate: JivoSDKSessionDelegate?
 Устанавливает делегат для обработки событий, связанных с соединением и сессией клиента.
 > На данный момент протокол JivoSDKSessionDelegate не содержит ни одного объявления внутри себя. Расскажите нам, какие свойства или методы обратного вызова вы бы хотели увидеть в нём.
 #
-#### `startUp(channelID:userToken:)`
+### `startUp(channelID:userToken:)`
 Объявлен как:
 
 ```swift
@@ -26,7 +26,7 @@ func startUp(channelID: String, userToken: String)
 - `channelID: String` – идентификатор вашего канала в Jivo (то же самое, что и `widget ID`); 
 - `userToken: String` – уникальный ключ для клиента, зашедшего в чат, по которому определяется, требуется ли создать новую сессию с новым диалогом, либо восстановить уже существующую и загрузить историю начатого диалога. userToken сохраняется в Keychain, поэтому восстановление сессии возможно и после удаления-переустановки приложения, и при смене девайса (при условии включенной синхронизации данных Keychain в iCloud).
 #
-#### `updateCustomData(_:)`
+### `updateCustomData(_:)`
 Объявлен как:
 
 ```swift
@@ -44,7 +44,7 @@ func updateCustomData(_ data: JivoSDKSessionCustomData?)
   - `phone: String?` – телефон клиента; 
   - `brief: String?` – дополнительная информация о клиенте в произвольной форме. 
 #
-#### `setPushToken(data:)`
+### `setPushToken(data:)`
 Объявлен как:
 
 ```swift
@@ -60,7 +60,7 @@ func setPushToken(data: Data?)
 
 Для того, чтобы отписать устройство от PUSH уведомлений, вызовите метод `shutDown()`. 
 #
-#### `setPushToken(hex:)`
+### `setPushToken(hex:)`
 Объявлен как: 
 
 ```swift
@@ -76,7 +76,7 @@ func setPushToken(hex: String?)
 
 Для того, чтобы отписать устройство от PUSH уведомлений, вызовите метод `shutDown()`. 
 #
-#### `detectPushPayload(_:deliveryDate:)`
+### `detectPushPayload(_:deliveryDate:)`
 Объявлен как:
 
 ```swift
@@ -88,7 +88,7 @@ func detectPushPayload(_ payload: [AnyHashable : Any]) -> Bool
 **Параметры:**
 - `payload: [AnyHashable : Any]` – словарь с данными из тела PUSH-уведомления.
 #
-#### `handlePushPayload(_:deliveryDate:)`
+### `handlePushPayload(_:deliveryDate:)`
 Объявлен как:
 
 ```swift
@@ -103,7 +103,7 @@ func handlePushPayload(_ payload: [AnyHashable : Any], deliveryDate: Date?) -> B
 - `payload: [AnyHashable : Any]` – словарь с данными из тела PUSH-уведомления;
 - `deliveryDate: Date?` – дата и время доставки PUSH-уведомления.
 #
-#### `shutDown()`
+### `shutDown()`
 Объявлен как:
 
 ```swift
@@ -114,9 +114,9 @@ func shutDown()
 
 > Всегда вызывайте метод `shutDown()` перед тем, как повторно вызвать метод `startUp(channelID:userToken:)` с параметром `userToken`, отличным от того, что использовался в сессии ранее. 
 #
-### **chattingUI**
-#
-#### `push(into:)`
+## **chattingUI**
+
+### `push(into:)`
 Объявлен как:
 
 ```swift
@@ -128,7 +128,7 @@ func push(into navigationController: UINavigationController)
 **Параметры:**
 - `into navigationController: UINavigationController` – объект UINavigationController, в стек которого будет добавлен view controller, отвечающий за UI чата. 
 #
-#### `push(into:config:)`
+### `push(into:config:)`
 Объявлен как:
 
 ```swift
@@ -156,7 +156,7 @@ func push(into navigationController: UINavigationController, config: JivoSDKChat
   - `activeMessage: String?` – текст активного приглашения. Активное приглашение – это сообщение, которое автоматически отображается для новых клиентов в ленте чата слева. Если при инициализации для свойства передать `nil`, то активное приглашение показано не будет. Сообщение с активным приглашением отобразится только после того, как будет установлено соединение с сервером.
 
 #
-#### `place(within:)`
+### `place(within:)`
 Объявлен как:
 
 ```swift
@@ -168,7 +168,7 @@ func place(within navigationController: UINavigationController)
 **Параметры:**
 - `within navigationController: UINavigationController` – объект `UINavigationController`, стек которого будет заменён на view controller, отвечающий за UI чата.
 #
-#### `place(within:config:)`
+### `place(within:config:)`
 Объявлен как:
 
 ```swift
@@ -181,7 +181,7 @@ func place(within navigationController: UINavigationController, config: JivoSDKC
 - `within navigationController: UINavigationController` – объект `UINavigationController`, стек которого будет заменён на view controller, отвечающий за UI чата; 
 - `config: JivoSDKChattingConfig` – конфигурация UI чата (подробнее – в описании метода `push(into:config:)`)
 #
-#### `present(over:)`
+### `present(over:)`
 Объявлен как:
 
 ```swift
@@ -193,7 +193,7 @@ func present(over viewController: UIViewController)
 **Параметры:**
 - `over viewController: UIViewController` – view controller, поверх которого будет модально отображаться UI чата.
 #
-#### `present(over:config:)`
+### `present(over:config:)`
 Объявлен как:
 
 ```swift
@@ -206,9 +206,9 @@ func present(over viewController: UIViewController, config: JivoSDKChattingConfi
 - `over viewController: UIViewController` – view controller, поверх которого будет модально отображаться UI чата; 
 - `config: JivoSDKChattingConfig` – конфигурация UI чата (подробнее – в описании метода `push(into:config:)`). 
 #
-### **debugging**
-#
-#### `level`
+## **debugging**
+
+### `level`
 Объявлено как:
 
 ```swift
@@ -221,7 +221,7 @@ var level: JivoSDKDebuggingLevel { get set }
 - `full` – режим полного логирования;
 - `silent` – логирование не ведётся.
 #
-#### `archiveLogs(completion:)`
+### `archiveLogs(completion:)`
 Объявлен как:
 
 ```swift

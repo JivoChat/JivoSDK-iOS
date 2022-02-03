@@ -1,7 +1,7 @@
 # **Jivo Mobile SDK для iOS (beta)**
 ## Документация для React Native проектов
 
-В этом документе содержатся версии разделов основного документа, адаптированные под интеграцию Jivo SDK в React Native проекты. Остальные разделы, не имеющие адаптации здесь, сохраняют свою актуальность и для React Native проектов.
+В этом документе содержатся некоторые разделы основного документа, адаптированные под интеграцию Jivo SDK в React Native проекты. Остальные разделы, не имеющие адаптации здесь, сохраняют свою актуальность и для React Native проектов.
 
 ## Установка
 
@@ -73,9 +73,11 @@ post_install do |installer|
 end
 ```
 
+> Блок post-install добавляет поддержку module stability для всех pod'ов в вашем проекте. Это необходимо для того, чтобы один и тот же пакет JivoSDK.xcframework можно было использовать, не пересобирая на всех версиях Xcode выше 12.0 (версия, на которой JivoSDK.xcframework был собран). Корректная работа JivoSDK возможна только в том случае, если все его зависимости также будут поддерживать module stability.
+
 Посмотреть, какая версия iOS указана в качестве основного deployment target, можно в настройках основного таргета:
 
-> Блок post-install добавляет поддержку module stability для всех pod'ов в вашем проекте. Это необходимо для того, чтобы один и тот же пакет JivoSDK.xcframework можно было использовать, не пересобирая на всех версиях Xcode выше 12.0 (версия, на которой JivoSDK.xcframework был собран). Корректная работа JivoSDK возможна только в том случае, если все его зависимости также будут поддерживать module stability. 
+![](https://drive.google.com/uc?id=1SZvpuRFmZ6jXs3M0ry4ftsoM1yXRr3Uo)
 
 5. Находясь в директории `ios/` выполните в терминале команду:
 
@@ -84,6 +86,10 @@ $ pod install
 ```
 
 6. Добавьте в проект Xcode файлы `JivoSDKModule.h` и `JivoSDKModule.m`, которые находятся в репозитории JivoSDK по пути `ReactNativeModule/Native`, как показано на скриншотах:
+
+![](https://drive.google.com/uc?id=1KE20XzyIYmGFeob0vMxueFLv_NF-KjRW)
+
+![](https://drive.google.com/uc?id=1XlBIK2VdcFBhp7WS6njwn-g-3eTwh7pI)
 
    `Не забудьте отметить чекбокс “Copy items if needed”!`
 

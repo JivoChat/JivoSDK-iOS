@@ -1,5 +1,7 @@
 # **Jivo SDK для iOS (beta)**
 
+![](/Docs/Resources/Images/jivo_logo.svg)
+
 **Jivo SDK** – это фреймворк для интеграции бизнес-чата Jivo в ваше приложение.
 
 Размер бинарного файла **Jivo SDK** для архитектур девайсов составляет приблизительно **4 МБ**. Размер **dSYMs** для фреймворка составляет приблизительно **8,9 МБ**.
@@ -173,5 +175,5 @@ final class ProfileViewController {
 
 ### Для React Native
 
-Описание методов, составляющих Jivo SDK JavaScript API, вы можете найти [здесь](https://github.com/JivoChat/JivoSDK-iOS/blob/develop/Docs/JivoSDKJavaScriptAPIReference.md#описание-функций-jivo-sdk-javascript-api). Остальные разделы этого документа при отсутствии ссылки на адаптированную версию актуальны и для React Native проектов.
+Описание методов, составляющих Jivo SDK JavaScript API, вы можете найти [здесь](https://github.com/JivoChat/JivoSDK-iOS/blob/develop/Docs/JivoSDKJavaScriptAPIReference.md#описание-методов-jivo-sdk-javascript-api). Остальные разделы этого документа при отсутствии ссылки на адаптированную версию актуальны и для React Native проектов.
 

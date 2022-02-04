@@ -82,7 +82,7 @@ end
 
 Посмотреть, какая версия iOS указана в качестве основного deployment target, можно в настройках основного таргета:
 
-![](https://drive.google.com/uc?id=1SZvpuRFmZ6jXs3M0ry4ftsoM1yXRr3Uo)
+![](/Resources/Images/rn_setup_guide_image_1.png)
 
 5. Находясь в директории `ios/` выполните в терминале команду:
 
@@ -92,9 +92,9 @@ $ pod install
 
 6. Добавьте в проект Xcode файлы `JivoSDKModule.h` и `JivoSDKModule.m`, которые находятся в [репозитории JivoSDK](https://github.com/JivoChat/JivoSDK-iOS) по пути `ReactNativeModule/Native`, как показано на скриншотах:
 
-![](https://drive.google.com/uc?id=1KE20XzyIYmGFeob0vMxueFLv_NF-KjRW)
+![](/Resources/Images/rn_setup_guide_image_2.png)
 
-![](https://drive.google.com/uc?id=1XlBIK2VdcFBhp7WS6njwn-g-3eTwh7pI)
+![](/Resources/Images/rn_setup_guide_image_3.png)
 
    `Не забудьте отметить чекбокс “Copy items if needed”!`
 

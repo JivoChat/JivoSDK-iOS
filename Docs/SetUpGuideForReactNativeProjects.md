@@ -16,7 +16,7 @@
 
 Для установки Jivo SDK в свой проект Xcode вам потребуется:
 - Xcode 12.0 или новее;
-- CocoaPods 1.10.0 или новее (проверить версию CocoaPods можно, выполнив следующую команду в терминале: `$ pod --version`); 
+- CocoaPods 1.10.0 или новее; 
 - настроить deployment target в проекте на iOS версии 11.0 или более новую.
  
 > Также вам необходим проект Xcode, в который интегрирован UI приложения на React Native и для которого посредством CocoaPods установлены модули React. Обычно такой проект Xcode уже сгенерирован и находится в директории ios/. Если такой проект отсутствует, вы можете создать его, опираясь на [эту документацию](https://reactnative.dev/docs/integration-with-existing-apps).
@@ -70,7 +70,7 @@ post_install do |installer|
   installer.pods_project.targets.each do |target| 
     target.build_configurations.each do |config| 
       config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
-      if target.name == 'libPhoneNumber-iOS' || target.name == 'BABFrameObservingInputAccessoryView' || target.name == 'SDWebImage'
+      if target.name == 'libPhoneNumber-iOS' || target.name == 'BABFrameObservingInputAccessoryView'
         config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = [Версия iOS, указанная как основной deployment target]
       end
     end 
@@ -82,7 +82,7 @@ end
 
 Посмотреть, какая версия iOS указана в качестве основного deployment target, можно в настройках основного таргета:
 
-![](/Resources/Images/rn_setup_guide_image_1.png)
+![](/Docs/Resources/Images/rn_setup_guide_image_1.png)
 
 5. Находясь в директории `ios/` выполните в терминале команду:
 
@@ -92,11 +92,11 @@ $ pod install
 
 6. Добавьте в проект Xcode файлы `JivoSDKModule.h` и `JivoSDKModule.m`, которые находятся в [репозитории JivoSDK](https://github.com/JivoChat/JivoSDK-iOS) по пути `ReactNativeModule/Native`, как показано на скриншотах:
 
-![](/Resources/Images/rn_setup_guide_image_2.png)
+![](/Docs/Resources/Images/rn_setup_guide_image_2.png)
 
-![](/Resources/Images/rn_setup_guide_image_3.png)
+![](/Docs/Resources/Images/rn_setup_guide_image_3.png)
 
-   `Не забудьте отметить чекбокс “Copy items if needed”!`
+   > **Не забудьте отметить чекбокс `“Copy items if needed”`!**
 
 7. Добавьте в свой React Native проект файл `JivoSDKModule.js`, рпсполагающийся в [репозитории JivoSDK](https://github.com/JivoChat/JivoSDK-iOS) по пути `ReactNativeModule/JivoSDKModule.js`.
 

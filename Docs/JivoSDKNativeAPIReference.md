@@ -2,10 +2,10 @@
 
 ## **session**
 ### `delegate`
-Объявлен как: 
+Объявлено как: 
 
 ```swift
-var delegate: JivoSDKSessionDelegate?
+var delegate: JivoSDKSessionDelegate? { get set }
 ```
 
 Устанавливает делегат для обработки событий, связанных с соединением и сессией клиента.
@@ -48,65 +48,6 @@ func updateCustomData(_ data: JivoSDKSessionCustomData?)
   - `phone: String?` – телефон клиента; 
   - `brief: String?` – дополнительная информация о клиенте в произвольной форме. 
 #
-### `setPushToken(data:)`
-Объявлен как:
-
-```swift
-func setPushToken(data: Data?)
-```
-
-Передаёт в SDK PUSH-токен устройства в видe Data, ассоциируя его с клиентом сессии.
-
-Когда PUSH-токен устройства попадает в SDK, он ассоциируется с конкретным клиентом (который был или будет определён параметром `userToken` метода `startUp(channelID:userToken:)`) и отправляется на сервер Jivo. После того, как сервер получает токен, у него появляется возможность отправлять PUSH-уведомления на устройство.
-
-Если PUSH-токен устройства был задан до вызова метода 
-`startUp(channelID:userToken:)`, то он сохраняется в SDK и будет отправлен на сервер Jivo после установления соединения. В случае, если PUSH-токен был установлен после вызова метода `startUp(channelID:userToken:)`, токен будет отправлен немедленно.
-
-Для того, чтобы отписать устройство от PUSH уведомлений для текущего клиента, вызовите метод `shutDown()`.
-#
-### `setPushToken(hex:)`
-Объявлен как: 
-
-```swift
-func setPushToken(hex: String?)
-```
-
-Передаёт в SDK PUSH-токен устройства в виде String, ассоциируя его с клиентом сессии.
-
-Когда PUSH-токен устройства попадает в SDK, он ассоциируется с конкретным клиентом (который был или будет определён параметром `userToken` метода `startUp(channelID:userToken:)`) и отправляется на сервер Jivo. После того, как сервер получает токен, у него появляется возможность отправлять PUSH-уведомления на устройство.
-
-Если PUSH-токен устройства был задан до вызова метода 
-`startUp(channelID:userToken:)`, то он сохраняется в SDK и будет отправлен на сервер Jivo после установления соединения. В случае, если PUSH-токен был установлен после вызова метода `startUp(channelID:userToken:)`, токен будет отправлен немедленно.
-
-Для того, чтобы отписать устройство от PUSH уведомлений для текущего клиента, вызовите метод `shutDown()`. 
-#
-### `detectPushPayload(_:deliveryDate:)`
-Объявлен как:
-
-```swift
-func detectPushPayload(_ payload: [AnyHashable : Any]) -> Bool
-```
-
-Обрабатывает данные PUSH-уведомления и возвращает true, если уведомление было отправлено со стороны Jivo, либо false, если уведомление было отправлено другой системой.
-
-**Параметры:**
-- `payload: [AnyHashable : Any]` – словарь с данными из тела PUSH-уведомления.
-#
-### `handlePushPayload(_:deliveryDate:)`
-Объявлен как:
-
-```swift
-func handlePushPayload(_ payload: [AnyHashable : Any], deliveryDate: Date?) -> Bool
-```
-
-Обрабатывает данные PUSH-уведомления и возвращает true, если уведомление было отправлено со стороны Jivo, либо false, если уведомление было отправлено со стороны другой системы.
-
-Если PUSH был отправлен со стороны Jivo, то он отображается в виде локального уведомления. Таким образом данный метод можно использовать для отображения in-app уведомлений.
-
-**Параметры:**
-- `payload: [AnyHashable : Any]` – словарь с данными из тела PUSH-уведомления;
-- `deliveryDate: Date?` – дата и время доставки PUSH-уведомления.
-#
 ### `shutDown()`
 Объявлен как:
 
@@ -120,6 +61,25 @@ func shutDown()
 #
 ## **chattingUI**
 
+### `delegate`
+
+Объявлено как:
+
+```swift
+var delegate: JivoSDKChattingUIDelegate? { get set }
+```
+
+Устанавливает делегат для обработки событий, связанных с отображением UI чата на экране.
+
+Протокол **`JivoSDKChattingUIDelegate`** содержит следующие методы:
+- `jivoDidRequestUIDisplaying()`
+
+   Объявлен как:
+   ```swift
+   func jivoDidRequestUIDisplaying()
+   ```
+   Вызывается, когда в соответствии с логикой работы Jivo SDK необходимо отобразить UI чата на экране.
+#
 ### `push(into:)`
 Объявлен как:
 
@@ -208,7 +168,89 @@ func present(over viewController: UIViewController, config: JivoSDKChattingConfi
 
 **Параметры:**
 - `over viewController: UIViewController` – view controller, поверх которого будет модально отображаться UI чата; 
-- `config: JivoSDKChattingConfig` – конфигурация UI чата (подробнее – в описании метода `push(into:config:)`). 
+- `config: JivoSDKChattingConfig` – конфигурация UI чата (подробнее – в описании метода `push(into:config:)`).
+#
+## **notifications**
+
+### `setPushToken(data:)`
+Объявлен как:
+
+```swift
+func setPushToken(data: Data?)
+```
+
+Передаёт в SDK PUSH-токен устройства в видe `Data?`, ассоциируя его с клиентом сессии.
+
+Когда PUSH-токен устройства попадает в SDK, он ассоциируется с конкретным клиентом (который был или будет определён параметром `userToken` метода `startUp(channelID:userToken:)`) и отправляется на сервер Jivo. После того, как сервер получает токен, у него появляется возможность отправлять PUSH-уведомления на устройство.
+
+Если PUSH-токен устройства был задан до вызова метода 
+`startUp(channelID:userToken:)`, то он сохраняется в SDK и будет отправлен на сервер Jivo после установления соединения. В случае, если PUSH-токен был установлен после вызова метода `startUp(channelID:userToken:)`, токен будет отправлен немедленно.
+
+Для того, чтобы отписать устройство от PUSH уведомлений для текущего клиента, вызовите метод `shutDown()`.
+#
+### `setPushToken(hex:)`
+Объявлен как: 
+
+```swift
+func setPushToken(hex: String?)
+```
+
+Передаёт в SDK PUSH-токен устройства в виде `String?`, ассоциируя его с клиентом сессии.
+
+Когда PUSH-токен устройства попадает в SDK, он ассоциируется с конкретным клиентом (который был или будет определён параметром `userToken` метода `startUp(channelID:userToken:)`) и отправляется на сервер Jivo. После того, как сервер получает токен, у него появляется возможность отправлять PUSH-уведомления на устройство.
+
+Если PUSH-токен устройства был задан до вызова метода 
+`startUp(channelID:userToken:)`, то он сохраняется в SDK и будет отправлен на сервер Jivo после установления соединения. В случае, если PUSH-токен был установлен после вызова метода `startUp(channelID:userToken:)`, токен будет отправлен немедленно.
+
+Для того, чтобы отписать устройство от PUSH уведомлений для текущего клиента, вызовите метод `shutDown()`. 
+#
+### `handleRemoteNotification(containingUserInfo:)`
+Объявлен как:
+```swift
+func handleRemoteNotification(containingUserInfo userInfo: [AnyHashable : Any]) -> Bool
+```
+> **Используйте этот метод, если вы обрабатываете PUSH-уведомления с помощью метода `UIApplicationDelegate.application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` и не используете для этого методы фреймворка `UserNotifications`.**
+
+Обрабатывает данные PUSH-уведомления, передаваемые в параметре типа `[AnyHashable : Any]`, и возвращает `true`, если уведомление было отправлено со стороны Jivo, либо `false`, если уведомление было отправлено другой системой.
+
+В рамках реализации этого метода Jivo SDK определяет тип уведомления от нашей системы. Если этот тип подразумевает, что нажатие пользователя на PUSH должно сопровождаться открытием экрана чата, то у `JivoSDKChattingUI.delegate` будет вызван метод `jivoDidRequestUIDisplaying()`, запрашивающий от вас отображение UI чата SDK на экране.
+
+**Параметры:**
+- `containingUserInfo userInfo: [AnyHashable : Any]` – словарь с данными из тела PUSH-уведомления.
+#
+### `handleNotification(_:)`
+
+Объявлен как:
+```swift
+func handleNotification(_ notification: UNNotification) -> Bool
+```
+
+> **Используйте этот метод, если вы обрабатываете PUSH-уведомления с помощью методов фреймворка `UserNotifications` и не используете для этого метод `UIApplicationDelegate.application(_:didReceiveRemoteNotification:fetchCompletionHandler:)`.**
+
+> **Вызывайте этот метод при срабатывании реализованного вами метода `UNUserNotificationCenterDelegate.userNotificationCenter(_:willPresent:withCompletionHandler:)` из фреймворка `UserNotifications`.**
+
+Обрабатывает данные PUSH-уведомления, передаваемые в параметре типа `UNNotification`, и возвращает `true`, если уведомление было отправлено со стороны Jivo, либо `false`, если уведомление было отправлено другой системой.
+
+**Параметры:**
+- `notification: UNNotification` – объект входящего уведомления.
+#
+### `handleNotification(response:)`
+
+Объявлен как:
+```swift
+func handleNotification(response: UNNotificationResponse) -> Bool
+```
+
+> **Используйте этот метод, если вы обрабатываете PUSH-уведомления с помощью методов фреймворка `UserNotifications` и не используете для этого метод `UIApplicationDelegate.application(_:didReceiveRemoteNotification:fetchCompletionHandler:)`.**
+
+> **Вызывайте этот метод при срабатывании реализованного вами метода `UNUserNotificationCenterDelegate.userNotificationCenter(_:didReceive:withCompletionHandler:)` из фреймворка `UserNotifications`.**
+
+Обрабатывает данные PUSH-уведомления при пользовательском взаимодействии с ним и возвращает `true`, если уведомление было отправлено со стороны Jivo, либо `false`, если уведомление было отправлено другой системой.
+
+В рамках реализации этого метода Jivo SDK определяет тип уведомления от нашей системы. Если этот тип подразумевает, что нажатие пользователя на PUSH должно сопровождаться открытием экрана чата, то у `JivoSDKChattingUI.delegate` будет вызван метод `jivoDidRequestUIDisplaying()`, запрашивающий от вас отображение UI чата SDK на экране.
+
+**Параметры:**
+- `response: UNNotificationResponse` – результат пользовательского взаимодействия с уведомлением.
 #
 ## **debugging**
 

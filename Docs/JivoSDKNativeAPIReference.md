@@ -80,6 +80,16 @@ var delegate: JivoSDKChattingUIDelegate? { get set }
    ```
    Вызывается, когда в соответствии с логикой работы Jivo SDK необходимо отобразить UI чата на экране.
 #
+### `isDisplaying`
+
+Объявлено как:
+
+```swift
+var isDisplaying: Bool { get }
+```
+
+Возвращает `true`, если view объекта `UIViewController`, представляющего чат SDK, в данный момент находится в иерархии view (UI чата SDK в этом случае должен отображаться на экране), иначе – `false`.
+#
 ### `push(into:)`
 Объявлен как:
 
@@ -111,7 +121,7 @@ func push(into navigationController: UINavigationController, config: JivoSDKChat
   - **(Только для Swift)** `icon: JivoSDKTitleBarIconStyle?` – режим отображения иконки в верхнем баре над окном чата до подключения оператора. Принимает следующие значения типа `JivoSDKTitleBarIconStyle` (перечисление):
     - `default` – стандартная иконка с логотипом Jivo;
     - `hidden` – иконка не будет отображаться. Аватар оператора при наличии отобразится сразу после загрузки, при отсутствии – никакое изображение показано не будет, а тексты заголовка и подзаголовка сместятся влево, заполняя собой пустое место;
-    - `custom(UIImage)` – кастомное изображение, передаваемое в associated value кейса перечисления..; 
+    - `custom(UIImage)` – кастомное изображение, передаваемое в associated value кейса перечисления; 
   - `titlePlaceholder: String?` – текст заголовка , отображаемого в верхнем баре над окном чата, до того момента, как SDK не получит имя оператора (оно заменит собой текст `titlePlaceholder`)). Значение по-умолчанию – локализованная строка “Чат с поддержкой”; 
   - `titleColor: UIColor?` – цвет заголовка, отображаемого в верхнем баре над окном чата. Значение по-умолчанию – объект `UIColor`, содержащий чёрный/белый цвет (в зависимости от применённой темы); 
   - `subtitleCaption: String?` – текст подзаголовка, отображаемого в верхнем баре над окном чата. Значение по-умолчанию – локализованная строка “На связи 24/7!”; 
@@ -225,7 +235,7 @@ func handleRemoteNotification(containingUserInfo userInfo: [AnyHashable : Any]) 
 func handleNotification(_ notification: UNNotification) -> Bool
 ```
 
-> **Используйте этот метод, если вы обрабатываете PUSH-уведомления с помощью методов фреймворка `UserNotifications` и не используете для этого метод `UIApplicationDelegate.application(_:didReceiveRemoteNotification:fetchCompletionHandler:)`.**
+> **Используйте этот метод, если вы обрабатываете PUSH-уведомления с помощью методов фреймворка `UserNotifications`.**
 
 > **Вызывайте этот метод при срабатывании реализованного вами метода `UNUserNotificationCenterDelegate.userNotificationCenter(_:willPresent:withCompletionHandler:)` из фреймворка `UserNotifications`.**
 
@@ -241,7 +251,7 @@ func handleNotification(_ notification: UNNotification) -> Bool
 func handleNotification(response: UNNotificationResponse) -> Bool
 ```
 
-> **Используйте этот метод, если вы обрабатываете PUSH-уведомления с помощью методов фреймворка `UserNotifications` и не используете для этого метод `UIApplicationDelegate.application(_:didReceiveRemoteNotification:fetchCompletionHandler:)`.**
+> **Используйте этот метод, если вы обрабатываете PUSH-уведомления с помощью методов фреймворка `UserNotifications`.**
 
 > **Вызывайте этот метод при срабатывании реализованного вами метода `UNUserNotificationCenterDelegate.userNotificationCenter(_:didReceive:withCompletionHandler:)` из фреймворка `UserNotifications`.**
 

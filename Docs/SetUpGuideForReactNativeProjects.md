@@ -51,7 +51,7 @@
 
 ```ruby
 target 'YourAwesomeApp' do
-  pod 'JivoSDK', ‘~> 1.4’, :build_type => :dynamic_framework
+  pod 'JivoSDK', ‘~> 2.0’, :build_type => :dynamic_framework
   ...
 end
 ```

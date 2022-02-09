@@ -4,9 +4,9 @@
 В этом документе содержатся некоторые разделы [основного документа](https://github.com/JivoChat/JivoSDK-iOS#jivo-mobile-sdk-для-ios-beta), адаптированные под интеграцию Jivo SDK в проекты, использующие React Native. Остальные разделы, не имеющие адаптации здесь, сохраняют свою актуальность и для React Native проектов.
 
 ## Содержание
-- [Установка](https://github.com/JivoChat/JivoSDK-iOS/blob/develop/Docs/SetUpGuideForReactNativeProjects.md#установка)
-- [Использование](https://github.com/JivoChat/JivoSDK-iOS/blob/develop/Docs/SetUpGuideForReactNativeProjects.md#использование)
-- [Описание методов и свойств](https://github.com/JivoChat/JivoSDK-iOS/blob/develop/Docs/SetUpGuideForReactNativeProjects.md#описание-методов)
+- [Установка](https://github.com/JivoChat/JivoSDK-iOS/blob/master/Docs/SetUpGuideForReactNativeProjects.md#установка)
+- [Использование](https://github.com/JivoChat/JivoSDK-iOS/blob/master/Docs/SetUpGuideForReactNativeProjects.md#использование)
+- [Описание методов и свойств](https://github.com/JivoChat/JivoSDK-iOS/blob/master/Docs/SetUpGuideForReactNativeProjects.md#описание-методов)
 
 ## Установка
 
@@ -166,5 +166,5 @@ const App: () => Node = () => {
 
 ## Описание методов
 
-Описание методов, составляющих Jivo SDK JavaScript API, вы можете найти [здесь](https://github.com/JivoChat/JivoSDK-iOS/blob/develop/Docs/JivoSDKJavaScriptAPIReference.md#описание-функций-jivo-sdk-javascript-api).
+Описание методов, составляющих Jivo SDK JavaScript API, вы можете найти [здесь](https://github.com/JivoChat/JivoSDK-iOS/blob/master/Docs/JivoSDKJavaScriptAPIReference.md#описание-функций-jivo-sdk-javascript-api).
 

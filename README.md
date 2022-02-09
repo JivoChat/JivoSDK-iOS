@@ -25,7 +25,7 @@
 #
 ### React Native
 
-Часть разделов этого документа имеют адаптированные версии с инструкциями по интеграции Jivo SDK в React Native проекты. Адаптированные разделы с информацией об установке, настройке и использовании Jivo SDK вы можете найти [здесь](https://github.com/JivoChat/JivoSDK-iOS/blob/develop/Docs/SetUpGuideForReactNativeProjects.md#jivo-mobile-sdk-для-ios-beta); описание методов Jivo SDK JavaScript API находится [здесь](https://github.com/JivoChat/JivoSDK-iOS/blob/develop/Docs/JivoSDKJavaScriptAPIReference.md#описание-функций-jivo-sdk-javascript-api). Остальные разделы этого документа, не имеющие адаптации, также актуальны и для React Native.
+Часть разделов этого документа имеют адаптированные версии с инструкциями по интеграции Jivo SDK в React Native проекты. Адаптированные разделы с информацией об установке, настройке и использовании Jivo SDK вы можете найти [здесь](https://github.com/JivoChat/JivoSDK-iOS/blob/master/Docs/SetUpGuideForReactNativeProjects.md#jivo-mobile-sdk-для-ios-beta); описание методов Jivo SDK JavaScript API находится [здесь](https://github.com/JivoChat/JivoSDK-iOS/blob/master/Docs/JivoSDKJavaScriptAPIReference.md#описание-функций-jivo-sdk-javascript-api). Остальные разделы этого документа, не имеющие адаптации, также актуальны и для React Native.
 
 ### Содержание
 1. [Установка](https://github.com/JivoChat/JivoSDK-iOS#установка)
@@ -81,7 +81,7 @@ $ pod install
 ```
 
 ### Для React Native
-Инструкцию по установке Jivo SDK в React Native проект вы можете найти [здесь](https://github.com/JivoChat/JivoSDK-iOS/blob/develop/Docs/SetUpGuideForReactNativeProjects.md#установка). Остальные разделы этого документа при отсутствии ссылки на адаптированную версию актуальны и для React Native проектов.
+Инструкцию по установке Jivo SDK в React Native проект вы можете найти [здесь](https://github.com/JivoChat/JivoSDK-iOS/blob/master/Docs/SetUpGuideForReactNativeProjects.md#установка). Остальные разделы этого документа при отсутствии ссылки на адаптированную версию актуальны и для React Native проектов.
 #
 ## Настройка
 
@@ -191,15 +191,15 @@ final class ProfileViewController {
 
 ### В React Native
 
-Инструкцию по использованию Jivo SDK в React Native проекте вы можете найти [здесь](https://github.com/JivoChat/JivoSDK-iOS/blob/develop/Docs/SetUpGuideForReactNativeProjects.md#использование). Остальные разделы этого документа при отсутствии ссылки на адаптированную версию актуальны и для React Native проектов.
+Инструкцию по использованию Jivo SDK в React Native проекте вы можете найти [здесь](https://github.com/JivoChat/JivoSDK-iOS/blob/master/Docs/SetUpGuideForReactNativeProjects.md#использование). Остальные разделы этого документа при отсутствии ссылки на адаптированную версию актуальны и для React Native проектов.
 #
 ## Описание методов и свойств
 
 ### Для нативных проектов
 
-Описание методов и свойств, составляющих нативный Jivo SDK API, содержится в [этом документе](https://github.com/JivoChat/JivoSDK-iOS/blob/develop/Docs/JivoSDKNativeAPIReference.md#описание-методов-и-свойтсв-jivo-sdk-swiftobjective-c-api).
+Описание методов и свойств, составляющих нативный Jivo SDK API, содержится в [этом документе](https://github.com/JivoChat/JivoSDK-iOS/blob/master/Docs/JivoSDKNativeAPIReference.md#описание-методов-и-свойтсв-jivo-sdk-swiftobjective-c-api).
 
 ### Для React Native
 
-Описание методов, составляющих Jivo SDK JavaScript API, вы можете найти [здесь](https://github.com/JivoChat/JivoSDK-iOS/blob/develop/Docs/JivoSDKJavaScriptAPIReference.md#описание-методов-jivo-sdk-javascript-api). Остальные разделы этого документа при отсутствии ссылки на адаптированную версию актуальны и для React Native проектов.
+Описание методов, составляющих Jivo SDK JavaScript API, вы можете найти [здесь](https://github.com/JivoChat/JivoSDK-iOS/blob/master/Docs/JivoSDKJavaScriptAPIReference.md#описание-методов-jivo-sdk-javascript-api). Остальные разделы этого документа при отсутствии ссылки на адаптированную версию актуальны и для React Native проектов.
 

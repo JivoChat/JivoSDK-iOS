@@ -1,7 +1,7 @@
 Pod::Spec.new do |spec|
   spec.name         = 'JivoSDK'
-  spec.version      = '2.0.0-test.2'
-  spec.license      = { :type => 'MIT' }
+  spec.version      = '2.0.0'
+  
   spec.homepage     = 'https://github.com/JivoChat'
   spec.authors      = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
   spec.summary      = 'Jivo business chat mobile SDK'

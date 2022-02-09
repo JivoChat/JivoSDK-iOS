@@ -299,6 +299,8 @@ typedef SWIFT_ENUM(NSInteger, JivoSDKDebuggingLevel, open) {
 
 SWIFT_PROTOCOL("_TtP7JivoSDK20JivoSDKNotifications_")
 @protocol JivoSDKNotifications
+- (void)setPushTokenData:(NSData * _Nullable)data;
+- (void)setPushTokenHex:(NSString * _Nullable)hex;
 - (BOOL)handleRemoteNotificationContainingUserInfo:(NSDictionary * _Nonnull)userInfo SWIFT_WARN_UNUSED_RESULT;
 - (BOOL)handleNotification:(UNNotification * _Nonnull)notification SWIFT_WARN_UNUSED_RESULT;
 - (BOOL)handleNotificationResponse:(UNNotificationResponse * _Nonnull)response SWIFT_WARN_UNUSED_RESULT;
@@ -313,8 +315,6 @@ SWIFT_PROTOCOL("_TtP7JivoSDK14JivoSDKSession_")
 @property (nonatomic, strong) id <JivoSDKSessionDelegate> _Nullable delegate;
 - (void)startUpWithChannelID:(NSString * _Nonnull)channelID userToken:(NSString * _Nonnull)userToken;
 - (void)updateCustomData:(JivoSDKSessionCustomData * _Nullable)data;
-- (void)setPushTokenData:(NSData * _Nullable)data;
-- (void)setPushTokenHex:(NSString * _Nullable)hex;
 - (void)shutDown;
 @end
 

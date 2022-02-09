@@ -43,8 +43,6 @@ import libPhoneNumber_iOS
   @objc(delegate) var delegate: JivoSDKSessionDelegate? { get set }
   @objc(startUpWithChannelID:userToken:) func startUp(channelID: Swift.String, userToken: Swift.String)
   @objc(updateCustomData:) func updateCustomData(_ data: JivoSDKSessionCustomData?)
-  @objc(setPushTokenData:) func setPushToken(data: Foundation.Data?)
-  @objc(setPushTokenHex:) func setPushToken(hex: Swift.String?)
   @objc(shutDown) func shutDown()
 }
 public enum AFError : Swift.Error {
@@ -378,8 +376,10 @@ open class MultipartFormData {
 }
 #warning("TODO: Anton Karpushko, 26.11.2021 – Make PersistentRepository thread-safe.")
 @objc public protocol JivoSDKNotifications {
+  @objc(setPushTokenData:) func setPushToken(data: Foundation.Data?)
+  @objc(setPushTokenHex:) func setPushToken(hex: Swift.String?)
   @objc(handleRemoteNotificationContainingUserInfo:) func handleRemoteNotification(containingUserInfo userInfo: [Swift.AnyHashable : Any]) -> Swift.Bool
-  @objc func handleNotification(_ notification: UserNotifications.UNNotification) -> Swift.Bool
+  @objc(handleNotification:) func handleNotification(_ notification: UserNotifications.UNNotification) -> Swift.Bool
   @objc(handleNotificationResponse:) func handleNotification(response: UserNotifications.UNNotificationResponse) -> Swift.Bool
 }
 @_hasMissingDesignatedInitializers open class PreferencesDriver {

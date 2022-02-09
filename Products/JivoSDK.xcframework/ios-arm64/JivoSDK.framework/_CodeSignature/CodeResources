@@ -6,11 +6,11 @@
 	<dict>
 		<key>Assets.car</key>
 		<data>
-		LovpQSp1p7gJ/4xUMKhhGI3W2GA=
+		bN0kubaAtr8TZ+fX4MWFWHTPWX8=
 		</data>
 		<key>Headers/JivoSDK-Swift.h</key>
 		<data>
-		kqxo+W1u8D/hMvG2xsLN5m8a9JU=
+		5eo8gC15YIOonAqkIk9a96QwC4Q=
 		</data>
 		<key>Headers/JivoSDK.h</key>
 		<data>
@@ -18,7 +18,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		ASfmfsOKLErvtLNcmSXTGXznvVI=
+		e2yibcpW6d1EnfsXLQbj07WEXmI=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios.swiftdoc</key>
 		<data>
@@ -26,11 +26,11 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios.swiftinterface</key>
 		<data>
-		uRsbwKvlLB2G8HYmpGrM/ZaickA=
+		f9cbyv3cMrEwaYYrujyTXjxH7mE=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios.swiftmodule</key>
 		<data>
-		jJ+jHWv+nvwKcAAutod7/OdgRLA=
+		3EUr3E2bwraK3ampkgSMzNrNdV0=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftdoc</key>
 		<data>
@@ -38,11 +38,11 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftinterface</key>
 		<data>
-		uRsbwKvlLB2G8HYmpGrM/ZaickA=
+		f9cbyv3cMrEwaYYrujyTXjxH7mE=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftmodule</key>
 		<data>
-		jJ+jHWv+nvwKcAAutod7/OdgRLA=
+		3EUr3E2bwraK3ampkgSMzNrNdV0=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -153,14 +153,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			NiVOdpjyN9ViqiWRsaGNtPKvkfXssU0+SocvUClwCI4=
+			09LRg0J0ks3JovzApbILxyQVBTeyUBbCbda4PMHdD1o=
 			</data>
 		</dict>
 		<key>Headers/JivoSDK-Swift.h</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			adJVu0Yy37S82xUubip+0bYdfH3mXnQOboRGLg1SoV0=
+			Ka56bglEEaBPOlIIe5vp4CbggfAopR7S++WRFH0csmw=
 			</data>
 		</dict>
 		<key>Headers/JivoSDK.h</key>
@@ -181,14 +181,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			6I+rMewEDdAkQqcUqSl5dtQQH3E0eZCokNuySgt4raE=
+			ZyPYALABFi611d7v58gEnx1r+6ARHoGRiw7043i5BKg=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			MQ4a07iG+ckpt3fEqUtKvK5bwgMIILTpNSTNtf6Qysw=
+			JFkYQ6fbvA/wM0UeXYIfYFHss4mru4r0Or0UO4ktOO4=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftdoc</key>
@@ -202,14 +202,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			6I+rMewEDdAkQqcUqSl5dtQQH3E0eZCokNuySgt4raE=
+			ZyPYALABFi611d7v58gEnx1r+6ARHoGRiw7043i5BKg=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			MQ4a07iG+ckpt3fEqUtKvK5bwgMIILTpNSTNtf6Qysw=
+			JFkYQ6fbvA/wM0UeXYIfYFHss4mru4r0Or0UO4ktOO4=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

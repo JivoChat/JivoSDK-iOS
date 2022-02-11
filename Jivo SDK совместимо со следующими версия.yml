@@ -1,0 +1,195 @@
+План по удалению сторонних зависимостей из Jivo SDK:
+1. избавиться от JFImagePicker и SteviaLayout, заменив стороннюю реализацию пикера изображений на нативную;
+2. заменить SDWebImage на JMImageLoader в JMTimelineKit;
+3. удалить lottie-ios из JMTimelineKit;
+4. 
+
+- SDWebImage 5.11.x..<6.0.0;
+24k stars
+Watchers
+ 821 watching
+Forks
+ 5.8k forks
+
+ Current version:
+ Last version: 5.12.3
+
+- lottie-ios 3.3.x;
+22.4k stars
+Watchers
+ 480 watching
+Forks
+ 3.3k forks
+
+ Current version:
+ Last version: 3.3.0
+
+- Realm/RealmSwift 10.7.x..<11.0.0;
+14.9k stars
+Watchers
+ 391 watching
+Forks
+ 2k forks
+
+ Current version:
+ Last version: 10.22.0
+
+- ReachabilitySwift 5.x.x;
+ 7.5k stars
+Watchers
+ 129 watching
+Forks
+ 876 forks
+
+ Current version:
+ Last version: 5.1.0
+
+- SwiftDate 6.x.x;
+ 6.8k stars
+Watchers
+ 115 watching
+Forks
+ 679 forks
+
+ Current version:
+ Last version: 6.3.1
+
+- SteviaLayout 4.4.x..<4.5.0;
+ 3.2k stars
+Watchers
+ 58 watching
+Forks
+ 206 forks
+
+ Current version:
+ Last version: 5.1.1
+
+- nanopb 2.30908.0;
+ 2.8k stars
+Watchers
+ 104 watching
+Forks
+ 614 forks
+
+ Current version: 2.30908.0
+ Last version: 2.30908.0
+
+ - libPhoneNumber-iOS;
+  2.3k stars
+Watchers
+ 72 watching
+Forks
+ 432 forks
+
+ Current version:
+ Last version: 1.0.2 in GitHub, but CocoaPods finds only version 0.9.15
+
+- KeychainSwift 19.x.x;
+ 2.1k stars
+Watchers
+ 48 watching
+Forks
+ 266 forks
+
+ Current version:
+ Last version: 20.0.0
+
+- PryntTrimmerView 4.x.x;
+ 667 stars
+Watchers
+ 23 watching
+Forks
+ 162 forks
+
+ Current version:
+ Last version: 4.0.2
+
+ - GzipSwift 5.x.x;
+405 stars
+Watchers
+ 11 watching
+Forks
+ 90 forks
+
+ Current version:
+ Last version: 5.1.1
+
+- BABFrameObservingInputAccessoryView 0.2.x..<1.0.0;
+ 117 stars
+Watchers
+ 6 watching
+Forks
+ 14 forks
+
+ Current version: 0.2.4
+ Last version: 0.2.4
+
+- DTModelStorage 8.x.x;
+ 79 stars
+Watchers
+ 4 watching
+Forks
+ 19 forks
+
+ Current version:
+ Last version: 10.0.0
+
+- TypedTextAttributes 1.x.x;
+47 stars
+Watchers
+ 1 watching
+Forks
+ 7 forks
+
+ Current version:
+ Last version: 1.3.1
+
+- CollectionAndTableViewCompatible 0.2.x..<1.0.0;
+ 34 stars
+Watchers
+ 7 watching
+Forks
+ 6 forks
+
+ Current version:
+ Last version: 0.2.4
+
+- SwiftMime 1.x.x;
+ 13 stars
+Watchers
+ 2 watching
+Forks
+ 8 forks
+
+ Current version:
+ Last version: 1.0.0
+
+- SwiftGraylog 1.x.x;
+9 stars
+Watchers
+ 16 watching
+Forks
+ 3 forks
+
+ Current version:
+ Last version: 1.1.1
+
+- SafeURL 3.x.x;
+ 6 stars
+Watchers
+ 6 watching
+Forks
+ 0 forks
+
+ Current version:
+ Last version: 3.0.1
+
+- SwiftyNSException 2.x.x;
+ 1 star
+Watchers
+ 1 watching
+Forks
+ 2 forks
+
+ Current version:
+ Last version: 2.0.0

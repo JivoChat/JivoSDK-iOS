@@ -46,6 +46,29 @@
 - CocoaPods 1.10.0 или новее; 
 - настроить deployment target в проекте на iOS версии 11.0 или более новую.
 
+Jivo SDK зависит от нескольких сторонних фреймворков. Если вы используете эти зависимости у себя в проекте, убедитесь, что их версии совместимы с Jivo SDK.
+
+Jivo SDK совместимо со следующими версиями зависимостей:
+- Realm/RealmSwift 10.7.x..<11.0.0;
+- lottie-ios 3.3.x;
+- SDWebImage 5.11.x..<6.0.0;
+- SteviaLayout 4.4.x..<4.5.0;
+- nanopb 2.30908.0;
+- PryntTrimmerView 4.x.x;
+- DTModelStorage 8.x.x;
+- SwiftMime 1.x.x;
+- SwiftDate 6.x.x;
+- KeychainSwift 19.x.x;
+- ReachabilitySwift 5.x.x;
+- TypedTextAttributes 1.x.x;
+- BABFrameObservingInputAccessoryView 0.2.x..<1.0.0;
+- SwiftGraylog 1.x.x;
+- GzipSwift 5.x.x;
+- SafeURL 3.x.x;
+- CollectionAndTableViewCompatible 0.2.x..<1.0.0;
+- SwiftyNSException 2.x.x;
+- libPhoneNumber-iOS 0.9.15..<1.0.0
+
 #### Шаги установки
 1. Укажите в Podfile своего проекта следующие источники для pod'ов: 
 ```ruby

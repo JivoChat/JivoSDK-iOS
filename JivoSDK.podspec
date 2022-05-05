@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = 'JivoSDK'
-  spec.version      = '2.1.0'
+  spec.version      = '2.1.1'
   
   spec.homepage     = 'https://github.com/JivoChat'
   spec.authors      = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
@@ -45,7 +45,7 @@ Pod::Spec.new do |spec|
   spec.dependency      'CollectionAndTableViewCompatible'
 
 # JMSpecsRepo dependencies
-  spec.dependency      'JMShared', '4.3.7'
+  spec.dependency      'JMShared', '4.3.8'
   spec.dependency      'JMCodingKit', '5.0.2'
   spec.dependency      'JMRepicKit', '1.0.4'
   spec.dependency      'JMTimelineKit', '4.1.1'

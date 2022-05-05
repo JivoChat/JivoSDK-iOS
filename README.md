@@ -58,7 +58,7 @@ source 'https://github.com/JivoChat/JMSpecsRepo.git'
 use_frameworks!
 
 target :YourTargetName do 
-  pod 'JivoSDK', ‘~> 2.0’ 
+  pod 'JivoSDK', ‘~> 2.1’
 end
 ```
 
@@ -168,7 +168,7 @@ JivoSDK.[пространство имён].[метод или свойство]
 ```swift
 final class AppDelegate: UIResponder, UIApplicationDelegate {
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
-        JivoSDK.session.setPushToken(data: deviceToken)
+        JivoSDK.notifications.setPushToken(data: deviceToken)
     }
 }
 

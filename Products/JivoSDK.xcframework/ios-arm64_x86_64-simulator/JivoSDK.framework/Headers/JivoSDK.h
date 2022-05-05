@@ -2,7 +2,7 @@
 //  JivoSDK.h
 //  JivoSDK
 //
-//  Created by macbook on 02.09.2020.
+//  Created by Anton Karpushko on 02.09.2020.
 //  Copyright © 2020 jivosite.mobile. All rights reserved.
 //
 

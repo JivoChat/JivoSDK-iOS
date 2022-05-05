@@ -6,7 +6,8 @@
 //
 
 #import <React/RCTLog.h>
-#import <JivoSDK/JivoSDK.h>
+#import <JivoSDK/JivoSDK-Swift.h>
+//#import <JivoSDK/JivoSDK.h>
 
 #import "JivoSDKModule.h"
 
@@ -81,7 +82,7 @@ RCT_EXPORT_METHOD(updateSessionCustomData:(NSDictionary *)customDataDictionary) 
 
 RCT_EXPORT_METHOD(setPushToken:(NSString *)hex) {
   dispatch_async(dispatch_get_main_queue(), ^{
-    [[JivoSDK session] setPushTokenHex:hex];
+    [[JivoSDK notifications] setPushTokenHex:hex];
   });
 }
 
@@ -214,6 +215,15 @@ RCT_EXPORT_METHOD(presentChattingUIWithConfig:(nullable NSDictionary *)uiConfigD
     } else {
       RCTLogWarn(@"Invalid 'activeMessage' field type: you should pass a value of the string type.");
     }
+
+    NSString *outcomingPaletteValue = [uiConfigDictionary objectForKey:@"outcomingPalette"];
+    JivoSDKChattingPaletteAlias outcomingPalette = JivoSDKChattingPaletteAliasGreen;
+    if ([outcomingPaletteValue isKindOfClass:[NSString class]]) {
+      outcomingPalette = [self paletteAliasForString:outcomingPaletteValue];
+    }
+    else {
+      RCTLogWarn(@"Invalid 'outcomingPalette' field type: you should pass a value of the string type.");
+    }
     
     JivoSDKChattingConfig *uiConfig = [[JivoSDKChattingConfig alloc]
                                        initWithLocale:locale
@@ -225,6 +235,7 @@ RCT_EXPORT_METHOD(presentChattingUIWithConfig:(nullable NSDictionary *)uiConfigD
                                        subtitleColor:subtitleColor
                                        inputPlaceholder:inputPlaceholder
                                        activeMessage:activeMessage
+                                       outcomingPalette:outcomingPalette
                                       ];
 
     UIViewController *rootViewController = [[[[UIApplication sharedApplication] delegate] window] rootViewController];
@@ -281,6 +292,22 @@ RCT_EXPORT_METHOD(archiveLogs:(RCTResponseSenderBlock)callback) {
   }
   
   @throw([NSException exceptionWithName:@"Undefined debugging level name exception." reason:@"Could not parse the passed debugging level string." userInfo:nil]);
+}
+
+- (JivoSDKChattingPaletteAlias)paletteAliasForString:(NSString *)string {
+  if ([string isEqual:@"green"]) {
+    return JivoSDKChattingPaletteAliasGreen;
+  }
+  else if ([string isEqual:@"blue"]) {
+    return JivoSDKChattingPaletteAliasBlue;
+  }
+  else if ([string isEqual:@"graphite"]) {
+    return JivoSDKChattingPaletteAliasGraphite;
+  }
+  else {
+    RCTLogWarn(@"Invalid 'outcomingPalette' field value. Please check the documentation for possible values. For now, fallback to 'green'.");
+    return JivoSDKChattingPaletteAliasGreen;
+  }
 }
 
 - (NSString *)stringForArchivingStatus:(JivoSDKArchivingStatus)status {

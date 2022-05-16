@@ -327,7 +327,6 @@ SWIFT_PROTOCOL("_TtP7JivoSDK14JivoSDKSession_")
 /// You can set a delegate for JivoSDKSession object using this property. The property type protocol is empty for now but we suppose that you will suggest some ideas of callback methods for us.
 @property (nonatomic, strong) id <JivoSDKSessionDelegate> _Nullable delegate;
 - (void)startUpWithChannelID:(NSString * _Nonnull)channelID userToken:(NSString * _Nonnull)userToken;
-- (void)startUpUsingSandbox:(NSString * _Nonnull)sandbox withChannelID:(NSString * _Nonnull)channelID userToken:(NSString * _Nonnull)userToken;
 - (void)updateCustomData:(JivoSDKSessionCustomData * _Nullable)data;
 - (void)shutDown;
 @end

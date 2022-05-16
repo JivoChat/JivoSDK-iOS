@@ -157,7 +157,6 @@ public enum JivoSDKTitleBarIconStyle {
 @objc public protocol JivoSDKSession {
   @objc(delegate) var delegate: JivoSDKSessionDelegate? { get set }
   @objc(startUpWithChannelID:userToken:) func startUp(channelID: Swift.String, userToken: Swift.String)
-  @objc(startUpUsingSandbox:withChannelID:userToken:) func startUp(sandbox: Swift.String, channelID: Swift.String, userToken: Swift.String)
   @objc(updateCustomData:) func updateCustomData(_ data: JivoSDKSessionCustomData?)
   @objc(shutDown) func shutDown()
 }

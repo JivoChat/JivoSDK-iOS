@@ -242,7 +242,7 @@ function archiveLogs(callback)
     - `"silent"`
         Логирование не ведётся
 
-- Перечисление <a name="type:JivoSDKArchivingStatus">**String: JivoSDKArchivingStatus **</a>
+- Перечисление <a name="type:JivoSDKArchivingStatus">**String: JivoSDKArchivingStatus**</a>
 
     - `"success"`
         Сохранённые записи логов были успешно заархивированы, параметр замыкания типа `String` содержит ссылку на созданный архив

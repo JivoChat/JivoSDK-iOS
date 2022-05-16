@@ -362,7 +362,7 @@ func archiveLogs(completion: @escaping (URL?, JivoSDKArchivingStatus) -> Void)
         Режим полного логирования
     - `silent`
         Логирование не ведётся
-- Перечисление <a name="type:JivoSDKArchivingStatus">**JivoSDKArchivingStatus **</a>
+- Перечисление <a name="type:JivoSDKArchivingStatus">**JivoSDKArchivingStatus**</a>
     - `success`
         Сохранённые записи логов были успешно заархивированы, параметр замыкания типа `URL?` содержит ссылку на созданный архив
     - `failedAccessing`

@@ -55,8 +55,11 @@ func startUp(channelID: String, userToken: String)
 Устанавливает соединение между SDK и нашими серверами, создавая новую сессию, либо возобновляя уже существующую.
 
 - `channelID: String`
+
     Идентификатор вашего канала в **Jivo** (то же самое, что и `widget_id`);
+
 - `userToken: String`
+
     Уникальная строка, идентифицирующая клиента чата, по которой определяется, требуется ли создать новую сессию с новым диалогом, либо восстановить уже существующую и загрузить историю начатого диалога. Генерируется на стороне интегратора **Jivo Mobile SDK**.
 
 > Не вызывайте этот метод при отображённом на экране UI чата **Jivo Mobile SDK**.
@@ -76,6 +79,7 @@ func updateCustomData(_ data: JivoSDKSessionCustomData?)
 Задаёт дополнительную информацию о клиенте, которая отображается оператору.
 
 - `data: JivoSDKSessionCustomData?`
+
     Информация о клиенте (подробнее [здесь](#type_JivoSDKSessionCustomData))
 
 > На данный момент реализация метода такова, что для обновления дополнительной информации о клиенте на стороне оператора вам необходимо вызвать метод `JivoSDK.session.startUp(...)` после изменения custom data.
@@ -96,20 +100,26 @@ func shutDown()
 
 
 - Протокол <a name="type_JivoSDKSessionDelegate">**JivoSDKSessionDelegate**</a>
+
     Реализация появится в следующих версиях
+    
 
 - Структура <a name="type_JivoSDKSessionCustomData">**JivoSDKSessionCustomData**</a>
 
     - `name: String?`
+
         Имя клиента
 
     - `email: String?`
+
         E-mail клиента 
 
     - `phone: String?`
+
         Телефон клиента
 
     - `brief: String?`
+
         Дополнительная информация о клиенте в произвольной форме
 
 
@@ -141,7 +151,8 @@ func push(into navigationController: UINavigationController)
 Добавляет `ViewController` чата **Jivo Mobile SDK** в стек переданного `UINavigationController` и отображает чат на экране с настройками UI по-умолчанию.
 
 - `into navigationController: UINavigationController`
-Объект `UINavigationController`, в стек которого будет добавлен `ViewController`, отвечающий за UI чата. 
+
+  Объект `UINavigationController`, в стек которого будет добавлен `ViewController`, отвечающий за UI чата. 
 
 
 
@@ -152,8 +163,11 @@ func push(into navigationController: UINavigationController, config: JivoSDKChat
 Добавляет `ViewController` чата **Jivo Mobile SDK** в стек переданного `UINavigationController` и отображает чат на экране с указанными настройками UI.
 
 - `into navigationController: UINavigationController`
+
     Объект `UINavigationController`, в стек которого будет добавлен `ViewController`, отвечающий за UI чата
+
 - `config: JivoSDKChattingConfig`
+  
   Конфигурация UI чата (подробнее [здесь](#type_JivoSDKChattingConfig))
 
 
@@ -165,7 +179,8 @@ func place(within navigationController: UINavigationController)
 Удаляет весь стек в переданном объекте `UINavigationController` и добавляет в стек `ViewController`, отвечающий за UI чата, с настройками отображения по умолчанию. 
 
 - `within navigationController: UINavigationController`
-Объект `UINavigationController`, стек которого будет заменён на ViewController, отвечающий за UI чата.
+
+  Объект `UINavigationController`, стек которого будет заменён на ViewController, отвечающий за UI чата.
 
 
 
@@ -176,9 +191,11 @@ func place(within navigationController: UINavigationController, config: JivoSDKC
 Удаляет весь стек в переданном объекте `UINavigationController` и добавляет в стек `ViewController`, отвечающий за UI чата, с заданными настройками отображения.
 
 - `within navigationController: UINavigationController`
+
     Объект `UINavigationController`, стек которого будет заменён на `ViewController`, отвечающий за UI чата 
 - `config: JivoSDKChattingConfig`
-Конфигурация UI чата (подробнее [здесь](#type_JivoSDKChattingConfig))
+
+  Конфигурация UI чата (подробнее [здесь](#type_JivoSDKChattingConfig))
 
 
 
@@ -189,7 +206,8 @@ func present(over viewController: UIViewController)
 Отображает модально UI чата на экране с визуальными настройками по-умолчанию, вызывая метод `present(_:animated:)` для переданного `ViewController`. Выполняется анимировано.
 
 - `over viewController: UIViewController`
-`ViewController`, поверх которого будет модально отображаться UI чата
+
+  `ViewController`, поверх которого будет модально отображаться UI чата
 
 
 
@@ -200,9 +218,11 @@ func present(over viewController: UIViewController, config: JivoSDKChattingConfi
 Отображает модально UI чата на экране с заданными визуальными настройками, вызывая метод `present(_:animated:)` для переданного `ViewController`. Выполняется анимировано.
 
 - `over viewController: UIViewController`
+
     `ViewController`, поверх которого будет модально отображаться UI чата
 - `config: JivoSDKChattingConfig`
-Конфигурация UI чата (подробнее [здесь](#type_JivoSDKChattingConfig))
+
+  Конфигурация UI чата (подробнее [здесь](#type_JivoSDKChattingConfig))
 
 
 
@@ -213,41 +233,71 @@ func present(over viewController: UIViewController, config: JivoSDKChattingConfi
 - Протокол <a name="type_JivoSDKChattingUIDelegate">**JivoSDKChattingUIDelegate **</a>
 
     - `func jivoDidRequestUIDisplaying()`
+        
         Вызывается, когда в соответствии с логикой работы **Jivo Mobile SDK** необходимо отобразить UI чата на экране.
-
+        
         
 
 - Структура <a name="type_JivoSDKChattingConfig">**JivoSDKChattingConfig**</a>
 
     - `locale: Locale?`
+
         Информация о регионе, по которой для UI чата устанавливается соответствующий язык (для локализации интерфейса доступны только те, языки, которые поддерживаются Jivo SDK). Значение по-умолчанию – `Locale.autoupdatingCurrent`
+
     - `useDefaultIcon: Bool` **[Только для Objective-C]**
+
         Указание, отображать ли иконку оператора по-умолчанию (изображение с логотипом Jivo). Если значение параметра – `true`, то иконка по-умолчанию будет отображена даже в случае указания `customIcon` или отсутствия аватара у оператора; если значение – `false`, то иконка по-умолчанию показана не будет и вместо неё отобразится либо изображение, переданное в параметре `customIcon`, либо аватар оператора при его подключении. При отсутствии `customIcon` и аватара никакое изображение в баре показано не будет, а тексты заголовка и подзаголовка сместятся влево, заполняя собой пустое место. Значение по-умолчанию – `true`
+
     - `customIcon: UIImage?` **[Только для Objective-C]**
+
         Кастомная иконка оператора до подключения, отображаемая в верхнем баре над окном чата, отображаемая в верхнем баре над окном чата. Если у оператора установлен аватар, то он заменяет собой иконку, переданную в параметре `customIcon`, иначе – `customIcon` продолжает оставаться на экране. Заменяется иконкой по-умолчанию, если значение `useDefaultIcon` равняется `true`. Значение по-умолчанию – `nil`;
+
     - `icon: JivoSDKTitleBarIconStyle?` **[Только для Swift]**
+
         Режим отображения иконки в верхнем баре над окном чата до подключения оператора. Принимает следующие значения типа `JivoSDKTitleBarIconStyle` (перечисление):
+
         - `default`
+
             Cтандартная иконка с логотипом Jivo
+
         - `hidden`
+
             Иконка не будет отображаться. Аватар оператора при наличии отобразится сразу после загрузки, при отсутствии – никакое изображение показано не будет, а тексты заголовка и подзаголовка сместятся влево, заполняя собой пустое место
+
         - `custom(UIImage)`
+
             Кастомное изображение, передаваемое в associated value кейса перечисления
+
     - `titlePlaceholder: String?`
+
         Текст заголовка , отображаемого в верхнем баре над окном чата, до того момента, как SDK не получит имя оператора (оно заменит собой текст `titlePlaceholder`)). Значение по-умолчанию – локализованная строка “Чат с поддержкой”
+
     - `titleColor: UIColor?`
+
         Цвет заголовка, отображаемого в верхнем баре над окном чата. Значение по-умолчанию – объект `UIColor`, содержащий чёрный/белый цвет (в зависимости от применённой темы)
+
     - `subtitleCaption: String?`
+
         Текст подзаголовка, отображаемого в верхнем баре над окном чата. Значение по-умолчанию – локализованная строка “На связи 24/7!”
+
     - `subtitleColor: UIColor?`
+
         Цвет подзаголовка, отображаемого в верхнем баре над окном чата. Значение по-умолчанию – объект `UIColor`, содержащий светло-серый цвет
+
     - `inputPlaceholder: String?`
+
         Плейсхолдер текстового поля ввода внизу окна чата. Значение по-умолчанию – локализованная строка “Введите ваше сообщение”
+
     - `activeMessage: String?`
+
         Текст активного приглашения. Активное приглашение – это сообщение, которое автоматически отображается для новых клиентов в ленте чата слева. Если при инициализации для свойства передать `nil`, то активное приглашение показано не будет. Сообщение с активным приглашением отобразится только после того, как будет установлено соединение с сервером
+
     - `offlineMessage: String?`
+
         Текст оффлайн-сообщения. Оффлайн-сообщение – это сообщение, которое автоматически отображается после отправленного клиентом сообщения, если на канале нет активных операторов. Если для этого поля передать `nil` или пустой текст, то оффлайн-сообщение будет показано со стандартным текстом.
+
     - `outcomingPalette: JivoSDKChattingPaletteAlias?`
+
         Основной цвет для фона клиентских сообщений, кнопки отправки и каретки ввода текста. Возможные значения: `green` (по умолчанию), `blue`, `graphite`
 
 
@@ -296,7 +346,8 @@ func handleRemoteNotification(containingUserInfo userInfo: [AnyHashable : Any]) 
 В рамках реализации этого метода **Jivo Mobile SDK** определяет тип уведомления от нашей системы. Если этот тип подразумевает, что нажатие пользователя на PUSH должно сопровождаться открытием экрана чата, то у `JivoSDKChattingUI.delegate` будет вызван метод `jivoDidRequestUIDisplaying()`, запрашивающий от вас отображение UI чата SDK на экране.
 
 - `containingUserInfo userInfo: [AnyHashable : Any]`
-Cловарь с данными из тела PUSH-уведомления.
+
+  Cловарь с данными из тела PUSH-уведомления.
 
 
 
@@ -311,7 +362,8 @@ func handleNotification(_ notification: UNNotification) -> Bool
 Обрабатывает данные PUSH-уведомления, передаваемые в параметре типа `UNNotification`, и возвращает `true`, если уведомление было отправлено со стороны **Jivo**, либо `false`, если уведомление было отправлено другой системой.
 
 - `notification: UNNotification`
-Объект входящего уведомления.
+
+  Объект входящего уведомления.
 
 
 
@@ -328,7 +380,8 @@ func handleNotification(response: UNNotificationResponse) -> Bool
 В рамках реализации этого метода **Jivo Mobile SDK** определяет тип уведомления от нашей системы. Если этот тип подразумевает, что нажатие пользователя на PUSH должно сопровождаться открытием экрана чата, то у `JivoSDKChattingUI.delegate` будет вызван метод `jivoDidRequestUIDisplaying()`, запрашивающий от вас отображение UI чата SDK на экране.
 
 - `response: UNNotificationResponse`
-Результат пользовательского взаимодействия с уведомлением.
+
+  Результат пользовательского взаимодействия с уведомлением.
 
 
 
@@ -351,6 +404,7 @@ func archiveLogs(completion: @escaping (URL?, JivoSDKArchivingStatus) -> Void)
 Выполняет архивацию сохранённых записей логов и возвращает в completion-блоке ссылку на созданный архив и статус операции.
 
 - `completion: @escaping (URL?, JivoSDKArchivingStatus) -> Void`
+
     Замыкание, которое будет вызвано по завершении операции. В блок будут переданы URL (если удалось создать архив) и статус результата операции (подробнее [здесь](#type_JivoSDKArchivingStatus)).
 
 
@@ -360,14 +414,26 @@ func archiveLogs(completion: @escaping (URL?, JivoSDKArchivingStatus) -> Void)
 
 
 - Перечисление <a name="type_JivoSDKDebuggingLevel">**JivoSDKDebuggingLevel**</a>
+
     - `full`
+
         Режим полного логирования
+
     - `silent`
+
         Логирование не ведётся
+        
+
 - Перечисление <a name="type_JivoSDKArchivingStatus">**JivoSDKArchivingStatus**</a>
+
     - `success`
+
         Сохранённые записи логов были успешно заархивированы, параметр замыкания типа `URL?` содержит ссылку на созданный архив
+
     - `failedAccessing`
+
         Не удалось получить доступ к файлу архива в папке `Caches`, параметр замыкания типа `URL?` равен `nil`
+
     - `failedPreparing`
+
         Не удалось подготовить содержимое архива, возможна ошибка кодировки, параметр замыкания типа `URL?` равен `nil`

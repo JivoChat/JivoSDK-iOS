@@ -216,6 +216,14 @@ RCT_EXPORT_METHOD(presentChattingUIWithConfig:(nullable NSDictionary *)uiConfigD
       RCTLogWarn(@"Invalid 'activeMessage' field type: you should pass a value of the string type.");
     }
 
+    NSString * _Nullable offlineMessageValue = [uiConfigDictionary objectForKey:@"offlineMessage"];
+    NSString * _Nullable offlineMessage;
+    if ([offlineMessageValue isKindOfClass:[NSString class]] || offlineMessageValue == NULL) {
+      offlineMessage = offlineMessageValue;
+    } else {
+      RCTLogWarn(@"Invalid 'offlineMessage' field type: you should pass a value of the string type.");
+    }
+
     NSString *outcomingPaletteValue = [uiConfigDictionary objectForKey:@"outcomingPalette"];
     JivoSDKChattingPaletteAlias outcomingPalette = JivoSDKChattingPaletteAliasGreen;
     if ([outcomingPaletteValue isKindOfClass:[NSString class]]) {
@@ -235,6 +243,7 @@ RCT_EXPORT_METHOD(presentChattingUIWithConfig:(nullable NSDictionary *)uiConfigD
                                        subtitleColor:subtitleColor
                                        inputPlaceholder:inputPlaceholder
                                        activeMessage:activeMessage
+                                       offlineMessage:offlineMessage
                                        outcomingPalette:outcomingPalette
                                       ];
 

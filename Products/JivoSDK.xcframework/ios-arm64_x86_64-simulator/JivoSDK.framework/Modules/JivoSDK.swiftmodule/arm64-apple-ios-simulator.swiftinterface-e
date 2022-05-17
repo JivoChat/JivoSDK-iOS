@@ -98,9 +98,9 @@ public enum JivoSDKTitleBarIconStyle {
   }
 }
 @objc public class JivoSDKChattingConfig : ObjectiveC.NSObject {
-  public init(locale: Foundation.Locale? = nil, icon: JivoSDKTitleBarIconStyle? = nil, titlePlaceholder: Swift.String? = nil, titleColor: UIKit.UIColor? = nil, subtitleCaption: Swift.String? = nil, subtitleColor: UIKit.UIColor? = nil, inputPlaceholder: Swift.String? = nil, activeMessage: Swift.String? = nil, outcomingPalette: JivoSDKChattingPaletteAlias = .standard)
-  @available(swift, obsoleted: 0.1, message: "This is Objective-C only initializer. Use init(locale:icon:titlePlaceholder:titleColor:subtitleCaption:subtitleColor:inputPlaceholder:activeMessage:outcomingPalette:) for Swift instead.")
-  @objc public init(locale: Foundation.Locale? = nil, useDefaultIcon: Swift.Bool = true, customIcon: UIKit.UIImage? = nil, titlePlaceholder: Swift.String? = nil, titleColor: UIKit.UIColor? = nil, subtitleCaption: Swift.String? = nil, subtitleColor: UIKit.UIColor? = nil, inputPlaceholder: Swift.String? = nil, activeMessage: Swift.String? = nil, outcomingPalette: JivoSDKChattingPaletteAlias = .standard)
+  public init(locale: Foundation.Locale? = nil, icon: JivoSDKTitleBarIconStyle? = nil, titlePlaceholder: Swift.String? = nil, titleColor: UIKit.UIColor? = nil, subtitleCaption: Swift.String? = nil, subtitleColor: UIKit.UIColor? = nil, inputPlaceholder: Swift.String? = nil, activeMessage: Swift.String? = nil, offlineMessage: Swift.String? = nil, outcomingPalette: JivoSDKChattingPaletteAlias = .standard)
+  @available(swift, obsoleted: 0.1, message: "This is Objective-C only initializer. Use init(locale:icon:titlePlaceholder:titleColor:subtitleCaption:subtitleColor:inputPlaceholder:activeMessage:offlineMessage:outcomingPalette:) for Swift instead.")
+  @objc public init(locale: Foundation.Locale? = nil, useDefaultIcon: Swift.Bool = true, customIcon: UIKit.UIImage? = nil, titlePlaceholder: Swift.String? = nil, titleColor: UIKit.UIColor? = nil, subtitleCaption: Swift.String? = nil, subtitleColor: UIKit.UIColor? = nil, inputPlaceholder: Swift.String? = nil, activeMessage: Swift.String? = nil, offlineMessage: Swift.String? = nil, outcomingPalette: JivoSDKChattingPaletteAlias = .standard)
   @objc deinit
 }
 @objc public protocol JivoSDKChattingUIDelegate {

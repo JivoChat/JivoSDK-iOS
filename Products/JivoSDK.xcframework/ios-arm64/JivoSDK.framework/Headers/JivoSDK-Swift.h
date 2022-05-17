@@ -248,7 +248,7 @@ enum JivoSDKChattingPaletteAlias : NSInteger;
 
 SWIFT_CLASS("_TtC7JivoSDK21JivoSDKChattingConfig")
 @interface JivoSDKChattingConfig : NSObject
-- (nonnull instancetype)initWithLocale:(NSLocale * _Nullable)locale useDefaultIcon:(BOOL)useDefaultIcon customIcon:(UIImage * _Nullable)customIcon titlePlaceholder:(NSString * _Nullable)titlePlaceholder titleColor:(UIColor * _Nullable)titleColor subtitleCaption:(NSString * _Nullable)subtitleCaption subtitleColor:(UIColor * _Nullable)subtitleColor inputPlaceholder:(NSString * _Nullable)inputPlaceholder activeMessage:(NSString * _Nullable)activeMessage outcomingPalette:(enum JivoSDKChattingPaletteAlias)outcomingPalette OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithLocale:(NSLocale * _Nullable)locale useDefaultIcon:(BOOL)useDefaultIcon customIcon:(UIImage * _Nullable)customIcon titlePlaceholder:(NSString * _Nullable)titlePlaceholder titleColor:(UIColor * _Nullable)titleColor subtitleCaption:(NSString * _Nullable)subtitleCaption subtitleColor:(UIColor * _Nullable)subtitleColor inputPlaceholder:(NSString * _Nullable)inputPlaceholder activeMessage:(NSString * _Nullable)activeMessage offlineMessage:(NSString * _Nullable)offlineMessage outcomingPalette:(enum JivoSDKChattingPaletteAlias)outcomingPalette OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end

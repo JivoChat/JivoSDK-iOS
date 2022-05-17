@@ -4,14 +4,14 @@
 
 ### Содержание
 
-- [Пространство имён **JivoSDK.session**](#namespace:session)
+- [Пространство имён **JivoSDK.session**](#namespace_session)
     - *var delegate*
     - *func startUp(channelID:userToken:)*
     - *func updateCustomData(_:)*
     - *func shutDown()*
     - *protocol JivoSDKSessionDelegate*
     - *struct JivoSDKSessionCustomData*
-- [Пространство имён **JivoSDK.chattingUI**](#namespace:chattingUI)
+- [Пространство имён **JivoSDK.chattingUI**](#namespace_chattingUI)
     - *var delegate*
     - *var isDisplaying*
     - *func push(into:)*
@@ -22,13 +22,13 @@
     - *func present(over:config:)*
     - *protocol JivoSDKChattingUIDelegate*
     - *struct JivoSDKChattingConfig*
-- [Пространство имён **JivoSDK.notifications**](#namespace:notifications)
+- [Пространство имён **JivoSDK.notifications**](#namespace_notifications)
     - *func setPushToken(data:)*
     - *func setPushToken(hex:)*
     - *func handleRemoteNotification(containingUserInfo:)*
     - *func handleNotification(_:)*
     - *func handleNotification(response:)*
-- [Пространство имён **JivoSDK.debugging**](#namespace:debugging)
+- [Пространство имён **JivoSDK.debugging**](#namespace_debugging)
     - *var level*
     - *func archiveLogs(completion:)* 
     - *enum JivoSDKDebuggingLevel*
@@ -36,7 +36,7 @@
 
 
 
-### Пространство имён <a name="namespace:session">JivoSDK.session</a>
+### Пространство имён <a name="namespace_session">JivoSDK.session</a>
 
 <a name="vtable:JivoSDK.session.delegate" />
 
@@ -44,7 +44,7 @@
 var delegate: JivoSDKSessionDelegate? { get set }
 ```
 
-Делегат для обработки событий, связанных с соединением и сессией клиента (подробнее [здесь](#type:JivoSDKSessionDelegate)).
+Делегат для обработки событий, связанных с соединением и сессией клиента (подробнее [здесь](#type_JivoSDKSessionDelegate)).
 > На данный момент протокол JivoSDKSessionDelegate не содержит ни одного объявления внутри себя. Поделитесь с нами, какие свойства или методы обратного вызова вы бы хотели увидеть в нём.
 
 
@@ -76,7 +76,7 @@ func updateCustomData(_ data: JivoSDKSessionCustomData?)
 Задаёт дополнительную информацию о клиенте, которая отображается оператору.
 
 - `data: JivoSDKSessionCustomData?`
-    Информация о клиенте (подробнее [здесь](#type:JivoSDKSessionCustomData))
+    Информация о клиенте (подробнее [здесь](#type_JivoSDKSessionCustomData))
 
 > На данный момент реализация метода такова, что для обновления дополнительной информации о клиенте на стороне оператора вам необходимо вызвать метод `JivoSDK.session.startUp(...)` после изменения custom data.
 
@@ -95,10 +95,10 @@ func shutDown()
 
 
 
-- Протокол <a name="type:JivoSDKSessionDelegate">**JivoSDKSessionDelegate**</a>
+- Протокол <a name="type_JivoSDKSessionDelegate">**JivoSDKSessionDelegate**</a>
     Реализация появится в следующих версиях
 
-- Структура <a name="type:JivoSDKSessionCustomData">**JivoSDKSessionCustomData**</a>
+- Структура <a name="type_JivoSDKSessionCustomData">**JivoSDKSessionCustomData**</a>
 
     - `name: String?`
         Имя клиента
@@ -114,7 +114,7 @@ func shutDown()
 
 
 
-### Пространство имён <a name="namespace:chattingUI">JivoSDK.chattingUI</a>
+### Пространство имён <a name="namespace_chattingUI">JivoSDK.chattingUI</a>
 
 
 
@@ -122,7 +122,7 @@ func shutDown()
 var delegate: JivoSDKChattingUIDelegate? { get set }
 ```
 
-Устанавливает делегат для обработки событий, связанных с отображением UI чата на экране (подробнее [здесь](#type:JivoSDKChattingUIDelegate)).
+Устанавливает делегат для обработки событий, связанных с отображением UI чата на экране (подробнее [здесь](#type_JivoSDKChattingUIDelegate)).
 
 
 
@@ -154,7 +154,7 @@ func push(into navigationController: UINavigationController, config: JivoSDKChat
 - `into navigationController: UINavigationController`
     Объект `UINavigationController`, в стек которого будет добавлен `ViewController`, отвечающий за UI чата
 - `config: JivoSDKChattingConfig`
-  Конфигурация UI чата (подробнее [здесь](#type:JivoSDKChattingConfig))
+  Конфигурация UI чата (подробнее [здесь](#type_JivoSDKChattingConfig))
 
 
 
@@ -178,7 +178,7 @@ func place(within navigationController: UINavigationController, config: JivoSDKC
 - `within navigationController: UINavigationController`
     Объект `UINavigationController`, стек которого будет заменён на `ViewController`, отвечающий за UI чата 
 - `config: JivoSDKChattingConfig`
-Конфигурация UI чата (подробнее [здесь](#type:JivoSDKChattingConfig))
+Конфигурация UI чата (подробнее [здесь](#type_JivoSDKChattingConfig))
 
 
 
@@ -202,7 +202,7 @@ func present(over viewController: UIViewController, config: JivoSDKChattingConfi
 - `over viewController: UIViewController`
     `ViewController`, поверх которого будет модально отображаться UI чата
 - `config: JivoSDKChattingConfig`
-Конфигурация UI чата (подробнее [здесь](#type:JivoSDKChattingConfig))
+Конфигурация UI чата (подробнее [здесь](#type_JivoSDKChattingConfig))
 
 
 
@@ -210,14 +210,14 @@ func present(over viewController: UIViewController, config: JivoSDKChattingConfi
 
 
 
-- Протокол <a name="type:JivoSDKChattingUIDelegate">**JivoSDKChattingUIDelegate **</a>
+- Протокол <a name="type_JivoSDKChattingUIDelegate">**JivoSDKChattingUIDelegate **</a>
 
     - `func jivoDidRequestUIDisplaying()`
         Вызывается, когда в соответствии с логикой работы **Jivo Mobile SDK** необходимо отобразить UI чата на экране.
 
         
 
-- Структура <a name="type:JivoSDKChattingConfig">**JivoSDKChattingConfig**</a>
+- Структура <a name="type_JivoSDKChattingConfig">**JivoSDKChattingConfig**</a>
 
     - `locale: Locale?`
         Информация о регионе, по которой для UI чата устанавливается соответствующий язык (для локализации интерфейса доступны только те, языки, которые поддерживаются Jivo SDK). Значение по-умолчанию – `Locale.autoupdatingCurrent`
@@ -245,12 +245,14 @@ func present(over viewController: UIViewController, config: JivoSDKChattingConfi
         Плейсхолдер текстового поля ввода внизу окна чата. Значение по-умолчанию – локализованная строка “Введите ваше сообщение”
     - `activeMessage: String?`
         Текст активного приглашения. Активное приглашение – это сообщение, которое автоматически отображается для новых клиентов в ленте чата слева. Если при инициализации для свойства передать `nil`, то активное приглашение показано не будет. Сообщение с активным приглашением отобразится только после того, как будет установлено соединение с сервером
+    - `offlineMessage: String?`
+        Текст оффлайн-сообщения. Оффлайн-сообщение – это сообщение, которое автоматически отображается после отправленного клиентом сообщения, если на канале нет активных операторов. Если для этого поля передать `nil` или пустой текст, то оффлайн-сообщение будет показано со стандартным текстом.
     - `outcomingPalette: JivoSDKChattingPaletteAlias?`
         Основной цвет для фона клиентских сообщений, кнопки отправки и каретки ввода текста. Возможные значения: `green` (по умолчанию), `blue`, `graphite`
 
 
 
-### Пространство имён <a name="namespace:notifications">JivoSDK.notifications</a>
+### Пространство имён <a name="namespace_notifications">JivoSDK.notifications</a>
 
 
 
@@ -330,7 +332,7 @@ func handleNotification(response: UNNotificationResponse) -> Bool
 
 
 
-### Пространство имён <a name="namespace:debugging">JivoSDK.debugging</a>
+### Пространство имён <a name="namespace_debugging">JivoSDK.debugging</a>
 
 
 
@@ -338,7 +340,7 @@ func handleNotification(response: UNNotificationResponse) -> Bool
 var level: JivoSDKDebuggingLevel { get set }
 ```
 
-С помощью этого свойства вы можете задать степень того, насколько подробно будет производиться логирование в SDK (подробнее [здесь](#type:JivoSDKDebuggingLevel)).
+С помощью этого свойства вы можете задать степень того, насколько подробно будет производиться логирование в SDK (подробнее [здесь](#type_JivoSDKDebuggingLevel)).
 
 
 
@@ -349,7 +351,7 @@ func archiveLogs(completion: @escaping (URL?, JivoSDKArchivingStatus) -> Void)
 Выполняет архивацию сохранённых записей логов и возвращает в completion-блоке ссылку на созданный архив и статус операции.
 
 - `completion: @escaping (URL?, JivoSDKArchivingStatus) -> Void`
-    Замыкание, которое будет вызвано по завершении операции. В блок будут переданы URL (если удалось создать архив) и статус результата операции (подробнее [здесь](#type:JivoSDKArchivingStatus)).
+    Замыкание, которое будет вызвано по завершении операции. В блок будут переданы URL (если удалось создать архив) и статус результата операции (подробнее [здесь](#type_JivoSDKArchivingStatus)).
 
 
 
@@ -357,12 +359,12 @@ func archiveLogs(completion: @escaping (URL?, JivoSDKArchivingStatus) -> Void)
 
 
 
-- Перечисление <a name="type:JivoSDKDebuggingLevel">**JivoSDKDebuggingLevel**</a>
+- Перечисление <a name="type_JivoSDKDebuggingLevel">**JivoSDKDebuggingLevel**</a>
     - `full`
         Режим полного логирования
     - `silent`
         Логирование не ведётся
-- Перечисление <a name="type:JivoSDKArchivingStatus">**JivoSDKArchivingStatus**</a>
+- Перечисление <a name="type_JivoSDKArchivingStatus">**JivoSDKArchivingStatus**</a>
     - `success`
         Сохранённые записи логов были успешно заархивированы, параметр замыкания типа `URL?` содержит ссылку на созданный архив
     - `failedAccessing`

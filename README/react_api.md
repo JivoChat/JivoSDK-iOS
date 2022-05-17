@@ -4,7 +4,7 @@
 
 ### Содержание
 
-- [Пространство имён **JivoSDK**](#namespace:JivoSDK)
+- [Пространство имён **JivoSDK**](#namespace_JivoSDK)
     - *function startUpSession(channelID, userToken)*
     - *function updateSessionCustomData(customData)*
     - *function shutDownSession()*
@@ -24,7 +24,7 @@
 
 
 
-### Пространство имён <a name="namespace:JivoSDK">JivoSDK</a>
+### Пространство имён <a name="namespace_JivoSDK">JivoSDK</a>
 
 
 
@@ -56,7 +56,7 @@ function updateSessionCustomData(customData)
 Задаёт дополнительную информацию о клиенте, которая отображается оператору.
 
 - `customData: Object? // JivoSDKSessionCustomData`
-    Информация о клиенте (подробнее [здесь](#type:JivoSDKSessionCustomData))
+    Информация о клиенте (подробнее [здесь](#type_JivoSDKSessionCustomData))
 
 > На данный момент реализация метода такова, что для обновления дополнительной информации о клиенте на стороне оператора вам необходимо вызвать метод `JivoSDK.startUpSession(...)` после изменения custom data.
 
@@ -97,7 +97,7 @@ function presentChattingUIWithConfig(config)
 Отображает UI чата поверх всех других UI-элементов на экране нативными средствами UIKit, используя переданную конфигурацию UI.
 
 - `config: Object // JivoSDKChattingConfig`
-    Конфигурация UI чата (подробнее [здесь](#type:JivoSDKChattingConfig))
+    Конфигурация UI чата (подробнее [здесь](#type_JivoSDKChattingConfig))
 
 ### 
 
@@ -160,7 +160,7 @@ function setDebuggingLevel(level)
 С помощью этого свойства вы можете задать степень того, насколько подробно будет производиться логирование в SDK.
 
 - `level: String // JivoSDKChattingConfig`
-  Степень логирования в SDK (подробнее [здесь](#type:JivoSDKDebuggingLevel))
+  Степень логирования в SDK (подробнее [здесь](#type_JivoSDKDebuggingLevel))
 
 
 
@@ -176,7 +176,7 @@ function archiveLogs(callback)
   -  `url: String`
      URL архива (если удалось создать)
   - `status: String // JivoSDKArchivingStatus`
-     Статус операции (подробнее [здесь](#type:JivoSDKArchivingStatus))
+     Статус операции (подробнее [здесь](#type_JivoSDKArchivingStatus))
 
 
 
@@ -184,7 +184,7 @@ function archiveLogs(callback)
 
 
 
-- Объект <a name="type:JivoSDKSessionCustomData">**Object: JivoSDKSessionCustomData**</a>
+- Объект <a name="type_JivoSDKSessionCustomData">**Object: JivoSDKSessionCustomData**</a>
 
     - `name: String`
         Имя клиента
@@ -198,7 +198,7 @@ function archiveLogs(callback)
     - `brief: String`
         Дополнительная информация о клиенте в произвольной форме
 
-- Объект <a name="type:JivoSDKChattingConfig">**Object: JivoSDKChattingConfig**</a>
+- Объект <a name="type_JivoSDKChattingConfig">**Object: JivoSDKChattingConfig**</a>
 
     - `localeIdentifier: String`
         Код региона в формате `ru_RU`, язык которого будет использоваться при локализации UI чата
@@ -232,17 +232,19 @@ function archiveLogs(callback)
         Плейсхолдер текстового поля ввода внизу окна чата
     - `activeMessage: String`
         Текст активного приглашения. Активное приглашение – это сообщение, которое автоматически отображается для новых клиентов в ленте чата слева. Если не указывать значение для данного поля, то активное приглашение показано не будет
+    - `offlineMessage: String`
+        Текст оффлайн-сообщения. Оффлайн-сообщение – это сообщение, которое автоматически отображается после отправленного клиентом сообщения, если на канале нет активных операторов. Если не указывать значение для данного поля, то оффлайн-сообщение будет показано со стандартным текстом.
     - `outcomingPalette: String ['green', 'blue', 'graphite']`
         Основной цвет для фона клиентских сообщений, кнопки отправки и каретки ввода текста, по умолчанию 'green'
 
-- Перечисление <a name="type:JivoSDKDebuggingLevel">**String: JivoSDKDebuggingLevel**</a>
+- Перечисление <a name="type_JivoSDKDebuggingLevel">**String: JivoSDKDebuggingLevel**</a>
 
     - `"full"`
         Режим полного логирования
     - `"silent"`
         Логирование не ведётся
 
-- Перечисление <a name="type:JivoSDKArchivingStatus">**String: JivoSDKArchivingStatus**</a>
+- Перечисление <a name="type_JivoSDKArchivingStatus">**String: JivoSDKArchivingStatus**</a>
 
     - `"success"`
         Сохранённые записи логов были успешно заархивированы, параметр замыкания типа `String` содержит ссылку на созданный архив

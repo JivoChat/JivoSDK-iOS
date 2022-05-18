@@ -145,13 +145,15 @@ function setPushToken(hexString)
 
 Для того, чтобы отписать устройство от PUSH уведомлений для текущего клиента, вызовите метод `shutDown()`. 
 
+>  PUSH-токен не сохраняется в SDK между запусками приложения, поэтому вызывать этот метод нужно каждый раз, в том числе при переавторизации
+
 
 
 ```javascript
 function handlePushRawPayload(rawPayload, callback)
 ```
 
-Обрабатывает данные PUSH-уведомления, передаваемые в параметре типа `[AnyHashable : Any]`, и возвращает `true`, если уведомление было отправлено со стороны **Jivo**, либо `false`, если уведомление было отправлено другой системой.
+Обрабатывает данные PUSH-уведомления, передаваемые в параметре типа `Object`, и возвращает `true`, если уведомление было отправлено со стороны **Jivo**, либо `false`, если уведомление было отправлено другой системой.
 
 В рамках реализации этого метода **Jivo Mobile SDK** определяет тип уведомления от нашей системы. Если этот тип подразумевает, что нажатие пользователя на PUSH должно сопровождаться открытием экрана чата, то будет вызвана функция обратного вызова, переданная вами в качестве параметра в функцию `setChattingUIDisplayRequestHandler(handler)`.
 
@@ -162,6 +164,8 @@ function handlePushRawPayload(rawPayload, callback)
 - `callback: (?boolean) => ()`
 
     Функция обратного вызова, куда приходит результат обработки данных PUSH-уведомления
+
+> Метод предназначен для того, чтобы передавать в него приходящие PUSH-уведомления
 
 
 
@@ -195,6 +199,8 @@ function archiveLogs(callback)
   
      Статус операции (подробнее [здесь](#type_JivoSDKArchivingStatus))
 
+> Может выдавать пустой файл, если параметр `JivoSDK.setDebuggingLevel(...)` был выставлен в значение `"silent"`
+
 
 
 ##### Вспомогательные типы
@@ -223,7 +229,7 @@ function archiveLogs(callback)
 
     - `localeIdentifier: String`
 
-        Код региона в формате `ru_RU`, язык которого будет использоваться при локализации UI чата
+        Код региона в формате `ru_RU` или `ru-RU`, язык которого будет использоваться при локализации UI чата
 
     - `icon: [Object | String]`
 
@@ -238,12 +244,11 @@ function archiveLogs(callback)
             Иконка будет скрыта. Если у оператора установлен аватар, он заполнит собой пустое место. Иначе – никакое изображение показано не будет, а тексты заголовка и подзаголовка сместятся влево, заполняя собой пустое пространство.
 
         Если передавать параметр в виде объекта, то он обязательно должен содержать в себе поле `uri: string`, значением которого является URI для доступа к изображению. Получить такой объект можно, например, следующим образом:
-
-     ```js
-    const myImage = require('./someImage.png');
-    const resolveAssetSource = require('react-native/Libraries/Image/resolveAssetSource');
-    const resolvedImage = resolveAssetSource(myImage); // Объект иконки
-     ```
+        ```javascript
+        const myImage = require('./someImage.png');
+        const resolveAssetSource = require('react-native/Libraries/Image/resolveAssetSource');
+        const resolvedImage = resolveAssetSource(myImage); // Объект иконки
+        ```
 
     - `titlePlaceholder: String` 
 

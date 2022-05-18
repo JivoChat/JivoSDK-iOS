@@ -334,6 +334,8 @@ func setPushToken(hex: String?)
 
 Для того, чтобы отписать устройство от PUSH уведомлений для текущего клиента, вызовите метод `shutDown()`. 
 
+> PUSH-токен не сохраняется в SDK между запусками приложения, поэтому вызывать этот метод нужно каждый раз, в том числе при переавторизации
+
 <a name="vtable:JivoSDK.notifications.handleRemoteNotification" />
 
 ```swift
@@ -348,6 +350,8 @@ func handleRemoteNotification(containingUserInfo userInfo: [AnyHashable : Any]) 
 - `containingUserInfo userInfo: [AnyHashable : Any]`
 
   Cловарь с данными из тела PUSH-уведомления.
+
+> Метод предназначен для того, чтобы передавать в него приходящие PUSH-уведомления
 
 
 
@@ -383,6 +387,8 @@ func handleNotification(response: UNNotificationResponse) -> Bool
 
   Результат пользовательского взаимодействия с уведомлением.
 
+> Метод предназначен для того, чтобы передавать в него приходящие PUSH-уведомления
+
 
 
 ### Пространство имён <a name="namespace_debugging">JivoSDK.debugging</a>
@@ -406,6 +412,8 @@ func archiveLogs(completion: @escaping (URL?, JivoSDKArchivingStatus) -> Void)
 - `completion: @escaping (URL?, JivoSDKArchivingStatus) -> Void`
 
     Замыкание, которое будет вызвано по завершении операции. В блок будут переданы URL (если удалось создать архив) и статус результата операции (подробнее [здесь](#type_JivoSDKArchivingStatus)).
+
+> Может выдавать пустой файл, если параметр `JivoSDK.debugging.level` был выставлен в значение `silent`
 
 
 

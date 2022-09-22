@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = 'JivoSDK'
-  spec.version      = '3.0.0-beta.2'
+  spec.version      = '3.0.0-beta.3'
   
   spec.homepage     = 'https://github.com/JivoChat'
   spec.authors      = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
@@ -24,7 +24,7 @@ Pod::Spec.new do |spec|
   spec.framework    = 'SystemConfiguration'
 
 # Fork dependencies
-  spec.dependency      'JFMarkdownKit', '1.2.0'
+  spec.dependency      'JFMarkdownKit', '1.2.2'
   spec.dependency      'JFEmojiPicker', '1.2'
   spec.dependency      'JFFontello/Entypo', '1.5'
   spec.dependency      'JFWebSocket', '2.9.2'
@@ -49,7 +49,7 @@ Pod::Spec.new do |spec|
   spec.dependency      'JMCodingKit', '5.0.2'
   spec.dependency      'JMRepicKit', '1.0.5'
   spec.dependency      'JMTimelineKit', '4.2.1'
-  spec.dependency      'JMMarkdownKit', '1.2.2'
+  spec.dependency      'JMMarkdownKit', '1.2.0'
   spec.dependency      'JMDesignKit', '1.0.0'
   spec.dependency      'JMOnetimeCalculator', '1.0.0'
   spec.dependency      'JMScalableView', '1.0.0'

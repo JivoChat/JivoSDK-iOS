@@ -232,7 +232,7 @@ func present(over viewController: UIViewController, config: JivoSDKChattingConfi
 
 - Протокол <a name="type_JivoSDKChattingUIDelegate">**JivoSDKChattingUIDelegate **</a>
 
-    - `func jivoDidRequestUIDisplaying()`
+    - `func jivo(didRequestChattingUI:)`
         
         Вызывается, когда в соответствии с логикой работы **Jivo Mobile SDK** необходимо отобразить UI чата на экране.
         
@@ -345,7 +345,7 @@ func handleRemoteNotification(containingUserInfo userInfo: [AnyHashable : Any]) 
 
 Обрабатывает данные PUSH-уведомления, передаваемые в параметре типа `[AnyHashable : Any]`, и возвращает `true`, если уведомление было отправлено со стороны **Jivo**, либо `false`, если уведомление было отправлено другой системой.
 
-В рамках реализации этого метода **Jivo Mobile SDK** определяет тип уведомления от нашей системы. Если этот тип подразумевает, что нажатие пользователя на PUSH должно сопровождаться открытием экрана чата, то у `JivoSDKChattingUI.delegate` будет вызван метод `jivoDidRequestUIDisplaying()`, запрашивающий от вас отображение UI чата SDK на экране.
+В рамках реализации этого метода **Jivo Mobile SDK** определяет тип уведомления от нашей системы. Если этот тип подразумевает, что нажатие пользователя на PUSH должно сопровождаться открытием экрана чата, то у `JivoSDKChattingUI.delegate` будет вызван метод `jivo(didRequestChattingUI:)`, запрашивающий от вас отображение UI чата SDK на экране.
 
 - `containingUserInfo userInfo: [AnyHashable : Any]`
 
@@ -381,7 +381,7 @@ func handleNotification(response: UNNotificationResponse) -> Bool
 
 Обрабатывает данные PUSH-уведомления при пользовательском взаимодействии с ним и возвращает `true`, если уведомление было отправлено со стороны **Jivo**, либо `false`, если уведомление было отправлено другой системой.
 
-В рамках реализации этого метода **Jivo Mobile SDK** определяет тип уведомления от нашей системы. Если этот тип подразумевает, что нажатие пользователя на PUSH должно сопровождаться открытием экрана чата, то у `JivoSDKChattingUI.delegate` будет вызван метод `jivoDidRequestUIDisplaying()`, запрашивающий от вас отображение UI чата SDK на экране.
+В рамках реализации этого метода **Jivo Mobile SDK** определяет тип уведомления от нашей системы. Если этот тип подразумевает, что нажатие пользователя на PUSH должно сопровождаться открытием экрана чата, то у `JivoSDKChattingUI.delegate` будет вызван метод `jivo(didRequestChattingUI:)`, запрашивающий от вас отображение UI чата SDK на экране.
 
 - `response: UNNotificationResponse`
 

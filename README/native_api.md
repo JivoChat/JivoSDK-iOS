@@ -23,9 +23,10 @@
     - *protocol JivoSDKChattingUIDelegate*
     - *struct JivoSDKChattingConfig*
 - [Пространство имён **JivoSDK.notifications**](#namespace_notifications)
+    - *func setPermissionAsking(at:handler:)*
     - *func setPushToken(data:)*
     - *func setPushToken(hex:)*
-    - *func handleRemoteNotification(containingUserInfo:)*
+    - *func handleRemoteNotification(userInfo:)*
     - *func handleNotification(_:)*
     - *func handleNotification(response:)*
 - [Пространство имён **JivoSDK.debugging**](#namespace_debugging)
@@ -46,6 +47,30 @@ var delegate: JivoSDKSessionDelegate? { get set }
 
 Делегат для обработки событий, связанных с соединением и сессией клиента (подробнее [здесь](#type_JivoSDKSessionDelegate)).
 > На данный момент протокол JivoSDKSessionDelegate не содержит ни одного объявления внутри себя. Поделитесь с нами, какие свойства или методы обратного вызова вы бы хотели увидеть в нём.
+
+<a name="vtable:JivoSDK.session.delegate" />
+
+
+```swift
+func setPreferredServer(_ server: JivoSDKSessionServer)
+```
+
+Устанавливает предпочтительный сервер для соединения SDK с серверами **Jivo**.
+
+- `server: JivoSDKSessionServer`
+
+    Предпочтительная региональная привязка сервера:
+
+    - `europe`
+        Европейские сервера
+    - `russia`
+        Российские сервера
+    - `asia`
+        Азиатские сервера
+    - `auto`
+        Автоматический выбор
+
+<a name="vtable:JivoSDK.session.startUp" />
 
 
 ```swift
@@ -103,7 +128,6 @@ func shutDown()
 
     Реализация появится в следующих версиях
     
-
 - Структура <a name="type_JivoSDKSessionCustomData">**JivoSDKSessionCustomData**</a>
 
     - `name: String?`
@@ -232,8 +256,8 @@ func present(over viewController: UIViewController, config: JivoSDKChattingConfi
 
 - Протокол <a name="type_JivoSDKChattingUIDelegate">**JivoSDKChattingUIDelegate **</a>
 
-    - `func jivoDidRequestUIDisplaying()`
-        
+    - `func jivo(didRequestChattingUI:)`
+      
         Вызывается, когда в соответствии с логикой работы **Jivo Mobile SDK** необходимо отобразить UI чата на экране.
         
         
@@ -304,7 +328,22 @@ func present(over viewController: UIViewController, config: JivoSDKChattingConfi
 
 ### Пространство имён <a name="namespace_notifications">JivoSDK.notifications</a>
 
+<a name="vtable:JivoSDK.notifications.setPermissionAsking" />
 
+```swift
+func setPermissionAsking(at moment: JivoSDKNotificationsPermissionAskingMoment, handler: JivoSDKNotificationsPermissionAskingHandler)
+```
+
+Назначает момент, когда SDK должен запросить доступ к PUSH-уведомлениям, и определяет, какая подсистема должна заниматься обработкой входящих PUSH-событий.
+
+- `at moment: JivoSDKNotificationsPermissionAskingMoment`
+    Момент запроса доступа к PUSH уведомлениям
+- `handler: JivoSDKNotificationsPermissionAskingHandler`
+    Обработчик событий подсистемы PUSH
+
+Следует вызывать до `JivoSDK.session.startUp(...)`
+
+<a name="vtable:JivoSDK.notifications.setPushTokenData" />
 
 ```swift
 func setPushToken(data: Data?)
@@ -339,13 +378,13 @@ func setPushToken(hex: String?)
 <a name="vtable:JivoSDK.notifications.handleRemoteNotification" />
 
 ```swift
-func handleRemoteNotification(containingUserInfo userInfo: [AnyHashable : Any]) -> Bool
+func handleRemoteNotification(userInfo: [AnyHashable : Any]) -> Bool
 ```
 > Используйте этот метод, если вы обрабатываете PUSH-уведомления с помощью метода `UIApplicationDelegate.application(_:didReceiveRemoteNotification:fetchCompletionHandler:)` и не используете для этого методы фреймворка `UserNotifications`.
 
 Обрабатывает данные PUSH-уведомления, передаваемые в параметре типа `[AnyHashable : Any]`, и возвращает `true`, если уведомление было отправлено со стороны **Jivo**, либо `false`, если уведомление было отправлено другой системой.
 
-В рамках реализации этого метода **Jivo Mobile SDK** определяет тип уведомления от нашей системы. Если этот тип подразумевает, что нажатие пользователя на PUSH должно сопровождаться открытием экрана чата, то у `JivoSDKChattingUI.delegate` будет вызван метод `jivoDidRequestUIDisplaying()`, запрашивающий от вас отображение UI чата SDK на экране.
+В рамках реализации этого метода **Jivo Mobile SDK** определяет тип уведомления от нашей системы. Если этот тип подразумевает, что нажатие пользователя на PUSH должно сопровождаться открытием экрана чата, то у `JivoSDKChattingUI.delegate` будет вызван метод `jivo(didRequestChattingUI:)`, запрашивающий от вас отображение UI чата SDK на экране.
 
 - `containingUserInfo userInfo: [AnyHashable : Any]`
 
@@ -381,7 +420,7 @@ func handleNotification(response: UNNotificationResponse) -> Bool
 
 Обрабатывает данные PUSH-уведомления при пользовательском взаимодействии с ним и возвращает `true`, если уведомление было отправлено со стороны **Jivo**, либо `false`, если уведомление было отправлено другой системой.
 
-В рамках реализации этого метода **Jivo Mobile SDK** определяет тип уведомления от нашей системы. Если этот тип подразумевает, что нажатие пользователя на PUSH должно сопровождаться открытием экрана чата, то у `JivoSDKChattingUI.delegate` будет вызван метод `jivoDidRequestUIDisplaying()`, запрашивающий от вас отображение UI чата SDK на экране.
+В рамках реализации этого метода **Jivo Mobile SDK** определяет тип уведомления от нашей системы. Если этот тип подразумевает, что нажатие пользователя на PUSH должно сопровождаться открытием экрана чата, то у `JivoSDKChattingUI.delegate` будет вызван метод `jivo(didRequestChattingUI:)`, запрашивающий от вас отображение UI чата SDK на экране.
 
 - `response: UNNotificationResponse`
 
@@ -421,6 +460,24 @@ func archiveLogs(completion: @escaping (URL?, JivoSDKArchivingStatus) -> Void)
 
 
 
+- Перечисление <a name="type_JivoSDKNotificationsPermissionAskingMoment">**JivoSDKNotificationsPermissionAskingMoment**</a>
+
+    - `never`
+    Никогда не запрашивать доступ к уведомлениям
+    - `onConnect`
+    Запрашивать доступ к уведомлениям, когда SDK подключается к серверам **Jivo** посредством вызова `JivoSDK.session.startUp(...)`
+    - `onAppear`
+    Запрашивать доступ к уведомлениям, когда происходит отображение окна SDK на экране
+    - `onSend`
+        Запрашивать доступ к уведомлениям, когда пользователь отправляет сообщение в диалог
+
+- Перечисление <a name="type_JivoSDKNotificationsPermissionAskingHandler">**JivoSDKNotificationsPermissionAskingHandler**</a>
+
+    - `sdk`
+        Обрабатывать PUSH события должна подсистема SDK
+    - `current`
+        Обрабатывать PUSH события должна подсистема, которая на текущий момент для этого назначена
+    
 - Перечисление <a name="type_JivoSDKDebuggingLevel">**JivoSDKDebuggingLevel**</a>
 
     - `full`

@@ -170,7 +170,7 @@ source 'https://github.com/JivoChat/JMSpecsRepo.git'
 use_frameworks!
 
 target :YourTargetName do
-  pod 'JivoSDK' #, '~> 2.1'
+  pod 'JivoSDK' #, '~> 3.0'
 end
 ```
 

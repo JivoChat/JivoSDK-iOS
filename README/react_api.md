@@ -13,6 +13,7 @@
     - *function presentChattingUIWithConfig(config)*
     - *function setChattingUIDisplayRequestHandler(callback)*
     - *function removeChattingUIDisplayRequestHandler()*
+    - *function setPermissionAskingMomentAt(moment, handler)*
     - *function setPushToken(hexString)*
     - *function handlePushRawPayload(rawPayload, callback)*
     - *function setDebuggingLevel(level)*
@@ -129,6 +130,31 @@ function removeChattingUIDisplayRequestHandler()
 
 
 ```javascript
+function setPermissionAskingMomentAt(moment, handler)
+```
+
+Назначает момент, когда SDK должен запросить доступ к PUSH-уведомлениям, и определяет, какая подсистема должна заниматься обработкой входящих PUSH-событий.
+
+- `moment`
+    Момент запроса доступа к PUSH уведомлениям:
+    - `never`
+        Никогда не запрашивать доступ к уведомлениям
+    - `onconnect`
+        Запрашивать доступ к уведомлениям, когда SDK подключается к серверам **Jivo** посредством вызова `startUpSession(...)`
+    - `onappear`
+        Запрашивать доступ к уведомлениям, когда происходит отображение окна SDK на экране
+    - `onsend`
+        Запрашивать доступ к уведомлениям, когда пользователь отправляет сообщение в диалог
+- `handler`
+    Обработчик событий подсистемы PUSH:
+    - `sdk`
+        Обрабатывать PUSH события должна подсистема SDK
+    - `current`
+        Обрабатывать PUSH события должна подсистема, которая на текущий момент для этого назначена
+
+
+
+```javascript
 function setPushToken(hexString)
 ```
 
@@ -188,7 +214,7 @@ function archiveLogs(callback)
 Выполняет архивацию сохранённых записей логов и возвращает в функцию обратного вызова ссылку на созданный архив и статус операции.
 
 - `callback: (url: String, status: String) => ()` 
-   
+  
   Функция обратного вызова, которая будет вызвана по завершению операции.
   В коллбэк будут переданы:
   

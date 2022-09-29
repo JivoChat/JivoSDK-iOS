@@ -224,15 +224,22 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 /// https://github.com/JivoChat/JivoSDK-iOS
 SWIFT_CLASS("_TtC7JivoSDK7JivoSDK")
 @interface JivoSDK : NSObject
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) JivoSDK * _Nonnull shared;)
++ (JivoSDK * _Nonnull)shared SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@property (nonatomic, readonly, strong) id <JivoSDKSession> _Nonnull session;
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <JivoSDKSession> _Nonnull session;)
 + (id <JivoSDKSession> _Nonnull)session SWIFT_WARN_UNUSED_RESULT;
+@property (nonatomic, readonly, strong) id <JivoSDKChattingUI> _Nonnull chattingUI;
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <JivoSDKChattingUI> _Nonnull chattingUI;)
 + (id <JivoSDKChattingUI> _Nonnull)chattingUI SWIFT_WARN_UNUSED_RESULT;
+@property (nonatomic, readonly, strong) id <JivoSDKNotifications> _Nonnull notifications;
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <JivoSDKNotifications> _Nonnull notifications;)
 + (id <JivoSDKNotifications> _Nonnull)notifications SWIFT_WARN_UNUSED_RESULT;
+@property (nonatomic, readonly, strong) id <JivoSDKDebugging> _Nonnull debugging;
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <JivoSDKDebugging> _Nonnull debugging;)
 + (id <JivoSDKDebugging> _Nonnull)debugging SWIFT_WARN_UNUSED_RESULT;
-- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
 typedef SWIFT_ENUM(NSInteger, JivoSDKArchivingStatus, open) {
@@ -289,7 +296,7 @@ SWIFT_PROTOCOL("_TtP7JivoSDK17JivoSDKChattingUI_")
 SWIFT_PROTOCOL("_TtP7JivoSDK25JivoSDKChattingUIDelegate_")
 @protocol JivoSDKChattingUIDelegate
 @optional
-- (void)jivoDidRequestChattingUI:(SWIFT_METATYPE(JivoSDK) _Nonnull)sdk;
+- (void)jivoDidRequestChattingUI:(JivoSDK * _Nonnull)sdk;
 @end
 
 @class NSCoder;
@@ -340,7 +347,7 @@ SWIFT_PROTOCOL("_TtP7JivoSDK20JivoSDKNotifications_")
 SWIFT_PROTOCOL("_TtP7JivoSDK28JivoSDKNotificationsDelegate_")
 @protocol JivoSDKNotificationsDelegate
 @optional
-- (void)jivoNeedAccessToNotifications:(SWIFT_METATYPE(JivoSDK) _Nonnull)sdk proceedBlock:(void (^ _Nonnull)(void))proceedBlock;
+- (void)jivoNeedAccessToNotifications:(JivoSDK * _Nonnull)sdk proceedBlock:(void (^ _Nonnull)(void))proceedBlock;
 @end
 
 typedef SWIFT_ENUM(NSInteger, JivoSDKNotificationsPermissionAskingHandler, open) {

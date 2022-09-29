@@ -14,7 +14,7 @@
 		</data>
 		<key>Headers/JivoSDK-Swift.h</key>
 		<data>
-		JBjso2803slpf1H7QhKjubUBzWU=
+		XpUg3YOBGi/VJGVDTVe7uVhPgPM=
 		</data>
 		<key>Headers/JivoSDK-umbrella.h</key>
 		<data>
@@ -34,11 +34,11 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		ABw0Smz4iHTo48AHRjsGzGQyIsA=
+		qgkRNV8IWnRv10rb+Q4961Lq/Rs=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		CeCXAoi3xyFTb+jJIxDxrWMjMpQ=
+		kdxmiqgbG8PiilrRjM9XE0EH3H0=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftdoc</key>
 		<data>
@@ -46,11 +46,11 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftinterface</key>
 		<data>
-		ABw0Smz4iHTo48AHRjsGzGQyIsA=
+		qgkRNV8IWnRv10rb+Q4961Lq/Rs=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftmodule</key>
 		<data>
-		CeCXAoi3xyFTb+jJIxDxrWMjMpQ=
+		kdxmiqgbG8PiilrRjM9XE0EH3H0=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
@@ -58,11 +58,11 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftinterface</key>
 		<data>
-		BCpHtC0tvZJI9WIL3vWsm+kqHLA=
+		vmtHCGlDkxBtHrJaTmzksiIGyqY=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		gEeBJS6AjJvPynbUmVxP2XJmQIw=
+		v5XtTtjeNHekl9L1H8ifgCoD6xA=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftdoc</key>
 		<data>
@@ -70,11 +70,11 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftinterface</key>
 		<data>
-		BCpHtC0tvZJI9WIL3vWsm+kqHLA=
+		vmtHCGlDkxBtHrJaTmzksiIGyqY=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftmodule</key>
 		<data>
-		gEeBJS6AjJvPynbUmVxP2XJmQIw=
+		v5XtTtjeNHekl9L1H8ifgCoD6xA=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -191,7 +191,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			JhuJ/KQA53D78+mNpQfRWgJXF2U+Uje+z/xm1Tt65AI=
+			9LHdRcnoe14blg94zURQSQ3JEcmNRQYtqABPuBPLsPU=
 			</data>
 		</dict>
 		<key>Headers/JivoSDK-umbrella.h</key>
@@ -219,14 +219,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			A4p85Za1YfmxKPFez+vDBkgwe9TSFLD7LsTQebuBYQA=
+			EhGRv/Vnxf2G8lLjP6chLHjPBC3miacIpvpKCvoBC0c=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			pjchKJ+vGoy8ORvwewiTUuO7kA4OQrwirLdW0sGWmsk=
+			fJZELwf+69uZbgysn129x6jw2O2h3aqnonfZgP5MqXo=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftdoc</key>
@@ -240,14 +240,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			A4p85Za1YfmxKPFez+vDBkgwe9TSFLD7LsTQebuBYQA=
+			EhGRv/Vnxf2G8lLjP6chLHjPBC3miacIpvpKCvoBC0c=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			pjchKJ+vGoy8ORvwewiTUuO7kA4OQrwirLdW0sGWmsk=
+			fJZELwf+69uZbgysn129x6jw2O2h3aqnonfZgP5MqXo=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
@@ -261,14 +261,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			rkq1ixrosqQCjvWr6cY3+2AqX4WQg9e04fdjoFo7U7M=
+			gSGGL54lRkbQ/QdpnQoCVJkYBOZdRSj+eXWHorEW3y0=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			1oFXizzdQylS/BLuJBT5YLZSjDNjp9vW529x80NPjmw=
+			HdG287Nyb5795unEoxlNoDzd5ZF2nzYTflxH5ufbboU=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftdoc</key>
@@ -282,14 +282,14 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			rkq1ixrosqQCjvWr6cY3+2AqX4WQg9e04fdjoFo7U7M=
+			gSGGL54lRkbQ/QdpnQoCVJkYBOZdRSj+eXWHorEW3y0=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftmodule</key>
 		<dict>
 			<key>hash2</key>
 			<data>
-			1oFXizzdQylS/BLuJBT5YLZSjDNjp9vW529x80NPjmw=
+			HdG287Nyb5795unEoxlNoDzd5ZF2nzYTflxH5ufbboU=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

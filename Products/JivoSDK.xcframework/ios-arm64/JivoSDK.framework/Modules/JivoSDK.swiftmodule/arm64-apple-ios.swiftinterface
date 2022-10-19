@@ -74,7 +74,7 @@ public class JivoSDKSessionCustomData : ObjectiveC.NSObject {
   @objc deinit
 }
 @objc public class JivoSDKSessionCustomDataField : ObjectiveC.NSObject {
-  @objc public init(title: Swift.String? = nil, key: Swift.String? = nil, content: Swift.String = String())
+  @objc public init(title: Swift.String? = nil, key: Swift.String? = nil, content: Swift.String = String(), link: Swift.String? = nil)
   @objc deinit
 }
 extension JivoSDKSessionCustomData {

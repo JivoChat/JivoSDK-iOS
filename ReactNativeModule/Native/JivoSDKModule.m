@@ -170,7 +170,12 @@ RCT_EXPORT_METHOD(setSessionCustomData:(NSArray *)customDataArray) {
         continue;
       }
 
-      JivoSDKSessionCustomDataField *field = [[JivoSDKSessionCustomDataField alloc] initWithTitle:titleValue key:keyValue content:contentValue];
+      id linkValue = [item objectForKey:@"link"];
+      if (![linkValue isKindOfClass:[NSString class]]) {
+        linkValue = NULL;
+      }
+
+      JivoSDKSessionCustomDataField *field = [[JivoSDKSessionCustomDataField alloc] initWithTitle:titleValue key:keyValue content:contentValue link:linkValue];
       [fields addObject:field];
     }
 

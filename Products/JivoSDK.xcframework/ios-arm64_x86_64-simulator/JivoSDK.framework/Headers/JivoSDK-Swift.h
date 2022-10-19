@@ -406,7 +406,7 @@ SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData") SWIFT_DEPRECATED_MSG("Plea
 
 SWIFT_CLASS("_TtC7JivoSDK29JivoSDKSessionCustomDataField")
 @interface JivoSDKSessionCustomDataField : NSObject
-- (nonnull instancetype)initWithTitle:(NSString * _Nullable)title key:(NSString * _Nullable)key content:(NSString * _Nonnull)content OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithTitle:(NSString * _Nullable)title key:(NSString * _Nullable)key content:(NSString * _Nonnull)content link:(NSString * _Nullable)link OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -844,7 +844,7 @@ SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData") SWIFT_DEPRECATED_MSG("Plea
 
 SWIFT_CLASS("_TtC7JivoSDK29JivoSDKSessionCustomDataField")
 @interface JivoSDKSessionCustomDataField : NSObject
-- (nonnull instancetype)initWithTitle:(NSString * _Nullable)title key:(NSString * _Nullable)key content:(NSString * _Nonnull)content OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithTitle:(NSString * _Nullable)title key:(NSString * _Nullable)key content:(NSString * _Nonnull)content link:(NSString * _Nullable)link OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end

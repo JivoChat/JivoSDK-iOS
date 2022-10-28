@@ -431,6 +431,7 @@ typedef SWIFT_ENUM(NSInteger, JivoSDKSessionServer, open) {
 
 
 
+
 #if __has_attribute(external_source_symbol)
 # pragma clang attribute pop
 #endif
@@ -860,6 +861,7 @@ typedef SWIFT_ENUM(NSInteger, JivoSDKSessionServer, open) {
   JivoSDKSessionServerRussia = 2,
   JivoSDKSessionServerAsia = 3,
 };
+
 
 
 

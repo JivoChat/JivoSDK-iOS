@@ -254,7 +254,7 @@ func present(over viewController: UIViewController, config: JivoSDKChattingConfi
 
 
 
-- Протокол <a name="type_JivoSDKChattingUIDelegate">**JivoSDKChattingUIDelegate **</a>
+- Протокол <a name="type_JivoSDKChattingUIDelegate">**JivoSDKChattingUIDelegate**</a>
 
     - `func jivo(didRequestChattingUI:)`
       

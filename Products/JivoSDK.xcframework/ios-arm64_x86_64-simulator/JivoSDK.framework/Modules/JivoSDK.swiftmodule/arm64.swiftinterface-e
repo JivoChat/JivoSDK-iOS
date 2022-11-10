@@ -44,26 +44,6 @@ import WebKit
 import XCGLogger
 import _Concurrency
 import libPhoneNumber_iOS
-public struct ChatTimelinePalette {
-}
-public enum ClientContextEvent {
-  case clientIdChanged(to: Swift.String?)
-  case startupConfigChanged(to: StartupModel?)
-  case tokenChanged(to: Swift.String?)
-  case pathChanged(to: Swift.String?)
-  case licenseStateUpdated(to: LicenseState?)
-}
-public enum LicenseState {
-  case unlicensed
-  case licensed
-  public static func == (a: LicenseState, b: LicenseState) -> Swift.Bool
-  public func hash(into hasher: inout Swift.Hasher)
-  public var hashValue: Swift.Int {
-    get
-  }
-}
-public struct ConnectionConfig {
-}
 @objc @available(*, deprecated, message: "Please use JivoSDKSessionClientInfo instead")
 public class JivoSDKSessionCustomData : ObjectiveC.NSObject {
   @objc public init(name: Swift.String? = nil, email: Swift.String? = nil, phone: Swift.String? = nil, brief: Swift.String? = nil)
@@ -232,13 +212,6 @@ public enum JivoSDKTitleBarIconStyle {
 }
 @objc public protocol JivoSDKSessionDelegate {
 }
-#warning("TODO: Anton Karpushko, 26.11.2021 – Make MemoryRepository thread-safe.")
-#warning("TODO: Anton Karpushko, 26.11.2021 – Make PersistentRepository thread-safe.")
-public struct StartupModel : Swift.Equatable {
-  public static func == (a: StartupModel, b: StartupModel) -> Swift.Bool
-}
-extension LicenseState : Swift.Equatable {}
-extension LicenseState : Swift.Hashable {}
 extension JivoSDKChattingPaletteAlias : Swift.Equatable {}
 extension JivoSDKChattingPaletteAlias : Swift.Hashable {}
 extension JivoSDKChattingPaletteAlias : Swift.RawRepresentable {}

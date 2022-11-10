@@ -30,8 +30,30 @@ _Nullable RCTResponseSenderBlock chattingUIDisplayRequestHandler;
 
 RCT_EXPORT_METHOD(startUpSession:
                   (NSString *)channelID
-                  userToken:(NSString *)userToken) {
+                  userToken:(NSString *)userToken
+                  server:(NSString *)server) {
   dispatch_async(dispatch_get_main_queue(), ^{
+    JivoSDKSessionServer serverValue = JivoSDKSessionServerAuto;
+    if (server == NULL) {
+      serverValue = JivoSDKSessionServerAuto;
+    }
+    else if ([server isEqual:@"auto"]) {
+      serverValue = JivoSDKSessionServerAuto;
+    }
+    else if ([server isEqual:@"europe"]) {
+      serverValue = JivoSDKSessionServerEurope;
+    }
+    else if ([server isEqual:@"russia"]) {
+      serverValue = JivoSDKSessionServerRussia;
+    }
+    else if ([server isEqual:@"asia"]) {
+      serverValue = JivoSDKSessionServerAsia;
+    }
+    else {
+      serverValue = JivoSDKSessionServerAuto;
+    }
+
+    [[JivoSDK session] setPreferredServer:serverValue];
     [[JivoSDK session] startUpWithChannelID:channelID userToken:userToken];
   });
 }
@@ -77,6 +99,123 @@ RCT_EXPORT_METHOD(updateSessionCustomData:(NSDictionary *)customDataDictionary) 
                                               brief:brief
                                             ];
     [[JivoSDK session] updateCustomData:customData];
+  });
+}
+
+RCT_EXPORT_METHOD(setSessionClientInfo:(NSDictionary *)clientInfoDictionary) {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    NSString * _Nullable nameValue = [clientInfoDictionary objectForKey:@"name"];
+    NSString * _Nullable name;
+    if ([nameValue isKindOfClass:[NSString class]] || nameValue == NULL) {
+      name = nameValue;
+    } else {
+      RCTLogWarn(@"Invalid 'name' field type: you should pass a value of the string type.");
+    }
+    
+    NSString * _Nullable emailValue = [clientInfoDictionary objectForKey:@"email"];
+    NSString * _Nullable email;
+    if ([emailValue isKindOfClass:[NSString class]] || emailValue == NULL) {
+      email = emailValue;
+    } else {
+      RCTLogWarn(@"Invalid 'email' field type: you should pass a value of the string type.");
+    }
+    
+    NSString * _Nullable phoneValue = [clientInfoDictionary objectForKey:@"phone"];
+    NSString * _Nullable phone;
+    if ([phoneValue isKindOfClass:[NSString class]] || phoneValue == NULL) {
+      phone = phoneValue;
+    } else {
+      RCTLogWarn(@"Invalid 'phone' field type: you should pass a value of the string type.");
+    }
+    
+    NSString * _Nullable briefValue = [clientInfoDictionary objectForKey:@"brief"];
+    NSString * _Nullable brief;
+    if ([briefValue isKindOfClass:[NSString class]] || briefValue == NULL) {
+      brief = briefValue;
+    } else {
+      RCTLogWarn(@"Invalid 'brief' field type: you should pass a value of the string type.");
+    }
+    
+    JivoSDKSessionClientInfo *clientInfo = [[JivoSDKSessionClientInfo alloc]
+                                              initWithName:name
+                                              email:email
+                                              phone:phone
+                                              brief:brief
+                                            ];
+    [[JivoSDK session] setClientInfo:clientInfo];
+  });
+}
+
+RCT_EXPORT_METHOD(setSessionCustomData:(NSArray *)customDataArray) {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    NSMutableArray *fields = [NSMutableArray new];
+
+    for (id item in customDataArray) {
+      if (![item isKindOfClass:[NSDictionary class]]) {
+        continue;
+      }
+
+      id titleValue = [item objectForKey:@"title"];
+      if (![titleValue isKindOfClass:[NSString class]]) {
+        titleValue = NULL;
+      }
+
+      id keyValue = [item objectForKey:@"key"];
+      if (![keyValue isKindOfClass:[NSString class]]) {
+        keyValue = NULL;
+      }
+
+      id contentValue = [item objectForKey:@"content"];
+      if (![contentValue isKindOfClass:[NSString class]] || [contentValue length] == 0) {
+        continue;
+      }
+
+      id linkValue = [item objectForKey:@"link"];
+      if (![linkValue isKindOfClass:[NSString class]]) {
+        linkValue = NULL;
+      }
+
+      JivoSDKSessionCustomDataField *field = [[JivoSDKSessionCustomDataField alloc] initWithTitle:titleValue key:keyValue content:contentValue link:linkValue];
+      [fields addObject:field];
+    }
+
+    [[JivoSDK session] setCustomData:fields];
+  });
+}
+
+RCT_EXPORT_METHOD(setPermissionAskingMomentAt:
+                  (NSString *)moment
+                  handler:(NSString *)handler) {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    JivoSDKNotificationsPermissionAskingMoment momentValue;
+    if ([moment isEqual:@"never"]) {
+      momentValue = JivoSDKNotificationsPermissionAskingMomentNever;
+    }
+    else if ([moment isEqual:@"onconnect"]) {
+      momentValue = JivoSDKNotificationsPermissionAskingMomentOnConnect;
+    }
+    else if ([moment isEqual:@"onappear"]) {
+      momentValue = JivoSDKNotificationsPermissionAskingMomentOnAppear;
+    }
+    else if ([moment isEqual:@"onsend"]) {
+      momentValue = JivoSDKNotificationsPermissionAskingMomentOnSend;
+    }
+    else {
+      momentValue = JivoSDKNotificationsPermissionAskingMomentNever;
+    }
+
+    JivoSDKNotificationsPermissionAskingHandler handlerValue;
+    if ([handler isEqual:@"sdk"]) {
+      handlerValue = JivoSDKNotificationsPermissionAskingHandlerSdk;
+    }
+    else if ([moment isEqual:@"current"]) {
+      handlerValue = JivoSDKNotificationsPermissionAskingHandlerCurrent;
+    }
+    else {
+      handlerValue = JivoSDKNotificationsPermissionAskingHandlerCurrent;
+    }
+
+    [[JivoSDK notifications] setPermissionAskingAt:momentValue handler:handlerValue];
   });
 }
 
@@ -208,6 +347,14 @@ RCT_EXPORT_METHOD(presentChattingUIWithConfig:(nullable NSDictionary *)uiConfigD
       RCTLogWarn(@"Invalid 'inputPlaceholder' field type: you should pass a value of the string type.");
     }
     
+    NSString * _Nullable inputPrefillValue = [uiConfigDictionary objectForKey:@"inputPrefill"];
+    NSString * _Nullable inputPrefill;
+    if ([inputPrefillValue isKindOfClass:[NSString class]] || inputPrefillValue == NULL) {
+      inputPrefill = inputPrefillValue;
+    } else {
+      RCTLogWarn(@"Invalid 'inputPrefill' field type: you should pass a value of the string type.");
+    }
+    
     NSString * _Nullable activeMessageValue = [uiConfigDictionary objectForKey:@"activeMessage"];
     NSString * _Nullable activeMessage;
     if ([activeMessageValue isKindOfClass:[NSString class]] || activeMessageValue == NULL) {
@@ -242,6 +389,7 @@ RCT_EXPORT_METHOD(presentChattingUIWithConfig:(nullable NSDictionary *)uiConfigD
                                        subtitleCaption:subtitleCaption
                                        subtitleColor:subtitleColor
                                        inputPlaceholder:inputPlaceholder
+                                       inputPrefill:inputPrefill
                                        activeMessage:activeMessage
                                        offlineMessage:offlineMessage
                                        outcomingPalette:outcomingPalette
@@ -285,7 +433,7 @@ RCT_EXPORT_METHOD(archiveLogs:(RCTResponseSenderBlock)callback) {
   });
 }
 
-- (void)jivoDidRequestUIDisplaying {
+- (void)jivoDidRequestChattingUI {
   dispatch_async(dispatch_get_main_queue(), ^{
     if (chattingUIDisplayRequestHandler != NULL) {
       chattingUIDisplayRequestHandler(@[]);

@@ -220,23 +220,38 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 @protocol JivoSDKNotifications;
 @protocol JivoSDKDebugging;
 
+/// Please refer to documentation here:
+/// https://github.com/JivoChat/JivoSDK-iOS
 SWIFT_CLASS("_TtC7JivoSDK7JivoSDK")
 @interface JivoSDK : NSObject
+SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) JivoSDK * _Nonnull shared;)
++ (JivoSDK * _Nonnull)shared SWIFT_WARN_UNUSED_RESULT;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@property (nonatomic, readonly, strong) id <JivoSDKSession> _Nonnull session;
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <JivoSDKSession> _Nonnull session;)
 + (id <JivoSDKSession> _Nonnull)session SWIFT_WARN_UNUSED_RESULT;
+@property (nonatomic, readonly, strong) id <JivoSDKChattingUI> _Nonnull chattingUI;
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <JivoSDKChattingUI> _Nonnull chattingUI;)
 + (id <JivoSDKChattingUI> _Nonnull)chattingUI SWIFT_WARN_UNUSED_RESULT;
+@property (nonatomic, readonly, strong) id <JivoSDKNotifications> _Nonnull notifications;
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <JivoSDKNotifications> _Nonnull notifications;)
 + (id <JivoSDKNotifications> _Nonnull)notifications SWIFT_WARN_UNUSED_RESULT;
+@property (nonatomic, readonly, strong) id <JivoSDKDebugging> _Nonnull debugging;
 SWIFT_CLASS_PROPERTY(@property (nonatomic, class, readonly, strong) id <JivoSDKDebugging> _Nonnull debugging;)
 + (id <JivoSDKDebugging> _Nonnull)debugging SWIFT_WARN_UNUSED_RESULT;
-- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @end
 
 typedef SWIFT_ENUM(NSInteger, JivoSDKArchivingStatus, open) {
   JivoSDKArchivingStatusSuccess = 0,
   JivoSDKArchivingStatusFailedAccessing = 1,
   JivoSDKArchivingStatusFailedPreparing = 2,
+};
+
+typedef SWIFT_ENUM(NSInteger, JivoSDKChattingCloseButton, open) {
+  JivoSDKChattingCloseButtonOmit = 0,
+  JivoSDKChattingCloseButtonBack = 1,
+  JivoSDKChattingCloseButtonDismiss = 2,
 };
 
 @class NSLocale;
@@ -248,7 +263,7 @@ enum JivoSDKChattingPaletteAlias : NSInteger;
 
 SWIFT_CLASS("_TtC7JivoSDK21JivoSDKChattingConfig")
 @interface JivoSDKChattingConfig : NSObject
-- (nonnull instancetype)initWithLocale:(NSLocale * _Nullable)locale useDefaultIcon:(BOOL)useDefaultIcon customIcon:(UIImage * _Nullable)customIcon titlePlaceholder:(NSString * _Nullable)titlePlaceholder titleColor:(UIColor * _Nullable)titleColor subtitleCaption:(NSString * _Nullable)subtitleCaption subtitleColor:(UIColor * _Nullable)subtitleColor inputPlaceholder:(NSString * _Nullable)inputPlaceholder activeMessage:(NSString * _Nullable)activeMessage offlineMessage:(NSString * _Nullable)offlineMessage outcomingPalette:(enum JivoSDKChattingPaletteAlias)outcomingPalette OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithLocale:(NSLocale * _Nullable)locale useDefaultIcon:(BOOL)useDefaultIcon customIcon:(UIImage * _Nullable)customIcon titlePlaceholder:(NSString * _Nullable)titlePlaceholder titleColor:(UIColor * _Nullable)titleColor subtitleCaption:(NSString * _Nullable)subtitleCaption subtitleColor:(UIColor * _Nullable)subtitleColor inputPlaceholder:(NSString * _Nullable)inputPlaceholder inputPrefill:(NSString * _Nullable)inputPrefill activeMessage:(NSString * _Nullable)activeMessage offlineMessage:(NSString * _Nullable)offlineMessage outcomingPalette:(enum JivoSDKChattingPaletteAlias)outcomingPalette OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -270,7 +285,9 @@ SWIFT_PROTOCOL("_TtP7JivoSDK17JivoSDKChattingUI_")
 - (void)pushInto:(UINavigationController * _Nonnull)navigationController;
 - (void)pushInto:(UINavigationController * _Nonnull)navigationController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
 - (void)placeWithin:(UINavigationController * _Nonnull)navigationController;
+- (void)placeWithin:(UINavigationController * _Nonnull)navigationController closeButton:(enum JivoSDKChattingCloseButton)closeButton;
 - (void)placeWithin:(UINavigationController * _Nonnull)navigationController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
+- (void)placeWithin:(UINavigationController * _Nonnull)navigationController closeButton:(enum JivoSDKChattingCloseButton)closeButton withConfig:(JivoSDKChattingConfig * _Nonnull)config;
 - (void)presentOver:(UIViewController * _Nonnull)viewController;
 - (void)presentOver:(UIViewController * _Nonnull)viewController withConfig:(JivoSDKChattingConfig * _Nonnull)config;
 @end
@@ -278,18 +295,20 @@ SWIFT_PROTOCOL("_TtP7JivoSDK17JivoSDKChattingUI_")
 
 SWIFT_PROTOCOL("_TtP7JivoSDK25JivoSDKChattingUIDelegate_")
 @protocol JivoSDKChattingUIDelegate
-- (void)jivoDidRequestUIDisplaying;
+@optional
+- (void)jivoDidRequestChattingUI:(JivoSDK * _Nonnull)sdk;
 @end
 
-@class NSBundle;
 @class NSCoder;
+@class NSBundle;
 
 SWIFT_CLASS("_TtC7JivoSDK16JivoSDKContainer")
 @interface JivoSDKContainer : UINavigationController
-- (nonnull instancetype)initWithNavigationBarClass:(Class _Nullable)navigationBarClass toolbarClass:(Class _Nullable)toolbarClass OBJC_DESIGNATED_INITIALIZER SWIFT_AVAILABILITY(ios,introduced=5.0);
-- (nonnull instancetype)initWithRootViewController:(UIViewController * _Nonnull)rootViewController OBJC_DESIGNATED_INITIALIZER;
-- (nonnull instancetype)initWithNibName:(NSString * _Nullable)nibNameOrNil bundle:(NSBundle * _Nullable)nibBundleOrNil OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)aDecoder OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithNavigationBarClass:(Class _Nullable)navigationBarClass toolbarClass:(Class _Nullable)toolbarClass SWIFT_UNAVAILABLE;
+- (nonnull instancetype)initWithRootViewController:(UIViewController * _Nonnull)rootViewController SWIFT_UNAVAILABLE;
+- (nonnull instancetype)initWithNibName:(NSString * _Nullable)nibNameOrNil bundle:(NSBundle * _Nullable)nibBundleOrNil SWIFT_UNAVAILABLE;
 @end
 
 enum JivoSDKDebuggingLevel : NSInteger;
@@ -306,12 +325,17 @@ typedef SWIFT_ENUM(NSInteger, JivoSDKDebuggingLevel, open) {
   JivoSDKDebuggingLevelFull = 1,
 };
 
+@protocol JivoSDKNotificationsDelegate;
+enum JivoSDKNotificationsPermissionAskingMoment : NSInteger;
+enum JivoSDKNotificationsPermissionAskingHandler : NSInteger;
 @class NSData;
 @class UNNotification;
 @class UNNotificationResponse;
 
 SWIFT_PROTOCOL("_TtP7JivoSDK20JivoSDKNotifications_")
 @protocol JivoSDKNotifications
+@property (nonatomic, strong) id <JivoSDKNotificationsDelegate> _Nullable delegate;
+- (void)setPermissionAskingAt:(enum JivoSDKNotificationsPermissionAskingMoment)moment handler:(enum JivoSDKNotificationsPermissionAskingHandler)handler;
 - (void)setPushTokenData:(NSData * _Nullable)data;
 - (void)setPushTokenHex:(NSString * _Nullable)hex;
 - (BOOL)handleRemoteNotificationContainingUserInfo:(NSDictionary * _Nonnull)userInfo SWIFT_WARN_UNUSED_RESULT;
@@ -319,20 +343,53 @@ SWIFT_PROTOCOL("_TtP7JivoSDK20JivoSDKNotifications_")
 - (BOOL)handleNotificationResponse:(UNNotificationResponse * _Nonnull)response SWIFT_WARN_UNUSED_RESULT;
 @end
 
+
+SWIFT_PROTOCOL("_TtP7JivoSDK28JivoSDKNotificationsDelegate_")
+@protocol JivoSDKNotificationsDelegate
+@optional
+- (void)jivoNeedAccessToNotifications:(JivoSDK * _Nonnull)sdk proceedBlock:(void (^ _Nonnull)(void))proceedBlock;
+@end
+
+typedef SWIFT_ENUM(NSInteger, JivoSDKNotificationsPermissionAskingHandler, open) {
+  JivoSDKNotificationsPermissionAskingHandlerSdk = 0,
+  JivoSDKNotificationsPermissionAskingHandlerCurrent = 1,
+};
+
+typedef SWIFT_ENUM(NSInteger, JivoSDKNotificationsPermissionAskingMoment, open) {
+  JivoSDKNotificationsPermissionAskingMomentNever = 0,
+  JivoSDKNotificationsPermissionAskingMomentOnConnect = 1,
+  JivoSDKNotificationsPermissionAskingMomentOnAppear = 2,
+  JivoSDKNotificationsPermissionAskingMomentOnSend = 3,
+};
+
 @protocol JivoSDKSessionDelegate;
+enum JivoSDKSessionServer : NSInteger;
 @class JivoSDKSessionCustomData;
+@class JivoSDKSessionClientInfo;
+@class JivoSDKSessionCustomDataField;
 
 SWIFT_PROTOCOL("_TtP7JivoSDK14JivoSDKSession_")
 @protocol JivoSDKSession
 /// You can set a delegate for JivoSDKSession object using this property. The property type protocol is empty for now but we suppose that you will suggest some ideas of callback methods for us.
 @property (nonatomic, strong) id <JivoSDKSessionDelegate> _Nullable delegate;
+- (void)setPreferredServer:(enum JivoSDKSessionServer)server;
 - (void)startUpWithChannelID:(NSString * _Nonnull)channelID userToken:(NSString * _Nonnull)userToken;
-- (void)updateCustomData:(JivoSDKSessionCustomData * _Nullable)data;
+- (void)updateCustomData:(JivoSDKSessionCustomData * _Nullable)data SWIFT_DEPRECATED_MSG("Renamed to setClientInfo:");
+- (void)setClientInfo:(JivoSDKSessionClientInfo * _Nullable)info;
+- (void)setCustomData:(NSArray<JivoSDKSessionCustomDataField *> * _Nonnull)fields;
 - (void)shutDown;
 @end
 
 
-SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData")
+SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionClientInfo")
+@interface JivoSDKSessionClientInfo : NSObject
+- (nonnull instancetype)initWithName:(NSString * _Nullable)name email:(NSString * _Nullable)email phone:(NSString * _Nullable)phone brief:(NSString * _Nullable)brief OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
+SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData") SWIFT_DEPRECATED_MSG("Please use JivoSDKSessionClientInfo instead")
 @interface JivoSDKSessionCustomData : NSObject
 - (nonnull instancetype)initWithName:(NSString * _Nullable)name email:(NSString * _Nullable)email phone:(NSString * _Nullable)phone brief:(NSString * _Nullable)brief OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
@@ -345,9 +402,27 @@ SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData")
 @end
 
 
+SWIFT_CLASS("_TtC7JivoSDK29JivoSDKSessionCustomDataField")
+@interface JivoSDKSessionCustomDataField : NSObject
+- (nonnull instancetype)initWithTitle:(NSString * _Nullable)title key:(NSString * _Nullable)key content:(NSString * _Nonnull)content link:(NSString * _Nullable)link OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init SWIFT_UNAVAILABLE;
++ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
+@end
+
+
 SWIFT_PROTOCOL("_TtP7JivoSDK22JivoSDKSessionDelegate_")
 @protocol JivoSDKSessionDelegate
 @end
+
+typedef SWIFT_ENUM(NSInteger, JivoSDKSessionServer, open) {
+  JivoSDKSessionServerAuto = 0,
+  JivoSDKSessionServerEurope = 1,
+  JivoSDKSessionServerRussia = 2,
+  JivoSDKSessionServerAsia = 3,
+};
+
+
+
 
 
 

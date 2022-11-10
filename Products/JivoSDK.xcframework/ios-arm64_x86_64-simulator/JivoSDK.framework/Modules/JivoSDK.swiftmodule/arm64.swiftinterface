@@ -11,7 +11,6 @@ import DTModelStorage
 import Foundation
 import Gzip
 import JFEmojiPicker
-import JFFontello
 import JFWebSocket
 import JMCodingKit
 import JMDesignKit
@@ -31,6 +30,7 @@ import MobileCoreServices
 import Photos
 import PhotosUI
 import PureParser
+import PushKit
 import Reachability
 import Swift
 import SwiftDate
@@ -44,28 +44,17 @@ import WebKit
 import XCGLogger
 import _Concurrency
 import libPhoneNumber_iOS
-public struct ChatTimelinePalette {
-}
-public enum ClientContextEvent {
-  case clientIdChanged(to: Swift.String?)
-  case startupConfigChanged(to: StartupModel?)
-  case tokenChanged(to: Swift.String?)
-  case pathChanged(to: Swift.String?)
-  case licenseStateUpdated(to: LicenseState?)
-}
-public enum LicenseState {
-  case unlicensed
-  case licensed
-  public static func == (a: LicenseState, b: LicenseState) -> Swift.Bool
-  public func hash(into hasher: inout Swift.Hasher)
-  public var hashValue: Swift.Int {
-    get
-  }
-}
-public struct ConnectionConfig {
-}
-@objc public class JivoSDKSessionCustomData : ObjectiveC.NSObject {
+@objc @available(*, deprecated, message: "Please use JivoSDKSessionClientInfo instead")
+public class JivoSDKSessionCustomData : ObjectiveC.NSObject {
   @objc public init(name: Swift.String? = nil, email: Swift.String? = nil, phone: Swift.String? = nil, brief: Swift.String? = nil)
+  @objc deinit
+}
+@objc public class JivoSDKSessionClientInfo : ObjectiveC.NSObject {
+  @objc public init(name: Swift.String? = nil, email: Swift.String? = nil, phone: Swift.String? = nil, brief: Swift.String? = nil)
+  @objc deinit
+}
+@objc public class JivoSDKSessionCustomDataField : ObjectiveC.NSObject {
+  @objc public init(title: Swift.String? = nil, key: Swift.String? = nil, content: Swift.String = String(), link: Swift.String? = nil)
   @objc deinit
 }
 extension JivoSDKSessionCustomData {
@@ -73,12 +62,24 @@ extension JivoSDKSessionCustomData {
     @objc get
   }
 }
-@_inheritsConvenienceInitializers @objc public class JivoSDK : ObjectiveC.NSObject {
-  @objc public static let session: JivoSDKSession
-  @objc public static let chattingUI: JivoSDKChattingUI
-  @objc public static let notifications: JivoSDKNotifications
-  @objc public static let debugging: JivoSDKDebugging
-  @objc override dynamic public init()
+@_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc public class JivoSDK : ObjectiveC.NSObject {
+  @objc public static let shared: JivoSDK
+  @objc final public let session: JivoSDKSession
+  @objc public static var session: JivoSDKSession {
+    @objc get
+  }
+  @objc final public let chattingUI: JivoSDKChattingUI
+  @objc public static var chattingUI: JivoSDKChattingUI {
+    @objc get
+  }
+  @objc final public let notifications: JivoSDKNotifications
+  @objc public static var notifications: JivoSDKNotifications {
+    @objc get
+  }
+  @objc final public let debugging: JivoSDKDebugging
+  @objc public static var debugging: JivoSDKDebugging {
+    @objc get
+  }
   @objc deinit
 }
 public enum JivoSDKTitleBarIconStyle {
@@ -98,13 +99,23 @@ public enum JivoSDKTitleBarIconStyle {
   }
 }
 @objc public class JivoSDKChattingConfig : ObjectiveC.NSObject {
-  public init(locale: Foundation.Locale? = nil, icon: JivoSDKTitleBarIconStyle? = nil, titlePlaceholder: Swift.String? = nil, titleColor: UIKit.UIColor? = nil, subtitleCaption: Swift.String? = nil, subtitleColor: UIKit.UIColor? = nil, inputPlaceholder: Swift.String? = nil, activeMessage: Swift.String? = nil, offlineMessage: Swift.String? = nil, outcomingPalette: JivoSDKChattingPaletteAlias = .standard)
+  public init(locale: Foundation.Locale? = nil, icon: JivoSDKTitleBarIconStyle? = nil, titlePlaceholder: Swift.String? = nil, titleColor: UIKit.UIColor? = nil, subtitleCaption: Swift.String? = nil, subtitleColor: UIKit.UIColor? = nil, inputPlaceholder: Swift.String? = nil, inputPrefill: Swift.String? = nil, activeMessage: Swift.String? = nil, offlineMessage: Swift.String? = nil, outcomingPalette: JivoSDKChattingPaletteAlias = .standard)
   @available(swift, obsoleted: 0.1, message: "This is Objective-C only initializer. Use init(locale:icon:titlePlaceholder:titleColor:subtitleCaption:subtitleColor:inputPlaceholder:activeMessage:offlineMessage:outcomingPalette:) for Swift instead.")
-  @objc public init(locale: Foundation.Locale? = nil, useDefaultIcon: Swift.Bool = true, customIcon: UIKit.UIImage? = nil, titlePlaceholder: Swift.String? = nil, titleColor: UIKit.UIColor? = nil, subtitleCaption: Swift.String? = nil, subtitleColor: UIKit.UIColor? = nil, inputPlaceholder: Swift.String? = nil, activeMessage: Swift.String? = nil, offlineMessage: Swift.String? = nil, outcomingPalette: JivoSDKChattingPaletteAlias = .standard)
+  @objc public init(locale: Foundation.Locale? = nil, useDefaultIcon: Swift.Bool = true, customIcon: UIKit.UIImage? = nil, titlePlaceholder: Swift.String? = nil, titleColor: UIKit.UIColor? = nil, subtitleCaption: Swift.String? = nil, subtitleColor: UIKit.UIColor? = nil, inputPlaceholder: Swift.String? = nil, inputPrefill: Swift.String? = nil, activeMessage: Swift.String? = nil, offlineMessage: Swift.String? = nil, outcomingPalette: JivoSDKChattingPaletteAlias = .standard)
   @objc deinit
 }
+@objc public enum JivoSDKChattingCloseButton : Swift.Int {
+  case omit
+  case back
+  case dismiss
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
 @objc public protocol JivoSDKChattingUIDelegate {
-  @objc func jivoDidRequestUIDisplaying()
+  @objc(jivoDidRequestChattingUI:) optional func jivo(didRequestChattingUI sdk: JivoSDK)
 }
 @objc public protocol JivoSDKChattingUI {
   @objc(delegate) var delegate: JivoSDKChattingUIDelegate? { get set }
@@ -112,15 +123,14 @@ public enum JivoSDKTitleBarIconStyle {
   @objc(pushInto:) func push(into navigationController: UIKit.UINavigationController)
   @objc(pushInto:withConfig:) func push(into navigationController: UIKit.UINavigationController, config: JivoSDKChattingConfig)
   @objc(placeWithin:) func place(within navigationController: UIKit.UINavigationController)
+  @objc(placeWithin:closeButton:) func place(within navigationController: UIKit.UINavigationController, closeButton: JivoSDKChattingCloseButton)
   @objc(placeWithin:withConfig:) func place(within navigationController: UIKit.UINavigationController, config: JivoSDKChattingConfig)
+  @objc(placeWithin:closeButton:withConfig:) func place(within navigationController: UIKit.UINavigationController, closeButton: JivoSDKChattingCloseButton, config: JivoSDKChattingConfig)
   @objc(presentOver:) func present(over viewController: UIKit.UIViewController)
   @objc(presentOver:withConfig:) func present(over viewController: UIKit.UIViewController, config: JivoSDKChattingConfig)
 }
-@objc @_inheritsConvenienceInitializers @_Concurrency.MainActor(unsafe) open class JivoSDKContainer : UIKit.UINavigationController {
-  @available(iOS 5.0, *)
-  @_Concurrency.MainActor(unsafe) @objc override dynamic public init(navigationBarClass: Swift.AnyClass?, toolbarClass: Swift.AnyClass?)
-  @_Concurrency.MainActor(unsafe) @objc override dynamic public init(rootViewController: UIKit.UIViewController)
-  @_Concurrency.MainActor(unsafe) @objc override dynamic public init(nibName nibNameOrNil: Swift.String?, bundle nibBundleOrNil: Foundation.Bundle?)
+@objc @_Concurrency.MainActor(unsafe) open class JivoSDKContainer : UIKit.UINavigationController {
+  @objc dynamic public init()
   @_Concurrency.MainActor(unsafe) @objc required dynamic public init?(coder aDecoder: Foundation.NSCoder)
   @objc deinit
 }
@@ -147,34 +157,79 @@ public enum JivoSDKTitleBarIconStyle {
   @objc var level: JivoSDKDebuggingLevel { get set }
   @objc func archiveLogs(completion: @escaping (Foundation.URL?, JivoSDKArchivingStatus) -> Swift.Void)
 }
+@objc public enum JivoSDKNotificationsPermissionAskingMoment : Swift.Int {
+  case never
+  case onConnect
+  case onAppear
+  case onSend
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+@objc public enum JivoSDKNotificationsPermissionAskingHandler : Swift.Int {
+  case sdk
+  case current
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
+@objc public protocol JivoSDKNotificationsDelegate {
+  @objc(jivoNeedAccessToNotifications:proceedBlock:) optional func jivo(needAccessToNotifications sdk: JivoSDK, proceedBlock: @escaping () -> Swift.Void)
+}
 @objc public protocol JivoSDKNotifications {
+  @objc(delegate) var delegate: JivoSDKNotificationsDelegate? { get set }
+  @objc(setPermissionAskingAt:handler:) func setPermissionAsking(at moment: JivoSDKNotificationsPermissionAskingMoment, handler: JivoSDKNotificationsPermissionAskingHandler)
   @objc(setPushTokenData:) func setPushToken(data: Foundation.Data?)
   @objc(setPushTokenHex:) func setPushToken(hex: Swift.String?)
   @objc(handleRemoteNotificationContainingUserInfo:) func handleRemoteNotification(containingUserInfo userInfo: [Swift.AnyHashable : Any]) -> Swift.Bool
   @objc(handleNotification:) func handleNotification(_ notification: UserNotifications.UNNotification) -> Swift.Bool
   @objc(handleNotificationResponse:) func handleNotification(response: UserNotifications.UNNotificationResponse) -> Swift.Bool
 }
+@objc public enum JivoSDKSessionServer : Swift.Int {
+  case auto
+  case europe
+  case russia
+  case asia
+  public init?(rawValue: Swift.Int)
+  public typealias RawValue = Swift.Int
+  public var rawValue: Swift.Int {
+    get
+  }
+}
 @objc public protocol JivoSDKSession {
   @objc(delegate) var delegate: JivoSDKSessionDelegate? { get set }
+  @objc(setPreferredServer:) func setPreferredServer(_ server: JivoSDKSessionServer)
   @objc(startUpWithChannelID:userToken:) func startUp(channelID: Swift.String, userToken: Swift.String)
+  @available(*, deprecated, message: "Renamed to setClientInfo:")
   @objc(updateCustomData:) func updateCustomData(_ data: JivoSDKSessionCustomData?)
+  @objc(setClientInfo:) func setClientInfo(_ info: JivoSDKSessionClientInfo?)
+  @objc(setCustomData:) func setCustomData(fields: [JivoSDKSessionCustomDataField])
   @objc(shutDown) func shutDown()
 }
 @objc public protocol JivoSDKSessionDelegate {
 }
-#warning("TODO: Anton Karpushko, 26.11.2021 – Make MemoryRepository thread-safe.")
-#warning("TODO: Anton Karpushko, 26.11.2021 – Make PersistentRepository thread-safe.")
-public struct StartupModel : Swift.Equatable {
-  public static func == (a: StartupModel, b: StartupModel) -> Swift.Bool
-}
-extension LicenseState : Swift.Equatable {}
-extension LicenseState : Swift.Hashable {}
 extension JivoSDKChattingPaletteAlias : Swift.Equatable {}
 extension JivoSDKChattingPaletteAlias : Swift.Hashable {}
 extension JivoSDKChattingPaletteAlias : Swift.RawRepresentable {}
+extension JivoSDKChattingCloseButton : Swift.Equatable {}
+extension JivoSDKChattingCloseButton : Swift.Hashable {}
+extension JivoSDKChattingCloseButton : Swift.RawRepresentable {}
 extension JivoSDKDebuggingLevel : Swift.Equatable {}
 extension JivoSDKDebuggingLevel : Swift.Hashable {}
 extension JivoSDKDebuggingLevel : Swift.RawRepresentable {}
 extension JivoSDKArchivingStatus : Swift.Equatable {}
 extension JivoSDKArchivingStatus : Swift.Hashable {}
 extension JivoSDKArchivingStatus : Swift.RawRepresentable {}
+extension JivoSDKNotificationsPermissionAskingMoment : Swift.Equatable {}
+extension JivoSDKNotificationsPermissionAskingMoment : Swift.Hashable {}
+extension JivoSDKNotificationsPermissionAskingMoment : Swift.RawRepresentable {}
+extension JivoSDKNotificationsPermissionAskingHandler : Swift.Equatable {}
+extension JivoSDKNotificationsPermissionAskingHandler : Swift.Hashable {}
+extension JivoSDKNotificationsPermissionAskingHandler : Swift.RawRepresentable {}
+extension JivoSDKSessionServer : Swift.Equatable {}
+extension JivoSDKSessionServer : Swift.Hashable {}
+extension JivoSDKSessionServer : Swift.RawRepresentable {}

@@ -337,8 +337,10 @@ func setPermissionAsking(at moment: JivoSDKNotificationsPermissionAskingMoment, 
 Назначает момент, когда SDK должен запросить доступ к PUSH-уведомлениям, и определяет, какая подсистема должна заниматься обработкой входящих PUSH-событий.
 
 - `at moment: JivoSDKNotificationsPermissionAskingMoment`
+    
     Момент запроса доступа к PUSH уведомлениям
 - `handler: JivoSDKNotificationsPermissionAskingHandler`
+    
     Обработчик событий подсистемы PUSH
 
 Следует вызывать до `JivoSDK.session.startUp(...)`
@@ -463,19 +465,25 @@ func archiveLogs(completion: @escaping (URL?, JivoSDKArchivingStatus) -> Void)
 - Перечисление <a name="type_JivoSDKNotificationsPermissionAskingMoment">**JivoSDKNotificationsPermissionAskingMoment**</a>
 
     - `never`
-    Никогда не запрашивать доступ к уведомлениям
+
+      Никогда не запрашивать доступ к уведомлениям
     - `onConnect`
-    Запрашивать доступ к уведомлениям, когда SDK подключается к серверам **Jivo** посредством вызова `JivoSDK.session.startUp(...)`
+
+      Запрашивать доступ к уведомлениям, когда SDK подключается к серверам **Jivo** посредством вызова `JivoSDK.session.startUp(...)`
     - `onAppear`
-    Запрашивать доступ к уведомлениям, когда происходит отображение окна SDK на экране
+
+      Запрашивать доступ к уведомлениям, когда происходит отображение окна SDK на экране
     - `onSend`
+        
         Запрашивать доступ к уведомлениям, когда пользователь отправляет сообщение в диалог
 
 - Перечисление <a name="type_JivoSDKNotificationsPermissionAskingHandler">**JivoSDKNotificationsPermissionAskingHandler**</a>
 
     - `sdk`
+        
         Обрабатывать PUSH события должна подсистема SDK
     - `current`
+        
         Обрабатывать PUSH события должна подсистема, которая на текущий момент для этого назначена
     
 - Перечисление <a name="type_JivoSDKDebuggingLevel">**JivoSDKDebuggingLevel**</a>

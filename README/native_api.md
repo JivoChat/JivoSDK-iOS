@@ -6,18 +6,21 @@
 
 - [Пространство имён **JivoSDK.session**](#namespace_session)
     - *var delegate*
+    - *func setPreferredServer(_:)*
     - *func startUp(channelID:userToken:)*
-    - *func updateCustomData(_:)*
+    - *func setClientInfo(_:)*
+    - *func setCustomData(fields:)*
     - *func shutDown()*
     - *protocol JivoSDKSessionDelegate*
-    - *struct JivoSDKSessionCustomData*
+    - *struct JivoSDKSessionClientInfo*
+    - *struct JivoSDKSessionCustomDataField*
 - [Пространство имён **JivoSDK.chattingUI**](#namespace_chattingUI)
     - *var delegate*
     - *var isDisplaying*
     - *func push(into:)*
     - *func push(into:config:)*
     - *func place(within:)*
-    - *func place(within:config:)*
+    - *func place(within:closeButton:config:)*
     - *func present(over:)*
     - *func present(over:config:)*
     - *protocol JivoSDKChattingUIDelegate*
@@ -95,19 +98,31 @@ func startUp(channelID: String, userToken: String)
 
 Также, значение `userToken` передаётся в поле `"user_token"` тела запросов от [нашего Webhook API](https://www.jivo.ru/api/#webhooks).
 
-<a name="vtable:JivoSDK.session.updateCustomData" />
+<a name="vtable:JivoSDK.session.setClientInfo" />
 
 ```swift
-func updateCustomData(_ data: JivoSDKSessionCustomData?)
+func setClientInfo(_ info: JivoSDKSessionClientInfo?)
 ```
 
 Задаёт дополнительную информацию о клиенте, которая отображается оператору.
 
-- `data: JivoSDKSessionCustomData?`
+- `info: JivoSDKSessionClientInfo?`
 
-    Информация о клиенте (подробнее [здесь](#type_JivoSDKSessionCustomData))
+    Информация о клиенте (подробнее [здесь](#type_JivoSDKSessionClientInfo))
 
-> На данный момент реализация метода такова, что для обновления дополнительной информации о клиенте на стороне оператора вам необходимо вызвать метод `JivoSDK.session.startUp(...)` после изменения custom data.
+> На данный момент реализация метода такова, что для обновления дополнительной информации о клиенте на стороне оператора вам необходимо вызвать метод `JivoSDK.session.startUp(...)` после изменения Client Info.
+
+<a name="vtable:JivoSDK.session.setCustomData" />
+
+```swift
+func setCustomData(fields: [JivoSDKSessionCustomDataField])
+```
+
+Задаёт дополнительную информацию о клиенте, которая отображается оператору.
+
+- `fields: [JivoSDKSessionCustomDataField]`
+
+    Дополнительная информация о клиенте (подробнее [здесь](#type_JivoSDKSessionClientInfo))
 
 <a name="vtable:JivoSDK.session.shutDown" />
 
@@ -120,15 +135,14 @@ func shutDown()
 > Всегда вызывайте метод `shutDown()` перед тем, как повторно вызвать метод `startUp(channelID:userToken:)` с параметром `userToken`, отличным от того, что использовался в сессии ранее.
 
 
+
 ##### Вспомогательные типы
-
-
 
 - Протокол <a name="type_JivoSDKSessionDelegate">**JivoSDKSessionDelegate**</a>
 
     Реализация появится в следующих версиях
     
-- Структура <a name="type_JivoSDKSessionCustomData">**JivoSDKSessionCustomData**</a>
+- Структура <a name="type_JivoSDKSessionClientInfo">**JivoSDKSessionClientInfo**</a>
 
     - `name: String?`
 
@@ -145,6 +159,16 @@ func shutDown()
     - `brief: String?`
 
         Дополнительная информация о клиенте в произвольной форме
+    
+- Структура <a name="type_JivoSDKSessionCustomDataField">**JivoSDKSessionCustomDataField**</a>
+
+    - `title: String?`
+
+    - `key: String?`
+
+    - `content: String`
+
+    - `link: String?`
 
 
 
@@ -209,7 +233,7 @@ func place(within navigationController: UINavigationController)
 
 
 ```swift
-func place(within navigationController: UINavigationController, config: JivoSDKChattingConfig) 
+func place(within navigationController: UINavigationController, closeButton: JivoSDKChattingCloseButton, config: JivoSDKChattingConfig) 
 ```
 
 Удаляет весь стек в переданном объекте `UINavigationController` и добавляет в стек `ViewController`, отвечающий за UI чата, с заданными настройками отображения.
@@ -217,6 +241,11 @@ func place(within navigationController: UINavigationController, config: JivoSDKC
 - `within navigationController: UINavigationController`
 
     Объект `UINavigationController`, стек которого будет заменён на `ViewController`, отвечающий за UI чата 
+    
+- `closeButton: JivoSDKChattingCloseButton`
+
+    Выбор иконки для кнопки закрытия чата
+
 - `config: JivoSDKChattingConfig`
 
   Конфигурация UI чата (подробнее [здесь](#type_JivoSDKChattingConfig))
@@ -256,6 +285,14 @@ func present(over viewController: UIViewController, config: JivoSDKChattingConfi
 
 - Протокол <a name="type_JivoSDKChattingUIDelegate">**JivoSDKChattingUIDelegate**</a>
 
+    - `func jivo(willAppear:)`
+      
+        Вызывается перед тем, как **Jivo Mobile SDK** откроется.
+        
+    - `func jivo(didDisappear:)`
+      
+        Вызывается после того, как **Jivo Mobile SDK** закрылся.
+        
     - `func jivo(didRequestChattingUI:)`
       
         Вызывается, когда в соответствии с логикой работы **Jivo Mobile SDK** необходимо отобразить UI чата на экране.
@@ -332,6 +369,14 @@ func present(over viewController: UIViewController, config: JivoSDKChattingConfi
 
 ### Пространство имён <a name="namespace_notifications">JivoSDK.notifications</a>
 
+<a name="vtable:JivoSDK.notifications.delegate" />
+
+```swift
+var delegate: JivoSDKNotificationsDelegate? { get set }
+```
+
+Делегат для обработки событий, связанных с уведомлениями (подробнее [здесь](#type_JivoSDKNotificationsDelegate)).
+
 <a name="vtable:JivoSDK.notifications.setPermissionAsking" />
 
 ```swift
@@ -341,10 +386,10 @@ func setPermissionAsking(at moment: JivoSDKNotificationsPermissionAskingMoment, 
 Назначает момент, когда SDK должен запросить доступ к PUSH-уведомлениям, и определяет, какая подсистема должна заниматься обработкой входящих PUSH-событий.
 
 - `at moment: JivoSDKNotificationsPermissionAskingMoment`
-    
+  
     Момент запроса доступа к PUSH уведомлениям
 - `handler: JivoSDKNotificationsPermissionAskingHandler`
-    
+  
     Обработчик событий подсистемы PUSH
 
 Следует вызывать до `JivoSDK.session.startUp(...)`
@@ -436,6 +481,18 @@ func handleNotification(response: UNNotificationResponse) -> Bool
 
 
 
+##### Вспомогательные типы
+
+
+
+- Протокол <a name="type_JivoSDKNotificationsDelegate">**JivoSDKNotificationsDelegate**</a>
+
+    - `func jivo(needAccessToNotifications:proceedBlock:)`
+
+        Вызывается перед тем, как **Jivo Mobile SDK** запросит доступ к Push-уведомлениям: можно использовать для отображения собственного UI, вызывая `proceedBlock()` по мере готовности к показу запроса разрешения.
+
+
+
 ### Пространство имён <a name="namespace_debugging">JivoSDK.debugging</a>
 
 
@@ -478,16 +535,16 @@ func archiveLogs(completion: @escaping (URL?, JivoSDKArchivingStatus) -> Void)
 
       Запрашивать доступ к уведомлениям, когда происходит отображение окна SDK на экране
     - `onSend`
-        
+      
         Запрашивать доступ к уведомлениям, когда пользователь отправляет сообщение в диалог
 
 - Перечисление <a name="type_JivoSDKNotificationsPermissionAskingHandler">**JivoSDKNotificationsPermissionAskingHandler**</a>
 
     - `sdk`
-        
+      
         Обрабатывать PUSH события должна подсистема SDK
     - `current`
-        
+      
         Обрабатывать PUSH события должна подсистема, которая на текущий момент для этого назначена
     
 - Перечисление <a name="type_JivoSDKDebuggingLevel">**JivoSDKDebuggingLevel**</a>

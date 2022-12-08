@@ -5,8 +5,9 @@
 ### Содержание
 
 - [Пространство имён **JivoSDK**](#namespace_JivoSDK)
-    - *function startUpSession(channelID, userToken)*
-    - *function updateSessionCustomData(customData)*
+    - *function startUpSession(channelID, userToken, server)*
+    - *function setSessionClientInfo(info)*
+    - *function setSessionCustomData(data)*
     - *function shutDownSession()*
     - *function isChattingUIPresented(callback)*
     - *function presentChattingUI()*
@@ -18,7 +19,8 @@
     - *function handlePushRawPayload(rawPayload, callback)*
     - *function setDebuggingLevel(level)*
     - *function archiveLogs(callback)*
-    - *Object: JivoSDKSessionCustomData*
+    - *Object: JivoSDKSessionClientInfo*
+    - *Object: JivoSDKSessionCustomField*
     - *Object: JivoSDKChattingConfig*
     - *String: JivoSDKDebuggingLevel*
     - *String: JivoSDKArchivingStatus*
@@ -30,7 +32,7 @@
 
 
 ```javascript
-function startUpSession(channelID, userToken)
+function startUpSession(channelID, userToken, server)
 ```
 
 Устанавливает соединение между SDK и нашими серверами, создавая новую сессию, либо возобновляя уже существующую.
@@ -42,6 +44,15 @@ function startUpSession(channelID, userToken)
 - `userToken: String`
 
     Уникальная строка, идентифицирующая клиента чата, по которой определяется, требуется ли создать новую сессию с новым диалогом, либо восстановить уже существующую и загрузить историю начатого диалога. Генерируется на стороне интегратора **Jivo Mobile SDK**.
+    
+- `server: String`
+
+    Вариант сервера для подключения:
+    
+    - `"auto"`
+    - `"europe"`
+    - `"russia"`
+    - `"asia"`
 
 > Не вызывайте этот метод при отображённом на экране UI чата **Jivo SDK**.
 >
@@ -54,14 +65,28 @@ function startUpSession(channelID, userToken)
 
 
 ```javascript
-function updateSessionCustomData(customData)
+function setSessionClientInfo(info)
 ```
 
 Задаёт дополнительную информацию о клиенте, которая отображается оператору.
 
-- `customData: Object? // JivoSDKSessionCustomData`
+- `info: Object? // JivoSDKSessionClientInfo`
 
-    Информация о клиенте (подробнее [здесь](#type_JivoSDKSessionCustomData))
+    Информация о клиенте (подробнее [здесь](#type_JivoSDKSessionClientInfo))
+
+> На данный момент реализация метода такова, что для обновления дополнительной информации о клиенте на стороне оператора вам необходимо вызвать метод `JivoSDK.startUpSession(...)` после изменения custom data.
+
+
+
+```javascript
+function setSessionCustomData(data)
+```
+
+Задаёт дополнительную информацию о клиенте, которая отображается оператору.
+
+- `data: Array<JivoSDKSessionCustomField>?`
+
+    Дополнительная информация о клиенте (подробнее [здесь](#type_JivoSDKSessionCustomField))
 
 > На данный момент реализация метода такова, что для обновления дополнительной информации о клиенте на стороне оператора вам необходимо вызвать метод `JivoSDK.startUpSession(...)` после изменения custom data.
 
@@ -233,7 +258,7 @@ function archiveLogs(callback)
 
 
 
-- Объект <a name="type_JivoSDKSessionCustomData">**Object: JivoSDKSessionCustomData**</a>
+- Объект <a name="type_JivoSDKSessionClientInfo">**Object: JivoSDKSessionClientInfo**</a>
 
     - `name: String`
 
@@ -250,6 +275,16 @@ function archiveLogs(callback)
     - `brief: String`
 
         Дополнительная информация о клиенте в произвольной форме
+
+- Объект <a name="type_JivoSDKSessionCustomField">**Object: JivoSDKSessionCustomField**</a>
+
+    - `title: String`
+
+    - `key: String`
+
+    - `content: String`
+
+    - `link: String`
 
 - Объект <a name="type_JivoSDKChattingConfig">**Object: JivoSDKChattingConfig**</a>
 

@@ -50,16 +50,58 @@
 
 4. Динамическое связывание может привести к проблемам линковки, если у основного проекта или его зависимостей настроены разные `Deployment Target`; поэтому нужно дополнить `post_install` блок в Podfile установкой еще одного параметра `IPHONEOS_DEPLOYMENT_TARGET`, чтобы получилось примерно так:
     ```ruby
-    post_install do |installer| 
-      installer.pods_project.targets.each do |target| 
-        target.build_configurations.each do |config| 
-          config.build_settings['GENERATE_INFOPLIST_FILE'] = 'YES'
-          config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
-        end 
-      end 
+    def patchJivoForReactNative(installer)
+    	libNames = [
+    		"BABFrameObservingInputAccessoryView",
+    		"CollectionAndTableViewCompatible",
+    		"DTCollectionViewManager",
+    		"DTModelStorage",
+    		"GzipSwift",
+    		"JFEmojiPicker",
+    		"JFMarkdownKit",
+    		"JFWebSocket",
+    		"JMCodingKit",
+    		"JMDesignKit",
+    		"JMImageLoader",
+    		"JMMarkdownKit",
+    		"JMOnetimeCalculator",
+    		"JMRepicKit",
+    		"JMScalableView",
+    		"JMShared",
+    		"JMSidePanelKit",
+    		"JMTimelineKit",
+    		"KeychainSwift",
+    		"ObjcExceptionBridging",
+    		"PureParser",
+    		"ReachabilitySwift",
+    		"Realm",
+    		"RealmSwift",
+    		"SafeURL",
+    		"SwiftGraylog",
+    		"SwiftMime",
+    		"SwiftyNSException",
+    		"TypedTextAttributes",
+    		"XCGLogger",
+    		"SwiftDate",
+    		"libPhoneNumber-iOS"
+    	]
+    
+    	installer.pods_project.targets.each do |target|
+    		target.build_configurations.each do |config|
+    			if libNames.include? target.to_s
+    				config.build_settings['GENERATE_INFOPLIST_FILE'] = 'YES'
+    				config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
+    				config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
+    			end
+    		end
+    	end
+    end
+    
+    post_install do |installer|
+      patchJivoForReactNative(installer)
     end
     ```
-
+    
     Посмотреть, какая версия iOS указана в качестве основного `Deployment Target`, можно в настройках основного таргета:
 
 ![](./Resources/react_setup_1.png)

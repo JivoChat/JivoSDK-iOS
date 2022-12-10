@@ -38,7 +38,7 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		xeIUfK/UVL5G6zbdV3hoGJAUYzg=
+		X0fc/YW+c9NxXzUjrILyDsryyNM=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftdoc</key>
 		<data>
@@ -50,7 +50,7 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftmodule</key>
 		<data>
-		xeIUfK/UVL5G6zbdV3hoGJAUYzg=
+		X0fc/YW+c9NxXzUjrILyDsryyNM=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
@@ -62,7 +62,7 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		30UhnSIIsZbr6GOElq16Stseodw=
+		9B4tdMrOGtyO0ZhhKBpexDdVB9U=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftdoc</key>
 		<data>
@@ -74,7 +74,7 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftmodule</key>
 		<data>
-		30UhnSIIsZbr6GOElq16Stseodw=
+		9B4tdMrOGtyO0ZhhKBpexDdVB9U=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -226,7 +226,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			hfXxVO0EIV+04a7lDnk+k3TOyn5qED/XG3Of8xivYbE=
+			cQVAiiMLv6Rdv9ZwMl21Osuk/0cf3mwvjQ9Vvt/0/zw=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftdoc</key>
@@ -247,7 +247,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			hfXxVO0EIV+04a7lDnk+k3TOyn5qED/XG3Of8xivYbE=
+			cQVAiiMLv6Rdv9ZwMl21Osuk/0cf3mwvjQ9Vvt/0/zw=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
@@ -268,7 +268,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			/4+AztrOF+L2NqSYQ4YEYiJR/TcmhRDCnuasZZzcqbg=
+			zgVd2oV9KSH//ELOUcu747odlumO9iDUohbwkIfvMUw=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftdoc</key>
@@ -289,7 +289,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			/4+AztrOF+L2NqSYQ4YEYiJR/TcmhRDCnuasZZzcqbg=
+			zgVd2oV9KSH//ELOUcu747odlumO9iDUohbwkIfvMUw=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>

@@ -6,7 +6,7 @@
 	<dict>
 		<key>Assets.car</key>
 		<data>
-		JrHI9e9/PRDqFp1xRMuSYDO9JiA=
+		KqxiccesPHmT8jpQz62GbmRFiNA=
 		</data>
 		<key>Headers/JivoSDK-Bridging-Header.h</key>
 		<data>
@@ -26,7 +26,7 @@
 		</data>
 		<key>Info.plist</key>
 		<data>
-		5sQL2yDkkQRv7m0mUSxNr5P6fX8=
+		K48mLShtxVNxm/GoMQHBKyHKKkc=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios-simulator.swiftdoc</key>
 		<data>
@@ -38,7 +38,7 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		xeIUfK/UVL5G6zbdV3hoGJAUYzg=
+		KBACDXDNKU+2QKtw/yCIUFF7tIY=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftdoc</key>
 		<data>
@@ -50,7 +50,7 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftmodule</key>
 		<data>
-		xeIUfK/UVL5G6zbdV3hoGJAUYzg=
+		KBACDXDNKU+2QKtw/yCIUFF7tIY=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
 		<data>
@@ -62,7 +62,7 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftmodule</key>
 		<data>
-		30UhnSIIsZbr6GOElq16Stseodw=
+		ivKMtF06qy049+I14Cs6DHz1nuY=
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftdoc</key>
 		<data>
@@ -74,7 +74,7 @@
 		</data>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftmodule</key>
 		<data>
-		30UhnSIIsZbr6GOElq16Stseodw=
+		ivKMtF06qy049+I14Cs6DHz1nuY=
 		</data>
 		<key>Modules/module.modulemap</key>
 		<data>
@@ -84,7 +84,7 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			h+OBUX3TN0Y7SV0BcwgtAvcMXUg=
+			uAVtxpN4ASnS2RaTWdtxwtfNjJ8=
 			</data>
 			<key>optional</key>
 			<true/>
@@ -102,7 +102,7 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			m8sVfwrzf9TcH+kYZIIjIHXqrrw=
+			lBjE7dGu8xvnw1hjHdn9XPPLQiE=
 			</data>
 			<key>optional</key>
 			<true/>
@@ -120,7 +120,7 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			V2h4ftl6vFI8qYDYqvae1T7OmFo=
+			XM15agZ97gXYuYO2VqC6JRGqoXQ=
 			</data>
 			<key>optional</key>
 			<true/>
@@ -138,7 +138,7 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			DTBlKzlIR5ucs91FM0K9tb/cHj0=
+			+x2aYtuHMi949n7MNE5XTiqW2DM=
 			</data>
 			<key>optional</key>
 			<true/>
@@ -156,7 +156,7 @@
 		<dict>
 			<key>hash</key>
 			<data>
-			5dVF++e03fhP8hPs9YdzPP1tv9I=
+			Q5QBwOQbWNeuUXIAmLId3q7aNt4=
 			</data>
 			<key>optional</key>
 			<true/>
@@ -177,7 +177,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			5UwSUqoKyUMbqDAU2rEugiwamv6REmMXpQNAapmUD+c=
+			/KTXdo1fJr6mkBfTncv995AnnG1cmovdTPI0Bc+FGUs=
 			</data>
 		</dict>
 		<key>Headers/JivoSDK-Bridging-Header.h</key>
@@ -226,7 +226,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			hfXxVO0EIV+04a7lDnk+k3TOyn5qED/XG3Of8xivYbE=
+			NtoQYmvfn7cv6GNaR0bcNpca4I/JiVQ5+xe7uLJ0P4s=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/arm64.swiftdoc</key>
@@ -247,7 +247,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			hfXxVO0EIV+04a7lDnk+k3TOyn5qED/XG3Of8xivYbE=
+			NtoQYmvfn7cv6GNaR0bcNpca4I/JiVQ5+xe7uLJ0P4s=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/x86_64-apple-ios-simulator.swiftdoc</key>
@@ -268,7 +268,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			/4+AztrOF+L2NqSYQ4YEYiJR/TcmhRDCnuasZZzcqbg=
+			As0BtDBZsSD5W5VQ3X5/3Ea3O35ic15hH0m1N/b1qRk=
 			</data>
 		</dict>
 		<key>Modules/JivoSDK.swiftmodule/x86_64.swiftdoc</key>
@@ -289,7 +289,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			/4+AztrOF+L2NqSYQ4YEYiJR/TcmhRDCnuasZZzcqbg=
+			As0BtDBZsSD5W5VQ3X5/3Ea3O35ic15hH0m1N/b1qRk=
 			</data>
 		</dict>
 		<key>Modules/module.modulemap</key>
@@ -303,7 +303,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			wKNhoKzmUs0rdVC9OfqGeEknoOqdIc5Wr2KTYJHYvK4=
+			iQKMwR6fqGhFZNwClcu3dFY2PSJY/H1jcrVN7EdJG2c=
 			</data>
 			<key>optional</key>
 			<true/>
@@ -321,7 +321,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			tK5va8R4QGozDNljsPw7/MEVcVymRrVmgYi3/ewqFUA=
+			y3vPO6QIDwj7UXsISgjcAT43jw5gGUjTDeqGekhriss=
 			</data>
 			<key>optional</key>
 			<true/>
@@ -339,7 +339,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			hGUt4d62Wv2YfJQntDPMsPtBAS3+7+UoU3TvQKlV+Ic=
+			ld1m680U6nnZjw6W8hPd51cbV/W8KRVQHJcX15b+zCI=
 			</data>
 			<key>optional</key>
 			<true/>
@@ -357,7 +357,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			jzvGppHjV+G3AmMwq9Xqc0QxyGdsYmsGE1vNt8qkhf4=
+			eQ1hIubEJbCHhu4PvCiM0kzC5kUA4HCZU3AcAMb8J9w=
 			</data>
 			<key>optional</key>
 			<true/>
@@ -375,7 +375,7 @@
 		<dict>
 			<key>hash2</key>
 			<data>
-			e9CyMr+2KTAxzIilBN4a279L319hV9MnpO0waOF+0Oo=
+			3oWqJ0B/JIsvUT52aS+6OLfrXP+i6u+E9LRHllf4O9M=
 			</data>
 			<key>optional</key>
 			<true/>

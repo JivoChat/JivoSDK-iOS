@@ -50,16 +50,53 @@ In other words, you must first follow the steps of the main manual, and then add
 
 4. Dynamic linking can lead to linking problems if the main project or its dependencies have different `Deployment Target` settings; so you need to add another `IPHONEOS_DEPLOYMENT_TARGET` to the `post_install` block in the Podfile to make it look something like this:
     ```ruby
-    post_install do |installer| 
-      installer.pods_project.targets.each do |target| 
-        target.build_configurations.each do |config| 
-          config.build_settings['GENERATE_INFOPLIST_FILE'] = 'YES'
-          config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
-        end 
-      end 
+    post_install do |installer|
+      JivoPatcher.new(installer).patch()
+    end
+    
+    class JivoPatcher
+      def initialize(installer)
+        @sdkname = "JivoSDK"
+        @installer = installer
+      end
+      
+      def patch()
+        libnames = collectLibNames()
+        
+        @installer.pods_project.targets.each do |target|
+          target.build_configurations.each do |config|
+            if libnames.include? target.to_s
+              config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
+              config.build_settings['GENERATE_INFOPLIST_FILE'] = 'YES'
+              # config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+            end
+          end
+        end
+      end
+      
+      private def collectLibNames()
+        depnames = Array.new
+        
+        @installer.pod_targets.each do |target|
+          next if target.to_s != @sdkname
+          depnames = collectTargetLibNames(target)
+        end
+        
+        return depnames.uniq()
+      end
+    
+      private def collectTargetLibNames(target)
+        depnames = [target.to_s]
+        
+        target.dependent_targets.each do |subtarget|
+          depnames += [subtarget.to_s] + collectTargetLibNames(subtarget)
+        end
+        
+        return depnames
+      end
     end
     ```
-
+    
     You can see which version of iOS is specified as the main `Deployment Target` in the settings of the main target:
 
 ![](./Resources/react_setup_1.png)

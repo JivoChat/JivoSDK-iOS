@@ -1,10 +1,10 @@
 Pod::Spec.new do |spec|
   spec.name         = 'JivoSDK'
-  spec.version      = '3.1.2'
+  spec.version      = '3.1.3-beta.1'
   
   spec.dependency      'JFMarkdownKit', '1.2.2'
   spec.dependency      'JFEmojiPicker', '1.2'
-  spec.dependency      'JFWebSocket', '2.9.2'
+  spec.dependency      'JFWebSocket', '2.9.4'
   spec.dependency      'JMShared', '5.1.1'
   spec.dependency      'JMCodingKit', '5.0.2'
   spec.dependency      'JMRepicKit', '1.0.5'
@@ -38,7 +38,7 @@ Pod::Spec.new do |spec|
   
   spec.framework    = 'SystemConfiguration'
   spec.swift_version = "5.1"
-  spec.resource_bundles = { 'JivoSDK' => ['Resources/Assets.xcassets', 'Resources/*.lproj'] }
+  spec.resources = 'Resources/Assets.xcassets', 'Resources/*.lproj'
   spec.ios.vendored_frameworks = 'Products/JivoSDK.xcframework'
   spec.ios.deployment_target  = '11.0'
 end

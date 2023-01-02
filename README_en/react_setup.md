@@ -64,6 +64,12 @@ In other words, you must first follow the steps of the main manual, and then add
         libnames = collectLibNames()
         
         @installer.pods_project.targets.each do |target|
+          if target.respond_to?(:product_type) and target.product_type == "com.apple.product-type.bundle"
+            target.build_configurations.each do |config|
+              config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+            end
+          end
+          
           target.build_configurations.each do |config|
             if libnames.include? target.to_s
               config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'

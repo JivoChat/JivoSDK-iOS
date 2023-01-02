@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = 'JivoSDK'
-  spec.version      = '3.1.3-beta.7'
+  spec.version      = '3.1.3-beta.8'
   
   spec.dependency      'JFMarkdownKit', '1.2.2'
   spec.dependency      'JFEmojiPicker', '1.2'
@@ -38,7 +38,7 @@ Pod::Spec.new do |spec|
   
   spec.framework    = 'SystemConfiguration'
   spec.swift_version = "5.1"
-  spec.resource_bundles = {'Res' => ['Resources/Assets.xcassets', 'Resources/LocaleBundles/*.lproj']}
+  spec.resource_bundles = {'R' => ['Resources/Assets.xcassets', 'Resources/LocaleBundles/*.lproj']}
   spec.ios.vendored_frameworks = 'Products/JivoSDK.xcframework'
   spec.ios.deployment_target  = '11.0'
 end

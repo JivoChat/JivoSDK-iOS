@@ -4,6 +4,10 @@
 <dict>
 	<key>files</key>
 	<dict>
+		<key>Assets.car</key>
+		<data>
+		I9MrzO3vDEXrefgShJ6zSVFx3EY=
+		</data>
 		<key>Headers/JivoSDK-Bridging-Header.h</key>
 		<data>
 		AR8lnyH8LU+UI35fRNRyP5tZm2o=
@@ -169,6 +173,13 @@
 	</dict>
 	<key>files2</key>
 	<dict>
+		<key>Assets.car</key>
+		<dict>
+			<key>hash2</key>
+			<data>
+			QdKQSAC9PxLQzg1x612YlCkJV9cCZgTh37KAiE3BHiw=
+			</data>
+		</dict>
 		<key>Headers/JivoSDK-Bridging-Header.h</key>
 		<dict>
 			<key>hash2</key>

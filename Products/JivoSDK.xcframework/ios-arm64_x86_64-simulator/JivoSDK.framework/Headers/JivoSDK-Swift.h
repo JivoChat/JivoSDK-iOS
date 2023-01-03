@@ -298,6 +298,8 @@ SWIFT_PROTOCOL("_TtP7JivoSDK17JivoSDKChattingUI_")
 SWIFT_PROTOCOL("_TtP7JivoSDK25JivoSDKChattingUIDelegate_")
 @protocol JivoSDKChattingUIDelegate
 @optional
+- (void)jivoWillAppear:(JivoSDK * _Nonnull)sdk;
+- (void)jivoDidDisappear:(JivoSDK * _Nonnull)sdk;
 - (void)jivoDidRequestChattingUI:(JivoSDK * _Nonnull)sdk;
 @end
 
@@ -422,6 +424,7 @@ typedef SWIFT_ENUM(NSInteger, JivoSDKSessionServer, open) {
   JivoSDKSessionServerRussia = 2,
   JivoSDKSessionServerAsia = 3,
 };
+
 
 
 
@@ -737,6 +740,8 @@ SWIFT_PROTOCOL("_TtP7JivoSDK17JivoSDKChattingUI_")
 SWIFT_PROTOCOL("_TtP7JivoSDK25JivoSDKChattingUIDelegate_")
 @protocol JivoSDKChattingUIDelegate
 @optional
+- (void)jivoWillAppear:(JivoSDK * _Nonnull)sdk;
+- (void)jivoDidDisappear:(JivoSDK * _Nonnull)sdk;
 - (void)jivoDidRequestChattingUI:(JivoSDK * _Nonnull)sdk;
 @end
 
@@ -861,6 +866,7 @@ typedef SWIFT_ENUM(NSInteger, JivoSDKSessionServer, open) {
   JivoSDKSessionServerRussia = 2,
   JivoSDKSessionServerAsia = 3,
 };
+
 
 
 

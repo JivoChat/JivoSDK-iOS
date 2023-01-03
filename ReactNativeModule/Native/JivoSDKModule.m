@@ -92,13 +92,13 @@ RCT_EXPORT_METHOD(updateSessionCustomData:(NSDictionary *)customDataDictionary) 
       RCTLogWarn(@"Invalid 'brief' field type: you should pass a value of the string type.");
     }
     
-    JivoSDKSessionCustomData *customData = [[JivoSDKSessionCustomData alloc]
+    JivoSDKSessionClientInfo *clientInfo = [[JivoSDKSessionClientInfo alloc]
                                               initWithName:name
                                               email:email
                                               phone:phone
                                               brief:brief
                                             ];
-    [[JivoSDK session] updateCustomData:customData];
+    [[JivoSDK session] setClientInfo:clientInfo];
   });
 }
 

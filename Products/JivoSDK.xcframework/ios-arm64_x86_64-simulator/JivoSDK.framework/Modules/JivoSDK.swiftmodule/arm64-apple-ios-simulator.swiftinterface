@@ -22,6 +22,7 @@ import JMScalableView
 import JMShared
 import JMSidePanelKit
 import JMTimelineKit
+import JWTDecode
 @_exported import JivoSDK
 import KeychainSwift
 import MapKit
@@ -32,6 +33,7 @@ import PhotosUI
 import PureParser
 import PushKit
 import Reachability
+import RealmSwift
 import Swift
 import SwiftDate
 import SwiftGraylog
@@ -44,22 +46,9 @@ import WebKit
 import XCGLogger
 import _Concurrency
 import libPhoneNumber_iOS
-@objc @available(*, deprecated, message: "Please use JivoSDKSessionClientInfo instead")
-public class JivoSDKSessionCustomData : ObjectiveC.NSObject {
-  @objc public init(name: Swift.String? = nil, email: Swift.String? = nil, phone: Swift.String? = nil, brief: Swift.String? = nil)
-  @objc deinit
-}
-@objc public class JivoSDKSessionClientInfo : ObjectiveC.NSObject {
-  @objc public init(name: Swift.String? = nil, email: Swift.String? = nil, phone: Swift.String? = nil, brief: Swift.String? = nil)
-  @objc deinit
-}
-@objc public class JivoSDKSessionCustomDataField : ObjectiveC.NSObject {
-  @objc public init(title: Swift.String? = nil, key: Swift.String? = nil, content: Swift.String = String(), link: Swift.String? = nil)
-  @objc deinit
-}
-extension JivoSDKSessionCustomData {
-  @objc override dynamic public var debugDescription: Swift.String {
-    @objc get
+extension Swift.Int {
+  public var jv_valuable: Swift.Int? {
+    get
   }
 }
 @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc public class JivoSDK : ObjectiveC.NSObject {
@@ -213,6 +202,22 @@ public enum JivoSDKTitleBarIconStyle {
   @objc(shutDown) func shutDown()
 }
 @objc public protocol JivoSDKSessionDelegate {
+}
+@objc @available(*, deprecated, message: "Please use JivoSDKSessionClientInfo instead")
+public class JivoSDKSessionCustomData : ObjectiveC.NSObject {
+  @objc public init(name: Swift.String? = nil, email: Swift.String? = nil, phone: Swift.String? = nil, brief: Swift.String? = nil)
+  @objc deinit
+}
+@objc public class JivoSDKSessionClientInfo : ObjectiveC.NSObject {
+  @objc public init(name: Swift.String? = nil, email: Swift.String? = nil, phone: Swift.String? = nil, brief: Swift.String? = nil)
+  @objc override dynamic public var debugDescription: Swift.String {
+    @objc get
+  }
+  @objc deinit
+}
+@objc public class JivoSDKSessionCustomDataField : ObjectiveC.NSObject {
+  @objc public init(title: Swift.String? = nil, key: Swift.String? = nil, content: Swift.String = String(), link: Swift.String? = nil)
+  @objc deinit
 }
 extension JivoSDKChattingPaletteAlias : Swift.Equatable {}
 extension JivoSDKChattingPaletteAlias : Swift.Hashable {}

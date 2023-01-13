@@ -388,6 +388,7 @@ SWIFT_PROTOCOL("_TtP7JivoSDK14JivoSDKSession_")
 SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionClientInfo")
 @interface JivoSDKSessionClientInfo : NSObject
 - (nonnull instancetype)initWithName:(NSString * _Nullable)name email:(NSString * _Nullable)email phone:(NSString * _Nullable)phone brief:(NSString * _Nullable)brief OBJC_DESIGNATED_INITIALIZER;
+@property (nonatomic, readonly, copy) NSString * _Nonnull debugDescription;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -398,11 +399,6 @@ SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData") SWIFT_DEPRECATED_MSG("Plea
 - (nonnull instancetype)initWithName:(NSString * _Nullable)name email:(NSString * _Nullable)email phone:(NSString * _Nullable)phone brief:(NSString * _Nullable)brief OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
-@end
-
-
-@interface JivoSDKSessionCustomData (SWIFT_EXTENSION(JivoSDK))
-@property (nonatomic, readonly, copy) NSString * _Nonnull debugDescription;
 @end
 
 
@@ -424,6 +420,11 @@ typedef SWIFT_ENUM(NSInteger, JivoSDKSessionServer, open) {
   JivoSDKSessionServerRussia = 2,
   JivoSDKSessionServerAsia = 3,
 };
+
+
+
+
+
 
 
 
@@ -830,6 +831,7 @@ SWIFT_PROTOCOL("_TtP7JivoSDK14JivoSDKSession_")
 SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionClientInfo")
 @interface JivoSDKSessionClientInfo : NSObject
 - (nonnull instancetype)initWithName:(NSString * _Nullable)name email:(NSString * _Nullable)email phone:(NSString * _Nullable)phone brief:(NSString * _Nullable)brief OBJC_DESIGNATED_INITIALIZER;
+@property (nonatomic, readonly, copy) NSString * _Nonnull debugDescription;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
@@ -840,11 +842,6 @@ SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionCustomData") SWIFT_DEPRECATED_MSG("Plea
 - (nonnull instancetype)initWithName:(NSString * _Nullable)name email:(NSString * _Nullable)email phone:(NSString * _Nullable)phone brief:(NSString * _Nullable)brief OBJC_DESIGNATED_INITIALIZER;
 - (nonnull instancetype)init SWIFT_UNAVAILABLE;
 + (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
-@end
-
-
-@interface JivoSDKSessionCustomData (SWIFT_EXTENSION(JivoSDK))
-@property (nonatomic, readonly, copy) NSString * _Nonnull debugDescription;
 @end
 
 
@@ -866,6 +863,11 @@ typedef SWIFT_ENUM(NSInteger, JivoSDKSessionServer, open) {
   JivoSDKSessionServerRussia = 2,
   JivoSDKSessionServerAsia = 3,
 };
+
+
+
+
+
 
 
 

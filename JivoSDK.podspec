@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = 'JivoSDK'
-  spec.version      = '3.1.3-beta.11'
+  spec.version      = '3.1.3'
   
   spec.dependency      'JFMarkdownKit', '1.2.2'
   spec.dependency      'JFEmojiPicker', '1.2'
@@ -33,7 +33,7 @@ Pod::Spec.new do |spec|
   spec.summary      = 'Jivo business chat mobile SDK'
   spec.info_plist = {"CFBundleShortVersionString" => "#{spec.version}"}
 
-  spec.source       = { :git => "https://github.com/JivoChat/JivoSDK-iOS.git", :tag => "#{spec.version}" }
+  spec.source       = { :git => "https://github.com/JivoChat/JivoSDK-iOS.git", :tag => "v#{spec.version}" }
 
   
   spec.framework    = 'SystemConfiguration'

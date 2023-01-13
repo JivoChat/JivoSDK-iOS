@@ -50,55 +50,56 @@
 
 4. Динамическое связывание может привести к проблемам линковки, если у основного проекта или его зависимостей настроены разные `Deployment Target`; поэтому нужно дополнить `post_install` блок в Podfile установкой еще одного параметра `IPHONEOS_DEPLOYMENT_TARGET`, чтобы получилось примерно так:
     ```ruby
-    def patchJivoForReactNative(installer)
-    	libNames = [
-    		"BABFrameObservingInputAccessoryView",
-    		"CollectionAndTableViewCompatible",
-    		"DTCollectionViewManager",
-    		"DTModelStorage",
-    		"GzipSwift",
-    		"JFEmojiPicker",
-    		"JFMarkdownKit",
-    		"JFWebSocket",
-    		"JMCodingKit",
-    		"JMDesignKit",
-    		"JMImageLoader",
-    		"JMMarkdownKit",
-    		"JMOnetimeCalculator",
-    		"JMRepicKit",
-    		"JMScalableView",
-    		"JMShared",
-    		"JMSidePanelKit",
-    		"JMTimelineKit",
-    		"KeychainSwift",
-    		"ObjcExceptionBridging",
-    		"PureParser",
-    		"ReachabilitySwift",
-    		"Realm",
-    		"RealmSwift",
-    		"SafeURL",
-    		"SwiftGraylog",
-    		"SwiftMime",
-    		"SwiftyNSException",
-    		"TypedTextAttributes",
-    		"XCGLogger",
-    		"SwiftDate",
-    		"libPhoneNumber-iOS"
-    	]
-    
-    	installer.pods_project.targets.each do |target|
-    		target.build_configurations.each do |config|
-    			if libNames.include? target.to_s
-    				config.build_settings['GENERATE_INFOPLIST_FILE'] = 'YES'
-    				config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
-    				config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '11.0'
-    			end
-    		end
-    	end
+    post_install do |installer|
+      JivoPatcher.new(installer).patch()
     end
     
-    post_install do |installer|
-      patchJivoForReactNative(installer)
+    class JivoPatcher
+      def initialize(installer)
+        @sdkname = "JivoSDK"
+        @installer = installer
+      end
+      
+      def patch()
+        libnames = collectLibNames()
+        
+        @installer.pods_project.targets.each do |target|
+          if target.respond_to?(:product_type) and target.product_type == "com.apple.product-type.bundle"
+            target.build_configurations.each do |config|
+              config.build_settings['CODE_SIGNING_ALLOWED'] = 'NO'
+            end
+          end
+          
+          target.build_configurations.each do |config|
+            if libnames.include? target.to_s
+              config.build_settings['BUILD_LIBRARY_FOR_DISTRIBUTION'] = 'YES'
+              config.build_settings['GENERATE_INFOPLIST_FILE'] = 'YES'
+              # config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '13.0'
+            end
+          end
+        end
+      end
+      
+      private def collectLibNames()
+        depnames = Array.new
+        
+        @installer.pod_targets.each do |target|
+          next if target.to_s != @sdkname
+          depnames = collectTargetLibNames(target)
+        end
+        
+        return depnames.uniq()
+      end
+    
+      private def collectTargetLibNames(target)
+        depnames = [target.to_s]
+        
+        target.dependent_targets.each do |subtarget|
+          depnames += [subtarget.to_s] + collectTargetLibNames(subtarget)
+        end
+        
+        return depnames
+      end
     end
     ```
     

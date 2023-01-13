@@ -1,10 +1,10 @@
 Pod::Spec.new do |spec|
   spec.name         = 'JivoSDK'
-  spec.version      = '3.1.2'
+  spec.version      = '3.1.3'
   
   spec.dependency      'JFMarkdownKit', '1.2.2'
   spec.dependency      'JFEmojiPicker', '1.2'
-  spec.dependency      'JFWebSocket', '2.9.2'
+  spec.dependency      'JFWebSocket', '2.9.4'
   spec.dependency      'JMShared', '5.1.1'
   spec.dependency      'JMCodingKit', '5.0.2'
   spec.dependency      'JMRepicKit', '1.0.5'
@@ -33,12 +33,12 @@ Pod::Spec.new do |spec|
   spec.summary      = 'Jivo business chat mobile SDK'
   spec.info_plist = {"CFBundleShortVersionString" => "#{spec.version}"}
 
-  spec.source       = { :git => "https://github.com/JivoChat/JivoSDK-iOS.git", :tag => "#{spec.version}" }
+  spec.source       = { :git => "https://github.com/JivoChat/JivoSDK-iOS.git", :tag => "v#{spec.version}" }
 
   
   spec.framework    = 'SystemConfiguration'
   spec.swift_version = "5.1"
-  spec.resource_bundles = { 'JivoSDK' => ['Resources/Assets.xcassets', 'Resources/*.lproj'] }
+  spec.resource_bundles = {'R' => ['Resources/Assets.xcassets', 'Resources/LocaleBundles/*.lproj']}
   spec.ios.vendored_frameworks = 'Products/JivoSDK.xcframework'
   spec.ios.deployment_target  = '11.0'
 end

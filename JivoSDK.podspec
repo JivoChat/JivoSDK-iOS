@@ -34,7 +34,7 @@ Pod::Spec.new do |spec|
   spec.summary      = 'Jivo business chat mobile SDK'
   spec.info_plist = {"CFBundleShortVersionString" => "#{spec.version}"}
 
-  spec.source       = { :git => "https://github.com/JivoChat/JivoSDK-iOS.git", :tag => "#{spec.version}" }
+  spec.source       = { :git => "https://github.com/JivoChat/JivoSDK-iOS.git", :tag => "v#{spec.version}" }
 
   
   spec.framework    = 'SystemConfiguration'

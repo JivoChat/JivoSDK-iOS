@@ -46,11 +46,6 @@ import WebKit
 import XCGLogger
 import _Concurrency
 import libPhoneNumber_iOS
-extension Swift.Int {
-  public var jv_valuable: Swift.Int? {
-    get
-  }
-}
 @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc public class JivoSDK : ObjectiveC.NSObject {
   @objc public static let shared: JivoSDK
   @objc final public let session: JivoSDKSession

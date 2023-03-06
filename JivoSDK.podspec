@@ -1,11 +1,11 @@
 Pod::Spec.new do |spec|
   spec.name         = 'JivoSDK'
-  spec.version      = '3.2.1'
+  spec.version      = '3.3.0-beta.1'
   
   spec.dependency      'JFMarkdownKit', '1.2.2'
   spec.dependency      'JFEmojiPicker', '1.2'
   spec.dependency      'JFWebSocket', '2.9.4'
-  spec.dependency      'JMShared', '6.1.4'
+  spec.dependency      'JMShared', '7.2.0'
   spec.dependency      'JMCodingKit', '5.0.2'
   spec.dependency      'JMRepicKit', '1.0.5'
   spec.dependency      'JMTimelineKit', '4.2.2'

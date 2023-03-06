@@ -46,6 +46,11 @@ import WebKit
 import XCGLogger
 import _Concurrency
 import libPhoneNumber_iOS
+extension Swift.Int {
+  public var jv_valuable: Swift.Int? {
+    get
+  }
+}
 @_inheritsConvenienceInitializers @_hasMissingDesignatedInitializers @objc public class JivoSDK : ObjectiveC.NSObject {
   @objc public static let shared: JivoSDK
   @objc final public let session: JivoSDKSession
@@ -99,9 +104,9 @@ public enum JivoSDKTitleBarIconStyle {
   }
 }
 @objc public protocol JivoSDKChattingUIDelegate {
+  @objc(jivoDidRequestShowing:) optional func jivo(didRequestShowing sdk: JivoSDK)
   @objc(jivoWillAppear:) optional func jivo(willAppear sdk: JivoSDK)
   @objc(jivoDidDisappear:) optional func jivo(didDisappear sdk: JivoSDK)
-  @objc(jivoDidRequestChattingUI:) optional func jivo(didRequestChattingUI sdk: JivoSDK)
 }
 @objc public protocol JivoSDKChattingUI {
   @objc(delegate) var delegate: JivoSDKChattingUIDelegate? { get set }
@@ -115,8 +120,11 @@ public enum JivoSDKTitleBarIconStyle {
   @objc(presentOver:) func present(over viewController: UIKit.UIViewController)
   @objc(presentOver:withConfig:) func present(over viewController: UIKit.UIViewController, config: JivoSDKChattingConfig)
 }
-@objc @_Concurrency.MainActor(unsafe) open class JivoSDKContainer : UIKit.UINavigationController {
-  @objc dynamic public init()
+@objc @_inheritsConvenienceInitializers @_Concurrency.MainActor(unsafe) open class JivoSDKContainer : UIKit.UINavigationController {
+  @available(iOS 5.0, *)
+  @_Concurrency.MainActor(unsafe) @objc override dynamic public init(navigationBarClass: Swift.AnyClass?, toolbarClass: Swift.AnyClass?)
+  @_Concurrency.MainActor(unsafe) @objc override dynamic public init(rootViewController: UIKit.UIViewController)
+  @_Concurrency.MainActor(unsafe) @objc override dynamic public init(nibName nibNameOrNil: Swift.String?, bundle nibBundleOrNil: Foundation.Bundle?)
   @_Concurrency.MainActor(unsafe) @objc required dynamic public init?(coder aDecoder: Foundation.NSCoder)
   @objc deinit
 }
@@ -203,8 +211,15 @@ public class JivoSDKSessionCustomData : ObjectiveC.NSObject {
   @objc public init(name: Swift.String? = nil, email: Swift.String? = nil, phone: Swift.String? = nil, brief: Swift.String? = nil)
   @objc deinit
 }
-@objc public class JivoSDKSessionClientInfo : ObjectiveC.NSObject {
+@objc @_inheritsConvenienceInitializers public class JivoSDKSessionClientInfo : ObjectiveC.NSObject {
   @objc public init(name: Swift.String? = nil, email: Swift.String? = nil, phone: Swift.String? = nil, brief: Swift.String? = nil)
+  @objc override dynamic public init()
+  public var hasAnyField: Swift.Bool {
+    get
+  }
+  public var hasAllFields: Swift.Bool {
+    get
+  }
   @objc override dynamic public var debugDescription: Swift.String {
     @objc get
   }

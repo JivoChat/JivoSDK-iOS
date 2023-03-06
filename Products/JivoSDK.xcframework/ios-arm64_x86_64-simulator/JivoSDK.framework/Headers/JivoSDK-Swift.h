@@ -217,6 +217,12 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 
 
 
+
+
+
+
+
+
 @protocol JivoSDKSession;
 @protocol JivoSDKChattingUI;
 @protocol JivoSDKNotifications;
@@ -298,21 +304,20 @@ SWIFT_PROTOCOL("_TtP7JivoSDK17JivoSDKChattingUI_")
 SWIFT_PROTOCOL("_TtP7JivoSDK25JivoSDKChattingUIDelegate_")
 @protocol JivoSDKChattingUIDelegate
 @optional
+- (void)jivoDidRequestShowing:(JivoSDK * _Nonnull)sdk;
 - (void)jivoWillAppear:(JivoSDK * _Nonnull)sdk;
 - (void)jivoDidDisappear:(JivoSDK * _Nonnull)sdk;
-- (void)jivoDidRequestChattingUI:(JivoSDK * _Nonnull)sdk;
 @end
 
-@class NSCoder;
 @class NSBundle;
+@class NSCoder;
 
 SWIFT_CLASS("_TtC7JivoSDK16JivoSDKContainer")
 @interface JivoSDKContainer : UINavigationController
-- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithNavigationBarClass:(Class _Nullable)navigationBarClass toolbarClass:(Class _Nullable)toolbarClass OBJC_DESIGNATED_INITIALIZER SWIFT_AVAILABILITY(ios,introduced=5.0);
+- (nonnull instancetype)initWithRootViewController:(UIViewController * _Nonnull)rootViewController OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithNibName:(NSString * _Nullable)nibNameOrNil bundle:(NSBundle * _Nullable)nibBundleOrNil OBJC_DESIGNATED_INITIALIZER;
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)aDecoder OBJC_DESIGNATED_INITIALIZER;
-- (nonnull instancetype)initWithNavigationBarClass:(Class _Nullable)navigationBarClass toolbarClass:(Class _Nullable)toolbarClass SWIFT_UNAVAILABLE;
-- (nonnull instancetype)initWithRootViewController:(UIViewController * _Nonnull)rootViewController SWIFT_UNAVAILABLE;
-- (nonnull instancetype)initWithNibName:(NSString * _Nullable)nibNameOrNil bundle:(NSBundle * _Nullable)nibBundleOrNil SWIFT_UNAVAILABLE;
 @end
 
 enum JivoSDKDebuggingLevel : NSInteger;
@@ -388,9 +393,8 @@ SWIFT_PROTOCOL("_TtP7JivoSDK14JivoSDKSession_")
 SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionClientInfo")
 @interface JivoSDKSessionClientInfo : NSObject
 - (nonnull instancetype)initWithName:(NSString * _Nullable)name email:(NSString * _Nullable)email phone:(NSString * _Nullable)phone brief:(NSString * _Nullable)brief OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @property (nonatomic, readonly, copy) NSString * _Nonnull debugDescription;
-- (nonnull instancetype)init SWIFT_UNAVAILABLE;
-+ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 
@@ -420,6 +424,9 @@ typedef SWIFT_ENUM(NSInteger, JivoSDKSessionServer, open) {
   JivoSDKSessionServerRussia = 2,
   JivoSDKSessionServerAsia = 3,
 };
+
+
+
 
 
 
@@ -660,6 +667,12 @@ typedef unsigned int swift_uint4  __attribute__((__ext_vector_type__(4)));
 
 
 
+
+
+
+
+
+
 @protocol JivoSDKSession;
 @protocol JivoSDKChattingUI;
 @protocol JivoSDKNotifications;
@@ -741,21 +754,20 @@ SWIFT_PROTOCOL("_TtP7JivoSDK17JivoSDKChattingUI_")
 SWIFT_PROTOCOL("_TtP7JivoSDK25JivoSDKChattingUIDelegate_")
 @protocol JivoSDKChattingUIDelegate
 @optional
+- (void)jivoDidRequestShowing:(JivoSDK * _Nonnull)sdk;
 - (void)jivoWillAppear:(JivoSDK * _Nonnull)sdk;
 - (void)jivoDidDisappear:(JivoSDK * _Nonnull)sdk;
-- (void)jivoDidRequestChattingUI:(JivoSDK * _Nonnull)sdk;
 @end
 
-@class NSCoder;
 @class NSBundle;
+@class NSCoder;
 
 SWIFT_CLASS("_TtC7JivoSDK16JivoSDKContainer")
 @interface JivoSDKContainer : UINavigationController
-- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithNavigationBarClass:(Class _Nullable)navigationBarClass toolbarClass:(Class _Nullable)toolbarClass OBJC_DESIGNATED_INITIALIZER SWIFT_AVAILABILITY(ios,introduced=5.0);
+- (nonnull instancetype)initWithRootViewController:(UIViewController * _Nonnull)rootViewController OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)initWithNibName:(NSString * _Nullable)nibNameOrNil bundle:(NSBundle * _Nullable)nibBundleOrNil OBJC_DESIGNATED_INITIALIZER;
 - (nullable instancetype)initWithCoder:(NSCoder * _Nonnull)aDecoder OBJC_DESIGNATED_INITIALIZER;
-- (nonnull instancetype)initWithNavigationBarClass:(Class _Nullable)navigationBarClass toolbarClass:(Class _Nullable)toolbarClass SWIFT_UNAVAILABLE;
-- (nonnull instancetype)initWithRootViewController:(UIViewController * _Nonnull)rootViewController SWIFT_UNAVAILABLE;
-- (nonnull instancetype)initWithNibName:(NSString * _Nullable)nibNameOrNil bundle:(NSBundle * _Nullable)nibBundleOrNil SWIFT_UNAVAILABLE;
 @end
 
 enum JivoSDKDebuggingLevel : NSInteger;
@@ -831,9 +843,8 @@ SWIFT_PROTOCOL("_TtP7JivoSDK14JivoSDKSession_")
 SWIFT_CLASS("_TtC7JivoSDK24JivoSDKSessionClientInfo")
 @interface JivoSDKSessionClientInfo : NSObject
 - (nonnull instancetype)initWithName:(NSString * _Nullable)name email:(NSString * _Nullable)email phone:(NSString * _Nullable)phone brief:(NSString * _Nullable)brief OBJC_DESIGNATED_INITIALIZER;
+- (nonnull instancetype)init OBJC_DESIGNATED_INITIALIZER;
 @property (nonatomic, readonly, copy) NSString * _Nonnull debugDescription;
-- (nonnull instancetype)init SWIFT_UNAVAILABLE;
-+ (nonnull instancetype)new SWIFT_UNAVAILABLE_MSG("-init is unavailable");
 @end
 
 
@@ -863,6 +874,9 @@ typedef SWIFT_ENUM(NSInteger, JivoSDKSessionServer, open) {
   JivoSDKSessionServerRussia = 2,
   JivoSDKSessionServerAsia = 3,
 };
+
+
+
 
 
 

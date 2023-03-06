@@ -1,6 +1,6 @@
 Pod::Spec.new do |spec|
   spec.name         = 'JivoSDK'
-  spec.version      = '3.3.0-beta.1'
+  spec.version      = '3.3.0'
   
   spec.dependency      'JFMarkdownKit', '1.2.2'
   spec.dependency      'JFEmojiPicker', '1.2'

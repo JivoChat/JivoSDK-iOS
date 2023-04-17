@@ -1,16 +1,17 @@
-Pod::Spec.new do |sdk|
-  sdk.name = 'JivoSDK'
-  sdk.version = '4.0.0'
-  sdk.homepage = 'https://github.com/JivoChat'
-  sdk.authors = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
-  sdk.summary = 'Jivo business chat mobile SDK'
-  sdk.source = { :git => "" }
-  sdk.info_plist = {"CFBundleShortVersionString" => "#{sdk.version}"}
-  sdk.default_subspec = 'SDK'
-  sdk.swift_version = "5.5"
+Pod::Spec.new do |root|
+  root.name = 'JivoSDK'
+  root.version = '4.0.0'
+  root.homepage = 'https://github.com/JivoChat'
+  root.authors = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
+  root.summary = 'Jivo business chat Mobile SDK'
+  root.source = { :git => "https://github.com/JivoChat/JivoSDK-iOS.git", :tag => "v#{root.version}" }
+  root.info_plist = {"CFBundleShortVersionString" => "#{root.version}"}
+  root.swift_version = "5.5"
+  root.ios.deployment_target = '11.0'
+  root.default_subspec = 'SDK'
 
-  sdk.subspec 'SDK' do |spec|
-    spec.dependency 'JivoFoundation', "#{sdk.version}"
+  root.subspec 'SDK' do |spec|
+    spec.dependency 'JivoFoundation', "#{root.version}"
     spec.dependency 'JFMarkdownKit', '1.2.2'
     spec.dependency 'JFEmojiPicker', '1.2'
     spec.dependency 'JFWebSocket', '2.9.4'
@@ -40,7 +41,6 @@ Pod::Spec.new do |sdk|
     spec.source_files = 'JivoSDK/Sources/**/*.{h,swift}', 'Shared/Sources/**/*.swift'
     spec.framework = 'SystemConfiguration'
     spec.resource = 'JivoSDK/Resources/Assets.xcassets', 'JivoSDK/Resources/*.lproj', 'JivoSDK/*.docc'
-    spec.ios.deployment_target = '11.0'
 
     spec.exclude_files = [
       'JivoSDK/Info.plist',

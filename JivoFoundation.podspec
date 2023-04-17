@@ -3,8 +3,8 @@ Pod::Spec.new do |root|
   root.version = '4.0.0'
   root.homepage = 'https://github.com/JivoChat'
   root.authors = { "Stan Potemkin" => "potemkin@jivosite.com" }
-  root.summary = 'Jivo Database'
-  root.source = { :git => "" }
+  root.summary = 'Jivo Foundation'
+  root.source = { :git => "https://github.com/JivoChat/JivoSDK-iOS.git", :tag => "v#{root.version}" }
   root.info_plist = {"CFBundleShortVersionString" => "#{root.version}"}
   root.swift_version = "5.5"
   root.ios.deployment_target = '11.0'
@@ -37,7 +37,6 @@ Pod::Spec.new do |root|
     spec.dependency 'SwiftGraylog'
     spec.dependency 'JivoFoundation/Extensions'
     spec.source_files = 'Shared/Models', 'Shared/Models/**/*.swift', 'Shared/Sources/Drivers/DatabaseDriver/**/*.swift'
-    #spec.exclude_files = ['Shared/Models/**/*+Access.swift']
     spec.resource = 'Shared/Models/*.xcdatamodeld'
   end
 

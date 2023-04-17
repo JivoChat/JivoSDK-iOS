@@ -1,0 +1,17 @@
+{
+    "Simulator Target Bundle": "com.jivosite.jivosdkdemo",
+    "jivosdk": true,
+    "push_id": "95f3509c5ba3a61598484bae82f81835",
+    "user": "45:1",
+    "aps": {
+        "sound": "default",
+        "alert": {
+            "title-loc-key": "JV_MESSAGE_TITLE",
+            "loc-key": "JV_MESSAGE",
+            "loc-args": [
+                "John Doe",
+                "Hello world"
+            ]
+        }
+    }
+}

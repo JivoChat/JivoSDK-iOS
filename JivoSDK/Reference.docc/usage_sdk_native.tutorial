@@ -1,0 +1,129 @@
+@Tutorial {
+    @Intro(title: "Basic usage") {
+        Here you will find out how to use JivoSDK
+        
+        To integrate the JivoSDK, there are just three points you should manage:
+        - User session
+        - Chat presentation
+        - Notifications handling
+    }
+    
+    @Section(title: "User session") {
+        @ContentAndMedia {
+            Keep track of user activity, and perform the following actions:
+            - start the session
+            - update the user info
+            - stop the session
+        }
+        
+        @Steps {
+            @Step {
+                Let's assume you have a UserManager class
+                that helps you to manage your active user
+                
+                @Code(name: "UserManager.swift", file: user_manager_00.swift.sample)
+            }
+            
+            @Step {
+                As mandatory, you have to start the Jivo session for user
+                
+                > Note: You can also pass `nil` as userToken
+                > to start an incognito chat session 
+                
+                @Code(name: "UserManager.swift", file: user_manager_01.swift.sample)
+            }
+            
+            @Step {
+                Optionally, you may specify some contact info
+                
+                > Note: It will help you to contact him easier in future
+                
+                @Code(name: "UserManager.swift", file: user_manager_02.swift.sample)
+            }
+        }
+    }
+    
+    @Section(title: "Chat presentation") {
+        @ContentAndMedia {
+            Next thing is to display the JivoSDK UI onscreen
+        }
+        
+        @Steps {
+            @Step {
+                Let's assume you have a HelpViewController class
+                which is responsible for Help Center of your app
+                
+                @Code(name: "HelpViewController.swift", file: help_view_controller_00.swift.sample)
+            }
+            
+            @Step {
+                First step is to define the additional case
+                for opening the support screen
+                
+                @Code(name: "HelpViewController.swift", file: help_view_controller_01.swift.sample)
+            }
+            
+            @Step {
+                Then, import the JivoSDK module and push the chatting UI into the navigation stack
+                
+                @Code(name: "HelpViewController.swift", file: help_view_controller_02.swift.sample)
+            }
+            
+            @Step {
+                An an alternative, you may want to present the chatting UI modally over the screen
+                
+                @Code(name: "HelpViewController.swift", file: help_view_controller_03.swift.sample)
+            }
+        }
+    }
+    
+    @Section(title: "Notifications handling") {
+        @ContentAndMedia {
+            Let's assume you have an AppDelegate class
+            that manages your app lifecycle
+        }
+        
+        @Steps {
+            @Step {
+                In most projects, this class just implements the entry point
+                
+                @Code(name: "AppDelegate.swift", file: app_delegate_00.native.sample)
+            }
+            
+            @Step {
+                To support Push Notifications for JivoSDK,
+                JivoSDK should take care of related system methods
+                
+                @Code(name: "AppDelegate.swift", file: app_delegate_01.native.sample)
+            }
+            
+            @Step {
+                Also, JivoSDK can support User Notifications
+                to take care of notifications displaying in foreground
+                
+                @Code(name: "AppDelegate.swift", file: app_delegate_02.native.sample)
+            }
+            
+            @Step {
+                For ability to configure the presentation of JivoSDK notifications,
+                and to manage the Background Fetch functionality,
+                you can implement the JivoSDKNotificationsDelegate protocol to provide the behavior your need
+                
+                @Code(name: "AppDelegate.swift", file: app_delegate_03.native.sample)
+            }
+            
+            @Step {
+                As an alternative, you can just make your AppDelegate to inherit from JivoSDKAppDelegate
+                that already implements all of these methods
+                
+                @Code(name: "AppDelegate.swift", file: app_delegate_10.native.sample)
+            }
+            
+            @Step {
+                Also, with ability to customize the notifications handling
+                
+                @Code(name: "AppDelegate.swift", file: app_delegate_11.native.sample)
+            }
+        }
+    }
+}

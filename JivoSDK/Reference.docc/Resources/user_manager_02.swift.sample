@@ -1,0 +1,33 @@
+import Foundation
+import JivoSDK
+
+struct User {
+    let email: String
+    let fullName: String?
+    let phoneNumber: String?
+}
+
+final class UserManager {
+    private(set) var user: User?
+    
+    func update(user: User) {
+        self.user = user
+        configureJivoSession()
+    }
+    
+    private func configureJivoSession() {
+        if let user {
+            let info = JivoSDKSession.ContactInfo(
+                name: user.fullName,
+                email: user.email,
+                phone: user.phoneNumber
+            )
+            
+            JivoSDK.session.startUp(channelID: "YOUR_CHANNEL_ID", userToken: user.email)
+            JivoSDK.session.setContactInfo(info)
+        }
+        else {
+            JivoSDK.session.shutDown()
+        }
+    }
+}

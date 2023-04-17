@@ -1,0 +1,18 @@
+//
+//  JVDisplayable.swift
+//  App
+//
+//  Created by Stan Potemkin on 16.01.2023.
+//  Copyright © 2023 JivoSite. All rights reserved.
+//
+
+import Foundation
+
+public protocol JVDisplayable: JVPresentable {
+    var channel: JVChannel? { get }
+    func displayName(kind: JVDisplayNameKind) -> String
+    var integration: JVChannelJoint? { get }
+    var hashedID: String { get }
+    var isMe: Bool { get }
+    var isAvailable: Bool { get }
+}

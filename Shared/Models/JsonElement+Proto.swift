@@ -10,14 +10,6 @@ import Foundation
 import JMCodingKit
 
 public extension JsonElement {
-    init<T>(key: String, value: T?) {
-        if let value = value {
-            self.init([key: value])
-        } else {
-            self.init([:])
-        }
-    }
-
     var status: JsonElement {
         return self
     }

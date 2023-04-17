@@ -7,12 +7,12 @@
 
 import Foundation
 
-enum FileManagerRemovingStrategy {
+public enum FileManagerRemovingStrategy {
     case single
     case satellites
 }
 
-extension FileManager {
+public extension FileManager {
     func jv_removeItem(at url: URL?, strategy: FileManagerRemovingStrategy = .single) {
         guard let url = url
         else {

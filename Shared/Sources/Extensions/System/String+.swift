@@ -101,20 +101,6 @@ public extension String {
         return jv_trimmed(charset: charset)
     }
     
-    func jv_parseDateUsingFullFormat() -> Date? {
-        let dateParser = DateFormatter()
-        dateParser.locale = JVActiveLocale()
-        dateParser.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"
-        dateParser.timeZone = TimeZone(identifier: "GMT")
-        
-        if let downToSeconds = split(separator: ".").first {
-            return dateParser.date(from: String(downToSeconds))
-        }
-        else {
-            return dateParser.date(from: self)
-        }
-    }
-    
     func jv_search(_ mode: JVSearchingMode, query: String) -> Bool {
         switch mode {
         case .plain: return lowercased().contains(query.lowercased())

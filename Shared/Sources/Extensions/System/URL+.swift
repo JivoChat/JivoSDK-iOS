@@ -48,11 +48,6 @@ public extension URL {
         return URL(string: UIApplication.openSettingsURLString)
     }
     
-    static func jv_welcome() -> URL? {
-        let link = loc["Menu.VisitWeb.URL"]
-        return URL(string: link)
-    }
-    
     static func jv_recoverPassword(domain: String, email: String, lang: String) -> URL? {
         return URL(string: "https://admin.\(domain)")?.build(
             "/auth/forgot-password",
@@ -93,11 +88,6 @@ public extension URL {
         return URL(string: "https://track.customer.io/push/events")
     }
     
-    static func jv_license() -> URL? {
-        let link = loc["License.PricingURL"]
-        return URL(string: link)
-    }
-    
     static func jv_commandAddContact(phone: String, name: String) -> URL? {
         return URL(string: "internal://add-contact")?
             .build(query: ["phone": phone, "name": name])
@@ -113,54 +103,6 @@ public extension URL {
             ]
         )
     }
-
-    static func jv_privacyPolicy() -> URL? {
-        let link = loc["Signup.PrivacyPolicy.Link"]
-        return URL(string: link)
-    }
-    
-    static func jv_feedback(domain: String, session: String, lang: JVLocaleLang, siteID: Int, agentID: Int, name: String, app: String, design: String) -> URL? {
-        /*
-         ru: jivosite.ru
-         en: jivochat.com
-         pt: jivochat.com.br
-         ptEu: jivochat.pt
-         es: jivochat.es
-         de: jivochat.de
-         id: jivochat.co.id
-         tr: jivochat.com.tr
-         ng: jivochat.ng
-         ke: jivochat.co.ke
-         za: jivochat.co.za
-         esAr: jivochat.com.ar
-         cl: jivochat.cl
-         bo: jivochat.com.bo
-         mx: jivochat.mx
-         ve: jivochat.com.ve
-         co: jivochat.com.co
-         pe: jivochat.com.pe
-         in: jivochat.co.in
-         uk: jivochat.co.uk
-         nl: jivochat.nl
-         gh: jivochat.com.gh
-         */
-        
-        let endpoint: String // = "https://ip.yandex.ru/"/.
-        #if ENV_DEBUG
-        endpoint = "https://\(lang.jv_developmentPrefix).site.dev.\(domain)/feedback"
-        #else
-        endpoint = "https://\(lang.jv_productionHost)/feedback"
-        #endif
-        
-        return URL(string: endpoint)?.build(
-            query: ["session": session, "siteid": siteID, "agentid": agentID, "name": name, "description": app, "design": design]
-        )
-    }
-    
-//    static func twemoji(code: String) -> URL? {
-//        guard let slice = code.split(separator: "-").first?.lowercased() else { return nil }
-//        return URL(string: "https://twemoji.maxcdn.com/2/72x72/\(slice).png")
-//    }
 
     func jv_parseCommand() -> JVUrlCommand? {
         if let host = host {
@@ -300,41 +242,5 @@ public extension Array where Element == URLQueryItem {
     func jv_value(forName name: String) -> String? {
         guard let item = first(where: { $0.name == name }) else { return nil }
         return item.value
-    }
-}
-
-public extension JVLocaleLang {
-    var jv_developmentPrefix: String {
-        switch self {
-        case .en: return "en"
-        case .ru: return "ru"
-        case .es: return "es"
-        case .pt: return "pt"
-        case .tr: return "tr"
-        }
-    }
-    
-    var jv_productionHost: String {
-        switch self {
-        case .ru: return "jivosite.\(jv_productionDomain)"
-        default: return "jivochat.\(jv_productionDomain)"
-        }
-    }
-    
-    var jv_productionDomain: String {
-        switch self {
-        case .en: return "com"
-        case .ru: return "ru"
-        case .es: return "es"
-        case .pt: return "com.br"
-        case .tr: return "com.tr"
-        }
-    }
-    
-    var jv_feedbackEmail: String {
-        switch self {
-        case .tr: return "bilgi@\(jv_productionHost)"
-        default: return "info@\(jv_productionHost)"
-        }
     }
 }

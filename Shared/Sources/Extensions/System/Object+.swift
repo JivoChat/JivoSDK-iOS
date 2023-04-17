@@ -13,18 +13,6 @@ public protocol JVValidatable {
     var jv_isValid: Bool { get }
 }
 
-/*
-extension Object: JVValidatable {
-    public var jv_isValid: Bool {
-        return !isInvalidated
-    }
-    
-    public func jv_ifValid<T>() -> T? {
-        return jv_isValid ? self as? T : nil
-    }
-}
-*/
-
 extension NSManagedObject: JVValidatable {
     public var jv_isValid: Bool {
         return true

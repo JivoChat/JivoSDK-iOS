@@ -19,12 +19,6 @@ public extension UIApplication {
         }
     }
     
-    func jv_openLocalizedURL(for key: String) {
-        let link = loc[key]
-        guard let url = URL(string: link) else { return }
-        open(url, options: [:], completionHandler: nil)
-    }
-    
     func jv_discardCachedLaunchScreen() {
         let path = NSHomeDirectory() + "/Library/SplashBoard"
         try? FileManager.default.removeItem(atPath: path)

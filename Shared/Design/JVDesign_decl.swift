@@ -7,6 +7,12 @@
 
 import Foundation
 
+public extension Bundle {
+    static var jv_shared: Bundle {
+        return Bundle(for: JVDesign.self)
+    }
+}
+
 protocol JVIDesign {
     static var environment: JVIDesignEnvironment { get }
     static var layout: JVIDesignLayout { get }

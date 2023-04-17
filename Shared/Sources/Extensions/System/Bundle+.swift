@@ -9,10 +9,6 @@
 import Foundation
 
 public extension Bundle {
-    static var jv_shared: Bundle {
-        return Bundle(for: JVDesign.self)
-    }
-    
     var jv_ID: String? {
         return infoDictionary?["CFBundleIdentifier"] as? String
     }

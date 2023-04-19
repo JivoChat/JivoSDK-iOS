@@ -1,12 +1,11 @@
 Pod::Spec.new do |root|
   root.name = 'JivoSDK'
-  root.version = '4.0.0-beta.0'
+  root.version = '4.0.0-beta.1'
   root.homepage = 'https://github.com/JivoChat'
   root.authors = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
   root.summary = 'Jivo business chat Mobile SDK'
-  root.source = { :git => "https://github.com/JivoChat/JivoSDK-iOS.git", :tag => "v#{root.version}" }
+  root.source = { :git => 'https://github.com/JivoChat/JivoSDK-iOS.git', :tag => "v#{root.version}" }
   root.info_plist = {"CFBundleShortVersionString" => "#{root.version}"}
-  root.swift_version = "5.5"
   root.ios.deployment_target = '11.0'
   root.default_subspec = 'SDK'
 

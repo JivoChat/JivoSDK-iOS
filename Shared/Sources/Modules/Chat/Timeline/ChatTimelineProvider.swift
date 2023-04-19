@@ -76,7 +76,7 @@ final class ChatTimelineProvider: JVChatTimelineProvider {
     func requestWaveformPoints(from url: URL, completion: @escaping (RemoteStorageFileResource?) -> Void) {
         remoteStorageService.retrieveFile(
             originURL: url,
-            quality: .preview(width: CGFloat(512)),
+            quality: .preview(width: CGFloat(256)),
             caching: .enabled,
             on: .main,
             callback: completion

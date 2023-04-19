@@ -6,6 +6,7 @@ Pod::Spec.new do |root|
   root.summary = 'Jivo business chat Mobile Foundation'
   root.source = { :git => 'https://github.com/JivoChat/JivoSDK-iOS.git', :tag => "v#{root.version}" }
   root.info_plist = {"CFBundleShortVersionString" => "#{root.version}"}
+  root.swift_versions = ['5.5', '5.6', '5.7', '5.8']
   root.ios.deployment_target = '11.0'
 
   root.subspec 'Extensions' do |spec|
@@ -36,7 +37,6 @@ Pod::Spec.new do |root|
   end
 
   root.subspec 'Database' do |spec|
-    spec.ios.deployment_target = '11.0'
     spec.framework = 'AVFoundation'
     spec.dependency 'JMCodingKit', '5.0.2'
     spec.dependency 'JMRepicKit', '1.0.5'

@@ -195,7 +195,7 @@ class WebSocketDriver: ILiveConnectionDriver {
                 "id": "\(rpcID)",
                 "method": method,
                 "params": params.dictObject
-            ]
+            ] as [String: Any]
         )
         
         guard

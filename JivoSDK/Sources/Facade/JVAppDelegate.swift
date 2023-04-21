@@ -59,7 +59,7 @@ open class JVAppDelegate: UIResponder
         case .app:
             return []
         case .sdk:
-            return [.alert]
+            return [.jv_banner]
         }
     }
 }

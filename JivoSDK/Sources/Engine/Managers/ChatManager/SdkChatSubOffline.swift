@@ -201,9 +201,6 @@ class SdkChatSubOffline: ISdkChatSubOffline {
             return .missing
         }
         
-        let offlineMessage = chatSubStorage.message(withLocalId: JVSDKMessageOfflineChange.id)
-        let contactFormWasShownAt = preferencesDriver.retrieveAccessor(forToken: .contactInfoWasShownAt).date
-        
         switch userDataReceivingMode {
         case .channel where jv_not(areChannelAgentsOffline):
             return .missing

@@ -29,6 +29,8 @@ public protocol JVIDatabaseContext: AnyObject {
 
     func simpleRemove<OT: JVDatabaseModel>(objects: [OT]) -> Bool
     func customRemove<OT: JVDatabaseModel>(objects: [OT], recursive: Bool)
+    
+    @discardableResult
     func removeAll() -> Bool
     
     func setValue(_ value: Int, for key: Int)

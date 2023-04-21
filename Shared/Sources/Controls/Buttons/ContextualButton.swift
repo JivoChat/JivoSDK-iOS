@@ -49,7 +49,8 @@ final class ContextualButton: BaseButton {
                 contentAlignment: .center,
                 longPressDuration: nil,
                 spinner: ButtonSpinner(
-                    style: .white,
+                    style: .jv_auto,
+                    color: .white,
                     position: .center
                 ),
                 decoration: ButtonDecoration(

@@ -73,7 +73,8 @@ fileprivate func generateConfig(style: TriggerButtonStyle) -> ButtonConfig {
         contentAlignment: .center,
         longPressDuration: nil,
         spinner: ButtonSpinner(
-            style: .gray,
+            style: .jv_auto,
+            color: .gray,
             position: .center
         ),
         decoration: ButtonDecoration(

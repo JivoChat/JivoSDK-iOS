@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension String {
+extension String {
     public func jv_parseDateUsingFullFormat() -> Date? {
         let dateParser = DateFormatter()
         dateParser.locale = JVActiveLocale()

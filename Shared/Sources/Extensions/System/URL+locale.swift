@@ -66,8 +66,8 @@ public extension URL {
     }
 }
 
-public extension JVLocaleLang {
-    var jv_developmentPrefix: String {
+extension JVLocaleLang {
+    public var jv_developmentPrefix: String {
         switch self {
         case .en: return "en"
         case .ru: return "ru"
@@ -77,14 +77,14 @@ public extension JVLocaleLang {
         }
     }
     
-    var jv_productionHost: String {
+    public var jv_productionHost: String {
         switch self {
         case .ru: return "jivosite.\(jv_productionDomain)"
         default: return "jivochat.\(jv_productionDomain)"
         }
     }
     
-    var jv_productionDomain: String {
+    public var jv_productionDomain: String {
         switch self {
         case .en: return "com"
         case .ru: return "ru"
@@ -94,7 +94,7 @@ public extension JVLocaleLang {
         }
     }
     
-    var jv_feedbackEmail: String {
+    public var jv_feedbackEmail: String {
         switch self {
         case .tr: return "bilgi@\(jv_productionHost)"
         default: return "info@\(jv_productionHost)"

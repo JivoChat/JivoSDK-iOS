@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension JVClientSession {
+extension JVClientSession {
     public var creationDate: Date? {
         if m_creation_ts > 0 {
             return Date(timeIntervalSince1970: m_creation_ts)

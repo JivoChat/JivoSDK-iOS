@@ -74,6 +74,7 @@ final class ChatReplyAttachmentBar: UIScrollView {
         }
     }
     
+    @discardableResult
     func remove(at index: Int) -> Int {
         let control = orderedControls.remove(at: index)
         control.removeFromSuperview()

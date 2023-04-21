@@ -50,7 +50,8 @@ final class PlaceholderViewController<Satellite: BaseViewControllerSatellite>: S
             fitting: .shortest,
             sideMargin: nil)
         
-        automaticallyAdjustsScrollViewInsets = false
+        scrollView.contentInsetAdjustmentBehavior = .automatic
+        
         edgesForExtendedLayout = .all
         extendedLayoutIncludesOpaqueBars = true
         

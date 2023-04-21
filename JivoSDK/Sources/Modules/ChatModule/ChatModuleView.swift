@@ -138,7 +138,7 @@ final class JVChatModuleViewController
             titleControl.subtitleLabelText = value
         case .inputUpdate(.update(let update)):
             replyControl.feed(update: update)
-        case .inputUpdate(.fill(let text, let attachments)):
+        case .inputUpdate(.fill(_, let attachments)):
             replyControl.updateAttachments(objects: attachments)
         case .inputUpdate(.updateAttachment(let attachment)):
             replyControl.updateAttachments(objects: [attachment])
@@ -194,13 +194,13 @@ final class JVChatModuleViewController
         
         replyControl.outputHandler = { [weak self] output in
             switch output {
-            case .text(let value, let caret):
+            case .text(let value, _):
                 self?.pipeline.notify(intent: .textDidChange(text: value))
             case .height:
                 self?.view.setNeedsLayout()
             case .submit(let text):
                 self?.pipeline.notify(intent: .sendMessage(text: text))
-            case .tapAttachment(let index):
+            case .tapAttachment:
                 break
             case .discardAttachment(let index):
                 self?.replyControl.removeAttachment(at: index)

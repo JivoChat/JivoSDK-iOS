@@ -519,7 +519,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     
     private func detectContactInfoStatus() -> SdkChatContactInfoStatus {
         guard let chatId = sessionContext.localChatId,
-              let lastMessage = subStorage.history(chatId: chatId, after: nil).first
+              let _ = subStorage.history(chatId: chatId, after: nil).first
         else {
             return .omit
         }
@@ -783,8 +783,6 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             
             switch subject {
             case .delivered(let messageId, _, _), .received(let messageId, _, _, _, _):
-                #warning("TODO: Anton Karpushko, 09.04.2021 - Split code block below into two parts: first is for payload.id type matching, second is for message upserting, third is for some other logic (for example: subStorage.markMessagesAsSeen method calling).")
-                
                 syncState.earliestMessageId = min(syncState.earliestMessageId, messageId)
                 
                 guard let message: JVMessage = {
@@ -794,7 +792,6 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
 
                     case let id as Int:
                         let message =  subStorage.upsertMessage(havingId: id, inChatWithId: chat.ID, with: [subject])
-                        #warning("TODO: Anton Karpushko, 09.04.2021 - Fix the bug with multiple messages marking and separate 'seen' case")
                         
                         if let lastSeenMessageId = keychainDriver.retrieveAccessor(forToken: .lastSeenMessageId, usingClientToken: true).number,
                            lastSeenMessageId == id {
@@ -850,7 +847,6 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     private func handleUserTransaction(_ transaction: [NetworkingEventBundle]) {
-        #warning("TODO: Anton Karpushko, 30.03.2022 – Remember why should we use OrderedMap instead of Dictionary?")
         transaction.forEach { bundle in
             guard let subject = bundle.payload.subject as? UserTransactionSubject else { return }
             
@@ -925,7 +921,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         guard let accountConfig = sessionContext.accountConfig,
            let siteId = accountConfig.siteId,
            let clientId = clientContext.clientId,
-           let chatId = sessionContext.localChatId
+           let _ = sessionContext.localChatId
         else {
             return
         }
@@ -935,10 +931,10 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
                 siteId: siteId,
                 channelId: accountConfig.channelId,
                 clientId: clientId)
+            .silent()
     }
     
     private func handleSocketOpened() {
-        #warning("TODO: Anton Karpushko, 30.03.2022 – Think about invariance of ChatManager states and determine points of state changes (like below)")
         userDataReceivingMode = .channel
         chatContext.channelAgents = [:]
         chatContext.chatAgents = [:]
@@ -1150,7 +1146,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     private func flushContactForm(info: JVSessionContactInfo) {
-        guard let chatId = obtainChat()?.ID
+        guard let _ = obtainChat()?.ID
         else {
             return
         }
@@ -1169,7 +1165,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
                     "email": info.email ?? String()
                 ])
             
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [unowned self] in
                 subStorage.refresh()
                 messagingContext.broadcast(event: .messagesUpserted([messageRef]))
             }
@@ -1204,7 +1200,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
                     timing: .regular
                 ))
             
-            DispatchQueue.main.async {
+            DispatchQueue.main.async { [unowned self] in
                 subStorage.refresh()
                 messagingContext.broadcast(event: .messagesUpserted([systemMessageRef]))
             }
@@ -1241,7 +1237,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
         
         func _notify(number: Int) {
-            DispatchQueue.main.async { [unowned self] in
+            DispatchQueue.main.async {
                 delegate.jivoSession(updateUnreadCounter: .shared, number: number)
             }
         }

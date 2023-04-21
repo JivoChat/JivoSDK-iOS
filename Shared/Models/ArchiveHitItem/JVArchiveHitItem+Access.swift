@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension JVArchiveHitItem {
+extension JVArchiveHitItem {
     public var agents: [JVAgent] {
         if let allObjects = m_agents?.allObjects as? [JVAgent] {
             return allObjects

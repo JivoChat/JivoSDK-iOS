@@ -143,7 +143,8 @@ fileprivate func generateConfig(type: BigButtonType, sizing: BigButtonSizing, ac
         contentAlignment: .center,
         longPressDuration: longPressDuration,
         spinner: ButtonSpinner(
-            style: jv_with(type) { value in
+            style: .jv_auto,
+            color: jv_with(type) { value in
                 switch value {
                 case .primary: return .white
                 case .secondary: return .white

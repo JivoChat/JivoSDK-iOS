@@ -8,20 +8,20 @@
 
 import Foundation
 
-public extension JVTimezone {
-    var ID: Int {
+extension JVTimezone {
+    public var ID: Int {
         return Int(m_id)
     }
     
-    var identifier: String {
+    public var identifier: String {
         return m_identifier ?? String()
     }
     
-    var GMT: String {
+    public var GMT: String {
         return m_display_gmt ?? String()
     }
     
-    func displayName(lang: JVLocaleLang) -> String {
+    public func displayName(lang: JVLocaleLang) -> String {
         switch lang {
         case .ru:
             return m_display_name_ru ?? m_identifier ?? String()
@@ -30,11 +30,11 @@ public extension JVTimezone {
         }
     }
     
-    var sortingOffset: Int {
+    public var sortingOffset: Int {
         return Int(m_sorting_offset)
     }
     
-    func sortingRegion(lang: JVLocaleLang) -> String {
+    public func sortingRegion(lang: JVLocaleLang) -> String {
         switch lang {
         case .ru:
             return m_sorting_region_ru ?? m_identifier ?? String()

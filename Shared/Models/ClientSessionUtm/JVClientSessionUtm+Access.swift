@@ -8,12 +8,14 @@
 
 import Foundation
 
-public extension JVClientSessionUtm {
-    static func generateHumanReadable(source: String,
-                                      medium: String,
-                                      campaign: String,
-                                      keyword: String,
-                                      content: String) -> String? {
+extension JVClientSessionUtm {
+    public static func generateHumanReadable(
+        source: String,
+        medium: String,
+        campaign: String,
+        keyword: String,
+        content: String
+    ) -> String? {
         let parser = JVPureParserTool()
         
         if campaign.contains("organic") {
@@ -76,7 +78,7 @@ public extension JVClientSessionUtm {
         return output
     }
     
-    var humanReadable: String? {
+    public var humanReadable: String? {
         guard
             let source = m_source?.jv_valuable,
             let campaign = m_campaign?.jv_valuable

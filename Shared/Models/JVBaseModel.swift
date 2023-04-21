@@ -76,7 +76,7 @@ public enum JVDisplayNameKind {
     case relative
 }
 
-public extension JVDisplayNameKind {
+extension JVDisplayNameKind {
     public struct Decor: OptionSet {
         public let rawValue: Int
         public init(rawValue: Int) { self.rawValue = rawValue }

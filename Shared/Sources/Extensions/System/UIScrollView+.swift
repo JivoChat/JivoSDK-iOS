@@ -53,19 +53,4 @@ public extension UIScrollView {
         let positionY = max(0, frame.maxY + contentInset.bottom - bounds.height)
         contentOffset.y = positionY
     }
-    
-    func jv_hideExtraSubviewsIfNeeded() {
-        if #available(iOS 13.2, *) {
-            return
-        }
-        else if #available(iOS 13.0, *) {
-            // proceed below
-        }
-        else {
-            return
-        }
-        
-        let simpleViews = subviews.filter { $0.superclass == UIResponder.self }
-        simpleViews.forEach { $0.backgroundColor = nil }
-    }
 }

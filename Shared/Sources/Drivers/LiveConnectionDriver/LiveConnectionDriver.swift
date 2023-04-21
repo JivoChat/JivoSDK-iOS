@@ -386,7 +386,7 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
                 "id": "\(rpcID)",
                 "method": method,
                 "params": params.dictObject
-            ]
+            ] as [String: Any]
         )
         
         guard

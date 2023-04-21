@@ -107,7 +107,6 @@ extension JVMessageMediaType {
         case .conference: return "conference"
         case .story: return "story"
         case .unknown: return "unknown"
-        @unknown default: return "unknown"
         }
     }
 }
@@ -253,7 +252,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
 //
     override func decodeToSubject(event: NetworkingSubject) -> IProtoEventSubject? {
         switch event {
-        case NetworkingSubject.rest(.response(ProtoEventSubjectPayload.RecentActivity.kindId, let url, let response)):
+        case NetworkingSubject.rest(.response(ProtoEventSubjectPayload.RecentActivity.kindId, _, let response)):
             return decodeRecentActivity(response)
         default:
             return super.decodeToSubject(event: event)

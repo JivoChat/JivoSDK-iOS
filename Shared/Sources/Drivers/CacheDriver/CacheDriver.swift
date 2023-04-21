@@ -32,22 +32,13 @@ struct CacheDriverItem {
     }
     
     init(directoryName: String?, hashing longName: String, ext: String?) {
-        let length = Int(CC_MD5_DIGEST_LENGTH)
         let input = longName.data(using: .utf8) ?? Data()
-        var output = Data(count: length)
-
-        _ = output.withUnsafeMutableBytes { outputBytes -> UInt8 in
-            input.withUnsafeBytes { inputBytes -> UInt8 in
-                if let inputBytesBaseAddress = inputBytes.baseAddress, let outputBytesBlindMemory = outputBytes.bindMemory(to: UInt8.self).baseAddress {
-                    let inputLength = CC_LONG(input.count)
-                    CC_MD5(inputBytesBaseAddress, inputLength, outputBytesBlindMemory)
-                }
-                
-                return 0
-            }
+        var output = [UInt8](repeating: 0,  count: Int(CC_SHA256_DIGEST_LENGTH))
+        input.withUnsafeBytes {
+            _ = CC_SHA256($0.baseAddress, CC_LONG(input.count), &output)
         }
-        
-        let baseName = output.map({ String(format: "%02hhx", $0) }).joined()
+
+        let baseName = Data(output).map({ String(format: "%02hhx", $0) }).joined()
         self.directoryName = directoryName
         self.fileName = [baseName, ext?.jv_valuable].compactMap({ $0 }).joined(separator: ".")
     }

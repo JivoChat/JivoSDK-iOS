@@ -420,6 +420,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
                 credentials: .path(path))
         }
         
+        @discardableResult
         func _tryFresh() -> Bool {
             return proto.connectToLive(
                 host: endpointConfig.chatserverHost,

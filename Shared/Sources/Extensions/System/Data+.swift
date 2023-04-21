@@ -18,8 +18,12 @@ public extension Data {
         return map({ String(format: "%02x", $0) }).joined()
     }
     
-    func jv_unarchive<T: NSCoding>(type: T.Type) -> T? {
-        let contents = self
-        return try? handle({ NSKeyedUnarchiver.unarchiveObject(with: contents) as? T })
+    func jv_unarchive<T: NSObject & NSCoding>(type: T.Type) -> T? {
+        do {
+            return try NSKeyedUnarchiver.unarchivedObject(ofClass: T.self, from: self)
+        }
+        catch {
+            return nil
+        }
     }
 }

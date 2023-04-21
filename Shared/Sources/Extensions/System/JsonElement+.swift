@@ -13,7 +13,7 @@ public extension JsonElement {
         if let value = value {
             self.init([key: value])
         } else {
-            self.init([:])
+            self.init(Dictionary<String, T>())
         }
     }
 }

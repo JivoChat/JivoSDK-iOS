@@ -254,7 +254,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         
         switch message.status {
         case .queued:
-            databaseDriver.readwrite { [weak self] context in
+            databaseDriver.readwrite { context in
                 message.apply(
                     context: context,
                     change: JVSdkMessageStatusChange(
@@ -430,7 +430,6 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
     @discardableResult
     func upsertAgent(havingId id: Int, with subjects: [UserTransactionSubject]) -> JVAgent? {
         var updates = agentPropertyUpdates(fromSubjects: subjects)
-        #warning("TODO: Anton Karpushko, 07.12.2021 – Break the dependency on Atom signals order.")
         if updates.contains(where: { update in
             if case .displayName = update { return true } else { return false }
         }), !(updates.contains(where: { update in
@@ -518,7 +517,6 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
                         .isIncoming(false)
                     ]
                 } else if let agentId = Int(userId) {
-                    #warning("TODO: Anton Karpushko, 07.12.2021 – Fix the bug when passes agent display name string only once on default database agent model create and doesn't update it on SDK locale change.")
                     accumulatingUpdates += [
                         .sender(
                             .agent(

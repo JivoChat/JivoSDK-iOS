@@ -8,16 +8,16 @@
 
 import Foundation
 
-public extension JVPage {
-    var URL: URL? {
+extension JVPage {
+    public var URL: URL? {
         return Foundation.URL(string: m_url.jv_orEmpty)
     }
     
-    var title: String {
+    public var title: String {
         return m_title.jv_orEmpty
     }
     
-    var time: Date? {
+    public var time: Date? {
         return m_time?.jv_parseDateUsingFullFormat()
     }
 }

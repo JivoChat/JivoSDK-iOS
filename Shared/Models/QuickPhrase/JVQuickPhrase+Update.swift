@@ -71,7 +71,7 @@ public final class JVQuickPhraseGeneralChange: JVDatabaseModelChange {
                 "id": ID,
                 "tags": tags,
                 "text": text
-            ]
+            ] as [String: Any]
         )
     }
     

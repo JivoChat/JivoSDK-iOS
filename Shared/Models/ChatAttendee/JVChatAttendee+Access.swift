@@ -51,12 +51,12 @@ public enum JVChatAttendeeRelation: Equatable {
     }
 }
 
-public extension JVChatAttendee {
-    var agent: JVAgent? {
+extension JVChatAttendee {
+    public var agent: JVAgent? {
         return m_agent
     }
     
-    var relation: JVChatAttendeeRelation {
+    public var relation: JVChatAttendeeRelation {
         if m_relation == "invited" {
             if let agent = invitedBy {
                 return .invitedByAgent(agent, toAssist: m_to_assist, comment: m_comment)
@@ -73,19 +73,19 @@ public extension JVChatAttendee {
         }
     }
     
-    var comment: String? {
+    public var comment: String? {
         return m_comment
     }
     
-    var invitedBy: JVAgent? {
+    public var invitedBy: JVAgent? {
         return m_invited_by
     }
     
-    var isAssistant: Bool {
+    public var isAssistant: Bool {
         return m_to_assist
     }
     
-    var receivedMessageID: Int? {
+    public var receivedMessageID: Int? {
         if m_received_message_id > 0 {
             return Int(m_received_message_id)
         }
@@ -94,7 +94,7 @@ public extension JVChatAttendee {
         }
     }
     
-    var unreadNumber: Int? {
+    public var unreadNumber: Int? {
         if m_unread_number > 0 {
             return Int(m_unread_number)
         }
@@ -103,11 +103,11 @@ public extension JVChatAttendee {
         }
     }
     
-    var notifying: JVChatAttendeeNotifying? {
+    public var notifying: JVChatAttendeeNotifying? {
         return JVChatAttendeeNotifying(rawValue: Int(m_notifications))
     }
     
-    func export() -> JVChatAttendeeGeneralChange {
+    public func export() -> JVChatAttendeeGeneralChange {
         return JVChatAttendeeGeneralChange(
             ID: m_agent?.ID ?? 0,
             relation: m_relation,

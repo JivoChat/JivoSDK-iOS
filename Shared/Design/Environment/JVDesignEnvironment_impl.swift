@@ -13,7 +13,13 @@ public final class JVDesignEnvironment: JVIDesignEnvironment {
     public var previousTraits: UITraitCollection?
     
     public func grabFrom(application: UIApplication, window: UIWindow) {
-        statusBarHeight = application.statusBarFrame.height
+        if #available(iOS 13.0, *) {
+            statusBarHeight = window.windowScene?.statusBarManager?.statusBarFrame.height ?? .zero
+        }
+        else {
+            statusBarHeight = application.statusBarFrame.height
+        }
+        
         activeWindow = window
         previousTraits = window.traitCollection
     }

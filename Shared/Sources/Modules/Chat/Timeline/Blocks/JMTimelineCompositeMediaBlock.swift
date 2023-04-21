@@ -107,9 +107,6 @@ final class JMTimelineCompositeMediaBlock: JMTimelineBlock {
                     
                 case let .unknownError(description):
                     self.configure(withMediaStatus: .unknownError(description ?? String()))
-                    
-                @unknown default:
-                    break
                 }
             }
         }
@@ -134,9 +131,6 @@ final class JMTimelineCompositeMediaBlock: JMTimelineBlock {
             
         case let .unknownError(description):
             self.titleLabel.text = description
-            
-        @unknown default:
-            break
         }
     }
     

@@ -108,21 +108,21 @@ final class ChatHistory {
             
             self?.messages = Array(messages.reversed())
             
-            if let chat = chatRef?.resolve() {
-                chatCacheService.resetEarliestMessage(for: chat)
+            if let chat = self?.chatRef?.resolve() {
+                self?.chatCacheService.resetEarliestMessage(for: chat)
             }
             
-            itemsCounter = messages.count
-            feedItems(forMessages: messages, unreadPosition: unreadPosition, partialLoaded: partialLoaded) { items in
-                uncachableUUIDs = Set(items.filter(\.uncachable).map(\.uid))
-                timelineHistory.fill(with: items)
+            self?.itemsCounter = messages.count
+            self?.feedItems(forMessages: messages, unreadPosition: unreadPosition, partialLoaded: partialLoaded) { items in
+                self?.uncachableUUIDs = Set(items.filter(\.uncachable).map(\.uid))
+                self?.timelineHistory.fill(with: items)
             }
 
-            if let chat = chatRef?.resolve(), let oldestMessage = messages.last {
-                chatCacheService.cache(earliestMessage: oldestMessage, for: chat)
+            if let chat = self?.chatRef?.resolve(), let oldestMessage = messages.last {
+                self?.chatCacheService.cache(earliestMessage: oldestMessage, for: chat)
             }
 
-            informHistoryHandler(!messages.isEmpty)
+            self?.informHistoryHandler(!messages.isEmpty)
         }
         collectionViewManager.collectionViewUpdater?.storageNeedsReloading()
     }
@@ -138,7 +138,7 @@ final class ChatHistory {
         
         if let recentItem = recentItems.last {
             reloadRecentUncachableItemIfNeeded()
-            storeRecentUncachableItemIfNeeded(item: recentItems.last)
+            storeRecentUncachableItemIfNeeded(item: recentItem)
         }
         
 //        if let recentItem = recentItems.first {
@@ -348,8 +348,6 @@ final class ChatHistory {
             else {
                 callback(items)
             }
-        @unknown default:
-            callback(items)
         }
     }
     

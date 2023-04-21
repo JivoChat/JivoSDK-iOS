@@ -176,9 +176,20 @@ public extension URL {
     }
     */
     
-    func jv_unarchive<T: Codable>(type: T.Type) -> T? {
-        let filePath = path
-        return try? handle({ NSKeyedUnarchiver.unarchiveObject(withFile: filePath) as? T })
+    func jv_unarchive<T: NSObject & NSCoding>(type: T.Type) -> T? {
+        if #available(iOS 12.0, *) {
+            do {
+                let data = try Data(contentsOf: self)
+                return try NSKeyedUnarchiver.unarchivedObject(ofClass: T.self, from: data)
+            }
+            catch {
+                return nil
+            }
+        }
+        else {
+            let filePath = path
+            return try? handle({ NSKeyedUnarchiver.unarchiveObject(withFile: filePath) as? T })
+        }
     }
     
     func jv_normalized() -> URL {

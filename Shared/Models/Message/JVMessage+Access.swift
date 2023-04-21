@@ -196,36 +196,36 @@ public struct JVMessageUpdateMeta {
     let date: Date
 }
 
-public extension JVMessage {
-    var UUID: String {
+extension JVMessage {
+    public var UUID: String {
         return m_uid.jv_orEmpty
     }
     
-    var ID: Int {
+    public var ID: Int {
         return Int(m_id)
     }
     
-    var localID: String {
+    public var localID: String {
         return m_local_id.jv_orEmpty
     }
     
-    var date: Date {
+    public var date: Date {
         return m_date ?? Date()
     }
     
-    var clientID: Int {
+    public var clientID: Int {
         return Int(m_client_id)
     }
     
-    var client: JVClient? {
+    public var client: JVClient? {
         return m_client
     }
     
-    var chatID: Int {
+    public var chatID: Int {
         return Int(m_chat_id)
     }
     
-    var direction: JVMessageDirection {
+    public var direction: JVMessageDirection {
         if ["system", "transfer", "join", "left", "line", "reminder"].contains(type) {
             return .system
         }
@@ -240,7 +240,7 @@ public extension JVMessage {
         }
     }
     
-    var type: String {
+    public var type: String {
         guard !(m_was_deleted) else {
             return "message"
         }
@@ -248,7 +248,7 @@ public extension JVMessage {
         return m_type.jv_orEmpty
     }
     
-    var isSystemLike: Bool {
+    public var isSystemLike: Bool {
         switch type {
         case "proactive":
             return false
@@ -281,7 +281,7 @@ public extension JVMessage {
         }
     }
     
-    var content: JVMessageContent {
+    public var content: JVMessageContent {
         switch type {
         case "proactive":
             return .proactive(
@@ -451,7 +451,7 @@ public extension JVMessage {
         )
     }
     
-    var isAutomatic: Bool {
+    public var isAutomatic: Bool {
         if case .proactive = content {
             return true
         }
@@ -460,15 +460,15 @@ public extension JVMessage {
         }
     }
     
-    var sender: JVDisplayable? {
+    public var sender: JVDisplayable? {
         return m_sender_agent ?? m_sender_client ?? client
     }
     
-    var senderClient: JVClient? {
+    public var senderClient: JVClient? {
         return m_sender_client
     }
     
-    var senderAgent: JVAgent? {
+    public var senderAgent: JVAgent? {
         if case .call(let call) = content {
             return call.agent
         }
@@ -477,15 +477,15 @@ public extension JVMessage {
         }
     }
     
-    var senderBotFlag: Bool {
+    public var senderBotFlag: Bool {
         return m_sender_bot_flag
     }
     
-    var senderBot: JVBot? {
+    public var senderBot: JVBot? {
         return m_sender_bot
     }
     
-    func relativeSenderDisplayName() -> String? {
+    public func relativeSenderDisplayName() -> String? {
         if senderBotFlag {
             return "bot"
         }
@@ -497,15 +497,15 @@ public extension JVMessage {
         }
     }
     
-    var rawText: String {
+    public var rawText: String {
         return m_text.jv_orEmpty
     }
     
-    var rawDetails: String {
+    public var rawDetails: String {
         return m_details.jv_orEmpty
     }
     
-    var text: String {
+    public var text: String {
         guard !(wasDeleted) else {
             return loc["Message.Deleted"]
         }
@@ -538,7 +538,7 @@ public extension JVMessage {
         }
     }
     
-    var taskStatus: JVMessageBodyTaskStatus {
+    public var taskStatus: JVMessageBodyTaskStatus {
         if case .task(let task) = content {
             return m_body?.status.flatMap(JVMessageBodyTaskStatus.init) ?? task.status
         }
@@ -547,7 +547,7 @@ public extension JVMessage {
         }
     }
     
-    var contentHash: JVMessageContentHash {
+    public var contentHash: JVMessageContentHash {
         var hasher = Hasher()
         
         hasher.combine(type)
@@ -565,11 +565,11 @@ public extension JVMessage {
         )
     }
     
-    var isMarkdown: Bool {
+    public var isMarkdown: Bool {
         return m_is_markdown
     }
     
-    func iconContent() -> UIImage? {
+    public func iconContent() -> UIImage? {
         switch content {
         case .proactive,
              .offline,
@@ -613,7 +613,7 @@ public extension JVMessage {
         }
     }
 
-    func contextImageURL(transparent: Bool) -> JMRepicItem? {
+    public func contextImageURL(transparent: Bool) -> JMRepicItem? {
         switch content {
         case .transfer(let inviter, let assistant) where assistant.isMe:
             return inviter.repicItem(transparent: transparent, scale: nil)
@@ -637,7 +637,7 @@ public extension JVMessage {
         }
     }
     
-    var status: JVMessageStatus? {
+    public var status: JVMessageStatus? {
         switch m_status {
         case "sent":
             return JVMessageStatus.sent
@@ -652,7 +652,7 @@ public extension JVMessage {
         }
     }
     
-    var delivery: JVMessageDelivery {
+    public var delivery: JVMessageDelivery {
         if direction != .outgoing {
             return .none
         }
@@ -667,15 +667,15 @@ public extension JVMessage {
         }
     }
     
-    var interactiveID: String? {
+    public var interactiveID: String? {
         return m_interactive_id
     }
     
-    var hasRead: Bool {
+    public var hasRead: Bool {
         return m_has_read
     }
     
-    var sentByMe: Bool {
+    public var sentByMe: Bool {
         if direction != .outgoing {
             return false
         }
@@ -684,23 +684,23 @@ public extension JVMessage {
         }
     }
     
-    var media: JVMessageMedia? {
+    public var media: JVMessageMedia? {
         return m_media
     }
     
-    var call: JVMessageBodyCall? {
+    public var call: JVMessageBodyCall? {
         return m_body?.call
     }
 
-    var order: JVMessageBodyOrder? {
+    public var order: JVMessageBodyOrder? {
         return m_body?.order
     }
 
-    var task: JVMessageBodyTask? {
+    public var task: JVMessageBodyTask? {
         return m_body?.task
     }
     
-    var iconURL: URL? {
+    public var iconURL: URL? {
         if let link = m_icon_link?.jv_valuable {
             return URL(string: link)
         }
@@ -709,25 +709,25 @@ public extension JVMessage {
         }
     }
     
-    var isOffline: Bool {
+    public var isOffline: Bool {
         return m_is_offline
     }
     
-    var isHidden: Bool {
+    public var isHidden: Bool {
         return m_is_hidden
     }
     
-    var wasDeleted: Bool {
+    public var wasDeleted: Bool {
         return m_was_deleted
     }
     
-    var updatedMeta: JVMessageUpdateMeta? {
+    public var updatedMeta: JVMessageUpdateMeta? {
         guard let agent = m_updated_agent else { return nil }
         let date = Date(timeIntervalSince1970: m_updated_timepoint)
         return JVMessageUpdateMeta(agent: agent, date: date)
     }
     
-    var reactions: [JVMessageReaction] {
+    public var reactions: [JVMessageReaction] {
         guard
             let data = m_reactions,
             let items = try? PropertyListDecoder().decode([JVMessageReaction].self, from: data)
@@ -736,11 +736,11 @@ public extension JVMessage {
         return items
     }
     
-    var buttons: [String] {
+    public var buttons: [String] {
         return m_body?.buttons ?? []
     }
     
-    var hasIdentity: Bool {
+    public var hasIdentity: Bool {
         return (ID > 0 || !(localID.isEmpty))
     }
     
@@ -756,7 +756,7 @@ public extension JVMessage {
         }
     }
     
-    func correspondsTo(chat: JVChat) -> Bool {
+    public func correspondsTo(chat: JVChat) -> Bool {
         if let client = _correspondsTo_getSelfClient() {
             let chatClient = _correspondsTo_getChatClient(chat: chat)
             return (client.ID == chatClient?.ID)
@@ -789,7 +789,7 @@ public extension JVMessage {
         return chat.jv_isValid ? jv_validate(chat.client) : nil
     }
     
-    func canUpgradeStatus(to newStatus: String) -> Bool {
+    public func canUpgradeStatus(to newStatus: String) -> Bool {
         return (m_status != newStatus)
     }
 }
@@ -820,6 +820,6 @@ public class JVSDKMessageOfflineChange: JVDatabaseModelChange {
     }
 }
 
-public extension JVSDKMessageOfflineChange {
+extension JVSDKMessageOfflineChange {
     public static let id = "OFFLINE_MESSAGE"
 }

@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-public extension UIImage {
+extension UIImage {
     public static let jv_empty = UIImage()
     
     public convenience init?(jv_color color: UIColor?, size: CGSize? = nil) {

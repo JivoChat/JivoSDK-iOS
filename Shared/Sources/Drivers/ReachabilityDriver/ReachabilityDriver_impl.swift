@@ -37,7 +37,6 @@ final class ReachabilityDriver: IReachabilityDriver {
         case .unavailable: return .none
         case .wifi: return .wifi
         case .cellular: return .cell
-        @unknown default: return .none
         }
     }
     

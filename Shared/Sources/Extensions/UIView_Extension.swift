@@ -56,7 +56,7 @@ extension UIView {
     
     var jv_isBlinking: Bool {
         get {
-            if let animation = layer.animation(forKey: #function) {
+            if let _ = layer.animation(forKey: #function) {
                 return true
             }
             else {
@@ -81,5 +81,21 @@ extension UIView {
                 layer.removeAnimation(forKey: #function)
             }
         }
+    }
+    
+    func jv_hideExtraSubviewsIfNeeded() {
+        if #available(iOS 13.2, *) {
+            return
+        }
+        
+        if #available(iOS 13.0, *) {
+            // proceed below
+        }
+        else {
+            return
+        }
+        
+        let simpleViews = subviews.filter { $0.superclass == UIResponder.self }
+        simpleViews.forEach { $0.backgroundColor = nil }
     }
 }

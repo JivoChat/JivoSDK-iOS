@@ -582,7 +582,6 @@ final class SystemMessagingService: ISystemMessagingService {
         case .incoming where call.isFailed: type = loc["Message.Call.Status.Missed"]
         case .incoming: type = loc["Message.Call.Type.Incoming"]
         case .unknown: type = loc["Message.Preview.Call"]
-        @unknown default: type = loc["Message.Preview.Call"]
         }
 
         if let phone = call.phone {
@@ -758,7 +757,7 @@ final class SystemMessagingService: ISystemMessagingService {
         case .story(let story):
             return .init(exact: story.text)
             
-        @unknown default:
+        case .contactForm:
             return .init(exact: .jv_empty)
         }
     }

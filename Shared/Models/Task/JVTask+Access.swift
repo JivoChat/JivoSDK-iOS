@@ -21,32 +21,32 @@ public enum JVTaskStatus: String {
     }
 }
 
-public extension JVTask {
-    var ID: Int {
+extension JVTask {
+    public var ID: Int {
         return Int(m_id)
     }
     
-    var siteID: Int {
+    public var siteID: Int {
         return Int(m_site_id)
     }
     
-    var clientID: Int {
+    public var clientID: Int {
         return Int(m_client_id)
     }
     
-    var client: JVClient? {
+    public var client: JVClient? {
         return m_client
     }
     
-    var agent: JVAgent? {
+    public var agent: JVAgent? {
         return m_agent
     }
     
-    var text: String? {
+    public var text: String? {
         return m_text?.jv_valuable
     }
     
-    var notifyAt: Date {
+    public var notifyAt: Date {
         return Date(timeIntervalSince1970: m_notify_timstamp)
     }
     
@@ -54,7 +54,7 @@ public extension JVTask {
         return JVTaskStatus(rawValue: m_status.jv_orEmpty) ?? .unknown
     }
     
-    var iconName: String? {
+    public var iconName: String? {
         switch status {
         case .active:
             return "reminder_active"
@@ -65,7 +65,7 @@ public extension JVTask {
         }
     }
     
-    func convertToMessageBody() -> JVMessageBodyTask {
+    public func convertToMessageBody() -> JVMessageBodyTask {
         return JVMessageBodyTask(
             taskID: Int(m_id),
             agent: m_agent,

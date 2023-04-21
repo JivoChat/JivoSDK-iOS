@@ -10,7 +10,7 @@ import Foundation
 
 let QuickPhraseStorageSeparator = ","
 
-public extension JVQuickPhrase {
+extension JVQuickPhrase {
     public var ID: String {
         return m_id.jv_orEmpty
     }

@@ -35,6 +35,7 @@ class SignButton: BaseButton {
                 longPressDuration: nil,
                 spinner: ButtonSpinner(
                     style: .jv_auto,
+                    color: .white,
                     position: .center
                 ),
                 decoration: ButtonDecoration(

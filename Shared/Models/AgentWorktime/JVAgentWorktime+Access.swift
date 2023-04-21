@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension JVAgentWorktime {
+extension JVAgentWorktime {
     public var agentID: Int {
         return Int(m_agent_id)
     }

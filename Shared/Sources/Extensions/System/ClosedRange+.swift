@@ -10,6 +10,6 @@ import Foundation
 
 public extension ClosedRange where Bound: Comparable {
     func jv_clamp(value: Bound) -> Bound {
-        return max(lowerBound, min(upperBound, value))
+        return Swift.max(lowerBound, Swift.min(upperBound, value))
     }
 }

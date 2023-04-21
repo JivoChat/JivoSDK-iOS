@@ -198,7 +198,7 @@ final class PhotoPickingBridge: NSObject, IPhotoPickingBridge, PHPickerViewContr
                 loadingQueue.async { [unowned self] in
                     loadingSemaphore.wait()
                     
-                    result.itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.movie.identifier) { url, error in
+                    result.itemProvider.loadFileRepresentation(forTypeIdentifier: UTType.movie.identifier) { [unowned self] url, error in
                         loadingSemaphore.signal()
                         
                         DispatchQueue.main.async { [unowned self] in

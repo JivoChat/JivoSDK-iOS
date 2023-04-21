@@ -166,6 +166,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
         }
     }
     
+    @discardableResult
     public func removeAll() -> Bool {
         guard let store = storeCoordinator.persistentStores.first,
               let storeUrl = store.url
@@ -247,7 +248,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
         }
         
         do {
-            var found = try context.fetch(request)
+            let found = try context.fetch(request)
             return found
         }
         catch {

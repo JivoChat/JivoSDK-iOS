@@ -25,7 +25,14 @@ class DocumentsBridge: IDocumentsBridge {
     func presentPicker(within viewController: UIViewController, handler: @escaping (DocumentsBridgeEvent) -> Void) {
         pickerDelegate = PickerDelegate(parentViewController: viewController, handler: handler)
         
-        let picker = UIDocumentPickerViewController(documentTypes: [String(kUTTypeContent)], in: .`import`)
+        let picker: UIDocumentPickerViewController
+        if #available(iOS 14.0, *) {
+            picker = UIDocumentPickerViewController(forOpeningContentTypes: [.content])
+        }
+        else {
+            picker = UIDocumentPickerViewController(documentTypes: [String(kUTTypeContent)], in: .`import`)
+        }
+        
         picker.delegate = pickerDelegate
         viewController.present(picker, animated: true)
     }

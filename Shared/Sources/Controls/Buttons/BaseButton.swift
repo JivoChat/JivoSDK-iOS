@@ -39,6 +39,7 @@ enum ButtonActivityMode {
 
 struct ButtonSpinner {
     let style: UIActivityIndicatorView.Style
+    let color: UIColor
     let position: ButtonSpinnerPosition
 }
 
@@ -98,6 +99,7 @@ class BaseButton: UIButton {
         
         super.init(frame: .zero)
         
+        awaitingIndicator.color = config.spinner?.color
         awaitingIndicator.isHidden = true
         awaitingIndicator.isUserInteractionEnabled = false
         addSubview(awaitingIndicator)
@@ -243,6 +245,7 @@ class BaseButton: UIButton {
         
         if let spinner = config.spinner {
             awaitingIndicator.style = spinner.style
+            awaitingIndicator.color = spinner.color
         }
         
         applyBorder()

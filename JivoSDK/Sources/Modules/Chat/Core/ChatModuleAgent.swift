@@ -31,7 +31,6 @@ extension ChatModuleAgent.Status {
         case .active: self = .active
         case .away: self = .away
         case .none: self = .custom("none")
-        @unknown default: self = .custom(String(describing: agentState))
         }
     }
 }

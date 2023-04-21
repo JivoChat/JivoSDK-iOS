@@ -64,7 +64,7 @@ public final class JivoSDKSession: NSObject, JVSessionDelegate {
     case asia
 }
 
-@available(*, deprecated, message: "Please use JivoSDKSessionClientInfo instead")
+@available(*, deprecated, renamed: "JivoSDKSessionClientInfo")
 public class JivoSDKSessionCustomData: NSObject {
     let name: String?
     let email: String?

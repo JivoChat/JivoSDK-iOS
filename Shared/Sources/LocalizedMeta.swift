@@ -44,7 +44,6 @@ struct LocalizedMeta {
         case .key(let key): base = loc[key]
         case .format(let format): base = String(format: loc[key: format], arguments: args)
         case .exact(let string): base = string
-        @unknown default: base = String()
         }
         
         if let suffix = suffix {

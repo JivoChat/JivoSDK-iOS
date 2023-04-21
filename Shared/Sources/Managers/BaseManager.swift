@@ -14,7 +14,10 @@ import JivoFoundation
 protocol IManager: INetworkingEventHandler {
     var protoAny: AnyObject & INetworkingEventDecoder { get }
     func subscribe()
+    
+    @discardableResult
     func run() -> Bool
+    
     func pause()
     func resume()
     func reset()
@@ -42,6 +45,7 @@ class BaseManager: IManager {
         networkEventDispatcher.register(decoder: protoAny, handler: self)
     }
     
+    @discardableResult
     func run() -> Bool {
         if isRunning {
             return false

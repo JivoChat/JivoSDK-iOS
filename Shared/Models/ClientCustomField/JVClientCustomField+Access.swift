@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension JVClientCustomField {
+extension JVClientCustomField {
     public var title: String? {
         return m_title?.jv_valuable
     }

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension JVCannedPhrase {
+extension JVCannedPhrase {
     public var id: String {
         return m_id.jv_orEmpty
     }

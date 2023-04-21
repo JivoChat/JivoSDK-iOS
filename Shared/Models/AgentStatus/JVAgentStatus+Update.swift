@@ -351,8 +351,7 @@ public final class JVAgentSessionChannelUpdateChange: JVDatabaseModelChange {
     }
     
     required public init(json: JsonElement) {
-        preconditionFailure()
-        super.init(json: json)
+        fatalError()
     }
 }
 
@@ -365,8 +364,7 @@ public final class JVAgentSessionChannelRemoveChange: JVDatabaseModelChange {
     }
     
     required public init(json: JsonElement) {
-        preconditionFailure()
-        super.init(json: json)
+        fatalError()
     }
 }
 

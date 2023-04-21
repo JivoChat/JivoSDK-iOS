@@ -32,7 +32,7 @@ class StackViewController<Satellite: BaseViewControllerSatellite>: KeyboardableV
     private let layout: StackViewLayout
     private let fitting: StackViewFitting
 
-    private let scrollView = UIScrollView()
+    let scrollView = UIScrollView()
 
     private(set) var stackItems = [StackItem]()
     private var defaultMargins = UIEdgeInsets.zero // (top: 20, left: 0, bottom: 20, right: 0)

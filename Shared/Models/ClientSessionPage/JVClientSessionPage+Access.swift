@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension JVClientSessionPage {
+extension JVClientSessionPage {
 //    var kind: JVClientSessionPageKind {
 //        return JVClientSessionPageKind(rawValue: m_kind.jv_orEmpty) ?? .unknown
 //    }

@@ -33,14 +33,15 @@ class SDKRestConnectionDriver: IRestConnectionDriver {
                 buffer.merged(with: item)
             }
             .dictObject
-            .flatMap { key, object in
-                (key, String(describing: object))
+            .mapValues { value in
+                String(describing: value)
             }
+            .dropLast(0)
         
         let components: URLComponents = {
             var c = URLComponents(string: url.absoluteString) ?? URLComponents()
             c.scheme = "https"
-            c.jv_setQuery(mapping: Dictionary(uniqueKeysWithValues: query))
+            c.jv_setQuery(mapping: Dictionary(uniqueKeysWithValues: Array(query)))
             return c
         }()
         

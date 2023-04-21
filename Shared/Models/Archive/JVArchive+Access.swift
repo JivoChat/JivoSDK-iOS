@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension JVArchive {
+extension JVArchive {
     public var latest: Double? {
         return (m_latest == 0 ? nil : m_latest)
     }

@@ -168,7 +168,11 @@ final class WaveformSamplesExtractor {
                                         downSampledLength: Int,
                                         samplesPerPixel: Int,
                                         filter: [Float]) {
-        sampleBuffer.withUnsafeBytes { (samples: UnsafePointer<Int16>) in
+        sampleBuffer.withUnsafeBytes { pointer in
+            guard let samples: UnsafePointer<Int16> = pointer.baseAddress?.assumingMemoryBound(to: Int16.self)
+            else {
+                return
+            }
             
             var processingBuffer = [Float](repeating: 0.0, count: samplesToProcess)
             

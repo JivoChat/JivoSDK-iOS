@@ -7,7 +7,7 @@
 
 import Foundation
 
-public extension OptionSet where RawValue: BinaryInteger {
+extension OptionSet where RawValue: BinaryInteger {
     public static var jv_empty: Self {
         return .init(rawValue: 0)
     }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-@available(*, deprecated, message: "API has been redesigned, please now use 'Jivo'")
+@available(*, deprecated, renamed: "Jivo")
 @objc(JivoSDK)
 public final class JivoSDK: NSObject {
     @objc public static let shared = JivoSDK()

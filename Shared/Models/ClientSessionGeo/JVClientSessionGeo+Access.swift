@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension JVClientSessionGeo {
+extension JVClientSessionGeo {
     public var country: String? {
         return m_country?.jv_valuable
     }

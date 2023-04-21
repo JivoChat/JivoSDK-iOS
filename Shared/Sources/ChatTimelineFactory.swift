@@ -239,7 +239,6 @@ final class ChatTimelineFactory: JMTimelineFactory {
             case .conference: return generateConferenceItem(for: message)
             case .story: return generateStoryItem(for: message)
             case .unknown: return generatePlainItem(for: message)
-            @unknown default: return generatePlainItem(for: message)
             }
         }
         else if let _ = message.call {
@@ -2687,12 +2686,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 return .seen
             case .historic:
                 return .hidden
-            @unknown default:
-                return .delivered
             }
-            
-        @unknown default:
-            return .hidden
         }
     }
     

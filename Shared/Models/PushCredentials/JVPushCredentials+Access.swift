@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension JVPushCredentials {
+extension JVPushCredentials {
     public enum Status: String {
         case active
         case waitingForRegister
@@ -17,32 +17,32 @@ public extension JVPushCredentials {
     }
 }
 
-public extension JVPushCredentials {
-    var siteId: Int {
+extension JVPushCredentials {
+    public var siteId: Int {
         return Int(m_site_id)
     }
     
-    var channelId: String {
+    public var channelId: String {
         return m_channel_id.jv_orEmpty
     }
     
-    var clientId: String {
+    public var clientId: String {
         return m_client_id.jv_orEmpty
     }
     
-    var deviceId: String {
+    public var deviceId: String {
         return m_device_id.jv_orEmpty
     }
     
-    var deviceLiveToken: String {
+    public var deviceLiveToken: String {
         return m_device_live_token.jv_orEmpty
     }
     
-    var date: Date {
+    public var date: Date {
         return m_date ?? Date()
     }
     
-    var status: Status {
+    public var status: Status {
         return Status(rawValue: m_status.jv_orEmpty) ?? .unknown
     }
 }

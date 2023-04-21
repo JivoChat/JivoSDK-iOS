@@ -117,36 +117,36 @@ public enum JVChannelJoint: String {
     }
 }
 
-public extension JVChannel {
-    var ID: Int {
+extension JVChannel {
+    public var ID: Int {
         return Int(m_id)
     }
     
-    var publicID: String {
+    public var publicID: String {
         return m_public_id.jv_orEmpty
     }
     
-    var stateID: Int {
+    public var stateID: Int {
         return Int(m_state_id)
     }
     
-    var siteURL: URL? {
+    public var siteURL: URL? {
         return m_site_url.flatMap(URL.init)
     }
     
-    var name: String {
+    public var name: String {
         return siteURL?.absoluteString ?? m_site_url ?? String()
     }
     
-    var guestsNumber: Int {
+    public var guestsNumber: Int {
         return Int(m_guests_number)
     }
     
-    var jointType: JVChannelJoint? {
+    public var jointType: JVChannelJoint? {
         return m_joint_type.flatMap(JVChannelJoint.init)
     }
     
-    var isTestable: Bool {
+    public var isTestable: Bool {
         switch jointType {
         case nil:
             return true
@@ -157,12 +157,12 @@ public extension JVChannel {
         }
     }
     
-    func hasAttachedAgent(ID agentID: Int) -> Bool {
+    public func hasAttachedAgent(ID agentID: Int) -> Bool {
         let query = ",\(agentID),"
         return m_agents_ids.jv_orEmpty.contains(query)
     }
     
-    var icon: UIImage? {
+    public var icon: UIImage? {
         guard let joint = jointType
         else {
             return UIImage(named: "preview_chat")

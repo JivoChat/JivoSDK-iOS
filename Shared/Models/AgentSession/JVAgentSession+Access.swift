@@ -16,32 +16,32 @@ public enum JVAgentSessionWorkingState {
     case hidden
 }
 
-public extension JVAgentSession {
-    var sessionID: String {
+extension JVAgentSession {
+    public var sessionID: String {
         return m_id.jv_orEmpty
     }
     
-    var email: String {
+    public var email: String {
         return m_email.jv_orEmpty
     }
     
-    var isAdmin: Bool {
+    public var isAdmin: Bool {
         return m_is_admin
     }
     
-    var isOperator: Bool {
+    public var isOperator: Bool {
         return m_is_operator
     }
     
-    var siteID: Int {
+    public var siteID: Int {
         return Int(m_site_id)
     }
     
-    var isActive: Bool {
+    public var isActive: Bool {
         return m_is_active
     }
     
-    var channels: [JVChannel] {
+    public var channels: [JVChannel] {
         if let allObjects = m_channels.jv_orEmpty.allObjects as? [JVChannel] {
             return allObjects
         }
@@ -51,11 +51,11 @@ public extension JVAgentSession {
         }
     }
     
-    var widgetChannels: [JVChannel] {
+    public var widgetChannels: [JVChannel] {
         return channels.filter { $0.jointType == nil }
     }
     
-    var priceListId: Int? {
+    public var priceListId: Int? {
         if m_global_pricelist_id > 0 {
             return Int(m_global_pricelist_id)
         }
@@ -64,25 +64,25 @@ public extension JVAgentSession {
         }
     }
     
-    var allowMobileCalls: Bool {
+    public var allowMobileCalls: Bool {
         return m_allow_mobile_calls
     }
     
-    var voxCredentials: (login: String, password: String)? {
+    public var voxCredentials: (login: String, password: String)? {
         guard let login = m_vox_login?.jv_valuable else { return nil }
         guard let password = m_vox_password?.jv_valuable else { return nil }
         return (login: login, password: password)
     }
     
-    var isWorking: Bool {
+    public var isWorking: Bool {
         return m_is_working
     }
     
-    var isWorkingHidden: Bool {
+    public var isWorkingHidden: Bool {
         return m_is_working_hidden
     }
     
-    func globalFeatures() -> JVAgentTechConfig {
+    public func globalFeatures() -> JVAgentTechConfig {
         return JVAgentTechConfig(
             priceListId: (m_global_pricelist_id > 0 ? Int(m_global_pricelist_id) : nil),
             guestInsightEnabled: m_global_guests_insight_enabled,
@@ -105,12 +105,12 @@ public extension JVAgentSession {
         )
     }
     
-    func jointType(for channelID: Int) -> JVChannelJoint? {
+    public func jointType(for channelID: Int) -> JVChannelJoint? {
         let channel = channels.first(where: { $0.ID == channelID })
         return channel?.jointType
     }
     
-    func testableChannels(domain: String, lang: JVLocaleLang, codeHost: String?) -> [(channel: JVChannel, url: URL)] {
+    public func testableChannels(domain: String, lang: JVLocaleLang, codeHost: String?) -> [(channel: JVChannel, url: URL)] {
         return channels.compactMap { channel in
             guard
                 channel.isTestable,
@@ -126,17 +126,19 @@ public extension JVAgentSession {
             return (channel: channel, url: url)
         }
     }
-
-    static func obtainWorkingState(dayConfig: JVAgentWorktimeDayConfig?,
-                                   nextMetaPair: JVAgentWorktimeDayMetaPair?,
-                                   isWorking: Bool,
-                                   isWorkingHidden: Bool) -> JVAgentSessionWorkingState {
+    
+    public static func obtainWorkingState(
+        dayConfig: JVAgentWorktimeDayConfig?,
+        nextMetaPair: JVAgentWorktimeDayMetaPair?,
+        isWorking: Bool,
+        isWorkingHidden: Bool
+    ) -> JVAgentSessionWorkingState {
         func _hash(_ hour: Int, _ minute: Int) -> Int {
             return hour * 60 + minute
         }
         
         if isWorkingHidden {
-//            debug("{worktime} working-banner[hidden]")
+            //            debug("{worktime} working-banner[hidden]")
             return .hidden
         }
         

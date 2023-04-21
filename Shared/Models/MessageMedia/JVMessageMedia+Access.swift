@@ -29,8 +29,8 @@ public enum JVMessageMediaSizingMode {
     case cropped
 }
 
-public extension JVMessageMedia {
-    var type: JVMessageMediaType {
+extension JVMessageMedia {
+    public var type: JVMessageMediaType {
         switch m_type {
         case "photo":
             return .photo
@@ -59,11 +59,11 @@ public extension JVMessageMedia {
         }
     }
     
-    var mime: String {
+    public var mime: String {
         return m_mime.jv_orEmpty
     }
     
-    var thumbURL: URL? {
+    public var thumbURL: URL? {
         if m_thumb_link.jv_orEmpty.isEmpty {
             return nil
         }
@@ -87,23 +87,23 @@ public extension JVMessageMedia {
         }
     }
     
-    var emoji: String? {
+    public var emoji: String? {
         return m_emoji?.jv_valuable
     }
     
-    var name: String? {
+    public var name: String? {
         return m_name?.jv_valuable
     }
     
-    var dataSize: Int {
+    public var dataSize: Int {
         return Int(m_size)
     }
     
-    var duration: TimeInterval {
+    public var duration: TimeInterval {
         return TimeInterval(m_duration)
     }
     
-    var coordinate: CLLocationCoordinate2D? {
+    public var coordinate: CLLocationCoordinate2D? {
         if m_latitude == 0, m_longitude == 0 {
             return nil
         }
@@ -112,7 +112,7 @@ public extension JVMessageMedia {
         }
     }
     
-    var conference: JVMessageBodyConference? {
+    public var conference: JVMessageBodyConference? {
         guard type == .conference else {
             return nil
         }
@@ -126,7 +126,7 @@ public extension JVMessageMedia {
         }
     }
     
-    var story: JVMessageBodyStory? {
+    public var story: JVMessageBodyStory? {
         guard type == .story else {
             return nil
         }
@@ -140,21 +140,21 @@ public extension JVMessageMedia {
         )
     }
     
-    var phone: String? {
+    public var phone: String? {
         return m_phone?.jv_valuable
     }
     
-    var text: String? {
+    public var text: String? {
         return m_text?.jv_valuable
     }
     
-    var originalSize: CGSize {
+    public var originalSize: CGSize {
         let width = CGFloat(m_width)
         let height = CGFloat(m_height)
         return CGSize(width: width, height: height)
     }
     
-    func pixelSize(minimum: CGFloat = 0, maximum: CGFloat = 0) -> (CGSize, JVMessageMediaSizingMode) {
+    public func pixelSize(minimum: CGFloat = 0, maximum: CGFloat = 0) -> (CGSize, JVMessageMediaSizingMode) {
         let width = CGFloat(m_width) / UIScreen.main.scale
         let height = CGFloat(m_height) / UIScreen.main.scale
         let minimalSide = min(width, height)

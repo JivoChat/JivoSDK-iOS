@@ -82,6 +82,7 @@ final class ActionButton: BaseButton {
                 longPressDuration: nil,
                 spinner: ButtonSpinner(
                     style: .jv_auto,
+                    color: .white,
                     position: jv_with(layout) { value in
                         switch value {
                         case .center: return .center

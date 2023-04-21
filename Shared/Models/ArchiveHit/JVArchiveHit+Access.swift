@@ -13,7 +13,7 @@ public enum JVArchiveHitSort {
     case byScore
 }
 
-public extension JVArchiveHit {
+extension JVArchiveHit {
     public var ID: String {
         return m_id.jv_orEmpty
     }

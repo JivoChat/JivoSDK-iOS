@@ -11,47 +11,47 @@ Pod::Spec.new do |root|
     root.default_subspec = 'SDK'
 
     root.script_phase = {
-        :name => 'Check for new version',
+        :name => 'Check for a new version',
         :output_files => ['/dev/null'],
         :script => <<~EOS
-            CU_DATE_FILE="$TARGET_TEMP_DIR/CheckUpdate_date.info"
-            touch $CU_DATE_FILE
-
-            CU_LATEST_FILE="$TARGET_TEMP_DIR/CheckUpdate_latest.info"
-            touch $CU_LATEST_FILE
-
-            LOCAL_INFO=`cat "$INFOPLIST_FILE"`
-            LOCAL_VER=`echo "$LOCAL_INFO" | grep -A 1 'CFBundleShortVersionString' | tail -n 1 | sed -E -e 's/.*>(.*)<.*/\\1/g' -e 's/-/~/'`
-
             jv_compare_versions() {
                 local LOCAL_VER="$1"
                 local LATEST_VER="$2"
 
                 if [[ -z "$LOCAL_VER" || -z "$LATEST_VER" ]]; then
-                    exit
+                    return
                 fi
 
-                if [ "$LOCAL_VER" = "$LATEST_VER" ]; then
-                    exit
+                if [[ "$LOCAL_VER" == "$LATEST_VER" ]]; then
+                    echo "JivoSDK: Your version $LOCAL_VER matches the latest one"
+                    return
+                else
+                    echo "JivoSDK: Your version $LOCAL_VER is behind the latest one $LATEST_VER"
                 fi
 
                 local MAX_VER=`echo "$LOCAL_VER\\n$LATEST_VER" | sort -V | tail -n 1`
-                if [ "$LOCAL_VER" != "$MAX_VER" ]; then
+                if [[ "$LOCAL_VER" != "$MAX_VER" ]]; then
                     echo "warning: JivoSDK: Newer version $LATEST_VER is available (you have $LOCAL_VER)"
                 fi
             }
 
-            DATE_NOW=`date +'%F'`
-            if [ "$DATE_NOW" = `cat "$CU_DATE_FILE"` ]; then
-                LATEST_VER=`cat "$CU_LATEST_FILE"`
+            LOOKUP_FILE="$TARGET_TEMP_DIR/Lookup.cache"
+            touch "$LOOKUP_FILE"
+
+            LOCAL_INFO=`cat "$INFOPLIST_FILE"`
+            LOCAL_VER=`echo "$LOCAL_INFO" | grep -A 1 'CFBundleShortVersionString' | tail -n 1 | sed -E -e 's/.*>(.*)<.*/\\1/g' -e 's/-/~/'`
+
+            NOW_DATE=`date +'%F'`
+            LOOKUP_DATE=`cat "$LOOKUP_FILE" | cut -d ' ' -f 1`
+
+            if [[ "$NOW_DATE" == "$LOOKUP_DATE" ]]; then
+                LATEST_VER=`cat "$LOOKUP_FILE" | cut -d ' ' -f 2`
                 jv_compare_versions "$LOCAL_VER" "$LATEST_VER"
-                exit
             else
                 LATEST_INFO=`curl --silent 'https://api.github.com/repos/JivoChat/JivoSDK-ios/releases/latest'`
                 LATEST_VER=`echo "$LATEST_INFO" | grep '"name"' | sed -E -e 's/[^:]*:[^"]*"(.*)".*/\\1/' -e 's/-/~/'`
-                echo "$DATE_NOW" > "$CU_DATE_FILE"
-                echo "$LATEST_VER" > "$CU_LATEST_FILE"
                 jv_compare_versions "$LOCAL_VER" "$LATEST_VER"
+                echo "$NOW_DATE $LATEST_VER" > "$LOOKUP_FILE"
             fi
         EOS
     }

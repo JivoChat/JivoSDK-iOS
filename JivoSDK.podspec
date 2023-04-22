@@ -1,6 +1,6 @@
 Pod::Spec.new do |root|
     root.name = 'JivoSDK'
-    root.version = '4.0.0-beta.3'
+    root.version = '4.0.0-beta.4'
     root.homepage = 'https://github.com/JivoChat'
     root.authors = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
     root.summary = 'Jivo business chat Mobile SDK'
@@ -14,33 +14,44 @@ Pod::Spec.new do |root|
         :name => 'Check for new version',
         :output_files => ['/dev/null'],
         :script => <<~EOS
-            DATE_FILE="$TARGET_TEMP_DIR/CheckUpdate.meta"
-            touch $DATE_FILE
-            DATE_PREVIOUS=`cat "$DATE_FILE"`
-            DATE_NOW=`date +'%F'`
-            if [ "$DATE_NOW" = "$DATE_PREVIOUS" ]; then
-                exit
-            else
-                echo "$DATE_NOW" > "$DATE_FILE"
-            fi
+            CU_DATE_FILE="$TARGET_TEMP_DIR/CheckUpdate_date.info"
+            touch $CU_DATE_FILE
+
+            CU_LATEST_FILE="$TARGET_TEMP_DIR/CheckUpdate_latest.info"
+            touch $CU_LATEST_FILE
 
             LOCAL_INFO=`cat "$INFOPLIST_FILE"`
             LOCAL_VER=`echo "$LOCAL_INFO" | grep -A 1 'CFBundleShortVersionString' | tail -n 1 | sed -E -e 's/.*>(.*)<.*/\\1/g' -e 's/-/~/'`
 
-            LATEST_INFO=`curl --silent 'https://api.github.com/repos/JivoChat/JivoSDK-ios/releases/latest'`
-            LATEST_VER=`echo "$LATEST_INFO" | grep '"name"' | sed -E -e 's/[^:]*:[^"]*"(.*)".*/\\1/' -e 's/-/~/'`
+            jv_compare_versions() {
+                local LOCAL_VER="$1"
+                local LATEST_VER="$2"
 
-            if [[ -z "$LOCAL_VER" || -z "$LATEST_VER" ]]; then
+                if [[ -z "$LOCAL_VER" || -z "$LATEST_VER" ]]; then
+                    exit
+                fi
+
+                if [ "$LOCAL_VER" = "$LATEST_VER" ]; then
+                    exit
+                fi
+
+                local MAX_VER=`echo "$LOCAL_VER\\n$LATEST_VER" | sort -V | tail -n 1`
+                if [ "$LOCAL_VER" != "$MAX_VER" ]; then
+                    echo "warning: JivoSDK: Newer version $LATEST_VER is available (you have $LOCAL_VER)"
+                fi
+            }
+
+            DATE_NOW=`date +'%F'`
+            if [ "$DATE_NOW" = `cat "$CU_DATE_FILE"` ]; then
+                LATEST_VER=`cat "$CU_LATEST_FILE"`
+                jv_compare_versions "$LOCAL_VER" "$LATEST_VER"
                 exit
-            fi
-
-            if [ "$LOCAL_VER" = "$LATEST_VER" ]; then
-                exit
-            fi
-
-            MAX_VER=`echo "$LOCAL_VER\\n$LATEST_VER" | sort -V | tail -n 1`
-            if [ "$LOCAL_VER" != "$MAX_VER" ]; then
-                echo "warning: JivoSDK: Newer version $LATEST_VER is available (you have $LOCAL_VER)"
+            else
+                LATEST_INFO=`curl --silent 'https://api.github.com/repos/JivoChat/JivoSDK-ios/releases/latest'`
+                LATEST_VER=`echo "$LATEST_INFO" | grep '"name"' | sed -E -e 's/[^:]*:[^"]*"(.*)".*/\\1/' -e 's/-/~/'`
+                echo "$DATE_NOW" > "$CU_DATE_FILE"
+                echo "$LATEST_VER" > "$CU_LATEST_FILE"
+                jv_compare_versions "$LOCAL_VER" "$LATEST_VER"
             fi
         EOS
     }

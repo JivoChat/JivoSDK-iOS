@@ -26,7 +26,7 @@ Pod::Spec.new do |root|
                     echo "JivoSDK: Your version $LOCAL_VER matches the latest one"
                     return
                 else
-                    echo "JivoSDK: Your version $LOCAL_VER is behind the latest one $LATEST_VER"
+                    echo "JivoSDK: Your version $LOCAL_VER does not match the latest one $LATEST_VER"
                 fi
 
                 local MAX_VER=`echo "$LOCAL_VER\\n$LATEST_VER" | sort -V | tail -n 1`

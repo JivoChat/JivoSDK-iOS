@@ -54,7 +54,7 @@ final class UUIDProvider: IUUIDProvider {
         switch userAgent {
         case .app:
             return userAgentBrief_pack(values: [
-                "JivoApp-ios/\(bundle.jv_version),\(bundle.jv_build)",
+                userAgentBrief_packageInfo(name: "JivoApp-ios", version: Bundle.main.jv_version),
                 userAgentBrief_surround(fields: [
                     "Mobile",
                     "Device" => userAgentBrief_deviceInfo(),
@@ -66,13 +66,14 @@ final class UUIDProvider: IUUIDProvider {
             ])
         case .sdk:
             return userAgentBrief_pack(values: [
-                "JivoSDK-ios/\(bundle.jv_version)",
+                userAgentBrief_packageInfo(name: "JivoSDK-ios", version: bundle.jv_version),
                 userAgentBrief_surround(fields: [
                     "Mobile",
                     "Device" => userAgentBrief_deviceInfo(),
                     "Platform" => userAgentBrief_platformInfo(),
-                    "Host" => userAgentBrief_hostInfo(),
-                    "Engine" => userAgentBrief_engineInfo()
+                    "Host" => userAgentBrief_hostInfo(bundle: .main),
+                    "Engine" => userAgentBrief_engineInfo(),
+                    "rv:02"
                 ]),
                 "sdk/\(bundle.jv_version)",
                 "(iOS \(UIDevice.current.systemVersion))",
@@ -90,6 +91,19 @@ final class UUIDProvider: IUUIDProvider {
     private func userAgentBrief_surround(fields: [String?]) -> String {
         let result = "(" + fields.jv_flatten().joined(separator: "; ") + ")"
         return result
+    }
+    
+    private func userAgentBrief_packageInfo(name: String, version: String) -> String {
+        return "\(name)/\(version)"
+    }
+    
+    private func userAgentBrief_hostInfo(bundle: Bundle) -> String {
+        if let name = bundle.jv_ID ?? bundle.jv_name {
+            return userAgentBrief_packageInfo(name: name, version: bundle.jv_version)
+        }
+        else {
+            return userAgentBrief_packageInfo(name: "unknown", version: "0")
+        }
     }
     
     private func userAgentBrief_deviceInfo() -> String {
@@ -121,15 +135,6 @@ final class UUIDProvider: IUUIDProvider {
         let family = UIDevice.current.systemName
         let version = UIDevice.current.systemVersion
         return "\(family)/\(version)"
-    }
-    
-    private func userAgentBrief_hostInfo() -> String {
-        if let name = Bundle.main.jv_ID ?? Bundle.main.jv_name {
-            return "\(name)/\(Bundle.main.jv_version),\(Bundle.main.jv_build)"
-        }
-        else {
-            return "unknown/0"
-        }
     }
     
     private func userAgentBrief_engineInfo() -> String? {

@@ -29,7 +29,7 @@ public extension UIDevice {
             return identifier + String(UnicodeScalar(UInt8(value)))
         }
 
-        if ["i386", "x86_64"].contains(identifier) {
+        if ["i386", "x86_64", "arm64"].contains(identifier) {
             return "Simulator"
         }
         else {

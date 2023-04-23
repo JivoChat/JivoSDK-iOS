@@ -1,6 +1,6 @@
 Pod::Spec.new do |root|
     root.name = 'JivoSDK'
-    root.version = '4.0.0-beta.4'
+    root.version = '4.0.0-beta.5'
     root.homepage = 'https://github.com/JivoChat'
     root.authors = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
     root.summary = 'Jivo business chat Mobile SDK'
@@ -18,21 +18,19 @@ Pod::Spec.new do |root|
             jv_compare_versions() {
                 local LOCAL_VER="$1"
                 local LATEST_VER="$2"
+                local MAX_VER=`echo "$LOCAL_VER\\n$LATEST_VER" | sort -V | tail -n 1`
 
                 if [[ -z "$LOCAL_VER" || -z "$LATEST_VER" ]]; then
                     return
                 fi
 
-                if [[ "$LOCAL_VER" == "$LATEST_VER" ]]; then
-                    echo "JivoSDK: Your version $LOCAL_VER matches the latest one"
-                    return
-                else
-                    echo "JivoSDK: Your version $LOCAL_VER does not match the latest one $LATEST_VER"
-                fi
+                echo "Your JivoSDK version: $LOCAL_VER"
+                echo "Latest JivoSDK version: $LATEST_VER"
 
-                local MAX_VER=`echo "$LOCAL_VER\\n$LATEST_VER" | sort -V | tail -n 1`
-                if [[ "$LOCAL_VER" != "$MAX_VER" ]]; then
-                    echo "warning: JivoSDK: Newer version $LATEST_VER is available (you have $LOCAL_VER)"
+                if [[ "$LOCAL_VER" == "$LATEST_VER" ]]; then
+                    echo "You have the latest JivoSDK version"
+                elif [[ "$LOCAL_VER" != "$MAX_VER" ]]; then
+                    echo "warning: Newer JivoSDK version $LATEST_VER is available (you have $LOCAL_VER)"
                 fi
             }
 

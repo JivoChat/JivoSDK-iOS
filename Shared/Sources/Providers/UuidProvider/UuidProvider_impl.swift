@@ -7,7 +7,8 @@
 //
 
 import Foundation
-
+import PushKit
+import os
 
 final class UUIDProvider: IUUIDProvider {
     private let bundle: Bundle
@@ -22,6 +23,11 @@ final class UUIDProvider: IUUIDProvider {
         self.userAgent = userAgent
         self.keychainDriver = keychainDriver
         self.installationIDPreference = installationIDPreference
+        
+        if #available(iOS 12, *), let info = userAgentBrief_environmentInfo(bundle: .main) {
+            let logger = OSLog(subsystem: Bundle.main.jv_ID.jv_orEmpty, category: #fileID)
+            os_log(.info, log: logger, "Possible JivoSDK environment is %@", info)
+        }
     }
     
     var currentDeviceID: String {
@@ -54,11 +60,12 @@ final class UUIDProvider: IUUIDProvider {
         switch userAgent {
         case .app:
             return userAgentBrief_pack(values: [
-                userAgentBrief_packageInfo(name: "JivoApp-ios", version: Bundle.main.jv_version),
+                userAgentBrief_packageInfo(name: "JivoApp-ios", version: "\(bundle.jv_version)+\(bundle.jv_build)"),
                 userAgentBrief_surround(fields: [
                     "Mobile",
                     "Device" => userAgentBrief_deviceInfo(),
-                    "Platform" => userAgentBrief_platformInfo()
+                    "Platform" => userAgentBrief_platformInfo(),
+                    "Environment" => userAgentBrief_environmentInfo(bundle: bundle)
                 ]),
                 "(iOS \(UIDevice.current.systemVersion))",
                 "CFNetwork/\(userAgentBrief_networkingInfo())",
@@ -72,8 +79,8 @@ final class UUIDProvider: IUUIDProvider {
                     "Device" => userAgentBrief_deviceInfo(),
                     "Platform" => userAgentBrief_platformInfo(),
                     "Host" => userAgentBrief_hostInfo(bundle: .main),
-                    "Engine" => userAgentBrief_engineInfo(),
-                    "rv:02"
+                    "Environment" => userAgentBrief_environmentInfo(bundle: .main),
+                    "Engine" => userAgentBrief_engineInfo()
                 ]),
                 "sdk/\(bundle.jv_version)",
                 "(iOS \(UIDevice.current.systemVersion))",
@@ -99,7 +106,7 @@ final class UUIDProvider: IUUIDProvider {
     
     private func userAgentBrief_hostInfo(bundle: Bundle) -> String {
         if let name = bundle.jv_ID ?? bundle.jv_name {
-            return userAgentBrief_packageInfo(name: name, version: bundle.jv_version)
+            return userAgentBrief_packageInfo(name: name, version: "\(bundle.jv_version)+\(bundle.jv_build)")
         }
         else {
             return userAgentBrief_packageInfo(name: "unknown", version: "0")
@@ -135,6 +142,24 @@ final class UUIDProvider: IUUIDProvider {
         let family = UIDevice.current.systemName
         let version = UIDevice.current.systemVersion
         return "\(family)/\(version)"
+    }
+    
+    private func userAgentBrief_environmentInfo(bundle: Bundle) -> String? {
+        if let _ = bundle.path(forResource: "embedded", ofType: "mobileprovision") {
+            return "production/adhoc"
+        }
+        
+        guard let url = bundle.appStoreReceiptURL, FileManager.default.fileExists(atPath: url.path)
+        else {
+            return "development/xcode"
+        }
+        
+        if url.lastPathComponent.contains("sandbox") {
+            return "production/testflight"
+        }
+        else {
+            return "production/appstore"
+        }
     }
     
     private func userAgentBrief_engineInfo() -> String? {

@@ -1,6 +1,6 @@
 Pod::Spec.new do |root|
     root.name = 'JivoSDK'
-    root.version = '4.0.0-beta.9'
+    root.version = '4.0.0-beta.10'
     root.homepage = 'https://github.com/JivoChat'
     root.authors = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
     root.summary = 'Jivo business chat Mobile SDK'
@@ -83,8 +83,8 @@ Pod::Spec.new do |root|
         spec.dependency 'libPhoneNumber-iOS', '~> 0.9.15'
         spec.dependency 'XCGLogger', '~> 7.0.1'
 
-        spec.source_files = 'JivoSDK/Sources/**/*.{h,swift}', 'Shared/Sources/**/*.swift'
         spec.framework = 'SystemConfiguration'
+        spec.source_files = 'JivoSDK/Sources/**/*.{h,swift}', 'Shared/Sources/**/*.swift'
         spec.resource = 'JivoSDK/Resources/Assets.xcassets', 'JivoSDK/Resources/*.lproj', 'JivoSDK/*.docc'
 
         spec.exclude_files = [

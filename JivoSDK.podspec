@@ -1,18 +1,18 @@
 Pod::Spec.new do |root|
     root.name = 'JivoSDK'
-    root.version = '4.0.0-beta.10'
+    root.version = '4.0.0-beta.11'
     root.homepage = 'https://github.com/JivoChat'
     root.authors = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
     root.summary = 'Jivo business chat Mobile SDK'
     root.license = 'Apache 2.0'
     root.source = { :git => 'https://github.com/JivoChat/JivoSDK-iOS.git', :tag => "v#{root.version}" }
-    root.info_plist = {"CFBundleShortVersionString" => "#{root.version}"}
+    root.info_plist = {"CFBundleShortVersionString" => "#{root.version.version.sub('-', '.')}"}
     root.swift_versions = ['5.5', '5.6', '5.7', '5.8']
     root.ios.deployment_target = '11.0'
     root.default_subspec = 'SDK'
 
     root.script_phase = {
-        :name => 'Check for a new version',
+        :name => 'Check for an update',
         :output_files => ['/dev/null'],
         :script => <<~EOS
             jv_compare_versions() {
@@ -37,11 +37,9 @@ Pod::Spec.new do |root|
             LOOKUP_FILE="$TARGET_TEMP_DIR/Lookup.cache"
             touch "$LOOKUP_FILE"
 
-            LOCAL_INFO=`cat "$INFOPLIST_FILE"`
-            LOCAL_VER=`echo "$LOCAL_INFO" | grep -A 1 'CFBundleShortVersionString' | tail -n 1 | sed -E -e 's/.*>(.*)<.*/\\1/g' -e 's/-/~/'`
-
-            NOW_DATE=`date +'%F'`
             LOOKUP_DATE=`cat "$LOOKUP_FILE" | cut -d ' ' -f 1`
+            LOCAL_VER=`echo "#{root.version}" | sed 's/-/~/'`
+            NOW_DATE=`date +'%F'`
 
             if [[ "$NOW_DATE" == "$LOOKUP_DATE" ]]; then
                 LATEST_VER=`cat "$LOOKUP_FILE" | cut -d ' ' -f 2`

@@ -144,18 +144,15 @@ final class UuidSubUserAgentGenerator: IUuidSubUserAgentGenerator {
                 return nil
             }
             
-            let source: String
             if url.lastPathComponent == "sandboxReceipt" {
-                source = "testflight"
+                return _Environment.production.format(details: "testflight")
             }
             else if url.lastPathComponent == "receipt" {
-                source = "appstore"
+                return _Environment.production.format(details: "appstore")
             }
             else {
-                source = url.lastPathComponent
+                return _Environment.production.format(details: url.lastPathComponent)
             }
-            
-            return _Environment.production.format(details: source)
         }
         
         if UIDevice.current.jv_isSimulator {

@@ -1,6 +1,6 @@
 Pod::Spec.new do |root|
     root.name = 'JivoFoundation'
-    root.version = '4.0.0-beta.7'
+    root.version = '4.0.0-beta.8'
     root.homepage = 'https://github.com/JivoChat'
     root.authors = { "Stan Potemkin" => "potemkin@jivosite.com" }
     root.summary = 'Jivo business chat Mobile Foundation'
@@ -20,6 +20,7 @@ Pod::Spec.new do |root|
     end
 
     root.subspec 'Tools' do |spec|
+        spec.dependency 'JMCodingKit'
         spec.dependency 'PureParser'
         spec.source_files = 'Shared/Sources/Tools/BroadcastTool', 'Shared/Sources/Tools/PureParserTool', 'Shared/Sources/Tools/JsonPrivacyTool', 'Shared/Sources/Tools/SafeDispatchQueue', 'Shared/Sources/Tools/ScannerTool'
         spec.exclude_files = ['**/*Unit.swift']

@@ -6,9 +6,7 @@
 //
 
 import UIKit
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 
 fileprivate let ANIMATION_DURATION: TimeInterval = 0.25

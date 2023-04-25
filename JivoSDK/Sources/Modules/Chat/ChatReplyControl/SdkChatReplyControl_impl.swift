@@ -7,9 +7,7 @@
 //
 
 import UIKit
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 final class SdkChatReplyControl: ChatGrowingSubmitControl<SdkChatReplyControl.Output> {
     private(set) lazy var menuButton = UIButton()

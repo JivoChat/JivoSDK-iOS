@@ -8,9 +8,7 @@
 
 import UIKit
 import JMRepicKit
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 
 class JVChatTitleControl: UIView {

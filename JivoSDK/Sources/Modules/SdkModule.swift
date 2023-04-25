@@ -7,7 +7,7 @@
 //
 
 import Foundation
-
+import JivoFoundation
 
 struct SdkModule<View: SdkBaseViewController, Remote> {
     let view: View

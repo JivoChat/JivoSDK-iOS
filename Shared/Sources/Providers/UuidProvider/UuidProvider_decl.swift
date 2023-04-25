@@ -14,8 +14,3 @@ protocol IUUIDProvider: AnyObject {
     var currentLaunchID: String { get }
     var userAgentBrief: String { get }
 }
-
-enum UUIDProviderUserAgent {
-    case app
-    case sdk
-}

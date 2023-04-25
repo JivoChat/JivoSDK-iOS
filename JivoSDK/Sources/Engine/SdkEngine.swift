@@ -4,9 +4,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 import KeychainSwift
 import JMTimelineKit
 
@@ -97,6 +95,19 @@ final class SdkEngine: ISdkEngine {
         
         self.timelineCache = JMTimelineCache()
         
+        let jsonPrivacyTool = JVJsonPrivacyTool(
+            enabled: true,
+            rules: [
+                JsonPrivacyRule(
+                    condition: nil,
+                    masks: [
+                        JsonPrivacyRule.Mask(path: "password", replacement: .stars),
+                        JsonPrivacyRule.Mask(path: "access_token", replacement: .trimming)
+                    ]
+                ),
+            ]
+        )
+
         let outgoingPackagesAccumulator = AccumulatorTool<Data>()
         
         let drivers = SdkEngineDriversFactory(
@@ -108,6 +119,7 @@ final class SdkEngine: ISdkEngine {
             fileManager: fileManager,
             urlSession: urlSession,
             schedulingCore: schedulingCore,
+            jsonPrivacyTool: jsonPrivacyTool,
             outgoingPackagesAccumulator: outgoingPackagesAccumulator
         ).build()
         self.drivers = drivers
@@ -129,7 +141,8 @@ final class SdkEngine: ISdkEngine {
         
         networkingHelper = NetworkingHelper(
             uuidProvider: providers.uuidProvider,
-            keychainTokenAccessor: drivers.keychainDriver.retrieveAccessor(forToken: .token)
+            keychainTokenAccessor: drivers.keychainDriver.retrieveAccessor(forToken: .token),
+            jsonPrivacyTool: jsonPrivacyTool
         )
         
         let sessionContext = SdkSessionContext()
@@ -152,6 +165,7 @@ final class SdkEngine: ISdkEngine {
             uuidProvider: providers.uuidProvider,
             preferencesDriver: drivers.preferencesDriver,
             keychainDriver: drivers.keychainDriver,
+            jsonPrivacyTool: jsonPrivacyTool,
             hostProvider: { _, scope in
                 guard let config = sessionContext.endpointConfig
                 else {
@@ -248,70 +262,4 @@ extension SdkEngine: BaseViewControllerSatellite {
     
     func viewWillAppear(viewController: UIViewController) {
     }
-}
-
-/**
- The pre-configured object special for Jivo SDK usage
- (please replace some rules due to specific SDK protocol usage)
- */
-func updateSecureJson() {
-    sharedSecureJsonProxy = JsonPrivacyTool(
-        enabled: true,
-        rules: [
-            JsonPrivacyRule(
-                condition: nil,
-                masks: [
-                    JsonPrivacyRule.Mask(path: "password", replacement: .stars),
-                    JsonPrivacyRule.Mask(path: "access_token", replacement: .trimming)
-                ]
-            ),
-            JsonPrivacyRule(
-                condition: JsonPrivacyRule.Condition(path: "ok", value: true),
-                masks: [
-                    JsonPrivacyRule.Mask(path: "agents.*.online_summary", replacement: .trimming),
-                    JsonPrivacyRule.Mask(path: "agents.*.channels", replacement: .trimming),
-                    JsonPrivacyRule.Mask(path: "agent.online_summary", replacement: .trimming),
-                    JsonPrivacyRule.Mask(path: "agent.channels", replacement: .trimming),
-                    JsonPrivacyRule.Mask(path: "chats.*.attendees", replacement: .trimming),
-                    JsonPrivacyRule.Mask(path: "chats.*.last_message.text", replacement: .trimming),
-                    JsonPrivacyRule.Mask(path: "chats.*.last_message.media.text", replacement: .trimming)
-                ]
-            ),
-            JsonPrivacyRule(
-                condition: JsonPrivacyRule.Condition(path: "method", value: "send_message"),
-                masks: [
-                    JsonPrivacyRule.Mask(path: "params.text", replacement: .trimming)
-                ]
-            ),
-            JsonPrivacyRule(
-                condition: JsonPrivacyRule.Condition(path: "method", value: "chat_message"),
-                masks: [
-                    JsonPrivacyRule.Mask(path: "params.text", replacement: .trimming),
-                    JsonPrivacyRule.Mask(path: "params.body.phone", replacement: .trimming),
-                    JsonPrivacyRule.Mask(path: "params.body.from", replacement: .trimming),
-                    JsonPrivacyRule.Mask(path: "params.body.to", replacement: .trimming),
-                    JsonPrivacyRule.Mask(path: "params.media.file", replacement: .trimming),
-                    JsonPrivacyRule.Mask(path: "params.media.file_url", replacement: .trimming)
-                ]
-            ),
-            JsonPrivacyRule(
-                condition: JsonPrivacyRule.Condition(path: "method", value: "chat_updated"),
-                masks: [
-                    JsonPrivacyRule.Mask(path: "params.text", replacement: .trimming)
-                ]
-            ),
-            JsonPrivacyRule(
-                condition: JsonPrivacyRule.Condition(path: "name", value: "resume_ok"),
-                masks: [
-                    JsonPrivacyRule.Mask(path: "rmo_context.widgets.*.agents", replacement: .trimming)
-                ]
-            ),
-            JsonPrivacyRule(
-                condition: JsonPrivacyRule.Condition(path: "name", value: "update_rmo_context"),
-                masks: [
-                    JsonPrivacyRule.Mask(path: "rmo_context.widgets.*.agents", replacement: .trimming)
-                ]
-            )
-        ]
-    )
 }

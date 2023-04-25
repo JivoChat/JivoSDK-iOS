@@ -7,11 +7,13 @@
 //
 
 import Foundation
-
+import JivoFoundation
+import JMCodingKit
 
 protocol INetworkingHelper: AnyObject {
     func generateRequestId() -> String
     func generateHeaders(auth: NetworkingHelperAuth, requestId: NetworkingHelperRequestId, contentType: String?) -> [String: String]
+    func filter(body: JsonElement) -> JsonElement
 }
 
 enum NetworkingHelperAuth {
@@ -27,10 +29,12 @@ enum NetworkingHelperRequestId {
 final class NetworkingHelper: INetworkingHelper {
     private let uuidProvider: IUUIDProvider
     private let keychainTokenAccessor: IKeychainAccessor
+    private let jsonPrivacyTool: JVJsonPrivacyTool
     
-    init(uuidProvider: IUUIDProvider, keychainTokenAccessor: IKeychainAccessor) {
+    init(uuidProvider: IUUIDProvider, keychainTokenAccessor: IKeychainAccessor, jsonPrivacyTool: JVJsonPrivacyTool) {
         self.uuidProvider = uuidProvider
         self.keychainTokenAccessor = keychainTokenAccessor
+        self.jsonPrivacyTool = jsonPrivacyTool
     }
     
     func generateRequestId() -> String {
@@ -62,5 +66,9 @@ final class NetworkingHelper: INetworkingHelper {
         }
         
         return ret
+    }
+    
+    func filter(body: JsonElement) -> JsonElement {
+        return jsonPrivacyTool.filter(json: body)
     }
 }

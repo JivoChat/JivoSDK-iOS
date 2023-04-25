@@ -6,9 +6,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 /**
  Holds the contact info of a client

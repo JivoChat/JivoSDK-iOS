@@ -7,15 +7,14 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 import JMCodingKit
 
 final class NetworkingSubSocket: INetworkingSubSocket {
     private let driver: ILiveConnectionDriver
     private let networkingThread: JivoFoundation.JVIDispatchThread
     private let behavior: NetworkingSubSocketBehavior
+    private let jsonPrivacyTool: JVJsonPrivacyTool
     
     private let decodingThread = JVDispatchThread(caption: "rmo.engine.socket.decoding")
     private let jsonCoder = JsonCoder()
@@ -23,10 +22,17 @@ final class NetworkingSubSocket: INetworkingSubSocket {
     private var rawToParse = [String]()
     private var identifierToRID = [Int: UUID]()
     
-    init(identifier: UUID, driver: ILiveConnectionDriver, networkingThread: JivoFoundation.JVIDispatchThread, behavior: NetworkingSubSocketBehavior) {
+    init(
+        identifier: UUID,
+        driver: ILiveConnectionDriver,
+        networkingThread: JivoFoundation.JVIDispatchThread,
+        behavior: NetworkingSubSocketBehavior,
+        jsonPrivacyTool: JVJsonPrivacyTool
+    ) {
         self.driver = driver
         self.networkingThread = networkingThread
         self.behavior = behavior
+        self.jsonPrivacyTool = jsonPrivacyTool
         
         driver.openHandler = { [unowned self] in
             let event = NetworkingSubSocketEvent.open(identifier: identifier)
@@ -140,22 +146,22 @@ final class NetworkingSubSocket: INetworkingSubSocket {
                 else { return }
                 
                 if let name = json["name"].string {
-                    journal(layer: .network, unimessage: {"got-legacy-packet: \(secureJson(json))"})
+                    journal { [p = jsonPrivacyTool] in "socket-received[legacy]: \(p.filter(json: json))"}
                     let event = NetworkingSubSocketEvent.payload(.legacy(name, json))
                     notity(event: event)
                 }
                 else if let method = json["method"].string {
-                    journal(layer: .network, unimessage: {"got-rpc-packet: \(secureJson(json))"})
+                    journal { [p = jsonPrivacyTool] in "socket-received[rpc]: \(p.filter(json: json))"}
                     let event = NetworkingSubSocketEvent.payload(.rpc(method, json["params"]))
                     notity(event: event)
                 }
                 else if let type = json["type"].string {
-                    journal(layer: .network, unimessage: {"got-atom-packet: \(secureJson(json))"})
+                    journal { [p = jsonPrivacyTool] in "socket-received[atom]: \(p.filter(json: json))"}
                     let event = NetworkingSubSocketEvent.payload(.atom(type, json))
                     notity(event: event)
                 }
                 else if let rpcID = json["id"].int ?? json["id"].string?.jv_toInt() {
-                    journal(layer: .network, unimessage: {"got-ack-packet: \(secureJson(json))"})
+                    journal { [p = jsonPrivacyTool] in "socket-received[ack]: \(p.filter(json: json))"}
                     if let requestID = identifierToRID.removeValue(forKey: rpcID) {
                         let status = json["status"].int.flatMap(RestResponseStatus.init) ?? .success
                         let payload = json["result"]
@@ -165,7 +171,7 @@ final class NetworkingSubSocket: INetworkingSubSocket {
                     }
                 }
                 else {
-                    journal(layer: .network, unimessage: {"got-unknown-packet: \(secureJson(json))"})
+                    journal { [p = jsonPrivacyTool] in "socket-received[unknown]: \(p.filter(json: json))"}
                     let event = NetworkingSubSocketEvent.payload(.unknown(json))
                     notity(event: event)
                 }

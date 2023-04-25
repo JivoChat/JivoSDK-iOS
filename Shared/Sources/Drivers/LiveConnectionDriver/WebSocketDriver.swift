@@ -7,9 +7,9 @@
 //
 
 import Foundation
+import JivoFoundation
 import JMCodingKit
 import JFWebSocket
-
 
 class WebSocketDriver: ILiveConnectionDriver {
     var openHandler: (() -> Void)?
@@ -29,6 +29,7 @@ class WebSocketDriver: ILiveConnectionDriver {
     private let pongCharacter: Character
     private let signToRemove: String?
     private let signToAppend: String?
+    private let jsonPrivacyTool: JVJsonPrivacyTool
     
     private var rpcID = 0
     
@@ -53,7 +54,8 @@ class WebSocketDriver: ILiveConnectionDriver {
         pingCharacter: Character,
         pongCharacter: Character,
         signToRemove: String? = nil,
-        signToAppend: String? = nil
+        signToAppend: String? = nil,
+        jsonPrivacyTool: JVJsonPrivacyTool
     ) {
         self.outgoingPackagesAccumulator = outgoingPackagesAccumulator
         self.incomingPackagesAccumulator = incomingPackagesAccumulator
@@ -63,6 +65,7 @@ class WebSocketDriver: ILiveConnectionDriver {
         self.pongCharacter = pongCharacter
         self.signToAppend = signToAppend
         self.signToRemove = signToRemove
+        self.jsonPrivacyTool = jsonPrivacyTool
         
         incomingPackagesAccumulator?.releaseBlock = { [weak self] messages in
             self?.incomingPackagesAccumulatorReleased(withItems: messages)
@@ -142,21 +145,13 @@ class WebSocketDriver: ILiveConnectionDriver {
         if isOutgoingPackagesCaching, supportsCaching {
             outgoingPackagesAccumulator.accumulate(data)
 
-            journal(
-                layer: .network,
-                subsystem: .general,
-                unimessage: {"socket-enqueue[json]: \(secureJson(json))"}
-            )
+            journal { [p = jsonPrivacyTool] in "socket-send-enqueue[json]: \(p.filter(json: json))"}
         }
         else {
             webSocket?.send(data)
             schedulePingTimer()
 
-            journal(
-                layer: .network,
-                subsystem: .general,
-                unimessage: {"socket-send[json]: \(secureJson(json))"}
-            )
+            journal { [p = jsonPrivacyTool] in "socket-send-now[json]: \(p.filter(json: json))"}
         }
     }
     
@@ -169,21 +164,13 @@ class WebSocketDriver: ILiveConnectionDriver {
         if isOutgoingPackagesCaching, supportsCaching {
             outgoingPackagesAccumulator.accumulate(data)
 
-            journal(
-                layer: .network,
-                subsystem: .general,
-                unimessage: {"socket-enqueue[legacy]: \(secureJson(payload))"}
-            )
+            journal { [p = jsonPrivacyTool] in "socket-send-enqueue[legacy]: \(p.filter(json: payload))"}
         }
         else {
             webSocket?.send(data)
             schedulePingTimer()
 
-            journal(
-                layer: .network,
-                subsystem: .general,
-                unimessage: {"socket-send[legacy]: \(secureJson(payload))"}
-            )
+            journal { [p = jsonPrivacyTool] in "socket-send-now[legacy]: \(p.filter(json: payload))"}
         }
     }
     
@@ -205,21 +192,13 @@ class WebSocketDriver: ILiveConnectionDriver {
         if isOutgoingPackagesCaching, supportsCaching {
             outgoingPackagesAccumulator.accumulate(data)
 
-            journal(
-                layer: .network,
-                subsystem: .general,
-                unimessage: {"socket-enqueue[rpc]: \(secureJson(payload))"}
-            )
+            journal { [p = jsonPrivacyTool] in "socket-send-enqueue[rpc]: \(p.filter(json: payload))"}
         }
         else {
             webSocket?.send(data)
             schedulePingTimer()
 
-            journal(
-                layer: .network,
-                subsystem: .general,
-                unimessage: {"socket-send[rpc]: \(secureJson(payload))"}
-            )
+            journal { [p = jsonPrivacyTool] in "socket-send-now[rpc]: \(p.filter(json: payload))"}
         }
         
         return rpcID

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import JivoFoundation
 import JMCodingKit
 
 protocol INetworking: AnyObject {
@@ -18,7 +19,6 @@ protocol INetworking: AnyObject {
     var primaryDomain: String { get }
     func setPreferredDomain(_ domain: NetworkingDomain)
     func baseURL(module: String) -> URL
-    func attachProto(_ proto: IProto)
     func connect(url: URL)
     func disconnect()
     func contextual(object: Any?) -> Self

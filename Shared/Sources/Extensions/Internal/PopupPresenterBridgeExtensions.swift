@@ -5,9 +5,7 @@
 
 import Foundation
 import UIKit
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 extension IPopupPresenterBridge {
     func jv_warnAndDismiss(title: String?, message: String?, dismissKind: PopupPresenterItem.DismissKind) {

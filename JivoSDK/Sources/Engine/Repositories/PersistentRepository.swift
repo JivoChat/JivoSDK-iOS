@@ -7,9 +7,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 //#warning("TODO: Anton Karpushko, 26.11.2021 – Make PersistentRepository thread-safe.")
 

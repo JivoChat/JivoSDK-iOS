@@ -7,9 +7,7 @@
 
 import Foundation
 import UIKit
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 
 final class TimelineContactFormFieldControl: UITextField {

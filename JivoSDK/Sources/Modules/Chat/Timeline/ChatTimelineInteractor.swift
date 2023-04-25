@@ -9,9 +9,7 @@
 import Foundation
 import UIKit
 import CoreLocation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 import JMTimelineKit
 import JMMarkdownKit

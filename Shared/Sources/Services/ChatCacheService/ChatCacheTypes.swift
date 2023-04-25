@@ -7,9 +7,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 struct ChatCacheEarliestMeta {
     let chatID: Int

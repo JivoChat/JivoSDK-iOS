@@ -4,9 +4,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 
 protocol ISdkEngineNetworkingFactory {
@@ -22,6 +20,7 @@ struct SdkEngineNetworkingFactory: ISdkEngineNetworkingFactory {
     let uuidProvider: IUUIDProvider
     let preferencesDriver: IPreferencesDriver
     let keychainDriver: IKeychainDriver
+    let jsonPrivacyTool: JVJsonPrivacyTool
     let hostProvider: (URL, String) -> URL?
     
     func build() -> INetworking {
@@ -29,7 +28,8 @@ struct SdkEngineNetworkingFactory: ISdkEngineNetworkingFactory {
             identifier: UUID(),
             driver: socketDriver,
             networkingThread: workerThread,
-            behavior: .json
+            behavior: .json,
+            jsonPrivacyTool: jsonPrivacyTool
         )
         
         let networkSubRest = NetworkingSubRest(
@@ -45,6 +45,7 @@ struct SdkEngineNetworkingFactory: ISdkEngineNetworkingFactory {
             uuidProvider: uuidProvider,
             preferencesDriver: preferencesDriver,
             keychainDriver: keychainDriver,
+            jsonPrivacyTool: jsonPrivacyTool,
             hostProvider: hostProvider
         )
     }

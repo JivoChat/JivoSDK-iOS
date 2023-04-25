@@ -6,9 +6,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 
 final class PushCredentialsRepository: PersistentRepository<String, SdkClientSubPusherCredentials, JVPushCredentialsChange, JVPushCredentials, String> {

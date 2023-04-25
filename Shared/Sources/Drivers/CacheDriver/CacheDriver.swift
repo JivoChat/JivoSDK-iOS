@@ -7,7 +7,6 @@
 //
 
 import Foundation
-
 import JMCodingKit
 import Gzip
 import CommonCrypto

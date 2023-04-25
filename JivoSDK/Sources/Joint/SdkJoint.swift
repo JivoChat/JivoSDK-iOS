@@ -7,9 +7,7 @@
 //
 
 import UIKit
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 import BABFrameObservingInputAccessoryView
 import JMTimelineKit
 

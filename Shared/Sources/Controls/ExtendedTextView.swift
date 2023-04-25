@@ -8,9 +8,7 @@
 
 import Foundation
 import UIKit
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 protocol ResponderProxy {
     var isFirstResponder: Bool { get }

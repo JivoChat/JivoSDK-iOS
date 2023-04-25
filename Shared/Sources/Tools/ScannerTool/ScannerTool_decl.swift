@@ -1,0 +1,16 @@
+//
+//  ScannerTool_decl.swift
+//  BABFrameObservingInputAccessoryView
+//
+//  Created by Stan Potemkin on 24.04.2023.
+//
+
+import Foundation
+
+public protocol IScannerTool: AnyObject {
+    @discardableResult
+    func scan(till string: String) -> String?
+    
+    @discardableResult
+    func scan(over string: String) -> String?
+}

@@ -7,9 +7,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 protocol ISdkClientManager: ISdkManager {
     var apnsDeviceLiveToken: String? { get set }

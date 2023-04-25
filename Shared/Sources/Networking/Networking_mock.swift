@@ -7,9 +7,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 @testable import Jivo
 
 class NetworkingMock: INetworking {

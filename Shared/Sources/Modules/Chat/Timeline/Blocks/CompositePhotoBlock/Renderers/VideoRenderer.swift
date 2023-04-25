@@ -7,9 +7,7 @@
 //
 
 import UIKit
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 import AVFoundation
 
 final class VideoRenderer: UIView, Renderer {

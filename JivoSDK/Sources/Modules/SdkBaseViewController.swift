@@ -9,9 +9,7 @@
 import Foundation
 import UIKit
 import JMSidePanelKit
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 
 protocol SdkBaseViewControllerDelegate: AnyObject {

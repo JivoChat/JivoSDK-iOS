@@ -4,9 +4,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 import JMMarkdownKit
 
 
@@ -37,7 +35,7 @@ struct SdkEngineProvidersFactory {
     private func buildUUIDProvider() -> IUUIDProvider {
         return UUIDProvider(
             bundle: Bundle(for: Jivo.self),
-            userAgent: .sdk,
+            package: .sdk,
             keychainDriver: drivers.keychainDriver,
             installationIDPreference: drivers.preferencesDriver.retrieveAccessor(forToken: .installationID))
     }

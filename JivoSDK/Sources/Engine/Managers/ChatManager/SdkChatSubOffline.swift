@@ -6,9 +6,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 protocol ISdkChatSubOffline: AnyObject {
     var customText: String? { get set }

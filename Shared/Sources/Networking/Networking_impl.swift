@@ -7,9 +7,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 import JMCodingKit
 
 final class Networking: INetworking {
@@ -29,12 +27,12 @@ final class Networking: INetworking {
     private let uuidProvider: IUUIDProvider
     private let preferencesDriver: IPreferencesDriver
     private let endpointAccessor: IKeychainAccessor
+    private let jsonPrivacyTool: JVJsonPrivacyTool
     private let hostProvider: (URL, String) -> URL?
 
     private var socketEventObserver: JVBroadcastObserver<NetworkingSubSocketEvent>?
     private var restEventObserver: JVBroadcastObserver<NetworkingSubRestEvent>?
     private var apnsEventObserver: JVBroadcastObserver<NetworkingSubApnsEvent>?
-    private var protos: [IProto]
     @AtomicMut private var requestMetas: [UUID: RequestMeta]
     
     private let defaultBacksignal = JVBroadcastTool<Any>()
@@ -42,7 +40,17 @@ final class Networking: INetworking {
     private var contextStorage = [UUID: ProtoEventContext]()
     private var recentBacksignal: JVBroadcastTool<Any>?
 
-    init(subSocket: INetworkingSubSocket?, subRest: INetworkingSubRest?, subApns: INetworkingSubApns?, localeProvider: JVILocaleProvider, uuidProvider: IUUIDProvider, preferencesDriver: IPreferencesDriver, keychainDriver: IKeychainDriver, hostProvider: @escaping (URL, String) -> URL?) {
+    init(
+        subSocket: INetworkingSubSocket?,
+        subRest: INetworkingSubRest?,
+        subApns: INetworkingSubApns?,
+        localeProvider: JVILocaleProvider,
+        uuidProvider: IUUIDProvider,
+        preferencesDriver: IPreferencesDriver,
+        keychainDriver: IKeychainDriver,
+        jsonPrivacyTool: JVJsonPrivacyTool,
+        hostProvider: @escaping (URL, String) -> URL?
+    ) {
         context = NetworkingContext(
             localeProvider: localeProvider
         )
@@ -59,9 +67,9 @@ final class Networking: INetworking {
         self.uuidProvider = uuidProvider
         self.preferencesDriver = preferencesDriver
         self.endpointAccessor = keychainDriver.retrieveAccessor(forToken: .endpoint)
+        self.jsonPrivacyTool = jsonPrivacyTool
         self.hostProvider = hostProvider
 
-        protos = Array()
         requestMetas = Dictionary()
         
         socketEventObserver = subSocket?.eventObservable.addObserver { [unowned self] event in
@@ -102,10 +110,6 @@ final class Networking: INetworking {
             context: context,
             preferencesDriver: preferencesDriver,
             module: module)
-    }
-    
-    func attachProto(_ proto: IProto) {
-        protos.append(proto)
     }
     
     func connect(url: URL) {

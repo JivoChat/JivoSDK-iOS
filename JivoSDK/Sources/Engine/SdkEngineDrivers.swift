@@ -3,9 +3,7 @@
 //  JivoSDK
 //
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 import KeychainSwift
 import JMTimelineKit
 
@@ -39,6 +37,7 @@ struct SdkEngineDriversFactory {
     let fileManager: FileManager
     let urlSession: URLSession
     let schedulingCore: ISchedulingCore
+    let jsonPrivacyTool: JVJsonPrivacyTool
     let outgoingPackagesAccumulator: AccumulatorTool<Data>
 
     func build() -> SdkEngineDrivers {
@@ -132,13 +131,24 @@ struct SdkEngineDriversFactory {
     }
     
     private func buildLiveConnectionDriver(flushingInterval: TimeInterval, voip: Bool, endingSign: String? = nil) -> ILiveConnectionDriver {
-        let liveConnectionDriver = LiveConnectionDriver(flushingInterval: flushingInterval, voip: voip, endingSign: endingSign)
-        return liveConnectionDriver
+        return LiveConnectionDriver(
+            flushingInterval: flushingInterval,
+            voip: voip,
+            endingSign: endingSign,
+            jsonPrivacyTool: jsonPrivacyTool
+        )
     }
     
     private func buildWebSocketDriver(pingTimeInterval: TimeInterval, pongTimeInterval: TimeInterval, pingCharacter: Character, pongCharacter: Character, signToRemove: String? = nil) -> ILiveConnectionDriver {
-        let webSocketDriver = WebSocketDriver(outgoingPackagesAccumulator: outgoingPackagesAccumulator, pingTimeInterval: pingTimeInterval, pongTimeInterval: pongTimeInterval, pingCharacter: pingCharacter, pongCharacter: pongCharacter, signToRemove: signToRemove)
-        return webSocketDriver
+        return WebSocketDriver(
+            outgoingPackagesAccumulator: outgoingPackagesAccumulator,
+            pingTimeInterval: pingTimeInterval,
+            pongTimeInterval: pongTimeInterval,
+            pingCharacter: pingCharacter,
+            pongCharacter: pongCharacter,
+            signToRemove: signToRemove,
+            jsonPrivacyTool: jsonPrivacyTool
+        )
     }
     
     private func buildApnsDriver() -> IApnsDriver {

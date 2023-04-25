@@ -4,9 +4,8 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
+import SwiftDate
 import JivoFoundation
-#endif
 
 
 protocol IPrioritizedQueueTool: AnyObject {

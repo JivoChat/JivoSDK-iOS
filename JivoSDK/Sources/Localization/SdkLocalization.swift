@@ -6,9 +6,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 let not = jv_not
 let loc = JVLocalizer(for: Jivo.self)

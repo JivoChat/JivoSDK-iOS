@@ -7,9 +7,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 /// interface for this subsystem
 protocol IMentioningService: AnyObject {

@@ -7,9 +7,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 protocol ISdkClientContext: AnyObject, IBaseUserContext {
     var eventSignal: JVBroadcastTool<SdkClientContextEvent> { get }

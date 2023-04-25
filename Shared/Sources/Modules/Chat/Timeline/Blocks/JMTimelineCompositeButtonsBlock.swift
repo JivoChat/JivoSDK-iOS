@@ -7,9 +7,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 import UIKit
 import TypedTextAttributes
 import JMMarkdownKit

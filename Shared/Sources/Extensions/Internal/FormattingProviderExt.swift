@@ -7,9 +7,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 extension IFormattingProvider {
     func format(worktime meta: JVAgentWorktimeDayMeta?, anotherDay: Bool) -> String {

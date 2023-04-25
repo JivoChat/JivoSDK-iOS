@@ -6,9 +6,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 final class SdkManagerPipeline: JVBroadcastTool<SdkManagerPipelineEvent> {
     let workerThread: JivoFoundation.JVIDispatchThread

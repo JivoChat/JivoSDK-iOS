@@ -7,9 +7,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 import JMCodingKit
 import SwiftMime
@@ -140,6 +138,7 @@ struct NetworkServiceFactory: INetworkServiceFactory {
     let uuidProvider: IUUIDProvider
     let preferencesDriver: IPreferencesDriver
     let keychainDriver: IKeychainDriver
+    let jsonPrivacyTool: JVJsonPrivacyTool
     let hostProvider: (URL, String) -> URL?
     
     func build() -> INetworking {
@@ -147,7 +146,8 @@ struct NetworkServiceFactory: INetworkServiceFactory {
             identifier: UUID(),
             driver: socketDriver,
             networkingThread: workerThread,
-            behavior: .json
+            behavior: .json,
+            jsonPrivacyTool: jsonPrivacyTool
         )
         
         let networkSubRest = NetworkingSubRest(
@@ -163,6 +163,7 @@ struct NetworkServiceFactory: INetworkServiceFactory {
             uuidProvider: uuidProvider,
             preferencesDriver: preferencesDriver,
             keychainDriver: keychainDriver,
+            jsonPrivacyTool: jsonPrivacyTool,
             hostProvider: hostProvider
         )
     }

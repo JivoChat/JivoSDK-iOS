@@ -8,9 +8,7 @@
 
 import Foundation
 import UIKit
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 import JMSidePanelKit
 
 protocol BaseViewControllerSatellite {

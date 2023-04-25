@@ -1,5 +1,5 @@
 //
-//  JsonPrivacyTool.swift
+//  JVJsonPrivacyTool.swift
 //  JivoMobile
 //
 //  Created by Stan Potemkin on 27.03.2020.
@@ -7,31 +7,34 @@
 //
 
 import Foundation
-
 import JMCodingKit
 
-final class JsonPrivacyTool {
+public final class JVJsonPrivacyTool {
     private struct Allowance {
         let rule: JsonPrivacyRule
         let isActive: Bool
     }
     
-    private let enabled: Bool
+    private var enabled: Bool
     private let rules: [JsonPrivacyRule]
     
     private var currentJson = JsonElement()
     private var currentAllowance = [Allowance]()
     private var exclusiveRun = NSLock()
     
-    init(enabled: Bool, rules: [JsonPrivacyRule]) {
+    public init(enabled: Bool, rules: [JsonPrivacyRule]) {
         self.enabled = enabled
         self.rules = rules
+    }
+    
+    public func setEnabled(_ enabled: Bool) {
+        self.enabled = enabled
     }
     
     /**
      The only point to perform some work on incoming json
      */
-    func filter(json: JsonElement) -> JsonElement {
+    public func filter(json: JsonElement) -> JsonElement {
         exclusiveRun.lock()
         defer { exclusiveRun.unlock() }
         

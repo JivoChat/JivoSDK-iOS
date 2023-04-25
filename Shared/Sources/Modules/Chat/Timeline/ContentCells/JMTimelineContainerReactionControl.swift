@@ -8,9 +8,7 @@
 
 import Foundation
 import UIKit
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 import JMTimelineKit
 
 fileprivate final class ElementContainer: UIView {

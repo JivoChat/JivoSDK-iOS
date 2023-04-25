@@ -1,6 +1,6 @@
 Pod::Spec.new do |root|
     root.name = 'JivoSDK'
-    root.version = '4.0.0-beta.5'
+    root.version = '4.0.0-beta.7'
     root.homepage = 'https://github.com/JivoChat'
     root.authors = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
     root.summary = 'Jivo business chat Mobile SDK'
@@ -94,6 +94,10 @@ Pod::Spec.new do |root|
             'Shared/Sources/Drivers/DatabaseDriver',
             'Shared/Sources/Providers/LocaleProvider',
             'Shared/Sources/Extensions/System',
+            'Shared/Sources/Tools/BroadcastTool',
+            'Shared/Sources/Tools/PureParserTool',
+            'Shared/Sources/Tools/JVJsonPrivacyTool',
+            'Shared/Sources/Tools/SafeDispatchQueue',
             '**/DevicePlaybackAudioPlayer.swift',
             '**/DevicePlaybackDriver.swift',
         ]

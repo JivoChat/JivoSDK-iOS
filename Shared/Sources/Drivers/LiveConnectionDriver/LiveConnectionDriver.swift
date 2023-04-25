@@ -7,9 +7,9 @@
 //
 
 import Foundation
+import JivoFoundation
 import JMCodingKit
 import JFWebSocket
-
 
 fileprivate final class LiveConnectionClosingBehavior {
     private enum ReconnectingBehavior {
@@ -110,6 +110,7 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
     private let flushingInterval: TimeInterval
     private let voip: Bool
     private let endingSign: String?
+    private let jsonPrivacyTool: JVJsonPrivacyTool
     private var cacheState: CacheState
 
     private var incomingCachedPackets = [String]()
@@ -121,10 +122,11 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
     private weak var pingTimer: Timer?
     private weak var pongTimer: Timer?
     
-    init(flushingInterval: TimeInterval, voip: Bool, endingSign: String?) {
+    init(flushingInterval: TimeInterval, voip: Bool, endingSign: String?, jsonPrivacyTool: JVJsonPrivacyTool) {
         self.flushingInterval = flushingInterval
         self.voip = voip
         self.endingSign = endingSign
+        self.jsonPrivacyTool = jsonPrivacyTool
         self.cacheState = (flushingInterval > 0 ? .waiting : .disabled)
     }
 
@@ -355,21 +357,13 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
         if isCachingEnabled(), supportsCaching {
             outgoingCachedPackets?.append(data)
 
-            journal(
-                layer: .network,
-                subsystem: .general,
-                unimessage: {"socket-enqueue[legacy]: \(secureJson(json))"}
-            )
+            journal { [p = jsonPrivacyTool] in "socket-send-enqueue[legacy]: \(p.filter(json: json))"}
         }
         else {
             webSocket?.send(data)
             reshedulePinging()
 
-            journal(
-                layer: .network,
-                subsystem: .general,
-                unimessage: {"socket-send[legacy]: \(secureJson(json))"}
-            )
+            journal { [p = jsonPrivacyTool] in "socket-send-now[legacy]: \(p.filter(json: json))"}
         }
     }
     
@@ -396,21 +390,13 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
         if isCachingEnabled(), supportsCaching {
             outgoingCachedPackets?.append(data)
 
-            journal(
-                layer: .network,
-                subsystem: .general,
-                unimessage: {"socket-enqueue[rpc]: \(secureJson(payload))"}
-            )
+            journal { [p = jsonPrivacyTool] in "socket-send-enqueue[rpc]: \(p.filter(json: payload))"}
         }
         else {
             webSocket?.send(data)
             reshedulePinging()
 
-            journal(
-                layer: .network,
-                subsystem: .general,
-                unimessage: {"socket-send[rpc]: \(secureJson(payload))"}
-            )
+            journal { [p = jsonPrivacyTool] in "socket-send-now[rpc]: \(p.filter(json: payload))"}
         }
         
         return rpcID
@@ -512,7 +498,7 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
     }
 }
 
-fileprivate func generateWebSocketQueue() -> SafeDispatchQueue {
+fileprivate func generateWebSocketQueue() -> JVSafeDispatchQueue {
     let label = "com.jivosite.mobile.websocket:" + UUID().jv_shortString
-    return SafeDispatchQueue(label: label, qos: .default)
+    return JVSafeDispatchQueue(label: label, qos: .default)
 }

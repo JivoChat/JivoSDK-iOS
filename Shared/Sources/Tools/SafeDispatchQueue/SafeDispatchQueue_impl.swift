@@ -1,5 +1,5 @@
 //
-//  SafeDispatchQueue.swift
+//  SafeDispatchQueue_impl.swift
 //  App
 //
 //  Created by Stan Potemkin on 28.12.2022.
@@ -8,10 +8,10 @@
 
 import Foundation
 
-final class SafeDispatchQueue: DispatchQueue {
+public final class JVSafeDispatchQueue: DispatchQueue {
     private var suspensionsNumber = 0
     
-    func safeSuspend(mutex: NSLock) {
+    public func safeSuspend(mutex: NSLock) {
         mutex.lock()
         defer {
             mutex.unlock()
@@ -21,7 +21,7 @@ final class SafeDispatchQueue: DispatchQueue {
         suspensionsNumber += 1
     }
     
-    func safeResume(mutex: NSLock) {
+    public func safeResume(mutex: NSLock) {
         mutex.lock()
         defer {
             mutex.unlock()

@@ -6,9 +6,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 struct SdkEngineThreads {
     let workerThread: JivoFoundation.JVIDispatchThread

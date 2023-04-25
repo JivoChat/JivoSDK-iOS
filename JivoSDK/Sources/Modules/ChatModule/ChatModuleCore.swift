@@ -7,9 +7,7 @@
 
 import Foundation
 import Photos
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 import JMTimelineKit
 import JMMarkdownKit

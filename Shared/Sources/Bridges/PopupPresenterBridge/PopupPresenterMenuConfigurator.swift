@@ -8,9 +8,7 @@
 
 import Foundation
 import UIKit
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 struct PopupPresenterMenuConfigurator: IPopupPresenterConfigurator {
     let items: [PopupPresenterItem]

@@ -7,9 +7,7 @@
 //
 
 import Foundation
-#if canImport(JivoFoundation)
 import JivoFoundation
-#endif
 
 protocol IProto: INetworkingEventDecoder {
     func contextual(object: Any?) -> Self
@@ -66,4 +64,3 @@ struct ProtoTransactionKind: Hashable {
         return Self(identifier: value)
     }
 }
-

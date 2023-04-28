@@ -8,8 +8,11 @@
 
 import Foundation
 
-public let jv_loc = JVLocalizer(for: NSClassFromString("JivoSDK.JivoSDK"))
-internal let loc = jv_loc
+#if canImport(JivoSDK)
+import JivoSDK
+#endif
+
+internal let loc = JVLocalizer.shared
 
 public extension Notification.Name {
     static let jvLocaleDidChange = Notification.Name("LocaleDidChange")
@@ -21,38 +24,54 @@ public enum JVLocalizedMetaMode {
     case exact(String)
 }
 
-public struct JVLocalizer {
-    private let primaryBundle = Bundle.main
-    private let secondaryBundle: Bundle?
+public enum JVSearchingBehavior {
+    case app
+    case sdk
+}
+
+struct JVLocalizerSearchingRule<Location> {
+    let location: Location
+    let namespace: String
+}
+
+final class JVLocalizer {
+    static let shared = JVLocalizer()
     
-    public init(for classFromBundle: AnyClass? = nil) {
-        secondaryBundle = classFromBundle.flatMap(Bundle.init) ?? primaryBundle
+    var searchingRulesProvider: (_ lang: String) -> [JVLocalizerSearchingRule<String?>] = { _ in
+        return [JVLocalizerSearchingRule(location: Bundle.main.bundlePath, namespace: .jv_empty)]
     }
     
-    public subscript(_ keys: String..., lang lang: String? = nil) -> String {
+    private var langToSearchingPathsCache = [String: [JVLocalizerSearchingRule<Bundle>]]()
+    
+    private init() {
+    }
+    
+    public subscript(_ keys: String...) -> String {
+        let langId = (JVLocaleProvider.activeLocale ?? Locale.current).jv_langId
         var result = String()
         
-        for key in keys {
-            let relevantBundles: [Bundle]
-            if let lang = lang {
-                relevantBundles = JVLocaleProvider.collectLangBundles(
-                    for: [secondaryBundle, primaryBundle],
-                    lang: lang)
-            }
-            else {
-                relevantBundles = JVLocaleProvider.collectLangBundles(
-                    for: [JVLocaleProvider.activeBundle, secondaryBundle, primaryBundle],
-                    lang: JVLocaleProvider.activeLocale?.jv_langID ?? Locale.current.jv_langID ?? String())
-            }
+        let searchingRules: [JVLocalizerSearchingRule<Bundle>]
+        if let rules = langToSearchingPathsCache[langId] {
+            searchingRules = rules
+        }
+        else {
+            let rules = searchingRulesProvider(langId)
+                .compactMap { rule in
+                    if let path = rule.location, let bundle = Bundle(path: path) {
+                        return JVLocalizerSearchingRule(location: bundle, namespace: rule.namespace)
+                    }
+                    else {
+                        return nil
+                    }
+                }
             
-            if let value = relevantBundles.jv_findTranslation(key: key) {
+            langToSearchingPathsCache[langId] = rules
+            searchingRules = rules
+        }
+        
+        for key in keys {
+            if let value = searchingRules.jv_findTranslation(key: key) {
                 return value
-            }
-            else if let value = relevantBundles.jv_findTranslation(key: "jivosdk:" + key) {
-                return value
-            }
-            else if lang == nil {
-                result = NSLocalizedString(key, comment: String())
             }
             else {
                 result = key
@@ -66,8 +85,8 @@ public struct JVLocalizer {
         return result
     }
     
-    public subscript(key key: String, lang: String? = nil) -> String {
-        return self[key, lang: lang]
+    public subscript(key key: String) -> String {
+        return self[key]
             .replacingOccurrences(of: "%s", with: "%@")
             .replacingOccurrences(of: "$s", with: "$@")
     }
@@ -82,11 +101,13 @@ public func JVActiveLocale() -> Locale {
     return JVLocaleProvider.activeLocale
 }
 
-fileprivate extension Array where Element == Bundle {
+fileprivate extension Array where Element == JVLocalizerSearchingRule<Bundle> {
     func jv_findTranslation(key: String) -> String? {
-        for bundle in self {
-            let value = bundle.localizedString(forKey: key, value: nil, table: nil)
-            if value != key {
+        for rule in self {
+            let searchingKey = rule.namespace + key
+            let value = rule.location.localizedString(forKey: searchingKey, value: nil, table: nil)
+            
+            if value != searchingKey {
                 return value
             }
         }

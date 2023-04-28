@@ -35,7 +35,7 @@ final class ChatHistory {
     private let collectionViewManager: DTCollectionViewManager
     private let chatRef: JVDatabaseModelRef<JVChat>?
     private let chatCacheService: IChatCacheService
-    private let workerThread: JivoFoundation.JVIDispatchThread
+    private let workerThread: JVIDispatchThread
     
     private var currentBottomItem: JMTimelineItem?
     private var itemsCounter = 0
@@ -53,7 +53,7 @@ final class ChatHistory {
         chat: JVChat?,
         chatCacheService: IChatCacheService,
         timelineCache: JMTimelineCache,
-        workerThread: JivoFoundation.JVIDispatchThread
+        workerThread: JVIDispatchThread
     ) {
         self.timelineHistory = timelineHistory
         self.databaseDriver = databaseDriver

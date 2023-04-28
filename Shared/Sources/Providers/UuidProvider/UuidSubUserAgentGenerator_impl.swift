@@ -21,7 +21,7 @@ final class UuidSubUserAgentGenerator: IUuidSubUserAgentGenerator {
         switch package {
         case .app:
             return enumerate(values: [
-                collectPackageInfo(name: "JivoApp-ios", version: "\(bundle.jv_version)+\(bundle.jv_build)"),
+                collectPackageInfo(name: "JivoApp-ios", version: bundle.jv_semanticVersion),
                 surround(fields: [
                     "Mobile",
                     "Device" => collectDeviceInfo(),
@@ -34,7 +34,7 @@ final class UuidSubUserAgentGenerator: IUuidSubUserAgentGenerator {
             ])
         case .sdk:
             return enumerate(values: [
-                collectPackageInfo(name: "JivoSDK-ios", version: bundle.jv_version),
+                collectPackageInfo(name: "JivoSDK-ios", version: bundle.jv_packageVersion),
                 surround(fields: [
                     "Mobile",
                     "Device" => collectDeviceInfo(),

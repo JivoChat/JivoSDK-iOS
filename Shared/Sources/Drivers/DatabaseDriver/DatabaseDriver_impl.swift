@@ -38,7 +38,7 @@ open class JVDatabaseDriver: JVIDatabaseDriver {
     
     private let container: NSPersistentContainer
 
-    public init(thread: JVIDispatchThread, fileManager: FileManager, namespace: String, writing: JVDatabaseWriting, fileURL: URL?, environment: JVIDatabaseEnvironment, localizer: JVLocalizer) {
+    init(thread: JVIDispatchThread, fileManager: FileManager, namespace: String, writing: JVDatabaseWriting, fileURL: URL?, environment: JVIDatabaseEnvironment, localizer: JVLocalizer) {
         self.thread = thread
         self.namespace = namespace
         self.writing = writing

@@ -1,12 +1,12 @@
 Pod::Spec.new do |root|
     root.name = 'JivoSDK'
-    root.version = '4.0.0-beta.11'
+    root.version = '4.0.0-beta.14'
     root.homepage = 'https://github.com/JivoChat'
     root.authors = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
     root.summary = 'Jivo business chat Mobile SDK'
     root.license = 'Apache 2.0'
     root.source = { :git => 'https://github.com/JivoChat/JivoSDK-iOS.git', :tag => "v#{root.version}" }
-    root.info_plist = {"CFBundleShortVersionString" => "#{root.version.version.sub('-', '.')}"}
+    root.info_plist = {"CFBundleShortVersionString" => "#{root.version.version.partition('-').first}", "JVPackageVersion" => "#{root.version}"}
     root.swift_versions = ['5.5', '5.6', '5.7', '5.8']
     root.ios.deployment_target = '11.0'
     root.default_subspec = 'SDK'
@@ -69,7 +69,6 @@ Pod::Spec.new do |root|
         spec.dependency 'TypedTextAttributes', '~> 1.4.0'
         spec.dependency 'PureParser', '~> 1.0.4'
         spec.dependency 'ReachabilitySwift', '~> 5.0'
-        spec.dependency 'BABFrameObservingInputAccessoryView'
         spec.dependency 'SwiftGraylog', '~> 1.1.1'
         spec.dependency 'SwiftDate', '~> 6.0'
         spec.dependency 'SwiftMime', '~> 1.0.0'
@@ -82,16 +81,14 @@ Pod::Spec.new do |root|
         spec.dependency 'XCGLogger', '~> 7.0.1'
 
         spec.framework = 'SystemConfiguration'
-        spec.source_files = 'JivoSDK/Sources/**/*.{h,swift}', 'Shared/Sources/**/*.swift'
-        spec.resource = 'JivoSDK/Resources/Assets.xcassets', 'JivoSDK/Resources/*.lproj', 'JivoSDK/*.docc'
+        spec.source_files = 'Shared/Models', 'Shared/Models/**/*.swift', 'JivoSDK/Sources/**/*.{h,swift}', 'Shared/Sources/**/*.swift', 'Shared/Sources/Extensions/System/*+{database,locale}.swift'
+        spec.resource = 'Shared/Models/*.xcdatamodeld', 'JivoSDK/Resources/Assets.xcassets', 'JivoSDK/Resources/*.lproj', 'JivoSDK/*.docc'
 
         spec.exclude_files = [
             'Shared/**/*Unit.swift',
             'Shared/**/*Tests.swift',
             'Shared/**/*Mock.swift',
-            'Shared/Sources/Drivers/DatabaseDriver',
-            'Shared/Sources/Providers/LocaleProvider',
-            'Shared/Sources/Extensions/System',
+            'Shared/Sources/Extensions/System/*+.swift',
             'Shared/Sources/Tools/BroadcastTool',
             'Shared/Sources/Tools/PureParserTool',
             'Shared/Sources/Tools/JVJsonPrivacyTool',

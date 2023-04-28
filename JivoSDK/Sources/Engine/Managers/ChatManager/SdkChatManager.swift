@@ -129,7 +129,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     
     init(
         pipeline: SdkManagerPipeline,
-        thread: JivoFoundation.JVIDispatchThread,
+        thread: JVIDispatchThread,
         sessionContext: ISdkSessionContext,
         clientContext: ISdkClientContext,
         messagingContext: ISdkMessagingContext,
@@ -387,7 +387,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     private func _sendMessage_process(attachments: [ChatPhotoPickerObject]) {
-        guard not(attachments.isEmpty)
+        guard jv_not(attachments.isEmpty)
         else {
             return
         }

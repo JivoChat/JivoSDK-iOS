@@ -8,7 +8,6 @@
 
 import UIKit
 import JivoFoundation
-import BABFrameObservingInputAccessoryView
 import JMTimelineKit
 
 protocol ISdkJoint {
@@ -140,9 +139,9 @@ class SdkJoint: ISdkJoint {
     }
     
     private func adjustUI(displayDelegate: JVDisplayDelegate?) {
+        engine.providers.localeProvider.activeLocale = config.locale ?? .autoupdatingCurrent
         uiConfig = buildChatModuleUIConfig(from: config, displayDelegate: displayDelegate)
         engine.managers.chatManager.subOffline.customText = uiConfig.offlineMessage.jv_valuable
-        engine.providers.localeProvider.activeLocale = config.locale ?? .autoupdatingCurrent
     }
     
     private func buildChatModuleUIConfig(from config: SdkInputConfig, displayDelegate: JVDisplayDelegate?) -> ChatModuleUIConfig {

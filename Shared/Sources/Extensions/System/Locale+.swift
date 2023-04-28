@@ -9,9 +9,9 @@
 import Foundation
 
 public extension Locale {
-    var jv_langID: String? {
+    var jv_langId: String {
         let parts = identifier.components(separatedBy: .punctuationCharacters)
-        return parts.first
+        return parts.first ?? identifier
     }
     
     var jv_countryID: String? {

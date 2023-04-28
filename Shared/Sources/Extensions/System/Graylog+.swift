@@ -46,7 +46,7 @@ public extension Graylog {
             JsonElement(key: "_system_platform", value: "ios"),
             JsonElement(key: "_system_version", value: UIDevice.current.systemVersion),
             JsonElement(key: "_app_version", value: Bundle.main.jv_version),
-            JsonElement(key: "_app_full_version", value: Bundle.main.jv_versionWithBuild),
+            JsonElement(key: "_app_full_version", value: Bundle.main.jv_semanticVersion),
             JsonElement(key: "_agent_id", value: cachedAgentID.flatMap { "\($0)" }),
             JsonElement(key: "_code_location", value: "\(URL(fileURLWithPath: file).lastPathComponent):\(line)"),
             includeCaches ? JsonElement(key: "_recent_live_packet", value: cachedRecentLivePacket) : nil,

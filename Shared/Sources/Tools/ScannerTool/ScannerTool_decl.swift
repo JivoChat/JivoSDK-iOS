@@ -1,6 +1,5 @@
 //
 //  ScannerTool_decl.swift
-//  BABFrameObservingInputAccessoryView
 //
 //  Created by Stan Potemkin on 24.04.2023.
 //

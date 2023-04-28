@@ -7,7 +7,6 @@
 
 import Foundation
 import JMTimelineKit
-import BABFrameObservingInputAccessoryView
 
 typealias ChatModulePipeline = RTEModulePipeline<
     ChatModuleCoreEvent,
@@ -49,8 +48,7 @@ enum ChatModuleWrappingKind {
 }
 
 func ChatModuleAssembly(engine: RTEConfigTrunk, navigator: IRTNavigator, uiConfig: ChatModuleUIConfig, closeButton: JVDisplayCloseButton) -> ChatModule {
-    let keyboardObservingBar = BABFrameObservingInputAccessoryView()
-    keyboardObservingBar.frame.size.height = 0
+    let keyboardAnchorControl = KeyboardAnchorControl()
     
     let timelineProvider = ChatTimelineProvider(
         client: nil,
@@ -78,7 +76,7 @@ func ChatModuleAssembly(engine: RTEConfigTrunk, navigator: IRTNavigator, uiConfi
         botStyle: .outer,
         displayNameKind: .original,
         outcomingPalette: uiConfig.outcomingPalette,
-        keyboardObservingBar: keyboardObservingBar,
+        keyboardAnchorControl: keyboardAnchorControl,
         contactFormCache: engine.retrieveCacheBundle(token: engine.clientContext.personalNamespace).contactFormCache
     )
     
@@ -133,7 +131,7 @@ func ChatModuleAssembly(engine: RTEConfigTrunk, navigator: IRTNavigator, uiConfi
         viewBuilder: { pipeline in
             ChatModuleView(
                 pipeline: pipeline,
-                keyboardObservingBar: keyboardObservingBar,
+                keyboardAnchorControl: keyboardAnchorControl,
                 timelineController: timelineController,
                 timelineInteractor: timelineInteractor,
                 uiConfig: uiConfig,

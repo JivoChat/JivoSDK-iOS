@@ -74,6 +74,7 @@ extension JVLocaleLang {
         case .es: return "es"
         case .pt: return "pt"
         case .tr: return "tr"
+        case .hy: return "hy"
         }
     }
     
@@ -91,6 +92,7 @@ extension JVLocaleLang {
         case .es: return "es"
         case .pt: return "com.br"
         case .tr: return "com.tr"
+        case .hy: return "com"
         }
     }
     

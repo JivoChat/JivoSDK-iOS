@@ -22,14 +22,14 @@ protocol IManager: INetworkingEventHandler {
 }
 
 class BaseManager: IManager {
-    let thread: JivoFoundation.JVIDispatchThread
+    let thread: JVIDispatchThread
     let userContextAny: AnyObject
     let protoAny: AnyObject & INetworkingEventDecoder
     let networkEventDispatcher: INetworkingEventDispatcher
     
     private var isRunning = false
     
-    init(thread: JivoFoundation.JVIDispatchThread,
+    init(thread: JVIDispatchThread,
          userContext: AnyObject,
          proto: AnyObject & INetworkingEventDecoder,
          networkEventDispatcher: INetworkingEventDispatcher) {

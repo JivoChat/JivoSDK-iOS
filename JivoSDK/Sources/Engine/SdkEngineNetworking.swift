@@ -12,7 +12,7 @@ protocol ISdkEngineNetworkingFactory {
 }
 
 struct SdkEngineNetworkingFactory: ISdkEngineNetworkingFactory {
-    let workerThread: JivoFoundation.JVIDispatchThread
+    let workerThread: JVIDispatchThread
     let networkingHelper: INetworkingHelper
     let socketDriver: ILiveConnectionDriver
     let restConnectionDriver: IRestConnectionDriver

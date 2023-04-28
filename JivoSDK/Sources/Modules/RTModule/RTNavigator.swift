@@ -8,7 +8,6 @@
 
 import Foundation
 import UIKit
-import BABFrameObservingInputAccessoryView
 
 class RTNavigatorDestination<Module> {
     typealias Reducer<Output> = (Output) -> ModuleNavigationFinish
@@ -201,7 +200,7 @@ final class MockViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let bab = BABFrameObservingInputAccessoryView()
+        let bab = KeyboardAnchorControl()
         bab.frame.size.height = 0
         
         scrollView.keyboardDismissMode = .interactive

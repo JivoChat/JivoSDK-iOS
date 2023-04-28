@@ -10,8 +10,6 @@ import Foundation
 import UIKit
 import JivoFoundation
 
-import BABFrameObservingInputAccessoryView
-
 fileprivate let TimelineContactFormControlFieldBase = 0xEDA_211122
 
 extension TimelineContactFormControl {
@@ -95,10 +93,10 @@ final class TimelineContactFormControl: UIView, UITextFieldDelegate {
         }
     }
     
-    var keyboardObservingBar: BABFrameObservingInputAccessoryView? {
+    var keyboardAnchorControl: KeyboardAnchorControl? {
         didSet {
             for control in fieldControls {
-                control.inputAccessoryView = keyboardObservingBar
+                control.inputAccessoryView = keyboardAnchorControl
             }
         }
     }

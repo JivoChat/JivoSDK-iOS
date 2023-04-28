@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import JivoFoundation
 
 extension JVAgentWorktime {
     public var agentID: Int {

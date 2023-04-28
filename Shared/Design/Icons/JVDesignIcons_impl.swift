@@ -9,9 +9,9 @@ import Foundation
 import UIKit
 
 public final class JVDesignIcons: JVDesignEnvironmental, JVIDesignIcons {
-    public func find(logo: JVDesignIconsLogo) -> UIImage? {
-        switch (logo, JVActiveLocale().jv_langID) {
-        case (.full, JVLocaleLang.ru.rawValue):
+    public func find(logo: JVDesignIconsLogo, lang: String?) -> UIImage? {
+        switch (logo, lang) {
+        case (.full, "ru"):
             return resolve(
                 systemName: nil,
                 assetName: "logo_ru",
@@ -25,7 +25,7 @@ public final class JVDesignIcons: JVDesignEnvironmental, JVIDesignIcons {
                 rendering: .original,
                 pointSize: nil,
                 tintColor: nil)
-        case (.mini, JVLocaleLang.ru.rawValue):
+        case (.mini, "ru"):
             return resolve(
                 systemName: nil,
                 assetName: "mini-logo-ru",

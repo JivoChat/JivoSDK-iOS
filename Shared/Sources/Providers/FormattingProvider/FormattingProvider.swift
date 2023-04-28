@@ -157,7 +157,7 @@ final class FormattingProvider: IFormattingProvider {
     func isValidPhone(_ phone: String, countryCode: String?) -> Bool {
         let allLocales = [systemLocale] + localeProvider.availableLocales
         for locale in allLocales {
-            guard let region = countryCode ?? locale.jv_countryID ?? locale.jv_langID else { continue }
+            let region = countryCode ?? locale.jv_countryID ?? locale.jv_langId
             guard let value = try? phoneNumberKit.parse(phone, defaultRegion: region) else { continue }
             guard phoneNumberKit.isPossibleNumber(value) else { continue }
             return true
@@ -200,7 +200,7 @@ final class FormattingProvider: IFormattingProvider {
     private func tryFormat(phone: String, style: FormattingPhoneStyle, countryCode: String?) -> String? {
         let allLocales: [Locale] = [Locale.current, systemLocale] /*+ localeProvider.availableLocales*/
         for locale in allLocales {
-            guard let region = countryCode ?? locale.jv_countryID ?? locale.jv_langID else { continue }
+            let region = countryCode ?? locale.jv_countryID ?? locale.jv_langId
             guard let value = try? phoneNumberKit.parse(phone, defaultRegion: region) else { continue }
             guard phoneNumberKit.isPossibleNumber(value) else { continue }
             

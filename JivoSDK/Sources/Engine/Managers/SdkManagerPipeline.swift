@@ -9,9 +9,9 @@ import Foundation
 import JivoFoundation
 
 final class SdkManagerPipeline: JVBroadcastTool<SdkManagerPipelineEvent> {
-    let workerThread: JivoFoundation.JVIDispatchThread
+    let workerThread: JVIDispatchThread
     
-    init(workerThread: JivoFoundation.JVIDispatchThread) {
+    init(workerThread: JVIDispatchThread) {
         self.workerThread = workerThread
         
         super.init()

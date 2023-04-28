@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import JivoFoundation
 
 extension JVClientSessionUtm {
     public static func generateHumanReadable(

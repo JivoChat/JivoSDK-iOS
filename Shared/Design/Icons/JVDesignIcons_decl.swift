@@ -9,7 +9,7 @@ import Foundation
 import UIKit
 
 public protocol JVIDesignIcons {
-    func find(logo: JVDesignIconsLogo) -> UIImage?
+    func find(logo: JVDesignIconsLogo, lang: String?) -> UIImage?
     func find(preset: JVDesignIconsPreset) -> UIImage?
     func find(preset: JVDesignIconsPreset, pointSize: CGFloat?) -> UIImage?
     func find(asset: JVDesignIconsAsset, rendering: JVDesignAssetRendering) -> UIImage?

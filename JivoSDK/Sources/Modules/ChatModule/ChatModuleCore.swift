@@ -44,7 +44,7 @@ final class ChatModuleCore
     ChatModuleJointInput,
     ChatModuleState
 > {
-    private let workerThread: JivoFoundation.JVIDispatchThread
+    private let workerThread: JVIDispatchThread
     private let managerPipeline: SdkManagerPipeline
     private let sessionContext: ISdkSessionContext
     private let clientContext: ISdkClientContext
@@ -93,7 +93,7 @@ final class ChatModuleCore
     
     init(pipeline: ChatModulePipeline,
          state: ChatModuleState,
-         workerThread: JivoFoundation.JVIDispatchThread,
+         workerThread: JVIDispatchThread,
          managerPipeline: SdkManagerPipeline,
          sessionContext: ISdkSessionContext,
          clientContext: ISdkClientContext,

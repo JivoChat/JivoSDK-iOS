@@ -31,7 +31,7 @@ final class JMTimelineContactFormCanvas: JMTimelineCanvas {
         if let info = (item as? JMTimelineContactFormItem)?.payload {
             control.fields = info.fields
             control.cache = info.cache
-            control.keyboardObservingBar = info.keyboardObservingBar
+            control.keyboardAnchorControl = info.keyboardAnchorControl
             control.sizing = info.sizing
             control.accentColor = info.accentColor
             

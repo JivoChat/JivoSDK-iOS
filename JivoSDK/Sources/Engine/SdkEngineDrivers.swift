@@ -29,7 +29,7 @@ struct SdkEngineDrivers {
 }
 
 struct SdkEngineDriversFactory {
-    let workingThread: JivoFoundation.JVIDispatchThread
+    let workingThread: JVIDispatchThread
     let namespace: String
     let userDefaults: UserDefaults
     let keychain: KeychainSwift

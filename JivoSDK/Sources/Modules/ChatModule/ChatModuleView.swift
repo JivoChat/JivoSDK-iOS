@@ -8,7 +8,6 @@
 import Foundation
 import UIKit
 import JivoFoundation
-import BABFrameObservingInputAccessoryView
 import JMTimelineKit
 import JMRepicKit
 
@@ -38,11 +37,11 @@ final class JVChatModuleNavigationController
     ChatModulePresenterUpdate,
     ChatModuleViewIntent
 > {
-    init(pipeline: RTEModulePipelineViewNotifier<ChatModuleViewIntent>, keyboardObservingBar: BABFrameObservingInputAccessoryView, timelineController: JMTimelineController<ChatTimelineInteractor>, timelineInteractor: ChatTimelineInteractor, uiConfig: ChatModuleUIConfig, closeButton: JVDisplayCloseButton) {
+    init(pipeline: RTEModulePipelineViewNotifier<ChatModuleViewIntent>, keyboardAnchorControl: KeyboardAnchorControl, timelineController: JMTimelineController<ChatTimelineInteractor>, timelineInteractor: ChatTimelineInteractor, uiConfig: ChatModuleUIConfig, closeButton: JVDisplayCloseButton) {
         super.init(
             primaryView: ChatModuleViewController(
                 pipeline: pipeline,
-                keyboardObservingBar: keyboardObservingBar,
+                keyboardAnchorControl: keyboardAnchorControl,
                 timelineController: timelineController,
                 timelineInteractor: timelineInteractor,
                 uiConfig: uiConfig,
@@ -68,7 +67,7 @@ final class JVChatModuleViewController
     private lazy var replyUnderlay = UIView()
     private lazy var replyControl = SdkChatReplyControl()
     
-    private let keyboardObservingBar: BABFrameObservingInputAccessoryView
+    private let keyboardAnchorControl: KeyboardAnchorControl
     private let timelineController: JMTimelineController<ChatTimelineInteractor>
     private let timelineInteractor: ChatTimelineInteractor
     private let uiConfig: ChatModuleUIConfig
@@ -79,8 +78,8 @@ final class JVChatModuleViewController
     
     private let timelineControlTapDelegate = TimelineControlTapDelegate()
 
-    init(pipeline: RTEModulePipelineViewNotifier<ChatModuleViewIntent>, keyboardObservingBar: BABFrameObservingInputAccessoryView, timelineController: JMTimelineController<ChatTimelineInteractor>, timelineInteractor: ChatTimelineInteractor, uiConfig: ChatModuleUIConfig, closeButton: JVDisplayCloseButton) {
-        self.keyboardObservingBar = keyboardObservingBar
+    init(pipeline: RTEModulePipelineViewNotifier<ChatModuleViewIntent>, keyboardAnchorControl: KeyboardAnchorControl, timelineController: JMTimelineController<ChatTimelineInteractor>, timelineInteractor: ChatTimelineInteractor, uiConfig: ChatModuleUIConfig, closeButton: JVDisplayCloseButton) {
+        self.keyboardAnchorControl = keyboardAnchorControl
         self.timelineController = timelineController
         self.timelineInteractor = timelineInteractor
         self.uiConfig = uiConfig
@@ -179,7 +178,7 @@ final class JVChatModuleViewController
         view.addSubview(replyUnderlay)
         
         replyControl.tintColor = uiConfig.outcomingPalette?.inputTintColor
-        replyControl.inputAccessoryView = keyboardObservingBar
+        replyControl.inputAccessoryView = keyboardAnchorControl
         replyUnderlay.addSubview(replyControl)
         
         DispatchQueue.main.async { [weak self] in
@@ -208,7 +207,7 @@ final class JVChatModuleViewController
             }
         }
         
-        keyboardObservingBar.keyboardFrameChangedBlock = { [weak self] visible, frame in
+        keyboardAnchorControl.keyboardFrameChangedBlock = { [weak self] visible, frame in
             self?.handleKeyboard(visible: visible, frame: frame)
         }
         

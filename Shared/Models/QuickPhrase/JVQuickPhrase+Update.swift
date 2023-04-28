@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import JivoFoundation
 import JMCodingKit
 
 extension JVQuickPhrase {

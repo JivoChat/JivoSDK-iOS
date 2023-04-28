@@ -12,7 +12,7 @@ import JMCodingKit
 
 final class NetworkingSubSocket: INetworkingSubSocket {
     private let driver: ILiveConnectionDriver
-    private let networkingThread: JivoFoundation.JVIDispatchThread
+    private let networkingThread: JVIDispatchThread
     private let behavior: NetworkingSubSocketBehavior
     private let jsonPrivacyTool: JVJsonPrivacyTool
     
@@ -25,7 +25,7 @@ final class NetworkingSubSocket: INetworkingSubSocket {
     init(
         identifier: UUID,
         driver: ILiveConnectionDriver,
-        networkingThread: JivoFoundation.JVIDispatchThread,
+        networkingThread: JVIDispatchThread,
         behavior: NetworkingSubSocketBehavior,
         jsonPrivacyTool: JVJsonPrivacyTool
     ) {

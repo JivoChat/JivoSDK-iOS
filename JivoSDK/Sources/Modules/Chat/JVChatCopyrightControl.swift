@@ -31,7 +31,7 @@ class JVChatCopyrightControl: UIView {
     // MARK: - Private methods
     
     private func obtainLocalizedLogo() -> UIImage? {
-        return JVDesign.icons.find(logo: .full)
+        return JVDesign.icons.find(logo: .full, lang: JVActiveLocale().jv_langId)
     }
     
     // MARK: - Styling

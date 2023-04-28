@@ -89,7 +89,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     
     init(
         pipeline: SdkManagerPipeline,
-        thread: JivoFoundation.JVIDispatchThread,
+        thread: JVIDispatchThread,
         proto: SdkSessionProto,
         sessionContext: ISdkSessionContext,
         clientContext: ISdkClientContext,

@@ -160,7 +160,7 @@ final class RemoteStorageService: IRemoteStorageService {
     
     private let cachingDirectory = "remote-storage"
     
-    init(thread: JivoFoundation.JVIDispatchThread, userContext: IBaseUserContext, networking: INetworking, networkingHelper: INetworkingHelper, networkEventDispatcher: INetworkingEventDispatcher, cacheDriver: ICacheDriver, centerProvider: @escaping (RemoteStorageTarget.Purpose) -> RemoteStorageCenter?, tokenProvider: @escaping () -> String?) {
+    init(thread: JVIDispatchThread, userContext: IBaseUserContext, networking: INetworking, networkingHelper: INetworkingHelper, networkEventDispatcher: INetworkingEventDispatcher, cacheDriver: ICacheDriver, centerProvider: @escaping (RemoteStorageTarget.Purpose) -> RemoteStorageCenter?, tokenProvider: @escaping () -> String?) {
         self.userContext = userContext
         self.cacheDriver = cacheDriver
         self.centerProvider = centerProvider

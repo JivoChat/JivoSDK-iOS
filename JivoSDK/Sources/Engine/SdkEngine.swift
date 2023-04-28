@@ -77,6 +77,27 @@ final class SdkEngine: ISdkEngine {
     ) {
         setJournalLevel(.silent)
         
+        loc.searchingRulesProvider = { lang in
+            return [
+                JVLocalizerSearchingRule(
+                    location: Bundle(for: Jivo.self).path(forResource: lang, ofType: "lproj"),
+                    namespace: .jv_empty
+                ),
+                JVLocalizerSearchingRule(
+                    location: Bundle.main.path(forResource: lang, ofType: "lproj"),
+                    namespace: "jivosdk:"
+                ),
+                JVLocalizerSearchingRule(
+                    location: Bundle(for: Jivo.self).path(forResource: "Base", ofType: "lproj"),
+                    namespace: .jv_empty
+                ),
+                JVLocalizerSearchingRule(
+                    location: Bundle.main.path(forResource: "Base", ofType: "lproj"),
+                    namespace: "jivosdk:"
+                ),
+            ]
+        }
+        
         JVDesign.attachTo(
             application: .shared,
             window: UIWindow(frame: UIScreen.main.bounds))

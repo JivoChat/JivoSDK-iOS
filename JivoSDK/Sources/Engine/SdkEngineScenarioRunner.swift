@@ -12,10 +12,10 @@ protocol ISdkEngineScenarioRunner: AnyObject {
 }
 
 final class SdkEngineScenarioRunner: ISdkEngineScenarioRunner {
-    private let thread: JivoFoundation.JVIDispatchThread
+    private let thread: JVIDispatchThread
     private let managers: SdkEngineManagers
     
-    init(thread: JivoFoundation.JVIDispatchThread, managers: SdkEngineManagers) {
+    init(thread: JVIDispatchThread, managers: SdkEngineManagers) {
         self.thread = thread
         self.managers = managers
     }

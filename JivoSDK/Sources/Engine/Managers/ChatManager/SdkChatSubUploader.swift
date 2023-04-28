@@ -8,7 +8,6 @@
 
 import Foundation
 import JivoFoundation
-
 import SwiftMime
 import JMCodingKit
 
@@ -44,10 +43,10 @@ class SdkChatSubUploader: ISdkChatSubUploader {
     private var semaphore = CountingSemaphore(value: 0)
     
     private let uploadingQueue: DispatchQueue
-    private let workerThread: JivoFoundation.JVIDispatchThread
+    private let workerThread: JVIDispatchThread
     private let remoteStorageService: IRemoteStorageService
     
-    init(uploadingQueue: DispatchQueue, workerThread: JivoFoundation.JVIDispatchThread, remoteStorageService: IRemoteStorageService) {
+    init(uploadingQueue: DispatchQueue, workerThread: JVIDispatchThread, remoteStorageService: IRemoteStorageService) {
         self.uploadingQueue = uploadingQueue
         self.workerThread = workerThread
         self.remoteStorageService = remoteStorageService

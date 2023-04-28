@@ -13,7 +13,7 @@ protocol ISdkNetworkingEventDispatcherFactory {
 }
 
 struct SdkNetworkingEventDispatcherFactory: ISdkNetworkingEventDispatcherFactory {
-    let outputThread: JivoFoundation.JVIDispatchThread
+    let outputThread: JVIDispatchThread
     let parsingQueue: DispatchQueue
     let slicer: NetworkingSlicer
     

@@ -9,13 +9,13 @@ import Foundation
 import JivoFoundation
 
 struct SdkEngineThreads {
-    let workerThread: JivoFoundation.JVIDispatchThread
+    let workerThread: JVIDispatchThread
 }
 
 struct SdkEngineThreadsFactory {
     func build() -> SdkEngineThreads {
         return SdkEngineThreads(
-            workerThread: JivoFoundation.JVDispatchThread(caption: "jivosdk.engine")
+            workerThread: JVDispatchThread(caption: "jivosdk.engine")
         )
     }
 }

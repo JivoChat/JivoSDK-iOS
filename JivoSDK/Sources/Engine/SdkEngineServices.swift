@@ -25,7 +25,7 @@ struct SdkEngineServices {
 struct SdkEngineServicesFactory {
     let sessionContext: ISdkSessionContext
     let clientContext: ISdkClientContext
-    let workerThread: JivoFoundation.JVIDispatchThread
+    let workerThread: JVIDispatchThread
     let networking: INetworking
     let networkingHelper: INetworkingHelper
     let networkingEventDispatcher: INetworkingEventDispatcher
@@ -44,7 +44,7 @@ struct SdkEngineServicesFactory {
         )
     }
     
-    private func buildSystemMessagingService(workerThread: JivoFoundation.JVIDispatchThread) -> ISystemMessagingService {
+    private func buildSystemMessagingService(workerThread: JVIDispatchThread) -> ISystemMessagingService {
         return SystemMessagingService(
             thread: workerThread,
             databaseDriver: drivers.databaseDriver,
@@ -130,7 +130,7 @@ protocol INetworkServiceFactory {
 }
 
 struct NetworkServiceFactory: INetworkServiceFactory {
-    let workerThread: JivoFoundation.JVIDispatchThread
+    let workerThread: JVIDispatchThread
     let networkingHelper: INetworkingHelper
     let socketDriver: ILiveConnectionDriver
     let restConnectionDriver: IRestConnectionDriver

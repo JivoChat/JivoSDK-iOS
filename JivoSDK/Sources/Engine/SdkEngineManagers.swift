@@ -21,7 +21,7 @@ struct SdkEngineManagers {
 }
 
 struct SdkEngineManagersFactory {
-    let workerThread: JivoFoundation.JVIDispatchThread
+    let workerThread: JVIDispatchThread
     let uploadingQueue: DispatchQueue
     let sessionContext: ISdkSessionContext
     let clientContext: ISdkClientContext

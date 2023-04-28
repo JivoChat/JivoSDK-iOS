@@ -59,14 +59,14 @@ final class SystemMessagingService: ISystemMessagingService {
         var messageUUID: String!
     }
     
-    private let thread: JivoFoundation.JVIDispatchThread
+    private let thread: JVIDispatchThread
     private let databaseDriver: JVIDatabaseDriver
     private let formattingProvider: IFormattingProvider
     
     private var items = [Item]()
     private var localizedMetas = [String: LocalizedMeta]()
     
-    init(thread: JivoFoundation.JVIDispatchThread, databaseDriver: JVIDatabaseDriver, formattingProvider: IFormattingProvider) {
+    init(thread: JVIDispatchThread, databaseDriver: JVIDatabaseDriver, formattingProvider: IFormattingProvider) {
         self.thread = thread
         self.databaseDriver = databaseDriver
         self.formattingProvider = formattingProvider

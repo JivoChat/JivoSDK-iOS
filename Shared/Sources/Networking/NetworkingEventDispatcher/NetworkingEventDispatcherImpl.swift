@@ -16,13 +16,13 @@ final class NetworkingEventDispatcher: INetworkingEventDispatcher {
         weak var handler: INetworkingEventHandler?
     }
     
-    private let outputThread: JivoFoundation.JVIDispatchThread
+    private let outputThread: JVIDispatchThread
     private let slicer: INetworkingSlicer?
     
     private let parsingQueue: DispatchQueue
     private var items = [Item]()
     
-    init(outputThread: JivoFoundation.JVIDispatchThread, parsingQueue: DispatchQueue, slicer: INetworkingSlicer?) {
+    init(outputThread: JVIDispatchThread, parsingQueue: DispatchQueue, slicer: INetworkingSlicer?) {
         self.outputThread = outputThread
         self.parsingQueue = parsingQueue
         self.slicer = slicer

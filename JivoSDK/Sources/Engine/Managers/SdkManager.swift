@@ -24,7 +24,7 @@ class SdkManager: BaseManager, ISdkManager {
     
     init(
         pipeline: SdkManagerPipeline,
-        thread: JivoFoundation.JVIDispatchThread,
+        thread: JVIDispatchThread,
         userContext: AnyObject,
         proto: AnyObject & INetworkingEventDecoder,
         networkEventDispatcher: INetworkingEventDispatcher

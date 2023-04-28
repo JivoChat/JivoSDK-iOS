@@ -17,7 +17,7 @@ extension JVPage {
         return m_title.jv_orEmpty
     }
     
-    public var time: Date? {
-        return m_time?.jv_parseDateUsingFullFormat()
+    public var time: String? {
+        return m_time
     }
 }

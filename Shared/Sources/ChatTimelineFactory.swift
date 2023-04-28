@@ -14,7 +14,6 @@ import DTCollectionViewManager
 import JMTimelineKit
 import TypedTextAttributes
 import JMRepicKit
-import BABFrameObservingInputAccessoryView
 import JMCodingKit
 
 #if ENV_APP
@@ -117,7 +116,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
     private let botStyle: ChatTimelineBotStyle
     private let displayNameKind: JVDisplayNameKind
     private let outcomingPalette: ChatTimelinePalette?
-    private let keyboardObservingBar: BABFrameObservingInputAccessoryView
+    private let keyboardAnchorControl: KeyboardAnchorControl
     private let contactFormCache: ChatTimelineContactFormCache
 
     private let botSenderUUID = UUID().uuidString
@@ -133,7 +132,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
          botStyle: ChatTimelineBotStyle,
          displayNameKind: JVDisplayNameKind,
          outcomingPalette: ChatTimelinePalette?,
-         keyboardObservingBar: BABFrameObservingInputAccessoryView,
+         keyboardAnchorControl: KeyboardAnchorControl,
          contactFormCache: ChatTimelineContactFormCache
     ) {
         self.userContext = userContext
@@ -146,7 +145,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         self.botStyle = botStyle
         self.displayNameKind = displayNameKind
         self.outcomingPalette = outcomingPalette
-        self.keyboardObservingBar = keyboardObservingBar
+        self.keyboardAnchorControl = keyboardAnchorControl
         self.contactFormCache = contactFormCache
         
         super.init()
@@ -1089,7 +1088,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 sizing: status,
                 accentColor: outcomingPalette?.backgroundColor,
                 interactiveID: message.interactiveID,
-                keyboardObservingBar: keyboardObservingBar,
+                keyboardAnchorControl: keyboardAnchorControl,
                 provider: provider,
                 interactor: interactor
             )

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import JivoFoundation
 import JMRepicKit
 
 public protocol JVPresentable: JVValidatable {

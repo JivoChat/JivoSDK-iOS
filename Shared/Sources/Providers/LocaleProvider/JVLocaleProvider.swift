@@ -11,6 +11,7 @@ import Foundation
 public enum JVLocaleLang: String {
     case en
     case ru
+    case hy
     case es
     case pt
     case tr
@@ -42,27 +43,7 @@ public final class JVLocaleProvider: JVILocaleProvider {
     private(set) public static var activeLocale: Locale!
     
     public static var baseLocaleBundle: Bundle?
-    public static var activeBundle: Bundle?
 
-    public static func obtainBundle(for classFromBundle: AnyClass? = nil, lang: String) -> Bundle {
-        let bundle = classFromBundle.flatMap({ Bundle(for: $0) }) ?? Bundle.main
-        if let path = bundle.path(forResource: lang, ofType: "lproj"), let bundle = Bundle(path: path) {
-            return bundle
-        }
-
-        return baseLocaleBundle ?? Bundle.main
-    }
-    
-    public static func collectLangBundles(for packageBundles: [Bundle?], lang: String) -> [Bundle] {
-        return packageBundles.jv_flatten().flatMap { packageBundle -> [Bundle] in
-            let specificLangBundle = packageBundle.path(forResource: lang, ofType: "lproj")
-            let baseLangBundle = packageBundle.path(forResource: "Base", ofType: "lproj")
-            return [specificLangBundle, baseLangBundle]
-                .jv_flatten()
-                .compactMap(Bundle.init(path:))
-        }
-    }
-    
     public init(containingBundle: Bundle, activeLocale: Locale) {
         if let path = Bundle.main.path(forResource: "Base", ofType: "lproj") {
             JVLocaleProvider.baseLocaleBundle = Bundle(path: path)
@@ -73,7 +54,7 @@ public final class JVLocaleProvider: JVILocaleProvider {
     }
     
     public var availableLocales: [Locale] {
-        return ["en", "ru", "es", "pt", "tr"].map(Locale.init)
+        return ["en", "ru", "hy", "es", "pt", "tr"].map(Locale.init)
     }
     
     public var activeLocale: Locale {
@@ -82,13 +63,12 @@ public final class JVLocaleProvider: JVILocaleProvider {
         }
         set {
             JVLocaleProvider.activeLocale = newValue
-            JVLocaleProvider.activeBundle = newValue.jv_langID.flatMap({ JVLocaleProvider.obtainBundle(lang: $0) }) ?? JVLocaleProvider.baseLocaleBundle
             NotificationCenter.default.post(name: .jvLocaleDidChange, object: containingBundle)
         }
     }
     
     public var activeLang: JVLocaleLang {
-        guard let langID = activeLocale.jv_langID else { return .en }
+        let langID = activeLocale.jv_langId
         return JVLocaleLang(rawValue: langID) ?? .en
     }
     

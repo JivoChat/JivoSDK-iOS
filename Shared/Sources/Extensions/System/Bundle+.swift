@@ -35,7 +35,16 @@ public extension Bundle {
         }
     }
     
-    var jv_versionWithBuild: String {
-        return "\(jv_version) (\(jv_build))"
+    var jv_semanticVersion: String {
+        return "\(jv_version)-\(jv_build)"
+    }
+    
+    var jv_packageVersion: String {
+        if let value = infoDictionary?["JVPackageVersion"] as? String {
+            return value
+        }
+        else {
+            return jv_version
+        }
     }
 }

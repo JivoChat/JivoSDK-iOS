@@ -27,7 +27,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     private var customFields: [JVSessionCustomDataField]?
     
     init(pipeline: SdkManagerPipeline,
-         thread: JivoFoundation.JVIDispatchThread,
+         thread: JVIDispatchThread,
          subPusher: ISdkClientSubPusher,
          sessionContext: ISdkSessionContext,
          clientContext: ISdkClientContext,

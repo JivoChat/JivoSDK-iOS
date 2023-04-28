@@ -7,7 +7,6 @@ import Foundation
 import UIKit
 import JMRepicKit
 import JMTimelineKit
-import BABFrameObservingInputAccessoryView
 
 struct JMTimelineContactFormInfo: JMTimelineInfo {
     let fields: [TimelineContactFormField]
@@ -15,7 +14,7 @@ struct JMTimelineContactFormInfo: JMTimelineInfo {
     let sizing: TimelineContactFormControl.Sizing
     let accentColor: UIColor?
     let interactiveID: String?
-    let keyboardObservingBar: BABFrameObservingInputAccessoryView
+    let keyboardAnchorControl: KeyboardAnchorControl
     let provider: JVChatTimelineProvider
     let interactor: JVChatTimelineInteractor
     
@@ -24,7 +23,7 @@ struct JMTimelineContactFormInfo: JMTimelineInfo {
          sizing: TimelineContactFormControl.Sizing,
          accentColor: UIColor?,
          interactiveID: String?,
-         keyboardObservingBar: BABFrameObservingInputAccessoryView,
+         keyboardAnchorControl: KeyboardAnchorControl,
          provider: JVChatTimelineProvider,
          interactor: JVChatTimelineInteractor) {
         self.fields = fields
@@ -32,7 +31,7 @@ struct JMTimelineContactFormInfo: JMTimelineInfo {
         self.sizing = sizing
         self.accentColor = accentColor
         self.interactiveID = interactiveID
-        self.keyboardObservingBar = keyboardObservingBar
+        self.keyboardAnchorControl = keyboardAnchorControl
         self.provider = provider
         self.interactor = interactor
     }

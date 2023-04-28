@@ -31,7 +31,7 @@ fileprivate let JIVO_BUSINESS_CHAT_VIEW_HEIGHT = CGFloat(30)
 //    private let timelineInteractor: ChatTimelineInteractor
 //    private let uiConfig: ChatModuleUIConfig
 //
-//    private let keyboardObservingBar = BABFrameObservingInputAccessoryView()
+//    private let keyboardAnchorControl = BABFrameObservingInputAccessoryView()
 //    private var keyboardHeight = CGFloat(0)
 //
 //    private var isPresentedModally: Bool {

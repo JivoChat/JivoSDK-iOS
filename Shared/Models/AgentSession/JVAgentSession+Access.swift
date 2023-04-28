@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import JivoFoundation
 
 public enum JVAgentSessionWorkingState {
     case soon(JVAgentWorktimeDayMeta?)

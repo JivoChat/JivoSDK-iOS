@@ -17,14 +17,14 @@ enum RemoteStorageSubMediaProtoSubject: IProtoEventSubject {
 }
 
 final class RemoteStorageSubMediaUp: IRemoteStorageSubEngineUp {
-    private let thread: JivoFoundation.JVIDispatchThread
+    private let thread: JVIDispatchThread
     private let userContext: IBaseUserContext
     private let networking: INetworking
     private let networkingHelper: INetworkingHelper
     
     private let retrieveCredentialsKindID = UUID()
     
-    init(thread: JivoFoundation.JVIDispatchThread, userContext: IBaseUserContext, networking: INetworking, networkingHelper: INetworkingHelper) {
+    init(thread: JVIDispatchThread, userContext: IBaseUserContext, networking: INetworking, networkingHelper: INetworkingHelper) {
         self.thread = thread
         self.userContext = userContext
         self.networking = networking

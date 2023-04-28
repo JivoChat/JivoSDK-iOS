@@ -14,7 +14,7 @@ extension JVClientSession {
             return Date(timeIntervalSince1970: m_creation_ts)
         }
         else if let firstPage = history.first {
-            return firstPage.time
+            return firstPage.time?.jv_parseDateUsingFullFormat()
         }
         else {
             return nil

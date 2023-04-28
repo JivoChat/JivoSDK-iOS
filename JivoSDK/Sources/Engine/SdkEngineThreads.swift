@@ -15,7 +15,7 @@ struct SdkEngineThreads {
 struct SdkEngineThreadsFactory {
     func build() -> SdkEngineThreads {
         return SdkEngineThreads(
-            workerThread: JVDispatchThread(caption: "jivosdk.engine")
+            workerThread: JVDispatchThread(caption: "jivosdk.engine.queue")
         )
     }
 }

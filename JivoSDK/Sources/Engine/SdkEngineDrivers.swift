@@ -141,6 +141,7 @@ struct SdkEngineDriversFactory {
     
     private func buildWebSocketDriver(pingTimeInterval: TimeInterval, pongTimeInterval: TimeInterval, pingCharacter: Character, pongCharacter: Character, signToRemove: String? = nil) -> ILiveConnectionDriver {
         return WebSocketDriver(
+            namespace: "jivosdk",
             outgoingPackagesAccumulator: outgoingPackagesAccumulator,
             pingTimeInterval: pingTimeInterval,
             pongTimeInterval: pongTimeInterval,

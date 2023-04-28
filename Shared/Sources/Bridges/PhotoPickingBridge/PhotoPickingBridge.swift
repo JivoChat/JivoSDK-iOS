@@ -34,14 +34,16 @@ final class PhotoPickingBridge: NSObject, IPhotoPickingBridge, PHPickerViewContr
     private let photoLibraryDriver: IPhotoLibraryDriver
     private let cameraDriver: ICameraDriver
     
-    private lazy var loadingQueue = DispatchQueue(label: "jivo.queue.photo-loading", qos: .userInteractive)
+    private let loadingQueue: DispatchQueue
     private lazy var loadingSemaphore = DispatchSemaphore(value: 1)
     private var completion: PhotoPickingCompletion?
 
-    init(popupPresenterBridge: IPopupPresenterBridge, photoLibraryDriver: IPhotoLibraryDriver, cameraDriver: ICameraDriver) {
+    init(namespace: String, popupPresenterBridge: IPopupPresenterBridge, photoLibraryDriver: IPhotoLibraryDriver, cameraDriver: ICameraDriver) {
         self.popupPresenterBridge = popupPresenterBridge
         self.photoLibraryDriver = photoLibraryDriver
         self.cameraDriver = cameraDriver
+        
+        loadingQueue = DispatchQueue(label: "\(namespace).photo-picker.queue", qos: .userInteractive)
         
         super.init()
     }

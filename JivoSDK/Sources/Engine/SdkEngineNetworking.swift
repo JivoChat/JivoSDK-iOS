@@ -25,6 +25,7 @@ struct SdkEngineNetworkingFactory: ISdkEngineNetworkingFactory {
     
     func build() -> INetworking {
         let networkSubSocket = NetworkingSubSocket(
+            namespace: "jivosdk",
             identifier: UUID(),
             driver: socketDriver,
             networkingThread: workerThread,

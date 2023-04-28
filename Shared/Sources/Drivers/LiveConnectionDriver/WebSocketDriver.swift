@@ -39,7 +39,7 @@ class WebSocketDriver: ILiveConnectionDriver {
     }
     
     private let jsonCoder = JsonCoder()
-    private let websocketQueue = generateWebSocketQueue()
+    private let websocketQueue: DispatchQueue
     private var webSocket: WebSocket?
     private var outgoingPackagesAccumulator: AccumulatorTool<Data>
     private var incomingPackagesAccumulator: TimedAccumulatorTool<String>?
@@ -47,6 +47,7 @@ class WebSocketDriver: ILiveConnectionDriver {
     private weak var pongTimer: Timer?
     
     init(
+        namespace: String,
         outgoingPackagesAccumulator: AccumulatorTool<Data>,
         incomingPackagesAccumulator: TimedAccumulatorTool<String>? = nil,
         pingTimeInterval: TimeInterval,
@@ -66,6 +67,8 @@ class WebSocketDriver: ILiveConnectionDriver {
         self.signToAppend = signToAppend
         self.signToRemove = signToRemove
         self.jsonPrivacyTool = jsonPrivacyTool
+        
+        websocketQueue = DispatchQueue(label: "\(namespace).networking.websocket-\(UUID().jv_shortString).queue")
         
         incomingPackagesAccumulator?.releaseBlock = { [weak self] messages in
             self?.incomingPackagesAccumulatorReleased(withItems: messages)
@@ -361,9 +364,4 @@ class WebSocketDriver: ILiveConnectionDriver {
         let accumulatedString = packages.joined()
         messageHandler?(accumulatedString)
     }
-}
-
-fileprivate func generateWebSocketQueue() -> DispatchQueue {
-    let label = "com.jivosite.mobile.websocket:" + UUID().jv_shortString
-    return DispatchQueue(label: label)
 }

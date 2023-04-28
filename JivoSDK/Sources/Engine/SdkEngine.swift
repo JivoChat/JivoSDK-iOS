@@ -105,8 +105,8 @@ final class SdkEngine: ISdkEngine {
         threads = SdkEngineThreadsFactory(
         ).build()
         
-        let parsingQueue = DispatchQueue(label: "jivosdk.engine.dispatching", qos: .userInteractive)
-        let uploadingQueue = DispatchQueue(label: "jivosdk.engine.uploading", qos: .userInteractive)
+        let parsingQueue = DispatchQueue(label: "jivosdk.networking.mapper.queue", qos: .userInteractive)
+        let uploadingQueue = DispatchQueue(label: "jivosdk.engine.file-uploader.queue", qos: .userInteractive)
 
         self.namespace = namespace
         self.userDefaults = userDefaults

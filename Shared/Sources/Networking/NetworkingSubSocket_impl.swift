@@ -16,13 +16,14 @@ final class NetworkingSubSocket: INetworkingSubSocket {
     private let behavior: NetworkingSubSocketBehavior
     private let jsonPrivacyTool: JVJsonPrivacyTool
     
-    private let decodingThread = JVDispatchThread(caption: "rmo.engine.socket.decoding")
+    private let decodingThread: JVDispatchThread
     private let jsonCoder = JsonCoder()
     private var isListening = true
     private var rawToParse = [String]()
     private var identifierToRID = [Int: UUID]()
     
     init(
+        namespace: String,
         identifier: UUID,
         driver: ILiveConnectionDriver,
         networkingThread: JVIDispatchThread,
@@ -33,6 +34,8 @@ final class NetworkingSubSocket: INetworkingSubSocket {
         self.networkingThread = networkingThread
         self.behavior = behavior
         self.jsonPrivacyTool = jsonPrivacyTool
+        
+        decodingThread = JVDispatchThread(caption: "\(namespace).networking.parser.queue")
         
         driver.openHandler = { [unowned self] in
             let event = NetworkingSubSocketEvent.open(identifier: identifier)

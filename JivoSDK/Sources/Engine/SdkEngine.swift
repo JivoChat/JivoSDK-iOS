@@ -80,20 +80,20 @@ final class SdkEngine: ISdkEngine {
         loc.searchingRulesProvider = { lang in
             return [
                 JVLocalizerSearchingRule(
-                    location: Bundle(for: Jivo.self).path(forResource: lang, ofType: "lproj"),
-                    namespace: .jv_empty
-                ),
-                JVLocalizerSearchingRule(
                     location: Bundle.main.path(forResource: lang, ofType: "lproj"),
                     namespace: "jivosdk:"
                 ),
                 JVLocalizerSearchingRule(
-                    location: Bundle(for: Jivo.self).path(forResource: "Base", ofType: "lproj"),
+                    location: Bundle(for: Jivo.self).path(forResource: lang, ofType: "lproj"),
                     namespace: .jv_empty
                 ),
                 JVLocalizerSearchingRule(
                     location: Bundle.main.path(forResource: "Base", ofType: "lproj"),
                     namespace: "jivosdk:"
+                ),
+                JVLocalizerSearchingRule(
+                    location: Bundle(for: Jivo.self).path(forResource: "Base", ofType: "lproj"),
+                    namespace: .jv_empty
                 ),
             ]
         }

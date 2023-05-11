@@ -8,12 +8,12 @@
 
 import Foundation
 
-public protocol APISelectableType {
+protocol APISelectableType {
     var publicCode: String { get }
     var isNone: Bool { get }
 }
 
-public enum APIChatType: String, APISelectableType {
+enum APIChatType: String, APISelectableType {
     case none = "chat.none"
     case incoming = "chat.incoming"
     case outgoing = "chat.outgoing"
@@ -31,7 +31,7 @@ public enum APIChatType: String, APISelectableType {
         }
     }
     
-    public var publicCode: String {
+    var publicCode: String {
         switch self {
         case .none: return "none"
         case .incoming: return "incoming"
@@ -41,7 +41,7 @@ public enum APIChatType: String, APISelectableType {
         }
     }
     
-    public var isNone: Bool {
+    var isNone: Bool {
         return (self == .none)
     }
     
@@ -51,7 +51,7 @@ public enum APIChatType: String, APISelectableType {
 }
 
 extension JVArchiveHitChatItem {
-    public var type: APIChatType {
+    var type: APIChatType {
         return APIChatType(codeValue: m_type.jv_orEmpty) ?? .none
     }
 }

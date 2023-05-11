@@ -9,23 +9,23 @@
 import Foundation
 
 extension JVArchive {
-    public var latest: Double? {
+    var latest: Double? {
         return (m_latest == 0 ? nil : m_latest)
     }
     
-    public var lastID: String? {
+    var lastID: String? {
         return m_last_id?.jv_valuable
     }
     
-    public var total: Int {
+    var total: Int {
         return Int(m_total)
     }
     
-    public var archiveTotal: Int {
+    var archiveTotal: Int {
         return Int(m_archite_total)
     }
     
-    public var hits: [JVArchiveHit] {
+    var hits: [JVArchiveHit] {
         if let allObjects = m_hits?.allObjects as? [JVArchiveHit] {
             return allObjects
         }
@@ -35,11 +35,11 @@ extension JVArchive {
         }
     }
     
-    public var isCleanedUp: Bool {
+    var isCleanedUp: Bool {
         return m_is_cleaned_up
     }
     
-    public func sortedHits(by sort: JVArchiveHitSort) -> [JVArchiveHit] {
+    func sortedHits(by sort: JVArchiveHitSort) -> [JVArchiveHit] {
         switch sort {
         case .byTime:
             return hits

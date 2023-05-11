@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 import SwiftMime
 import JMCodingKit
 
@@ -192,13 +191,25 @@ class SdkChatSubUploader: ISdkChatSubUploader {
 
                 case .failure(.unsupportedFileType):
                     completion(.failure(.unsupportedMediaType))
+                    
+                case .failure(.fileTransferDisabled):
+                    completion(.failure(.uploadDeniedByAServer()))
+
 
                 case .failure(.unknown(let statusCode, let error)):
-                    let errorDescription = "Error\(statusCode.flatMap { " \($0.jv_toString())" } ?? ""): \(error?.localizedDescription ?? "")"
+                    #if DEBUG
+                    let errorDescription = "Error \(statusCode.flatMap { " \($0.jv_toString())" } ?? ""): \(error?.localizedDescription ?? "")"
                     completion(.failure(.uploadDeniedByAServer(errorDescription: errorDescription)))
+                    #else
+                    completion(.failure(.uploadDeniedByAServer(errorDescription: loc["media_uploading_common_error"])))
+                    #endif
                     
                 case .failure(let error):
+                    #if DEBUG
                     completion(.failure(.uploadDeniedByAServer(errorDescription: "Error: \(error)")))
+                    #else
+                    completion(.failure(.uploadDeniedByAServer(errorDescription: loc["media_uploading_common_error"])))
+                    #endif
                 }
                 
                 _self.semaphore.setCounter(to: 0)

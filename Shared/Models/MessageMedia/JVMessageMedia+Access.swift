@@ -9,7 +9,7 @@
 import Foundation
 import CoreLocation
 
-public enum JVMessageMediaType {
+enum JVMessageMediaType {
     case photo
     case sticker
     case document
@@ -24,13 +24,13 @@ public enum JVMessageMediaType {
     case unknown
 }
 
-public enum JVMessageMediaSizingMode {
+enum JVMessageMediaSizingMode {
     case original
     case cropped
 }
 
 extension JVMessageMedia {
-    public var type: JVMessageMediaType {
+    var type: JVMessageMediaType {
         switch m_type {
         case "photo":
             return .photo
@@ -59,11 +59,11 @@ extension JVMessageMedia {
         }
     }
     
-    public var mime: String {
+    var mime: String {
         return m_mime.jv_orEmpty
     }
     
-    public var thumbURL: URL? {
+    var thumbURL: URL? {
         if m_thumb_link.jv_orEmpty.isEmpty {
             return nil
         }
@@ -75,7 +75,7 @@ extension JVMessageMedia {
         }
     }
     
-    public var fullURL: URL? {
+    var fullURL: URL? {
         if m_full_link.jv_orEmpty.isEmpty {
             return nil
         }
@@ -87,23 +87,23 @@ extension JVMessageMedia {
         }
     }
     
-    public var emoji: String? {
+    var emoji: String? {
         return m_emoji?.jv_valuable
     }
     
-    public var name: String? {
+    var name: String? {
         return m_name?.jv_valuable
     }
     
-    public var dataSize: Int {
+    var dataSize: Int {
         return Int(m_size)
     }
     
-    public var duration: TimeInterval {
+    var duration: TimeInterval {
         return TimeInterval(m_duration)
     }
     
-    public var coordinate: CLLocationCoordinate2D? {
+    var coordinate: CLLocationCoordinate2D? {
         if m_latitude == 0, m_longitude == 0 {
             return nil
         }
@@ -112,7 +112,7 @@ extension JVMessageMedia {
         }
     }
     
-    public var conference: JVMessageBodyConference? {
+    var conference: JVMessageBodyConference? {
         guard type == .conference else {
             return nil
         }
@@ -126,7 +126,7 @@ extension JVMessageMedia {
         }
     }
     
-    public var story: JVMessageBodyStory? {
+    var story: JVMessageBodyStory? {
         guard type == .story else {
             return nil
         }
@@ -140,21 +140,21 @@ extension JVMessageMedia {
         )
     }
     
-    public var phone: String? {
+    var phone: String? {
         return m_phone?.jv_valuable
     }
     
-    public var text: String? {
+    var text: String? {
         return m_text?.jv_valuable
     }
     
-    public var originalSize: CGSize {
+    var originalSize: CGSize {
         let width = CGFloat(m_width)
         let height = CGFloat(m_height)
         return CGSize(width: width, height: height)
     }
     
-    public func pixelSize(minimum: CGFloat = 0, maximum: CGFloat = 0) -> (CGSize, JVMessageMediaSizingMode) {
+    func pixelSize(minimum: CGFloat = 0, maximum: CGFloat = 0) -> (CGSize, JVMessageMediaSizingMode) {
         let width = CGFloat(m_width) / UIScreen.main.scale
         let height = CGFloat(m_height) / UIScreen.main.scale
         let minimalSide = min(width, height)

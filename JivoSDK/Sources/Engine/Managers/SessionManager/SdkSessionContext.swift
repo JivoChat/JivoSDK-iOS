@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 protocol ISdkSessionContext: AnyObject {
     var eventSignal: JVBroadcastTool<SdkSessionContextEvent> { get }

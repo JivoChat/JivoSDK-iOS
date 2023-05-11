@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-public extension UINavigationBar {
+extension UINavigationBar {
     func jv_setShadowEnabled(_ enabled: Bool) {
         if enabled {
             setBackgroundImage(nil, for: .default)
@@ -26,7 +26,7 @@ public extension UINavigationBar {
     }
 }
 
-public extension UINavigationItem {
+extension UINavigationItem {
     var jv_largeDisplayMode: LargeTitleDisplayMode {
         get {
             if #available(iOS 11.0, *) {

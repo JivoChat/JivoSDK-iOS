@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 import JMCodingKit
 
 extension JVAgent {
@@ -117,22 +116,22 @@ extension JVAgent {
     }
 }
 
-public final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
+final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
     public let json: JsonElement
     public let isMe: Bool
-    public var ID: Int = 0
-    public var siteID: Int
-    public var email: String
-    public var emailVerified: Bool?
-    public var phone: String?
-    public var stateID: Int = 0
-    public var status: JVAgentStatusGeneralChange?
-    public var statusComment: String = ""
-    public var avatarLink: String
-    public var displayName: String = ""
-    public var title: String = ""
-    public var callingDestination: Int
-    public var callingOptions = 0
+    var ID: Int = 0
+    var siteID: Int
+    var email: String
+    var emailVerified: Bool?
+    var phone: String?
+    var stateID: Int = 0
+    var status: JVAgentStatusGeneralChange?
+    var statusComment: String = ""
+    var avatarLink: String
+    var displayName: String = ""
+    var title: String = ""
+    var callingDestination: Int
+    var callingOptions = 0
     public let isOwner: Bool?
     public let isAdmin: Bool
     public let isOperator: Bool
@@ -140,11 +139,11 @@ public final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
     public let session: JVAgentSessionGeneralChange?
     public let worktime: JVAgentWorktimeGeneralChange?
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(json: JsonElement, isMe: Bool) {
+    init(json: JsonElement, isMe: Bool) {
         self.json = json
         self.isMe = isMe
         
@@ -180,7 +179,7 @@ public final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
         super.init(json: json)
     }
     
-    public init(placeholderID: Int) {
+    init(placeholderID: Int) {
         json = JsonElement()
         isMe = false
         ID = placeholderID
@@ -203,7 +202,7 @@ public final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
         super.init()
     }
     
-    public init(json: JsonElement,
+    init(json: JsonElement,
          isMe: Bool,
          ID: Int,
          siteID: Int,
@@ -250,7 +249,7 @@ public final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
         self.init(json: json, isMe: false)
     }
     
-    public func cachable() -> JVAgentGeneralChange {
+    func cachable() -> JVAgentGeneralChange {
         return JVAgentGeneralChange(
             json: json,
             isMe: isMe,
@@ -275,20 +274,20 @@ public final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
     }
 }
 
-public final class JVAgentShortChange: JVDatabaseModelChange {
+final class JVAgentShortChange: JVDatabaseModelChange {
     public let ID: Int
     public let email: String?
     public let displayName: String
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public override var isValid: Bool {
+    override var isValid: Bool {
         return (ID > 0)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = json["agent_id"].intValue
         email = json["email"].string
         displayName = json["display_name"].stringValue
@@ -296,21 +295,21 @@ public final class JVAgentShortChange: JVDatabaseModelChange {
     }
 }
 
-public final class JVAgentSdkChange: JVDatabaseModelChange {
+final class JVAgentSdkChange: JVDatabaseModelChange {
     public let id: Int
     public let avatarLink: String?
     public let displayName: String
     public let title: String?
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return id
     }
     
-    public override var isValid: Bool {
+    override var isValid: Bool {
         return (id > 0)
     }
     
-    public init(
+    init(
         id: Int,
         avatarLink: String? = nil,
         displayName: String,
@@ -324,21 +323,21 @@ public final class JVAgentSdkChange: JVDatabaseModelChange {
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         abort()
     }
 }
 
-public final class JVAgentLastMessageChange: JVDatabaseModelChange {
+final class JVAgentLastMessageChange: JVDatabaseModelChange {
     public let ID: Int
     public let messageID: Int?
     public let messageLocalID: String?
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
 
-    public var messageGlobalKey: JVDatabaseModelCustomId<Int>? {
+    var messageGlobalKey: JVDatabaseModelCustomId<Int>? {
         if let messageID = messageID {
             return JVDatabaseModelCustomId(key: "m_id", value: messageID)
         }
@@ -347,7 +346,7 @@ public final class JVAgentLastMessageChange: JVDatabaseModelChange {
         }
     }
 
-    public var messageLocalKey: JVDatabaseModelCustomId<String>? {
+    var messageLocalKey: JVDatabaseModelCustomId<String>? {
         if let messageLocalID = messageLocalID {
             return JVDatabaseModelCustomId(key: "m_local_id", value: messageLocalID)
         }
@@ -356,65 +355,65 @@ public final class JVAgentLastMessageChange: JVDatabaseModelChange {
         }
     }
     
-    public init(ID: Int, messageID: Int?, messageLocalID: String?) {
+    init(ID: Int, messageID: Int?, messageLocalID: String?) {
         self.ID = ID
         self.messageID = messageID
         self.messageLocalID = messageLocalID
         super.init()
     }
 
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVAgentChatChange: JVDatabaseModelChange {
+final class JVAgentChatChange: JVDatabaseModelChange {
     public let ID: Int
     public let chatID: Int
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int, chatID: Int) {
+    init(ID: Int, chatID: Int) {
         self.ID = ID
         self.chatID = chatID
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVAgentWorktimeChange: JVDatabaseModelChange {
+final class JVAgentWorktimeChange: JVDatabaseModelChange {
     public let ID: Int
     public let worktimeChange: JVAgentWorktimeBaseChange?
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(change: JVAgentWorktimeBaseChange) {
+    init(change: JVAgentWorktimeBaseChange) {
         ID = change.agentID
         worktimeChange = change
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         abort()
     }
 }
 
-public final class JVAgentStateChange: JVDatabaseModelChange {
+final class JVAgentStateChange: JVDatabaseModelChange {
     public let ID: Int
     public let state: Int
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         if let sessionState = json.has(key: "state") {
             ID = 0
             
@@ -432,13 +431,13 @@ public final class JVAgentStateChange: JVDatabaseModelChange {
         super.init(json: json)
     }
     
-    public init(ID: Int, state: Int) {
+    init(ID: Int, state: Int) {
         self.ID = ID
         self.state = state
         super.init()
     }
     
-    public func copy(meID: Int) -> JVAgentStateChange {
+    func copy(meID: Int) -> JVAgentStateChange {
         if ID > 0 {
             return self
         }
@@ -448,23 +447,23 @@ public final class JVAgentStateChange: JVDatabaseModelChange {
     }
 }
 
-public final class JVAgentTypingChange: JVDatabaseModelChange {
+final class JVAgentTypingChange: JVDatabaseModelChange {
     public let ID: Int
     public let chatID: Int
     public let input: String?
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int, chatID: Int, input: String?) {
+    init(ID: Int, chatID: Int, input: String?) {
         self.ID = ID
         self.chatID = chatID
         self.input = input
         super.init()
     }
 
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = json["agent_id"].intValue
         chatID = json["chat_id"].intValue
 
@@ -478,57 +477,57 @@ public final class JVAgentTypingChange: JVDatabaseModelChange {
         super.init(json: json)
     }
 
-    public func copy(typing: Bool) -> JVAgentTypingChange {
+    func copy(typing: Bool) -> JVAgentTypingChange {
         return JVAgentTypingChange(ID: ID, chatID: chatID, input: input)
     }
 }
 
-public final class JVAgentDraftChange: JVDatabaseModelChange {
+final class JVAgentDraftChange: JVDatabaseModelChange {
     public let ID: Int
     public let draft: String?
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int, draft: String?) {
+    init(ID: Int, draft: String?) {
         self.ID = ID
         self.draft = draft
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public enum AgentPropertyUpdate {
+enum AgentPropertyUpdate {
     case displayName(String)
     case title(String)
     case avatarLink(URL?)
     case status(JVAgentState)
 }
 
-open class SDKAgentAtomChange: JVDatabaseModelChange {
-    public let id: Int
-    public let updates: [AgentPropertyUpdate]
+class SDKAgentAtomChange: JVDatabaseModelChange {
+    let id: Int
+    let updates: [AgentPropertyUpdate]
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         abort()
     }
     
-    open override var integerKey: JVDatabaseModelCustomId<Int>? {
+    override var integerKey: JVDatabaseModelCustomId<Int>? {
         return JVDatabaseModelCustomId<Int>(key: "m_id", value: id)
     }
     
-    public init(id: Int, updates: [AgentPropertyUpdate]) {
+    init(id: Int, updates: [AgentPropertyUpdate]) {
         self.id = id
         self.updates = updates
         
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }

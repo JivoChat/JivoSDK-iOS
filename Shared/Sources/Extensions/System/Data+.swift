@@ -9,7 +9,7 @@
 import Foundation
 import SwiftyNSException
 
-public extension Data {
+extension Data {
     static func jv_with(string: String, encoding: String.Encoding) -> Data? {
         return string.data(using: encoding)
     }

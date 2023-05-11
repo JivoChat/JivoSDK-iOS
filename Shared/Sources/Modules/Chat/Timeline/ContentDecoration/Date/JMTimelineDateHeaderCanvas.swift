@@ -8,7 +8,6 @@
 
 import Foundation
 import UIKit
-import JivoFoundation
 import JMTimelineKit
 
 struct JMTimelineDateHeaderStyle: JMTimelineStyle {

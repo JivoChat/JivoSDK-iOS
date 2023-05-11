@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension Bool {
+extension Bool {
     func jv_inverted() -> Bool {
         return !self
     }

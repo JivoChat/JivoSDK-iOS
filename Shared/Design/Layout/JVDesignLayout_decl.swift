@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol JVIDesignLayout {
+protocol JVIDesignLayout {
     var sideMargin: CGFloat { get }
     var controlMargin: CGFloat { get }
     var controlBigRadius: CGFloat { get }

@@ -7,17 +7,16 @@
 //
 
 import Foundation
-import JivoFoundation
 import JMRepicKit
 
-public enum JVChatInvitationState {
+enum JVChatInvitationState {
     case none
     case activeBySystem
     case activeByAgent(JVAgent)
     case cancelBySystem
     case cancelByAgent(JVAgent)
     
-    public var isNone: Bool {
+    var isNone: Bool {
         if case .none = self {
             return true
         }
@@ -27,20 +26,20 @@ public enum JVChatInvitationState {
     }
 }
 
-public enum JVChatReactionPerforming {
+enum JVChatReactionPerforming {
     case accept
     case decline
     case spam
     case close
 }
 
-public enum JVChatAttendeeAssignment {
+enum JVChatAttendeeAssignment {
     case assignedWithMe
     case assignedToAnother
     case notPresented
 }
 
-public enum JVChatTransferState {
+enum JVChatTransferState {
     case none
     case requested(agent: JVAgent, assisting: Bool, comment: String?)
     case completed(agent: JVAgent, assisting: Bool, date: Date, comment: String?)
@@ -51,7 +50,7 @@ public enum JVChatTransferState {
 }
 
 extension JVChat: JVPresentable {
-    public func repicItem(transparent: Bool, scale: CGFloat?) -> JMRepicItem? {
+    func repicItem(transparent: Bool, scale: CGFloat?) -> JMRepicItem? {
         guard isGroup else { return nil }
         guard let code = m_icon?.jv_valuable else { return nil }
         
@@ -63,35 +62,35 @@ extension JVChat: JVPresentable {
         )
     }
     
-    public var ID: Int {
+    var ID: Int {
         return Int(m_id)
     }
     
-    public var isGroup: Bool {
+    var isGroup: Bool {
         return m_is_group
     }
     
-    public var isMain: Bool {
+    var isMain: Bool {
         return m_is_main
     }
     
-    public var client: JVClient? {
+    var client: JVClient? {
         return m_client
     }
     
-    public var hasClient: Bool {
+    var hasClient: Bool {
         return (client != nil)
     }
     
-    public var title: String {
+    var title: String {
         return m_title ?? client?.displayName(kind: .decorative(.role)) ?? String()
     }
     
-    public var about: String? {
+    var about: String? {
         return m_about?.jv_valuable
     }
     
-    public var attendees: [JVChatAttendee] {
+    var attendees: [JVChatAttendee] {
         if let allObjects = m_attendees?.allObjects as? [JVChatAttendee] {
             return allObjects
         }
@@ -100,11 +99,11 @@ extension JVChat: JVPresentable {
         }
     }
     
-    public var attendee: JVChatAttendee? {
+    var attendee: JVChatAttendee? {
         return m_attendee
     }
     
-    public var allAttendees: [JVChatAttendee] {
+    var allAttendees: [JVChatAttendee] {
         return attendees.filter {
             if case .attendee = $0.relation {
                 return true
@@ -115,7 +114,7 @@ extension JVChat: JVPresentable {
         }
     }
     
-    public var invitationState: JVChatInvitationState {
+    var invitationState: JVChatInvitationState {
         if m_request_cancelled_by_system {
             return .cancelBySystem
         }
@@ -138,7 +137,7 @@ extension JVChat: JVPresentable {
         }
     }
     
-    public var isCancelled: Bool {
+    var isCancelled: Bool {
         switch invitationState {
         case .none:
             return false
@@ -153,31 +152,31 @@ extension JVChat: JVPresentable {
         }
     }
     
-    public var agents: [JVAgent] {
+    var agents: [JVAgent] {
         return attendees.compactMap { $0.agent }
     }
     
-    public var lastMessage: JVMessage? {
+    var lastMessage: JVMessage? {
         return m_last_message
     }
     
-    public var previewMessage: JVMessage? {
+    var previewMessage: JVMessage? {
         return m_preview_message ?? m_last_message
     }
 
-    public var lastMessageValid: Bool {
+    var lastMessageValid: Bool {
         return m_last_message_valid
     }
     
-    public var loadedPartialHistory: Bool {
+    var loadedPartialHistory: Bool {
         return m_loaded_partial_history
     }
     
-    public var loadedEntireHistory: Bool {
+    var loadedEntireHistory: Bool {
         return m_loaded_entiry_history
     }
     
-    public var realUnreadNumber: Int {
+    var realUnreadNumber: Int {
         if let message = m_last_message, message.sentByMe {
             return 0
         }
@@ -192,7 +191,7 @@ extension JVChat: JVPresentable {
         }
     }
     
-    public var notifyingUnreadNumber: Int {
+    var notifyingUnreadNumber: Int {
         if notifying == .nothing {
             return 0
         }
@@ -201,8 +200,8 @@ extension JVChat: JVPresentable {
         }
     }
     
-    public enum UnreadMarkPosition { case null, position(Int), identifier(Int) }
-    public var unreadMarkPosition: UnreadMarkPosition {
+    enum UnreadMarkPosition { case null, position(Int), identifier(Int) }
+    var unreadMarkPosition: UnreadMarkPosition {
         if let message = lastMessage, message.sentByMe {
             return .null
         }
@@ -214,7 +213,7 @@ extension JVChat: JVPresentable {
         }
     }
     
-    public var transferState: JVChatTransferState {
+    var transferState: JVChatTransferState {
         if let agent = m_transfer_to_agent {
             if let date = m_transfer_date {
                 return .completed(
@@ -265,27 +264,27 @@ extension JVChat: JVPresentable {
         }
     }
     
-    public var terminationDate: Date? {
+    var terminationDate: Date? {
         return m_termination_date
     }
 
-    public var hasActiveCall: Bool {
+    var hasActiveCall: Bool {
         return m_has_active_call
     }
     
-    public var lastActivityTimestamp: TimeInterval {
+    var lastActivityTimestamp: TimeInterval {
         return m_last_activity_timestamp
     }
     
-    public var department: String? {
+    var department: String? {
         return m_department?.jv_valuable
     }
     
-    public var draft: String? {
+    var draft: String? {
         return m_draft?.jv_valuable
     }
     
-    public var notifying: JVChatAttendeeNotifying? {
+    var notifying: JVChatAttendeeNotifying? {
         if isGroup {
             return attendee?.notifying
         }
@@ -294,25 +293,25 @@ extension JVChat: JVPresentable {
         }
     }
     
-    public var senderType: JVSenderType {
+    var senderType: JVSenderType {
         return .teamchat
     }
     
-    public func transferredFrom() -> (agent: JVAgent, comment: String?)? {
+    func transferredFrom() -> (agent: JVAgent, comment: String?)? {
         guard let attendee = attendee else { return nil }
         guard case let .attendee(agent, toAssist, comment) = attendee.relation else { return nil }
         guard let a = agent, !toAssist else { return nil }
         return (a, comment)
     }
 
-    public func transferredTo() -> (agent: JVAgent, comment: String?)? {
+    func transferredTo() -> (agent: JVAgent, comment: String?)? {
         guard let agent = m_transfer_to_agent, !agent.isMe else { return nil }
         guard !m_transfer_assisting else { return nil }
         guard let _ = m_transfer_date else { return nil }
         return (agent, m_transfer_comment)
     }
 
-    public func transferredToDepartment() -> (department: JVDepartment, agent: JVAgent, comment: String?)? {
+    func transferredToDepartment() -> (department: JVDepartment, agent: JVAgent, comment: String?)? {
         guard let department = m_transfer_to_department else { return nil }
         guard let agent = m_transfer_to_agent, !agent.isMe else { return nil }
         guard !m_transfer_assisting else { return nil }
@@ -320,28 +319,28 @@ extension JVChat: JVPresentable {
         return (department, agent, m_transfer_comment)
     }
 
-    public func assistingFrom() -> (agent: JVAgent, comment: String?)? {
+    func assistingFrom() -> (agent: JVAgent, comment: String?)? {
         guard let attendee = attendee else { return nil }
         guard case let .attendee(agent, toAssist, comment) = attendee.relation else { return nil }
         guard let a = agent, toAssist else { return nil }
         return (a, comment)
     }
 
-    public func assistingTo() -> (agent: JVAgent, comment: String?)? {
+    func assistingTo() -> (agent: JVAgent, comment: String?)? {
         guard let agent = m_transfer_to_agent, !agent.isMe else { return nil }
         guard m_transfer_assisting else { return nil }
         guard let _ = m_transfer_date else { return nil }
         return (agent, m_transfer_comment)
     }
 
-    public func selfJoined() -> Bool {
+    func selfJoined() -> Bool {
         guard let attendee = attendee else { return false }
         guard case let .attendee(agent, _, _) = attendee.relation else { return false }
         guard agent == nil else { return false }
         return true
     }
     
-    public func isTransferredAway() -> Bool {
+    func isTransferredAway() -> Bool {
         if let _ = m_transfer_date, !m_transfer_assisting {
             return true
         }
@@ -350,7 +349,7 @@ extension JVChat: JVPresentable {
         }
     }
     
-    public func activeAttendees(withMe: Bool) -> [JVChatAttendee] {
+    func activeAttendees(withMe: Bool) -> [JVChatAttendee] {
         let selfAttendee: [JVChatAttendee]
         if withMe, let attendee = attendee, case .attendee = attendee.relation {
             selfAttendee = [attendee]
@@ -368,7 +367,7 @@ extension JVChat: JVPresentable {
         return selfAttendee + otherAttendees
     }
     
-    public func teamAttendees(withMe: Bool) -> [JVChatAttendee] {
+    func teamAttendees(withMe: Bool) -> [JVChatAttendee] {
         let selfAttendee: [JVChatAttendee]
         if withMe, let attendee = attendee, case .team = attendee.relation {
             selfAttendee = [attendee]
@@ -386,7 +385,7 @@ extension JVChat: JVPresentable {
         return selfAttendee + otherAttendees
     }
     
-    public func attendeeAssignment(for ID: Int) -> JVChatAttendeeAssignment {
+    func attendeeAssignment(for ID: Int) -> JVChatAttendeeAssignment {
         if attendee == nil, attendees.isEmpty {
             return .notPresented
         }
@@ -401,11 +400,11 @@ extension JVChat: JVPresentable {
         }
     }
     
-    public var isArchived: Bool {
+    var isArchived: Bool {
         return m_is_archived
     }
 
-    public var recipient: JVSenderData? {
+    var recipient: JVSenderData? {
         if let client = client {
             return JVSenderData(type: .client, ID: client.ID)
         }
@@ -420,7 +419,7 @@ extension JVChat: JVPresentable {
         }
     }
     
-    public var notifyingCaptionStatus: String {
+    var notifyingCaptionStatus: String {
         guard let status = notifying else {
             return loc["Details.Group.EnableAlerts.On"]
         }
@@ -435,7 +434,7 @@ extension JVChat: JVPresentable {
         }
     }
     
-    public var notifyingCaptionAction: String {
+    var notifyingCaptionAction: String {
         guard let status = notifying else {
             return loc["Teambox.Options.Everything"]
         }
@@ -450,15 +449,15 @@ extension JVChat: JVPresentable {
         }
     }
     
-    public var correspondingAgent: JVAgent? {
+    var correspondingAgent: JVAgent? {
         return b_agent
     }
     
-    public var owningAgent: JVAgent? {
+    var owningAgent: JVAgent? {
         return m_owning_agent
     }
     
-    public func hasAttendee(agent: JVAgent) -> Bool {
+    func hasAttendee(agent: JVAgent) -> Bool {
         for attendee in attendees {
             guard agent.ID == attendee.agent?.ID else { continue }
             return true
@@ -467,14 +466,14 @@ extension JVChat: JVPresentable {
         return false
     }
     
-    public func hasManagingAccess(agent: JVAgent) -> Bool {
+    func hasManagingAccess(agent: JVAgent) -> Bool {
         guard isGroup && !(isMain) else { return false }
         if owningAgent?.ID == agent.ID { return true }
         if agent.isAdmin { return true }
         return false
     }
     
-    public func export() -> JVChatShortChange {
+    func export() -> JVChatShortChange {
         return JVChatShortChange(
             ID: Int(m_id),
             client: m_client?.export(),
@@ -487,7 +486,7 @@ extension JVChat: JVPresentable {
             isArchived: m_is_archived)
     }
     
-    public func isAvailable(accepting: Bool, joining: Bool) -> Bool {
+    func isAvailable(accepting: Bool, joining: Bool) -> Bool {
         switch attendee?.relation {
         case .invitedBySystem:
             return accepting

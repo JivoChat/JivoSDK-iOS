@@ -7,7 +7,7 @@
 
 import Foundation
 
-public final class JVDesignLayout: JVDesignEnvironmental, JVIDesignLayout {
+final class JVDesignLayout: JVDesignEnvironmental, JVIDesignLayout {
     public let sideMargin: CGFloat = 32
     public let controlMargin: CGFloat = 15
     public let controlBigRadius: CGFloat = 8

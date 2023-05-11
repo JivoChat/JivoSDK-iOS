@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 /**
  Responsible for everything related to the communication session,

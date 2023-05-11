@@ -8,7 +8,6 @@
 
 import Foundation
 import UIKit
-import JivoFoundation
 import JMTimelineKit
 
 final class JMTimelineDeliveryView: UIImageView {

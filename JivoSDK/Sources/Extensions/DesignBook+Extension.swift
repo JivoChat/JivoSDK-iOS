@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import JivoFoundation
 
 extension JVDesignIconsAsset {
     static let logo_ru = Self.init(name: "logo_ru")

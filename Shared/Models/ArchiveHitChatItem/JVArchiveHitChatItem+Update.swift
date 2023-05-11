@@ -32,14 +32,14 @@ extension JVArchiveHitChatItem {
     }
 }
 
-public final class JVArchiveHitChatItemGeneralChange: JVArchiveHitItemGeneralChange {
+final class JVArchiveHitChatItemGeneralChange: JVArchiveHitItemGeneralChange {
     public let type: String
     
-    public override var stringKey: JVDatabaseModelCustomId<String>? {
+    override var stringKey: JVDatabaseModelCustomId<String>? {
         return JVDatabaseModelCustomId(key: "m_id", value: ID)
     }
     
-    public init(ID: String,
+    init(ID: String,
          responseTimeout: Int,
          duration: Int,
          eventsNumber: Int,
@@ -60,12 +60,12 @@ public final class JVArchiveHitChatItemGeneralChange: JVArchiveHitItemGeneralCha
         )
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         type = json["chat_type"].stringValue
         super.init(json: json)
     }
     
-    public func copyUnrelative() -> JVArchiveHitChatItemGeneralChange {
+    func copyUnrelative() -> JVArchiveHitChatItemGeneralChange {
         return JVArchiveHitChatItemGeneralChange(
             ID: ID,
             responseTimeout: responseTimeout,

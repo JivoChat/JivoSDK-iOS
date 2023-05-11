@@ -8,7 +8,6 @@
 
 import UIKit
 import JMRepicKit
-import JivoFoundation
 
 
 class JVChatTitleControl: UIView {

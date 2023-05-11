@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-public extension UIApplication {
+extension UIApplication {
     var jv_isActive: Bool {
         switch applicationState {
         case .active: return true
@@ -25,7 +25,7 @@ public extension UIApplication {
     }
 }
 
-public extension UIApplication.State {
+extension UIApplication.State {
     var jv_description: String {
         switch self {
         case .active: return "active"

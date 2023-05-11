@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 extension UIActivityIndicatorView {
-    public func jv_started() -> UIActivityIndicatorView {
+    func jv_started() -> UIActivityIndicatorView {
         startAnimating()
         return self
     }

@@ -9,7 +9,7 @@
 import Foundation
 import JMCodingKit
 
-public extension JsonElement {
+extension JsonElement {
     var status: JsonElement {
         return self
     }

@@ -28,7 +28,7 @@ extension JVPushCredentials {
     }
 }
 
-public final class JVPushCredentialsChange: JVDatabaseModelChange {
+final class JVPushCredentialsChange: JVDatabaseModelChange {
     let id: String
     let siteId: Int
     let channelId: String
@@ -38,11 +38,11 @@ public final class JVPushCredentialsChange: JVDatabaseModelChange {
     let status: JVPushCredentials.Status
     let date: Date
 
-    public override var stringKey: JVDatabaseModelCustomId<String>? {
+    override var stringKey: JVDatabaseModelCustomId<String>? {
         return JVDatabaseModelCustomId(key: "m_id", value: id)
     }
 
-    public init(
+    init(
         id: String,
         siteId: Int,
         channelId: String,

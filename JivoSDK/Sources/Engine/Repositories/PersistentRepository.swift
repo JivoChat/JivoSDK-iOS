@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 //#warning("TODO: Anton Karpushko, 26.11.2021 – Make PersistentRepository thread-safe.")
 

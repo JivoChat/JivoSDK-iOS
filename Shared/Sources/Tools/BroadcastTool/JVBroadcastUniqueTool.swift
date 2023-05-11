@@ -8,10 +8,10 @@
 
 import Foundation
 
-public final class JVBroadcastUniqueTool<VT: Equatable>: JVBroadcastTool<VT> {
-    private(set) public var cachedValue: VT?
+final class JVBroadcastUniqueTool<VT: Equatable>: JVBroadcastTool<VT> {
+    private(set) var cachedValue: VT?
     
-    public func attachObserver(broadcastInitial: Bool, observer: @escaping JVBroadcastTool<VT>.Observer) {
+    func attachObserver(broadcastInitial: Bool, observer: @escaping JVBroadcastTool<VT>.Observer) {
         super.attachObserver(observer: observer)
         
         if let value = cachedValue {
@@ -19,14 +19,14 @@ public final class JVBroadcastUniqueTool<VT: Equatable>: JVBroadcastTool<VT> {
         }
     }
     
-    public func broadcast(_ value: VT, tag: JVBroadcastToolTag? = nil, force: Bool) {
+    func broadcast(_ value: VT, tag: JVBroadcastToolTag? = nil, force: Bool) {
         guard value != cachedValue || force else { return }
         cachedValue = value
         
         super.broadcast(value, tag: tag)
     }
     
-    public override func broadcast(_ value: VT, tag: JVBroadcastToolTag? = nil) {
+    override func broadcast(_ value: VT, tag: JVBroadcastToolTag? = nil) {
         broadcast(value, tag: tag, force: false)
     }
 }

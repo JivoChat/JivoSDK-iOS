@@ -10,7 +10,7 @@ import Foundation
 import JMCodingKit
 
 /*
-public extension List {
+extension List {
     func jv_toArray() -> [Element] {
         return Array(self)
     }
@@ -21,7 +21,7 @@ public extension List {
     }
 }
 
-public extension List where Element: JVBaseModel {
+extension List where Element: JVBaseModel {
     func jv_insertAbsent(_ items: [Element]) {
         guard let primaryKey = Element.primaryKey() else { return }
         

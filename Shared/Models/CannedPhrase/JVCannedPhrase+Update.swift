@@ -26,15 +26,15 @@ extension JVCannedPhrase {
     }
 }
 
-public final class JVCannedPhraseGeneralChange: JVDatabaseModelChange, Codable {
-    public var messageHashID: String
-    public var message: String
-    public var timestamp: Int
-    public var totalScore: Int
-    public var sessionScore: Int
-    public var isDeleted: Bool
+final class JVCannedPhraseGeneralChange: JVDatabaseModelChange, Codable {
+    var messageHashID: String
+    var message: String
+    var timestamp: Int
+    var totalScore: Int
+    var sessionScore: Int
+    var isDeleted: Bool
 
-    public override var stringKey: JVDatabaseModelCustomId<String>? {
+    override var stringKey: JVDatabaseModelCustomId<String>? {
         return JVDatabaseModelCustomId(key: "m_message_hash_id", value: messageHashID)
     }
     
@@ -48,7 +48,7 @@ public final class JVCannedPhraseGeneralChange: JVDatabaseModelChange, Codable {
         super.init(json: json)
     }
 
-    public init(messageHashID: String,
+    init(messageHashID: String,
                 message: String,
                 timestamp: Int,
                 totalScore: Int,
@@ -64,5 +64,5 @@ public final class JVCannedPhraseGeneralChange: JVDatabaseModelChange, Codable {
     }
 }
 
-public final class JVCannedPhraseFlushScoreChange: JVDatabaseModelChange {
+final class JVCannedPhraseFlushScoreChange: JVDatabaseModelChange {
 }

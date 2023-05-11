@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 struct SdkEngineThreads {
     let workerThread: JVIDispatchThread

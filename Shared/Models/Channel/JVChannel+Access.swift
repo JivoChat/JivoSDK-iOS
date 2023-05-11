@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-public enum JVChannelJoint: String {
+enum JVChannelJoint: String {
     case fb = "fb"
     case vk = "vk"
     case ok = "ok"
@@ -28,7 +28,7 @@ public enum JVChannelJoint: String {
     case ali = "ali"
     case unknown
     
-    public var localizedChannelTitle: String? {
+    var localizedChannelTitle: String? {
         switch self {
         case .fb: return loc["Client.Integration.FB"]
         case .vk: return loc["Client.Integration.VK"]
@@ -50,7 +50,7 @@ public enum JVChannelJoint: String {
         }
     }
     
-    public var localizedContactTitle: String? {
+    var localizedContactTitle: String? {
         switch self {
         case .fb: return loc["Client.Integration.FB"]
         case .vk: return loc["Client.Integration.VK"]
@@ -72,7 +72,7 @@ public enum JVChannelJoint: String {
         }
     }
     
-    public var isStandalone: Bool {
+    var isStandalone: Bool {
         switch self {
         case .fb: return true
         case .vk: return true
@@ -94,7 +94,7 @@ public enum JVChannelJoint: String {
         }
     }
     
-    public var isContiguous: Bool {
+    var isContiguous: Bool {
         switch self {
         case .fb: return true
         case .vk: return true
@@ -118,35 +118,35 @@ public enum JVChannelJoint: String {
 }
 
 extension JVChannel {
-    public var ID: Int {
+    var ID: Int {
         return Int(m_id)
     }
     
-    public var publicID: String {
+    var publicID: String {
         return m_public_id.jv_orEmpty
     }
     
-    public var stateID: Int {
+    var stateID: Int {
         return Int(m_state_id)
     }
     
-    public var siteURL: URL? {
+    var siteURL: URL? {
         return m_site_url.flatMap(URL.init)
     }
     
-    public var name: String {
+    var name: String {
         return siteURL?.absoluteString ?? m_site_url ?? String()
     }
     
-    public var guestsNumber: Int {
+    var guestsNumber: Int {
         return Int(m_guests_number)
     }
     
-    public var jointType: JVChannelJoint? {
+    var jointType: JVChannelJoint? {
         return m_joint_type.flatMap(JVChannelJoint.init)
     }
     
-    public var isTestable: Bool {
+    var isTestable: Bool {
         switch jointType {
         case nil:
             return true
@@ -157,12 +157,12 @@ extension JVChannel {
         }
     }
     
-    public func hasAttachedAgent(ID agentID: Int) -> Bool {
+    func hasAttachedAgent(ID agentID: Int) -> Bool {
         let query = ",\(agentID),"
         return m_agents_ids.jv_orEmpty.contains(query)
     }
     
-    public var icon: UIImage? {
+    var icon: UIImage? {
         guard let joint = jointType
         else {
             return UIImage(named: "preview_chat")

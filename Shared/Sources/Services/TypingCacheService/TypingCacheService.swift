@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 
 struct TypingContext: Codable, Equatable {

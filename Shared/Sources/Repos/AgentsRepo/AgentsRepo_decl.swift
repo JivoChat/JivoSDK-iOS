@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 protocol IAgentsRepo: AnyObject {
     func retrieve(id: Int, lookup: AgentRepoRetrievalLookup) -> JVAgent?

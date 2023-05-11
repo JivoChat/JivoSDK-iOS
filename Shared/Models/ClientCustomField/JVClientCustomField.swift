@@ -9,13 +9,13 @@
 import Foundation
 
 @objc(JVClientCustomField)
-public class JVClientCustomField: JVDatabaseModel {
-    public override func awakeFromInsert() {
+class JVClientCustomField: JVDatabaseModel {
+    override func awakeFromInsert() {
         super.awakeFromInsert()
         m_content = String()
     }
     
-    public override func apply(context: JVIDatabaseContext, change: JVDatabaseModelChange) {
+    override func apply(context: JVIDatabaseContext, change: JVDatabaseModelChange) {
         super.apply(context: context, change: change)
         performApply(context: context, environment: context.environment, change: change)
     }

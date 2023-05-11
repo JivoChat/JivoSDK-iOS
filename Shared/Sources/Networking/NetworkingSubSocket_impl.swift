@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 import JMCodingKit
 
 final class NetworkingSubSocket: INetworkingSubSocket {
@@ -37,24 +36,27 @@ final class NetworkingSubSocket: INetworkingSubSocket {
         
         decodingThread = JVDispatchThread(caption: "\(namespace).networking.parser.queue")
         
-        driver.openHandler = { [unowned self] in
+        driver.openHandler = { [unowned self] chain in
+            chain.journal {"WebSocket: [event=opened]"}
             let event = NetworkingSubSocketEvent.open(identifier: identifier)
             notity(event: event)
         }
         
-        driver.messageHandler = { [unowned self] data in
+        driver.messageHandler = { [unowned self] chain, data in
             guard let raw = data as? String else { return }
             guard raw.count > 1 else { return }
 
             if self.isListening {
-                self.handleRaw(raw)
+                self.handleRaw(chain: chain, raw: raw)
             }
             else {
                 self.rawToParse.append(raw)
             }
         }
         
-        driver.closeHandler = { [unowned self] code, reason, error in
+        driver.closeHandler = { [unowned self] chain, code, reason, error in
+            chain.journal {"WebSocket: [event=closed]"}
+            
             let event = NetworkingSubSocketEvent.close(identifier: identifier, code: code, reason: reason, error: error)
             notity(event: event)
         }
@@ -110,10 +112,12 @@ final class NetworkingSubSocket: INetworkingSubSocket {
     }
     
     func startCaching() {
+        journal {"WebSocket: start caching"}
         driver.startCaching()
     }
     
     func stopCaching(flush: Bool) {
+        journal {"WebSocket: stop caching"}
         driver.stopCaching(flush: flush)
     }
     
@@ -125,7 +129,7 @@ final class NetworkingSubSocket: INetworkingSubSocket {
     
     func resumeListening(flush: Bool) {
         if flush {
-            rawToParse.forEach(handleRaw)
+            rawToParse.forEach { handleRaw(chain: nil, raw: $0) }
         }
         
         if !isListening {
@@ -136,7 +140,7 @@ final class NetworkingSubSocket: INetworkingSubSocket {
         rawToParse.removeAll()
     }
     
-    private func handleRaw(_ raw: String) {
+    private func handleRaw(chain: JournalChild?, raw: String) {
         switch behavior {
         case .raw:
             let event = NetworkingSubSocketEvent.payload(.raw(raw))
@@ -144,27 +148,26 @@ final class NetworkingSubSocket: INetworkingSubSocket {
 
         case .json:
             decodingThread.async { [unowned self] in
-                guard
-                    let json = self.jsonCoder.decode(raw: raw)
-                else { return }
+                guard let json = self.jsonCoder.decode(raw: raw)
+                else {
+                    return
+                }
+                
+                chain?.journal { [p = jsonPrivacyTool] in "WebSocket: [event=received] \(p.filter(json: json))"}
                 
                 if let name = json["name"].string {
-                    journal { [p = jsonPrivacyTool] in "socket-received[legacy]: \(p.filter(json: json))"}
                     let event = NetworkingSubSocketEvent.payload(.legacy(name, json))
                     notity(event: event)
                 }
                 else if let method = json["method"].string {
-                    journal { [p = jsonPrivacyTool] in "socket-received[rpc]: \(p.filter(json: json))"}
                     let event = NetworkingSubSocketEvent.payload(.rpc(method, json["params"]))
                     notity(event: event)
                 }
                 else if let type = json["type"].string {
-                    journal { [p = jsonPrivacyTool] in "socket-received[atom]: \(p.filter(json: json))"}
                     let event = NetworkingSubSocketEvent.payload(.atom(type, json))
                     notity(event: event)
                 }
                 else if let rpcID = json["id"].int ?? json["id"].string?.jv_toInt() {
-                    journal { [p = jsonPrivacyTool] in "socket-received[ack]: \(p.filter(json: json))"}
                     if let requestID = identifierToRID.removeValue(forKey: rpcID) {
                         let status = json["status"].int.flatMap(RestResponseStatus.init) ?? .success
                         let payload = json["result"]
@@ -174,7 +177,6 @@ final class NetworkingSubSocket: INetworkingSubSocket {
                     }
                 }
                 else {
-                    journal { [p = jsonPrivacyTool] in "socket-received[unknown]: \(p.filter(json: json))"}
                     let event = NetworkingSubSocketEvent.payload(.unknown(json))
                     notity(event: event)
                 }

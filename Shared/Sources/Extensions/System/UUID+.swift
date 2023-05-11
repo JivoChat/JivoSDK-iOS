@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension UUID {
+extension UUID {
     var jv_shortString: String {
         return String(uuidString.lowercased().prefix(6))
     }

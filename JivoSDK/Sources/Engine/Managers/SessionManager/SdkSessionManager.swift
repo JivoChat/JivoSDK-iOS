@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 import JWTDecode
 import JMCodingKit
 
@@ -333,8 +332,13 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             return nil
         }
         
-        if let server = server, server.contains(".") {
-            return _EndpointInfo(domain: .custom(server), channelId: channelId)
+        if let server = server {
+            if server.contains(".") {
+                return _EndpointInfo(domain: .custom(server), channelId: channelId)
+            }
+            else {
+                return _EndpointInfo(domain: .sandbox(server), channelId: channelId)
+            }
         }
         else if target.isEmpty {
             return _EndpointInfo(domain: nil, channelId: channelId)

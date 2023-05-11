@@ -141,55 +141,55 @@ extension JVAgentWorktime {
     }
 }
 
-open class JVAgentWorktimeBaseChange: JVDatabaseModelChange {
-    public var agentID: Int
-        public init(agentID: Int) {
+class JVAgentWorktimeBaseChange: JVDatabaseModelChange {
+    var agentID: Int
+        init(agentID: Int) {
         self.agentID = agentID
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         agentID = json["agent_id"].intValue
         super.init(json: json)
     }
 }
 
-public final class JVAgentWorktimeGeneralChange: JVDatabaseModelChange, Codable {
-    public var agentID: Int
-    public var timezoneID: Int
-    public var enabled: Bool
-    public var monEnabled: Bool
-    public var monStart: String
-    public var monEnd: String
-    public var tueEnabled: Bool
-    public var tueStart: String
-    public var tueEnd: String
-    public var wedEnabled: Bool
-    public var wedStart: String
-    public var wedEnd: String
-    public var thuEnabled: Bool
-    public var thuStart: String
-    public var thuEnd: String
-    public var friEnabled: Bool
-    public var friStart: String
-    public var friEnd: String
-    public var satEnabled: Bool
-    public var satStart: String
-    public var satEnd: String
-    public var sunEnabled: Bool
-    public var sunStart: String
-    public var sunEnd: String
+final class JVAgentWorktimeGeneralChange: JVDatabaseModelChange, Codable {
+    var agentID: Int
+    var timezoneID: Int
+    var enabled: Bool
+    var monEnabled: Bool
+    var monStart: String
+    var monEnd: String
+    var tueEnabled: Bool
+    var tueStart: String
+    var tueEnd: String
+    var wedEnabled: Bool
+    var wedStart: String
+    var wedEnd: String
+    var thuEnabled: Bool
+    var thuStart: String
+    var thuEnd: String
+    var friEnabled: Bool
+    var friStart: String
+    var friEnd: String
+    var satEnabled: Bool
+    var satStart: String
+    var satEnd: String
+    var sunEnabled: Bool
+    var sunStart: String
+    var sunEnd: String
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return agentID
     }
     
-    public override var isValid: Bool {
+    override var isValid: Bool {
         guard agentID > 0 else { return false }
         return true
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         agentID = json["agent_id"].intValue
         timezoneID = json["timezone_id"].intValue
         enabled = json["work_time_enabled"].boolValue
@@ -218,72 +218,72 @@ public final class JVAgentWorktimeGeneralChange: JVDatabaseModelChange, Codable 
     }
 }
 
-public final class JVAgentWorktimeTimezoneChange: JVAgentWorktimeBaseChange {
+final class JVAgentWorktimeTimezoneChange: JVAgentWorktimeBaseChange {
     public let timezoneID: Int?
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return agentID
     }
     
-    public init(agentID: Int, timezoneID: Int?) {
+    init(agentID: Int, timezoneID: Int?) {
         self.timezoneID = timezoneID
         super.init(agentID: agentID)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         abort()
     }
 }
 
-public final class JVAgentWorktimeToggleChange: JVAgentWorktimeBaseChange {
+final class JVAgentWorktimeToggleChange: JVAgentWorktimeBaseChange {
     public let enable: Bool
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return agentID
     }
     
-    public init(agentID: Int, enable: Bool) {
+    init(agentID: Int, enable: Bool) {
         self.enable = enable
         super.init(agentID: agentID)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         abort()
     }
 }
 
-public final class JVAgentWorktimeDayChange: JVAgentWorktimeBaseChange {
+final class JVAgentWorktimeDayChange: JVAgentWorktimeBaseChange {
     public let day: JVAgentWorktimeDay
     public let config: JVAgentWorktimeDayConfig
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return agentID
     }
     
-    public init(agentID: Int, day: JVAgentWorktimeDay, config: JVAgentWorktimeDayConfig) {
+    init(agentID: Int, day: JVAgentWorktimeDay, config: JVAgentWorktimeDayConfig) {
         self.day = day
         self.config = config
         super.init(agentID: agentID)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         abort()
     }
 }
 
-public final class JVAgentWorktimeDirtyChange: JVAgentWorktimeBaseChange {
+final class JVAgentWorktimeDirtyChange: JVAgentWorktimeBaseChange {
     public let isDirty: Bool
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return agentID
     }
     
-    public init(agentID: Int, isDirty: Bool) {
+    init(agentID: Int, isDirty: Bool) {
         self.isDirty = isDirty
         super.init(agentID: agentID)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         abort()
     }
 }

@@ -9,19 +9,19 @@
 import Foundation
 
 extension JVAgentStatus {
-    public var statusID: Int {
+    var statusID: Int {
         return Int(m_id)
     }
     
-    public var title: String {
+    var title: String {
         return m_title.jv_orEmpty
     }
     
-    public var emoji: String {
+    var emoji: String {
         return m_emoji.jv_orEmpty.jv_convertToEmojis()
     }
     
-    public var position: Int {
+    var position: Int {
         return Int(m_position)
     }
 }

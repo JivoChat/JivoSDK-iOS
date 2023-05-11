@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-public extension UIScrollView {
+extension UIScrollView {
     var jv_isActivelyInteracting: Bool {
         return (isTracking || isDragging || isDecelerating)
     }

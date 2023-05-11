@@ -21,14 +21,14 @@ extension JVClientSessionUtm {
     }
 }
 
-public final class JVClientSessionUTMGeneralChange: JVDatabaseModelChange {
+final class JVClientSessionUTMGeneralChange: JVDatabaseModelChange {
     public let source: String?
     public let keyword: String?
     public let campaign: String?
     public let medium: String?
     public let content: String?
     
-    public override var isValid: Bool {
+    override var isValid: Bool {
         let components = [source, keyword, campaign, medium, content]
         if components.contains(where: { $0.jv_hasValue }) {
             return true
@@ -38,7 +38,7 @@ public final class JVClientSessionUTMGeneralChange: JVDatabaseModelChange {
         }
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         source = json["source"].valuable?.jv_unescape()
         keyword = json["keyword"].valuable?.jv_unescape()
         campaign = json["campaign"].valuable?.jv_unescape()

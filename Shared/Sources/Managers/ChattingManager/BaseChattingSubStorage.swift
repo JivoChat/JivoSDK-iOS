@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 
 protocol IBaseChattingSubStorage: ICommonSubStorage {

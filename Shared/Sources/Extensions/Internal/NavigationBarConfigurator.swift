@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JivoFoundation
 
 enum NavigationBarCloseButton {
     case back

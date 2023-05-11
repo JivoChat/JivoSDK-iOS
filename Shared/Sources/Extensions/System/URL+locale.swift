@@ -11,7 +11,7 @@ import SafeURL
 import CoreLocation
 import SwiftyNSException
 
-public extension URL {
+extension URL {
     static func jv_welcome() -> URL? {
         let link = loc["Menu.VisitWeb.URL"]
         return URL(string: link)
@@ -67,7 +67,7 @@ public extension URL {
 }
 
 extension JVLocaleLang {
-    public var jv_developmentPrefix: String {
+    var jv_developmentPrefix: String {
         switch self {
         case .en: return "en"
         case .ru: return "ru"
@@ -78,14 +78,14 @@ extension JVLocaleLang {
         }
     }
     
-    public var jv_productionHost: String {
+    var jv_productionHost: String {
         switch self {
         case .ru: return "jivosite.\(jv_productionDomain)"
         default: return "jivochat.\(jv_productionDomain)"
         }
     }
     
-    public var jv_productionDomain: String {
+    var jv_productionDomain: String {
         switch self {
         case .en: return "com"
         case .ru: return "ru"
@@ -96,7 +96,7 @@ extension JVLocaleLang {
         }
     }
     
-    public var jv_feedbackEmail: String {
+    var jv_feedbackEmail: String {
         switch self {
         case .tr: return "bilgi@\(jv_productionHost)"
         default: return "info@\(jv_productionHost)"

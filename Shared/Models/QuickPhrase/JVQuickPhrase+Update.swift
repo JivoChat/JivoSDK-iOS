@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 import JMCodingKit
 
 extension JVQuickPhrase {
@@ -25,17 +24,17 @@ extension JVQuickPhrase {
     }
 }
 
-public final class JVQuickPhraseGeneralChange: JVDatabaseModelChange {
+final class JVQuickPhraseGeneralChange: JVDatabaseModelChange {
     public let ID: String
     public let lang: String
     public let tags: [String]
     public let text: String
     
-    public override var stringKey: JVDatabaseModelCustomId<String>? {
+    override var stringKey: JVDatabaseModelCustomId<String>? {
         return JVDatabaseModelCustomId(key: "m_id", value: ID)
     }
     
-    public init(lang language: String, json: JsonElement) {
+    init(lang language: String, json: JsonElement) {
         ID = json["id"].string?.jv_valuable ?? UUID().uuidString.lowercased()
         lang = language
         tags = jv_with(json["tags"]) { $0.string.flatMap({[$0]}) ?? $0.stringArray }
@@ -43,7 +42,7 @@ public final class JVQuickPhraseGeneralChange: JVDatabaseModelChange {
         super.init(json: json)
     }
     
-    public init(ID: String,
+    init(ID: String,
          lang: String,
          tag: String,
          text: String) {
@@ -54,11 +53,11 @@ public final class JVQuickPhraseGeneralChange: JVDatabaseModelChange {
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
     
-    public override var isValid: Bool {
+    override var isValid: Bool {
         guard !ID.isEmpty else { return false }
         guard !lang.isEmpty else { return false }
         guard !tags.isEmpty else { return false }
@@ -66,7 +65,7 @@ public final class JVQuickPhraseGeneralChange: JVDatabaseModelChange {
         return true
     }
     
-    public func encode() -> JsonElement {
+    func encode() -> JsonElement {
         return JsonElement(
             [
                 "id": ID,

@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 
 /// What is mentioned: specific agent or any group

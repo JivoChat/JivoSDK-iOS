@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 class ChatGrowingSubmitControl<T>: UIView {
     var outputHandler: (ChatGrowingSubmitControlOutput<T>) -> Void = { _ in }

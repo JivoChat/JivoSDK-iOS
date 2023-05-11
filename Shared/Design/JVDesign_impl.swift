@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 import JMRepicKit
 
-public final class JVDesign: JVIDesign {
+final class JVDesign: JVIDesign {
     public static let environment: JVIDesignEnvironment = JVDesignEnvironment()
     public static let colors: JVIDesignColors = JVDesignColors(environment: environment)
     public static let fonts: JVIDesignFonts = JVDesignFonts(environment: environment)
@@ -41,7 +41,7 @@ public final class JVDesign: JVIDesign {
 //    }
 }
 
-public class JVDesignEnvironmental {
+class JVDesignEnvironmental {
     let environment: JVIDesignEnvironment
     
     init(environment: JVIDesignEnvironment) {

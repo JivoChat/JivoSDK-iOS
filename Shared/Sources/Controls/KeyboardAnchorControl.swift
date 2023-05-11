@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import JivoFoundation
 import UIKit
 
 fileprivate var observingContext = UUID()

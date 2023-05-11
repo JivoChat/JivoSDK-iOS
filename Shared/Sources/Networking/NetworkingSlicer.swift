@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 protocol INetworkingSlicer: AnyObject {
     var signal: JVBroadcastTool<[NetworkingEventBundle]> { get }

@@ -9,20 +9,20 @@
 import Foundation
 import CoreData
 
-public final class JVDatabaseModelRef<Value: JVDatabaseModel> {
+final class JVDatabaseModelRef<Value: JVDatabaseModel> {
     private weak var coreDataDriver: JVIDatabaseDriver?
     let objectId: NSManagedObjectID?
     
-    public init(coreDataDriver: JVIDatabaseDriver, value: Value?) {
+    init(coreDataDriver: JVIDatabaseDriver, value: Value?) {
         self.coreDataDriver = coreDataDriver
         self.objectId = value?.objectID
     }
     
-    public var resolved: Value? {
+    var resolved: Value? {
         return resolve()
     }
     
-    public func resolve() -> Value? {
+    func resolve() -> Value? {
         guard let objectId = objectId else {
             return nil
         }

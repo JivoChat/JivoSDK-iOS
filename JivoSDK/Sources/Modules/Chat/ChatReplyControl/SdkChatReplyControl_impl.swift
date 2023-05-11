@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import JivoFoundation
 
 final class SdkChatReplyControl: ChatGrowingSubmitControl<SdkChatReplyControl.Output> {
     private(set) lazy var menuButton = UIButton()
@@ -64,6 +63,8 @@ final class SdkChatReplyControl: ChatGrowingSubmitControl<SdkChatReplyControl.Ou
                         menuButton.isHidden = true
                         menuButton.isEnabled = false
                     }
+                    
+                    setNeedsLayout()
                 }
                 
             case .inactive(let reason):
@@ -171,9 +172,14 @@ fileprivate struct Layout {
     }
     
     var menuButtonSize: CGSize {
-        let width = shouldDisplayMenu ? senderAvatarSize.width + spacing * 2 : 0
-        let height = shouldDisplayMenu ? senderAvatarSize.height : 0
-        return CGSize(width: width, height: height)
+        if shouldDisplayMenu {
+            let width = senderAvatarSize.width + spacing * 2
+            let height = senderAvatarSize.height
+            return CGSize(width: width, height: height)
+        }
+        else {
+            return .zero
+        }
     }
     
     var addAttachmentButtonFrame: CGRect {

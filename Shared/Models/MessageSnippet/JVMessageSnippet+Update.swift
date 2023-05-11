@@ -19,13 +19,13 @@ extension JVMessageSnippet {
     }
 }
 
-public final class JVMessageSnippetGeneralChange: JVDatabaseModelChange {
+final class JVMessageSnippetGeneralChange: JVDatabaseModelChange {
     public let URL: String?
     public let title: String
     public let iconURL: String?
     public let HTML: String
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         URL = json["url"].valuable
         title = json["title"].stringValue
         iconURL = json["icon"].valuable

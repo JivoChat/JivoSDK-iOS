@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 protocol IManager: INetworkingEventHandler {
     var protoAny: AnyObject & INetworkingEventDecoder { get }

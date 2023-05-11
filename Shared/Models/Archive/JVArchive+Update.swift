@@ -54,7 +54,7 @@ extension JVArchive {
     }
 }
 
-public final class JVArchiveSliceChange: JVDatabaseModelChange {
+final class JVArchiveSliceChange: JVDatabaseModelChange {
     public let fresh: Bool
     public let status: Bool
     public let total: Int
@@ -63,7 +63,7 @@ public final class JVArchiveSliceChange: JVDatabaseModelChange {
     public let lastID: String?
     public let hits: [JVArchiveHitGeneralChange]
     
-    public init(fresh: Bool,
+    init(fresh: Bool,
          status: Bool,
          total: Int,
          archiveTotal: Int,
@@ -81,15 +81,15 @@ public final class JVArchiveSliceChange: JVDatabaseModelChange {
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return JVArchivePrimaryId
     }
     
-    public func copy(fresh: Bool) -> JVArchiveSliceChange {
+    func copy(fresh: Bool) -> JVArchiveSliceChange {
         return JVArchiveSliceChange(
             fresh: fresh,
             status: status,
@@ -102,8 +102,8 @@ public final class JVArchiveSliceChange: JVDatabaseModelChange {
     }
 }
 
-public final class JVArchiveCleanupChange: JVDatabaseModelChange {
-    public override var primaryValue: Int {
+final class JVArchiveCleanupChange: JVDatabaseModelChange {
+    override var primaryValue: Int {
         return JVArchivePrimaryId
     }
 }

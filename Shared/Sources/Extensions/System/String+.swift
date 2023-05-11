@@ -10,29 +10,29 @@ import Foundation
 import TypedTextAttributes
 
 extension Optional where Wrapped == String {
-    public var jv_orEmpty: String {
+    var jv_orEmpty: String {
         return self ?? .jv_empty
     }
 }
 
 extension String {
-    public static let jv_empty = String()
+    static let jv_empty = String()
     
-    public enum JVSearchingMode {
+    enum JVSearchingMode {
         case plain
         case email
         case phone
     }
     
-    public init(_ value: String?) {
+    init(_ value: String?) {
         self = value ?? String()
     }
     
-    public var jv_valuable: String? {
+    var jv_valuable: String? {
         return isEmpty ? nil : self
     }
     
-    public var jv_fileExtension: String? {
+    var jv_fileExtension: String? {
         if let ext = split(separator: ".").last {
             return String(ext)
         }
@@ -41,27 +41,27 @@ extension String {
         }
     }
     
-    public func jv_appendingPathComponent(_ component: String) -> String {
+    func jv_appendingPathComponent(_ component: String) -> String {
         return NSString(string: self).appendingPathComponent(component)
     }
     
-    public func jv_escape() -> String? {
+    func jv_escape() -> String? {
         return addingPercentEncoding(withAllowedCharacters: .alphanumerics)
     }
     
-    public func jv_unescape() -> String? {
+    func jv_unescape() -> String? {
         return removingPercentEncoding
     }
 
-    public func jv_fromHTML() -> String {
+    func jv_fromHTML() -> String {
         return NSString(string: self).replacingOccurrences(of: "&nbsp;", with: "\u{00a0}")
     }
 
-    public func jv_unbreakable() -> String {
+    func jv_unbreakable() -> String {
         return (self as NSString).replacingOccurrences(of: " ", with: " ")
     }
 
-    public func jv_substringFrom(index: Int) -> String {
+    func jv_substringFrom(index: Int) -> String {
         if count < index {
             return self
         }
@@ -71,7 +71,7 @@ extension String {
         }
     }
 
-    public func jv_substringTo(index: Int) -> String {
+    func jv_substringTo(index: Int) -> String {
         if count <= index {
             return self
         }
@@ -81,27 +81,27 @@ extension String {
         }
     }
     
-    public func jv_stringByRemovingSymbols(of set: CharacterSet) -> String {
+    func jv_stringByRemovingSymbols(of set: CharacterSet) -> String {
         return components(separatedBy: set).joined()
     }
     
-    public func jv_stringByRemoving(_ strings: [String]) -> String {
+    func jv_stringByRemoving(_ strings: [String]) -> String {
         return strings.reduce(self) { result, string in
             return result.replacingOccurrences(of: string, with: "")
         }
     }
     
-    public func jv_trimmed(charset: CharacterSet = CharacterSet.whitespacesAndNewlines) -> String {
+    func jv_trimmed(charset: CharacterSet = CharacterSet.whitespacesAndNewlines) -> String {
         return trimmingCharacters(in: charset)
     }
     
-    public func jv_trimmedZeros() -> String {
+    func jv_trimmedZeros() -> String {
         let zeroCharset = CharacterSet(charactersIn: "\u{0000}")
         let charset = CharacterSet.whitespacesAndNewlines.union(zeroCharset)
         return jv_trimmed(charset: charset)
     }
     
-    public func jv_search(_ mode: JVSearchingMode, query: String) -> Bool {
+    func jv_search(_ mode: JVSearchingMode, query: String) -> Bool {
         switch mode {
         case .plain: return lowercased().contains(query.lowercased())
         case .email: return lowercased().contains(query.lowercased())
@@ -109,19 +109,19 @@ extension String {
         }
     }
     
-    public func jv_toInt() -> Int {
+    func jv_toInt() -> Int {
         return (self as NSString).integerValue
     }
 
-    public func jv_toHexInt() -> UInt64? {
+    func jv_toHexInt() -> UInt64? {
         return jv_valuable.flatMap({ UInt64($0, radix: 16) })
     }
     
-    public func jv_toDouble() -> Double {
+    func jv_toDouble() -> Double {
         return (self as NSString).doubleValue
     }
     
-    public func jv_toBool() -> Bool {
+    func jv_toBool() -> Bool {
         switch self {
         case "true", "1": return true
         case "false", "0": return false
@@ -129,18 +129,18 @@ extension String {
         }
     }
     
-    public func jv_extractingPhoneSymbols() -> String {
+    func jv_extractingPhoneSymbols() -> String {
         let charset = CharacterSet(charactersIn: "+(0123456789)-")
         return components(separatedBy: charset.inverted).joined()
     }
     
-    public func jv_clipBy(_ limit: Int?) -> String {
+    func jv_clipBy(_ limit: Int?) -> String {
         guard let limit = limit else { return self }
         guard count >= limit else { return self }
         return jv_substringTo(index: limit) + "…"
     }
     
-    public func jv_plain() -> String {
+    func jv_plain() -> String {
         var result = self
         result = result.replacingOccurrences(of: "\r\n", with: " ")
         result = result.replacingOccurrences(of: "\r", with: " ")
@@ -148,37 +148,37 @@ extension String {
         return result
     }
     
-    public func jv_oneEmojiString() -> String? {
+    func jv_oneEmojiString() -> String? {
         let clearString = jv_trimmed()
         return clearString.jv_hasEmojiOnly ? clearString : nil
     }
     
-    public func jv_containsSymbols(from characterSet: CharacterSet) -> Bool {
+    func jv_containsSymbols(from characterSet: CharacterSet) -> Bool {
         return components(separatedBy: characterSet).count > 1
     }
     
-    public func jv_contains(only symbols: CharacterSet) -> Bool {
+    func jv_contains(only symbols: CharacterSet) -> Bool {
         let slices = (self as NSString).components(separatedBy: symbols)
         return (slices.filter(\.isEmpty).count == unicodeScalars.count + 1)
     }
 
-    public func jv_styledWith(lineHeight: CGFloat? = nil, foregroundColor: UIColor? = nil) -> NSAttributedString {
+    func jv_styledWith(lineHeight: CGFloat? = nil, foregroundColor: UIColor? = nil) -> NSAttributedString {
         var attributes = TextAttributes()
         if let value = lineHeight { attributes = attributes.minimumLineHeight(value).maximumLineHeight(value) }
         if let value = foregroundColor { attributes = attributes.foregroundColor(value) }
         return NSAttributedString(string: self, attributes: attributes)
     }
 
-    public func jv_convertToNonBreakable() -> String {
+    func jv_convertToNonBreakable() -> String {
         // replace regular space with non-break space
         return replacingOccurrences(of: " ", with: " ")
     }
 
-    public func jv_quoted() -> String {
+    func jv_quoted() -> String {
         return "\"\(self)\""
     }
     
-    public func jv_convertToEmojis() -> String {
+    func jv_convertToEmojis() -> String {
         return String(
             String.UnicodeScalarView(
                 split(separator: "-")
@@ -188,7 +188,7 @@ extension String {
         )
     }
     
-    public var jv_hasEmojiOnly: Bool {
+    var jv_hasEmojiOnly: Bool {
         guard let firstScalar = unicodeScalars.first else {
             return false
         }
@@ -212,7 +212,7 @@ extension String {
         return true
     }
     
-    public var jv_hasAnyEmoji: Bool {
+    var jv_hasAnyEmoji: Bool {
         guard let firstScalar = unicodeScalars.first else {
             return false
         }

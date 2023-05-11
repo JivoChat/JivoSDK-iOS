@@ -8,37 +8,37 @@
 
 import Foundation
 
-public enum JVArchiveHitSort {
+enum JVArchiveHitSort {
     case byTime
     case byScore
 }
 
 extension JVArchiveHit {
-    public var ID: String {
+    var ID: String {
         return m_id.jv_orEmpty
     }
     
-    public var item: JVArchiveHitItem? {
+    var item: JVArchiveHitItem? {
         return chatItem ?? callItem
     }
     
-    public var chatItem: JVArchiveHitChatItem? {
+    var chatItem: JVArchiveHitChatItem? {
         return m_item as? JVArchiveHitChatItem
     }
     
-    public var callItem: JVArchiveHitCallItem? {
+    var callItem: JVArchiveHitCallItem? {
         return m_item as? JVArchiveHitCallItem
     }
     
-    public var chat: JVChat? {
+    var chat: JVChat? {
         return item?.chat
     }
     
-    public var duration: TimeInterval {
+    var duration: TimeInterval {
         return item?.duration ?? 0
     }
     
-    public var latestActivityTime: Date? {
+    var latestActivityTime: Date? {
         return m_latest_activity_time
     }
 }

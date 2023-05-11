@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import JivoFoundation
 import JMDesignKit
 import JMTimelineKit
 import AVFoundation

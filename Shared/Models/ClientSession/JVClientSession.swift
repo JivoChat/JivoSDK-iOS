@@ -9,8 +9,8 @@
 import Foundation
 
 @objc(JVClientSession)
-public class JVClientSession: JVDatabaseModel {
-    public override func apply(context: JVIDatabaseContext, change: JVDatabaseModelChange) {
+class JVClientSession: JVDatabaseModel {
+    override func apply(context: JVIDatabaseContext, change: JVDatabaseModelChange) {
         super.apply(context: context, change: change)
         performApply(context: context, environment: context.environment, change: change)
     }

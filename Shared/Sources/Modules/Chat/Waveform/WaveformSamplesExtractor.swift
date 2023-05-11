@@ -23,7 +23,7 @@ final class WaveformSamplesExtractor {
     ]
     public static var noiseFloor = Float(-50.0)
     
-    public func samples(audioTrack: AVAssetTrack,
+    func samples(audioTrack: AVAssetTrack,
         desiredNumberOfSamples: Int = 300,
         onSuccess: @escaping (_ samples: [Float], _ sampleMax: Float,_ identifier: String?) -> (),
         onFailure: @escaping () -> (),

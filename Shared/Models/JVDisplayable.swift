@@ -8,7 +8,7 @@
 
 import Foundation
 
-public protocol JVDisplayable: JVPresentable {
+protocol JVDisplayable: JVPresentable {
     var channel: JVChannel? { get }
     func displayName(kind: JVDisplayNameKind) -> String
     var integration: JVChannelJoint? { get }

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 
 final class PushCredentialsRepository: PersistentRepository<String, SdkClientSubPusherCredentials, JVPushCredentialsChange, JVPushCredentials, String> {

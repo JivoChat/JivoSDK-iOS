@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 import JMCodingKit
 import JFWebSocket
 
@@ -67,9 +66,9 @@ let connectionNotReachableCode = 1009
 let connectionSecureFailureCode = 1200
 
 protocol ILiveConnectionDriver: AnyObject {
-    var openHandler: (() -> Void)? { get set }
-    var messageHandler: ((Any) -> Void)? { get set }
-    var closeHandler: ((Int, String, Error?) -> Void)? { get set }
+    var openHandler: ((JournalChild) -> Void)? { get set }
+    var messageHandler: ((JournalChild, Any) -> Void)? { get set }
+    var closeHandler: ((JournalChild, Int, String, Error?) -> Void)? { get set }
     
     var isConnecting: Bool { get }
     var isConnected: Bool { get }
@@ -97,15 +96,15 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
         case caching(sinceDate: Date)
     }
     
-    var openHandler: (() -> Void)?
-    var messageHandler: ((Any) -> Void)?
-    var closeHandler: ((Int, String, Error?) -> Void)?
+    var openHandler: ((JournalChild) -> Void)?
+    var messageHandler: ((JournalChild, Any) -> Void)?
+    var closeHandler: ((JournalChild, Int, String, Error?) -> Void)?
     
     private let jsonCoder = JsonCoder()
     private let websocketQueue = generateWebSocketQueue()
     private let websocketMutex = NSLock()
-    private var webSocket: WebSocket?
-    private var outgoingCachedPackets: [Data]?
+    private var webSocket: WebSocketVerbose?
+    private var outgoingCachedPackets: [(JsonElement?, Data)]?
     
     private let flushingInterval: TimeInterval
     private let voip: Bool
@@ -156,43 +155,26 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
     }
     
     func startCaching() {
-        journal(
-            layer: .network,
-            subsystem: .general,
-            messages: [
-                .full: {"start-caching"}
-            ]
-        )
-
         outgoingCachedPackets = []
     }
     
     func stopCaching(flush: Bool) {
-        defer { outgoingCachedPackets = nil }
+        defer {
+            outgoingCachedPackets = nil
+        }
         
         if flush, let webSocket = webSocket {
             if let packets = outgoingCachedPackets {
-                journal(
-                    layer: .network,
-                    subsystem: .general,
-                    messages: [
-                        .full: {"stop-caching; flush-packets[\(packets.count)]"}
-                    ]
-                )
-
-                packets.forEach(webSocket.send)
+                packets.forEach { json, data in
+                    if let json = json {
+                        webSocket.chain?.journal(.full) { [p = jsonPrivacyTool] in "WebSocket: [action=flush] \(p.filter(json: json))"}
+                    }
+                    
+                    webSocket.send(data)
+                }
             }
             
             reshedulePinging()
-        }
-        else {
-            journal(
-                layer: .network,
-                subsystem: .general,
-                messages: [
-                    .full: {"stop-caching; no-flush"}
-                ]
-            )
         }
     }
     
@@ -200,7 +182,9 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
         disconnect()
         cacheState = (flushingInterval > 0 ? .waiting : .disabled)
 
-        let ws = WebSocket()
+        let chain = journal {"Configure WebSocket for endpoint:\n\(url.absoluteString)"}
+        let ws = WebSocketVerbose()
+        ws.chain = chain
         webSocket = ws
         
         ws.eventQueue = websocketQueue
@@ -212,7 +196,7 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
                 self.wasConnected = true
                 self.incomingCachedPackets.removeAll()
                 self.reshedulePinging()
-                self.openHandler?()
+                self.openHandler?(chain)
             }
         }
         
@@ -223,7 +207,7 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
                     
                     self.stopPonging()
                     self.reshedulePinging()
-                    self.messageHandler?(body)
+                    self.messageHandler?(chain, body)
                 }
             }
             
@@ -327,25 +311,26 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
                 if let customCode = self.closingCode {
                     self.closingCode = nil
                     self.wasConnected = false
-                    self.closeHandler?(customCode, reason, nil)
+                    self.closeHandler?(chain, customCode, reason, nil)
                 }
                 else if !self.wasConnected {
                     if String(describing: error).contains("-9802)") {
-                        self.closeHandler?(abs(NSURLErrorSecureConnectionFailed), reason, error)
+                        self.closeHandler?(chain, abs(NSURLErrorSecureConnectionFailed), reason, error)
                     }
                     else {
-                        self.closeHandler?(abs(NSURLErrorNotConnectedToInternet), reason, error)
+                        self.closeHandler?(chain, abs(NSURLErrorNotConnectedToInternet), reason, error)
                     }
                 }
                 else {
                     self.wasConnected = false
-                    self.closeHandler?(code, reason, error)
+                    self.closeHandler?(chain, code, reason, error)
                 }
             }
         }
         
         var request = URLRequest(url: url)
         request.allHTTPHeaderFields = headers
+        
         ws.open(request: request)
     }
     
@@ -355,15 +340,12 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
             else { return }
         
         if isCachingEnabled(), supportsCaching {
-            outgoingCachedPackets?.append(data)
-
-            journal { [p = jsonPrivacyTool] in "socket-send-enqueue[legacy]: \(p.filter(json: json))"}
+            outgoingCachedPackets?.append((json, data))
         }
         else {
+            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: [action=send] \(p.filter(json: json))"}
             webSocket?.send(data)
             reshedulePinging()
-
-            journal { [p = jsonPrivacyTool] in "socket-send-now[legacy]: \(p.filter(json: json))"}
         }
     }
     
@@ -388,15 +370,12 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
             else { return rpcID }
         
         if isCachingEnabled(), supportsCaching {
-            outgoingCachedPackets?.append(data)
-
-            journal { [p = jsonPrivacyTool] in "socket-send-enqueue[rpc]: \(p.filter(json: payload))"}
+            outgoingCachedPackets?.append((payload, data))
         }
         else {
+            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: [action=send] \(p.filter(json: payload))"}
             webSocket?.send(data)
             reshedulePinging()
-
-            journal { [p = jsonPrivacyTool] in "socket-send-now[rpc]: \(p.filter(json: payload))"}
         }
         
         return rpcID
@@ -406,7 +385,7 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
         guard let data = plain.data(using: .utf8) else { return }
         
         if isCachingEnabled(), supportsCaching {
-            outgoingCachedPackets?.append(data)
+            outgoingCachedPackets?.append((nil, data))
         }
         else {
             webSocket?.send(data)
@@ -415,6 +394,7 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
     }
     
     func close() {
+        webSocket?.chain?.journal(.full) {"WebSocket: [action=close]"}
         webSocket?.close()
     }
     
@@ -467,31 +447,12 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
     }
     
     @objc private func handlePongTimer() {
-        journal(
-            layer: .network,
-            subsystem: .any,
-            messages: [
-                .full: {"no-pong; perform-close"}
-            ]
-        )
-        
+        webSocket?.chain?.journal(.full) {"WebSocket: disconnect as no Pong arrived"}
         closingCode = 1
         close()
     }
     
     @objc private func handlePingTimer() {
-        guard isConnected else {
-            journal(
-                layer: .network,
-                subsystem: .any,
-                messages: [
-                    .full: {"not-connected; prevent-ping"}
-                ]
-            )
-            
-            return
-        }
-        
         webSocket?.send(" ")
         reshedulePinging()
         reshedulePonging()

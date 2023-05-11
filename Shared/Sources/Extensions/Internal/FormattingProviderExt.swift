@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 extension IFormattingProvider {
     func format(worktime meta: JVAgentWorktimeDayMeta?, anotherDay: Bool) -> String {

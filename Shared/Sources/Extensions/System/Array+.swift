@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-public extension Array {
+extension Array {
     static var jv_empty: Self {
         return .init()
     }
@@ -23,13 +23,13 @@ public extension Array {
     }
 }
 
-public extension Sequence where Iterator.Element: JVOptionalType {
+extension Sequence where Iterator.Element: JVOptionalType {
     func jv_flatten() -> [Iterator.Element.Wrapped] {
         return compactMap { $0.jv_optional }
     }
 }
 
-public extension Array where Element == String {
+extension Array where Element == String {
     func jv_stringOrEmpty(at index: Int) -> String {
         return (index < count ? self[index] : String())
     }
@@ -47,7 +47,7 @@ public extension Array where Element == String {
     }
 }
 
-public extension Array where Element: Equatable {
+extension Array where Element: Equatable {
     func jv_unique() -> [Element] {
         var uniqueValues = [Element]()
         
@@ -73,7 +73,7 @@ public extension Array where Element: Equatable {
     }
 }
 
-public extension Array where Element == Int {
+extension Array where Element == Int {
     func jv_stringify() -> [String] {
         return map { String("\($0)") }
     }

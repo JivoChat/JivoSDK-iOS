@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import UIKit
 
-public extension Bundle {
+extension Bundle {
     static var jv_shared: Bundle {
         return Bundle(for: JVDesign.self)
     }

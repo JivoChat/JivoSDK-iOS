@@ -8,12 +8,12 @@
 
 import Foundation
 
-public protocol JVOptionalType {
+protocol JVOptionalType {
     associatedtype Wrapped
     var jv_optional: Wrapped? { get }
 }
 
-public extension Optional {
+extension Optional {
     var jv_hasValue: Bool {
         if let _ = self {
             return true
@@ -25,7 +25,7 @@ public extension Optional {
 }
 
 extension Optional: JVOptionalType {
-    public var jv_optional: Wrapped? {
+    var jv_optional: Wrapped? {
         return self
     }
 
@@ -36,7 +36,7 @@ extension Optional: JVOptionalType {
 }
 
 /*
-public extension Optional where Wrapped: Object {
+extension Optional where Wrapped: Object {
     func jv_ifValid() -> Wrapped? {
         return self?.jv_ifValid()
     }

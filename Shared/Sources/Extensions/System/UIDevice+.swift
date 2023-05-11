@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-public extension UIDevice {
+extension UIDevice {
     var jv_isPhone: Bool {
         if UIDevice.current.userInterfaceIdiom == .phone {
             return true

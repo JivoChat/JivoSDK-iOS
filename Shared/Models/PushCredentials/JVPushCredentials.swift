@@ -9,13 +9,13 @@
 import Foundation
 
 @objc(JVPushCredentials)
-public class JVPushCredentials: JVDatabaseModel {
-    public override func apply(context: JVIDatabaseContext, change: JVDatabaseModelChange) {
+class JVPushCredentials: JVDatabaseModel {
+    override func apply(context: JVIDatabaseContext, change: JVDatabaseModelChange) {
         super.apply(context: context, change: change)
         performApply(context: context, environment: context.environment, change: change)
     }
     
-    public override func awakeFromInsert() {
+    override func awakeFromInsert() {
         super.awakeFromInsert()
         m_date = Date()
         m_status = Status.waitingForRegister.rawValue

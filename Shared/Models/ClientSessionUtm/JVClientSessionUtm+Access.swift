@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 extension JVClientSessionUtm {
     public static func generateHumanReadable(
@@ -79,7 +78,7 @@ extension JVClientSessionUtm {
         return output
     }
     
-    public var humanReadable: String? {
+    var humanReadable: String? {
         guard
             let source = m_source?.jv_valuable,
             let campaign = m_campaign?.jv_valuable

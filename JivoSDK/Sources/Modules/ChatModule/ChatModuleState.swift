@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 enum ChatModuleInputUpdate {
     case update(SdkChatReplyControl.Update)

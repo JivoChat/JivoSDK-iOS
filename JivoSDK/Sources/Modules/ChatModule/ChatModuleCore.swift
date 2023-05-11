@@ -7,7 +7,6 @@
 
 import Foundation
 import Photos
-import JivoFoundation
 
 import JMTimelineKit
 import JMMarkdownKit
@@ -207,7 +206,12 @@ final class ChatModuleCore
         
         clientContextObserver = clientContext.eventSignal.addObserver { [weak self] event in
             DispatchQueue.main.async {
-                self?.handleClientContextEvent(event)
+                switch event {
+                case .licenseStateUpdated(let licensing):
+                    self?.notifyMenuState(licensing: licensing)
+                default:
+                    break
+                }
             }
         }
         
@@ -262,6 +266,8 @@ final class ChatModuleCore
         
         managerPipeline.notify(event: .turnActive)
         apnsService.requestForPermission(at: .onAppear)
+        
+        notifyMenuState(licensing: clientContext.licensing)
     }
     
     /**
@@ -637,21 +643,20 @@ final class ChatModuleCore
         }
     }
     
-    private func handleClientContextEvent(_ event: SdkClientContextEvent) {
-        switch event {
-        case let .licenseStateUpdated(licenseState):
-            switch licenseState {
-            case .licensed:
-                state.licenseState = .licensed
-            case .unlicensed:
-                state.licenseState = .unlicensed
-            case .none:
-                state.licenseState = .undefined
-            }
-            
-            pipeline?.notify(event: .licenseUpdate)
-        default: break
+    private func notifyMenuState(licensing: SdkClientLicensing?) {
+        switch licensing {
+        case .licensed:
+            state.licenseState = .licensed
+            pipeline?.notify(event: .inputUpdate(.update(.init(input: .active(placeholder: nil, text: nil, menu: .active), submit: nil))))
+        case .unlicensed:
+            state.licenseState = .unlicensed
+            pipeline?.notify(event: .inputUpdate(.update(.init(input: .active(placeholder: nil, text: nil, menu: .hidden), submit: nil))))
+        case .none:
+            state.licenseState = .undefined
+            pipeline?.notify(event: .inputUpdate(.update(.init(input: .active(placeholder: nil, text: nil, menu: .hidden), submit: nil))))
         }
+        
+        pipeline?.notify(event: .licenseUpdate)
     }
     
     var flag = true

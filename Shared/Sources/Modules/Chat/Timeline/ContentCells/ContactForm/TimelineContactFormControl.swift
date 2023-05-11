@@ -8,7 +8,6 @@
 
 import Foundation
 import UIKit
-import JivoFoundation
 
 fileprivate let TimelineContactFormControlFieldBase = 0xEDA_211122
 

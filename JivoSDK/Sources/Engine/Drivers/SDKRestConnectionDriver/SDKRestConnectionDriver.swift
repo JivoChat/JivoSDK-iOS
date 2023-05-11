@@ -193,7 +193,7 @@ class SDKRestConnectionDriver: IRestConnectionDriver {
 
 fileprivate func makePrimarySessionConfig() -> URLSessionConfiguration {
     if let config = URLSessionConfiguration.default.copy() as? URLSessionConfiguration {
-        config.requestCachePolicy = .reloadIgnoringLocalCacheData
+        config.requestCachePolicy = .reloadIgnoringLocalAndRemoteCacheData
         config.timeoutIntervalForRequest = 20
         config.networkServiceType = .responsiveData
         return config

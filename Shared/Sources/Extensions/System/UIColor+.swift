@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-public extension UIColor {
+extension UIColor {
     static var jv_auto: UIColor {
         if #available(iOS 13.0, *) {
             return label

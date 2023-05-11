@@ -19,12 +19,12 @@ extension JVPage {
     }
 }
 
-public final class JVPageGeneralChange: JVDatabaseModelChange {
+final class JVPageGeneralChange: JVDatabaseModelChange {
     public let URL: String
     public let title: String
     public let time: String?
     
-    public override var isValid: Bool {
+    override var isValid: Bool {
         if URL.isEmpty {
             return false
         }
@@ -36,7 +36,7 @@ public final class JVPageGeneralChange: JVDatabaseModelChange {
         }
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         URL = json["url"].stringValue
         title = json["title"].stringValue
         time = json["time"].string

@@ -8,7 +8,6 @@
 
 import Foundation
 import UIKit
-import JivoFoundation
 
 class StackViewChild: UIView {
     private let captionLabel = UILabel()

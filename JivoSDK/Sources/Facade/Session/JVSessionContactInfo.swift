@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 /**
  Holds the contact info of a client

@@ -5,7 +5,6 @@
 
 import Foundation
 import SwiftDate
-import JivoFoundation
 
 
 protocol IPrioritizedQueueTool: AnyObject {

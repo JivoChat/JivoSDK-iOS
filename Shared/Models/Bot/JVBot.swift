@@ -9,8 +9,8 @@
 import Foundation
 
 @objc(JVBot)
-public class JVBot: JVParticipant {
-    public override func apply(context: JVIDatabaseContext, change: JVDatabaseModelChange) {
+class JVBot: JVParticipant {
+    override func apply(context: JVIDatabaseContext, change: JVDatabaseModelChange) {
         super.apply(context: context, change: change)
         performApply(context: context, environment: context.environment, change: change)
     }

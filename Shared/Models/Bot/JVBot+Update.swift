@@ -24,13 +24,13 @@ extension JVBot {
     }
 }
 
-public final class JVBotGeneralChange: JVDatabaseModelChange, Codable {
+final class JVBotGeneralChange: JVDatabaseModelChange, Codable {
     public let id: Int
     public let avatarLink: String?
     public let displayName: String?
     public let title: String?
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return id
     }
     
@@ -43,7 +43,7 @@ public final class JVBotGeneralChange: JVDatabaseModelChange, Codable {
         super.init(json: json)
     }
     
-    public init(placeholderID: Int) {
+    init(placeholderID: Int) {
         id = placeholderID
         avatarLink = nil
         displayName = nil
@@ -52,7 +52,7 @@ public final class JVBotGeneralChange: JVDatabaseModelChange, Codable {
         super.init()
     }
     
-    public init(id: Int,
+    init(id: Int,
                 avatarLink: String?,
                 displayName: String?,
                 title: String?) {
@@ -63,7 +63,7 @@ public final class JVBotGeneralChange: JVDatabaseModelChange, Codable {
         super.init()
     }
     
-    public func cachable() -> JVBotGeneralChange {
+    func cachable() -> JVBotGeneralChange {
         return JVBotGeneralChange(
             id: id,
             avatarLink: avatarLink,

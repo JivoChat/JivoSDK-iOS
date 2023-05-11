@@ -14,17 +14,17 @@ import JivoSDK
 
 internal let loc = JVLocalizer.shared
 
-public extension Notification.Name {
+extension Notification.Name {
     static let jvLocaleDidChange = Notification.Name("LocaleDidChange")
 }
 
-public enum JVLocalizedMetaMode {
+enum JVLocalizedMetaMode {
     case key(String)
     case format(String)
     case exact(String)
 }
 
-public enum JVSearchingBehavior {
+enum JVSearchingBehavior {
     case app
     case sdk
 }
@@ -97,7 +97,7 @@ final class JVLocalizer {
     }
 }
 
-public func JVActiveLocale() -> Locale {
+func JVActiveLocale() -> Locale {
     return JVLocaleProvider.activeLocale
 }
 

@@ -12,7 +12,7 @@ import JMCodingKit
 extension JVArchiveHitItem {
 }
 
-open class JVArchiveHitItemGeneralChange: JVDatabaseModelChange {
+class JVArchiveHitItemGeneralChange: JVDatabaseModelChange {
     public let ID: String
     public let responseTimeout: Int
     public let duration: Int
@@ -21,7 +21,7 @@ open class JVArchiveHitItemGeneralChange: JVDatabaseModelChange {
     public let latestChatID: Int
     public let chatChange: JVChatGeneralChange?
     
-    public init(ID: String,
+    init(ID: String,
          responseTimeout: Int,
          duration: Int,
          eventsNumber: Int,
@@ -38,7 +38,7 @@ open class JVArchiveHitItemGeneralChange: JVDatabaseModelChange {
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = UUID().uuidString
         responseTimeout = json["response_timeout_sec"].intValue
         duration = json["duration_sec"].intValue

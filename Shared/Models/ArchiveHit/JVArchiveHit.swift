@@ -9,8 +9,8 @@
 import Foundation
 
 @objc(JVArchiveHit)
-public class JVArchiveHit: JVDatabaseModel {
-    public override func apply(context: JVIDatabaseContext, change: JVDatabaseModelChange) {
+class JVArchiveHit: JVDatabaseModel {
+    override func apply(context: JVIDatabaseContext, change: JVDatabaseModelChange) {
         super.apply(context: context, change: change)
         performApply(context: context, environment: context.environment, change: change)
     }

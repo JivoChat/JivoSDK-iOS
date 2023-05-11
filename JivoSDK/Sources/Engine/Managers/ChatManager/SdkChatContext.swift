@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 
 protocol ISdkChatContext: AnyObject {

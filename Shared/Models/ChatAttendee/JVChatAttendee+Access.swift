@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum JVChatAttendeeNotifying: Int {
+enum JVChatAttendeeNotifying: Int {
     case nothing = 0
     case everything = 1
     case mentions = 2
@@ -18,13 +18,13 @@ public enum JVChatAttendeeNotifying: Int {
     }
 }
 
-public enum JVChatAttendeeRelation: Equatable {
+enum JVChatAttendeeRelation: Equatable {
     case invitedBySystem
     case invitedByAgent(JVAgent, toAssist: Bool, comment: String?)
     case attendee(agent: JVAgent?, toAssist: Bool, comment: String?)
     case team
     
-    public var code: String {
+    var code: String {
         switch self {
         case .invitedBySystem:
             return "invited"
@@ -37,7 +37,7 @@ public enum JVChatAttendeeRelation: Equatable {
         }
     }
     
-    public var isInvited: Bool {
+    var isInvited: Bool {
         switch self {
         case .invitedBySystem:
             return true
@@ -52,11 +52,11 @@ public enum JVChatAttendeeRelation: Equatable {
 }
 
 extension JVChatAttendee {
-    public var agent: JVAgent? {
+    var agent: JVAgent? {
         return m_agent
     }
     
-    public var relation: JVChatAttendeeRelation {
+    var relation: JVChatAttendeeRelation {
         if m_relation == "invited" {
             if let agent = invitedBy {
                 return .invitedByAgent(agent, toAssist: m_to_assist, comment: m_comment)
@@ -73,19 +73,19 @@ extension JVChatAttendee {
         }
     }
     
-    public var comment: String? {
+    var comment: String? {
         return m_comment
     }
     
-    public var invitedBy: JVAgent? {
+    var invitedBy: JVAgent? {
         return m_invited_by
     }
     
-    public var isAssistant: Bool {
+    var isAssistant: Bool {
         return m_to_assist
     }
     
-    public var receivedMessageID: Int? {
+    var receivedMessageID: Int? {
         if m_received_message_id > 0 {
             return Int(m_received_message_id)
         }
@@ -94,7 +94,7 @@ extension JVChatAttendee {
         }
     }
     
-    public var unreadNumber: Int? {
+    var unreadNumber: Int? {
         if m_unread_number > 0 {
             return Int(m_unread_number)
         }
@@ -103,11 +103,11 @@ extension JVChatAttendee {
         }
     }
     
-    public var notifying: JVChatAttendeeNotifying? {
+    var notifying: JVChatAttendeeNotifying? {
         return JVChatAttendeeNotifying(rawValue: Int(m_notifications))
     }
     
-    public func export() -> JVChatAttendeeGeneralChange {
+    func export() -> JVChatAttendeeGeneralChange {
         return JVChatAttendeeGeneralChange(
             ID: m_agent?.ID ?? 0,
             relation: m_relation,
@@ -121,7 +121,7 @@ extension JVChatAttendee {
     }
 }
 
-public func ==(lhs: JVChatAttendeeRelation, rhs: JVChatAttendeeRelation) -> Bool {
+func ==(lhs: JVChatAttendeeRelation, rhs: JVChatAttendeeRelation) -> Bool {
     if case .invitedBySystem = lhs, case .invitedBySystem = rhs {
         return true
     }

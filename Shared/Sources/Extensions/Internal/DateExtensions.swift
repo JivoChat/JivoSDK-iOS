@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 extension Date {
     func withoutTime() -> Date {

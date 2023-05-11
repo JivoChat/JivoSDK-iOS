@@ -8,10 +8,10 @@
 
 import Foundation
 
-public final class JVDispatchThread: NSObject, JVIDispatchThread {
+final class JVDispatchThread: NSObject, JVIDispatchThread {
     private var thread: Thread?
     
-    public init(caption: String) {
+    init(caption: String) {
         super.init()
         
         let ref = Thread {
@@ -24,7 +24,7 @@ public final class JVDispatchThread: NSObject, JVIDispatchThread {
         ref.start()
     }
     
-    public func async(block: @escaping () -> Void) {
+    func async(block: @escaping () -> Void) {
         guard let ref = thread else {
             return
         }
@@ -37,7 +37,7 @@ public final class JVDispatchThread: NSObject, JVIDispatchThread {
             modes: [RunLoop.Mode.default.rawValue])
     }
     
-    public func sync(block: @escaping () -> Void) {
+    func sync(block: @escaping () -> Void) {
         guard let ref = thread else {
             return
         }
@@ -56,11 +56,11 @@ public final class JVDispatchThread: NSObject, JVIDispatchThread {
             modes: [RunLoop.Mode.default.rawValue])
     }
     
-    public func stop() {
+    func stop() {
         thread?.cancel()
     }
     
-    public func addOperation(_ block: @escaping () -> Void) {
+    func addOperation(_ block: @escaping () -> Void) {
         async(block: block)
     }
     

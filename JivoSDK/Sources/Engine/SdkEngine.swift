@@ -4,9 +4,9 @@
 //
 
 import Foundation
-import JivoFoundation
 import KeychainSwift
 import JMTimelineKit
+import JMCodingKit
 
 struct SdkConfig {
     static let replyLengthLimit = 1000
@@ -129,7 +129,7 @@ final class SdkEngine: ISdkEngine {
             ]
         )
 
-        let outgoingPackagesAccumulator = AccumulatorTool<Data>()
+        let outgoingPackagesAccumulator = AccumulatorTool<(JsonElement?, Data)>()
         
         let drivers = SdkEngineDriversFactory(
             workingThread: threads.workerThread,

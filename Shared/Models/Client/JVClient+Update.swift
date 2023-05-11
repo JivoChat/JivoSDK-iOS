@@ -144,7 +144,7 @@ extension JVClient {
     }
 }
 
-public final class JVClientGeneralChange: JVDatabaseModelChange {
+final class JVClientGeneralChange: JVDatabaseModelChange {
     public let ID: Int
     public let guestID: String
     public let chatID: Int?
@@ -169,16 +169,16 @@ public final class JVClientGeneralChange: JVDatabaseModelChange {
     public let customData: [JVClientCustomDataGeneralChange]?
     public let isBlocked: Bool
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public override var isValid: Bool {
+    override var isValid: Bool {
         guard ID > 0 else { return false }
         return true
     }
     
-    public init(clientID: Int) {
+    init(clientID: Int) {
         ID = clientID
         guestID = String()
         chatID = nil
@@ -205,7 +205,7 @@ public final class JVClientGeneralChange: JVDatabaseModelChange {
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         func _parseSocialLinks(source: JsonElement) -> [String: String] {
             var links = [String: String]()
             
@@ -285,23 +285,23 @@ public final class JVClientGeneralChange: JVDatabaseModelChange {
     }
 }
 
-public final class JVClientTypingChange: JVDatabaseModelChange {
+final class JVClientTypingChange: JVDatabaseModelChange {
     public let ID: Int
     public let chatID: Int
     public let input: String?
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int, chatID: Int, input: String?) {
+    init(ID: Int, chatID: Int, input: String?) {
         self.ID = ID
         self.chatID = chatID
         self.input = input
         super.init()
     }
 
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = json["client_id"].intValue
         chatID = json["chat_id"].intValue
 
@@ -315,50 +315,50 @@ public final class JVClientTypingChange: JVDatabaseModelChange {
         super.init(json: json)
     }
 
-    public func copy(input: String?) -> JVClientTypingChange {
+    func copy(input: String?) -> JVClientTypingChange {
         return JVClientTypingChange(ID: ID, chatID: chatID, input: input)
     }
 
-    public func copyWithoutInput() -> JVClientTypingChange {
+    func copyWithoutInput() -> JVClientTypingChange {
         return JVClientTypingChange(ID: ID, chatID: chatID, input: nil)
     }
 }
 
-public final class JVClientUTMChange: JVDatabaseModelChange {
+final class JVClientUTMChange: JVDatabaseModelChange {
     public let ID: Int
     public let UTM: JVClientSessionUTMGeneralChange?
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = json["client_id"].intValue
         UTM = json["client_info"].parse()
         super.init(json: json)
     }
 }
 
-public final class JVClientGuestChange: JVDatabaseModelChange {
+final class JVClientGuestChange: JVDatabaseModelChange {
     public let ID: Int
     public let guestID: String
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int, guestID: String) {
+    init(ID: Int, guestID: String) {
         self.ID = ID
         self.guestID = guestID
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVClientShortChange: JVDatabaseModelChange, NSCoding {
+final class JVClientShortChange: JVDatabaseModelChange, NSCoding {
     public let ID: Int
     public let guestID: String
     public let channelID: Int?
@@ -375,15 +375,15 @@ public final class JVClientShortChange: JVDatabaseModelChange, NSCoding {
     private let codableTaskKey = "reminder"
     private let codableAssignedAgentKey = "assigned_agent"
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public override var isValid: Bool {
+    override var isValid: Bool {
         return (ID > 0)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = json["client_id"].intValue
         guestID = json["visitor_id"].stringValue
         channelID = json["widget_id"].int
@@ -394,7 +394,7 @@ public final class JVClientShortChange: JVDatabaseModelChange, NSCoding {
         super.init(json: json)
     }
     
-    public init(ID: Int, channelID: Int?, task: JVTaskGeneralChange?) {
+    init(ID: Int, channelID: Int?, task: JVTaskGeneralChange?) {
         self.ID = ID
         self.guestID = String()
         self.channelID = channelID
@@ -405,7 +405,7 @@ public final class JVClientShortChange: JVDatabaseModelChange, NSCoding {
         super.init()
     }
     
-    public init?(coder: NSCoder) {
+    init?(coder: NSCoder) {
         ID = coder.decodeInteger(forKey: codableIdKey)
         guestID = (coder.decodeObject(forKey: codableGuestKey) as? String) ?? String()
         channelID = coder.decodeObject(forKey: codableChannelKey) as? Int
@@ -416,7 +416,7 @@ public final class JVClientShortChange: JVDatabaseModelChange, NSCoding {
         super.init()
     }
     
-    public func encode(with coder: NSCoder) {
+    func encode(with coder: NSCoder) {
         coder.encode(ID, forKey: codableIdKey)
         coder.encode(guestID, forKey: codableGuestKey)
         coder.encode(channelID, forKey: codableChannelKey)
@@ -427,142 +427,142 @@ public final class JVClientShortChange: JVDatabaseModelChange, NSCoding {
     }
 }
 
-public final class JVClientHistoryChange: JVDatabaseModelChange {
-    private(set) public var messages = [JVMessageGeneralChange]()
-    private(set) public var loadedEntirely: Bool = false
+final class JVClientHistoryChange: JVDatabaseModelChange {
+    private(set) var messages = [JVMessageGeneralChange]()
+    private(set) var loadedEntirely: Bool = false
     
-    public init(json: JsonElement, loadedEntirely: Bool) {
+    init(json: JsonElement, loadedEntirely: Bool) {
         super.init(json: json)
         self.loadedEntirely = loadedEntirely
         messages = json["messages"].parseList() ?? []
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVClientOnlineChange: JVDatabaseModelChange {
+final class JVClientOnlineChange: JVDatabaseModelChange {
     public let ID: Int
     public let isOnline: Bool
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int, isOnline: Bool) {
+    init(ID: Int, isOnline: Bool) {
         self.ID = ID
         self.isOnline = isOnline
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVClientInaliveChange: JVDatabaseModelChange {
+final class JVClientInaliveChange: JVDatabaseModelChange {
     public let ID: Int
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = json["client_id"].intValue
         super.init()
     }
 }
 
-public final class JVClientHasActiveCallChange: JVDatabaseModelChange {
+final class JVClientHasActiveCallChange: JVDatabaseModelChange {
     public let ID: Int
     public let hasCall: Bool
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int, hasCall: Bool) {
+    init(ID: Int, hasCall: Bool) {
         self.ID = ID
         self.hasCall = hasCall
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVClientTaskChange: JVDatabaseModelChange {
+final class JVClientTaskChange: JVDatabaseModelChange {
     public let ID: Int
     public let taskID: Int
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int, taskID: Int) {
+    init(ID: Int, taskID: Int) {
         self.ID = ID
         self.taskID = taskID
         super.init()
     }
 
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVClientBlockingChange: JVDatabaseModelChange {
+final class JVClientBlockingChange: JVDatabaseModelChange {
     public let ID: Int
     public let blocking: Bool
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int, blocking: Bool) {
+    init(ID: Int, blocking: Bool) {
         self.ID = ID
         self.blocking = blocking
         super.init()
     }
 
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVClientAssignedAgentChange: JVDatabaseModelChange {
+final class JVClientAssignedAgentChange: JVDatabaseModelChange {
     public let ID: Int
     public let agentID: Int?
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int, agentID: Int?) {
+    init(ID: Int, agentID: Int?) {
         self.ID = ID
         self.agentID = agentID
         super.init()
     }
 
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVClientResetChange: JVDatabaseModelChange {
+final class JVClientResetChange: JVDatabaseModelChange {
     public let ID: Int
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int) {
+    init(ID: Int) {
         self.ID = ID
         super.init()
     }
 
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }

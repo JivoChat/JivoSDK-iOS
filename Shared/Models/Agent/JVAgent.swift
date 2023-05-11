@@ -9,8 +9,8 @@
 import Foundation
 
 @objc(JVAgent)
-public class JVAgent: JVParticipant {
-    public override func apply(context: JVIDatabaseContext, change: JVDatabaseModelChange) {
+class JVAgent: JVParticipant {
+    override func apply(context: JVIDatabaseContext, change: JVDatabaseModelChange) {
         super.apply(context: context, change: change)
         performApply(context: context, environment: context.environment, change: change)
     }

@@ -9,14 +9,14 @@
 import Foundation
 import UIKit
 
-public extension UICollectionView {
+extension UICollectionView {
     var jv_canScroll: Bool {
         guard let _ = dataSource else { return false }
         return true
     }
 }
 
-public extension UITableView {
+extension UITableView {
     var jv_canScroll: Bool {
         guard let _ = dataSource else { return false }
         return true

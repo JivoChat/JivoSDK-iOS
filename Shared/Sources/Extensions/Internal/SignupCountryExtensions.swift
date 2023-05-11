@@ -4,7 +4,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 extension JVSignupCountry {
     var needsPrivacyPolicy: Bool {

@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 struct ChatModuleAgent {
     let id: Int

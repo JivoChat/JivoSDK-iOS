@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 import JMCodingKit
 
 extension JVGuest {
@@ -111,7 +110,7 @@ extension JVGuest {
     }
 }
 
-public func JVGuestChangeParse(for item: String) -> JVGuestBaseChange? {
+func JVGuestChangeParse(for item: String) -> JVGuestBaseChange? {
     let args = item.split(separator: "\t", omittingEmptySubsequences: false).map(String.init)
     guard args.count >= 4 else { return nil }
     
@@ -136,30 +135,30 @@ public func JVGuestChangeParse(for item: String) -> JVGuestBaseChange? {
     }
 }
 
-open class JVGuestBaseChange: JVDatabaseModelChange {
-    public let ID: String
-    public let siteID: String
-    public let agentID: Int?
+class JVGuestBaseChange: JVDatabaseModelChange {
+    let ID: String
+    let siteID: String
+    let agentID: Int?
     
-    open override var stringKey: JVDatabaseModelCustomId<String>? {
+    override var stringKey: JVDatabaseModelCustomId<String>? {
         return JVDatabaseModelCustomId(key: "m_id", value: ID)
     }
     
-    public init(ID: String) {
+    init(ID: String) {
         self.ID = ID
         self.siteID = String()
         self.agentID = nil
         super.init()
     }
     
-    public init(arguments: [String]) {
+    init(arguments: [String]) {
         ID = arguments.jv_stringOrEmpty(at: 0)
         siteID = arguments.jv_stringOrEmpty(at: 1)
         agentID = arguments.jv_stringOrEmpty(at: 2).jv_toInt()
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
     
@@ -170,15 +169,15 @@ open class JVGuestBaseChange: JVDatabaseModelChange {
     }
 }
 
-open class JVGuestGeneralChange: JVGuestBaseChange {
-    public let sourceIP: String
-    public let sourcePort: Int
-    public let regionCode: Int
-    public let countryCode: String
-    public let countryName: String
-    public let regionName: String
-    public let cityName: String
-    public let organization: String
+class JVGuestGeneralChange: JVGuestBaseChange {
+    let sourceIP: String
+    let sourcePort: Int
+    let regionCode: Int
+    let countryCode: String
+    let countryName: String
+    let regionName: String
+    let cityName: String
+    let organization: String
     
     override init(arguments: [String]) {
         sourceIP = arguments.jv_stringOrEmpty(at: 4)
@@ -192,160 +191,160 @@ open class JVGuestGeneralChange: JVGuestBaseChange {
         super.init(arguments: arguments)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-open class JVGuestClientChange: JVGuestBaseChange {
-    public let clientID: Int
+class JVGuestClientChange: JVGuestBaseChange {
+    let clientID: Int
 
     override init(arguments: [String]) {
         clientID = arguments.jv_stringOrEmpty(at: 4).jv_toInt()
         super.init(arguments: arguments)
     }
 
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-open class JVGuestStatusChange: JVGuestBaseChange {
-    public let status: String
+class JVGuestStatusChange: JVGuestBaseChange {
+    let status: String
     
     override init(arguments: [String]) {
         status = arguments.jv_stringOrEmpty(at: 4)
         super.init(arguments: arguments)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-open class JVGuestProactiveChange: JVGuestBaseChange {
-    public let proactiveAgentID: Int
+class JVGuestProactiveChange: JVGuestBaseChange {
+    let proactiveAgentID: Int
     
     override init(arguments: [String]) {
         proactiveAgentID = arguments.jv_stringOrEmpty(at: 4).jv_toInt()
         super.init(arguments: arguments)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-open class JVGuestNameChange: JVGuestBaseChange {
-    public let name: String
+class JVGuestNameChange: JVGuestBaseChange {
+    let name: String
     
     override init(arguments: [String]) {
         name = arguments.jv_stringOrEmpty(at: 4)
         super.init(arguments: arguments)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-open class JVGuestPageLinkChange: JVGuestBaseChange {
-    public let link: String
+class JVGuestPageLinkChange: JVGuestBaseChange {
+    let link: String
     
     override init(arguments: [String]) {
         link = arguments.jv_stringOrEmpty(at: 4)
         super.init(arguments: arguments)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-open class JVGuestPageTitleChange: JVGuestBaseChange {
-    public let title: String
+class JVGuestPageTitleChange: JVGuestBaseChange {
+    let title: String
     
     override init(arguments: [String]) {
         title = arguments.jv_stringOrEmpty(at: 4)
         super.init(arguments: arguments)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-open class JVGuestStartTimeChange: JVGuestBaseChange {
-    public let timestamp: TimeInterval
+class JVGuestStartTimeChange: JVGuestBaseChange {
+    let timestamp: TimeInterval
     
     override init(arguments: [String]) {
         timestamp = TimeInterval(arguments.jv_stringOrEmpty(at: 4).jv_toInt())
         super.init(arguments: arguments)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-open class GuestUTMChange: JVGuestBaseChange {
+class GuestUTMChange: JVGuestBaseChange {
     private static var jsonCoder = JsonCoder()
     
-    public let utm: JVClientSessionUTMGeneralChange?
+    let utm: JVClientSessionUTMGeneralChange?
     
     override init(arguments: [String]) {
         utm = GuestUTMChange.jsonCoder.decode(raw: arguments.jv_stringOrEmpty(at: 4))?.parse()
         super.init(arguments: arguments)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-open class JVGuestVisitsChange: JVGuestBaseChange {
-    public let number: Int
+class JVGuestVisitsChange: JVGuestBaseChange {
+    let number: Int
     
     override init(arguments: [String]) {
         number = arguments.jv_stringOrEmpty(at: 4).jv_toInt()
         super.init(arguments: arguments)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-open class JVGuestNavigatesChange: JVGuestBaseChange {
-    public let number: Int
+class JVGuestNavigatesChange: JVGuestBaseChange {
+    let number: Int
     
     override init(arguments: [String]) {
         number = arguments.jv_stringOrEmpty(at: 4).jv_toInt()
         super.init(arguments: arguments)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-open class JVGuestVisibleChange: JVGuestBaseChange {
-    public let value: Bool
+class JVGuestVisibleChange: JVGuestBaseChange {
+    let value: Bool
     
     override init(arguments: [String]) {
         value = arguments.jv_stringOrEmpty(at: 4).jv_toBool()
         super.init(arguments: arguments)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-open class JVGuestAgentsChange: JVGuestBaseChange {
+class JVGuestAgentsChange: JVGuestBaseChange {
     private static var jsonCoder = JsonCoder()
     
-    public let agentIDs: [Int]
+    let agentIDs: [Int]
     
     override init(arguments: [String]) {
         let idsArgument = arguments.jv_stringOrEmpty(at: 4)
@@ -365,15 +364,15 @@ open class JVGuestAgentsChange: JVGuestBaseChange {
         super.init(arguments: arguments)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-open class JVGuestBotsChange: JVGuestBaseChange {
+class JVGuestBotsChange: JVGuestBaseChange {
     private static var jsonCoder = JsonCoder()
     
-    public let botsIds: [Int]
+    let botsIds: [Int]
     
     override init(arguments: [String]) {
         let idsArgument = arguments.jv_stringOrEmpty(at: 4)
@@ -393,33 +392,33 @@ open class JVGuestBotsChange: JVGuestBaseChange {
         super.init(arguments: arguments)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-open class JVGuestWidgetVersionChange: JVGuestBaseChange {
-    public let version: String
+class JVGuestWidgetVersionChange: JVGuestBaseChange {
+    let version: String
     
     override init(arguments: [String]) {
         version = arguments.jv_stringOrEmpty(at: 4)
         super.init(arguments: arguments)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVGuestUpdateChange: JVGuestBaseChange {
+final class JVGuestUpdateChange: JVGuestBaseChange {
 }
 
-open class JVGuestRemovalChange: JVGuestBaseChange {
+class JVGuestRemovalChange: JVGuestBaseChange {
     override init(arguments: [String]) {
         super.init(arguments: arguments)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }

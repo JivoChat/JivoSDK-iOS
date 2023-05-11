@@ -9,7 +9,7 @@
 import Foundation
 
 extension String {
-    public func jv_parseDateUsingFullFormat() -> Date? {
+    func jv_parseDateUsingFullFormat() -> Date? {
         let dateParser = DateFormatter()
         dateParser.locale = JVActiveLocale()
         dateParser.dateFormat = "yyyy-MM-dd'T'HH:mm:ss"

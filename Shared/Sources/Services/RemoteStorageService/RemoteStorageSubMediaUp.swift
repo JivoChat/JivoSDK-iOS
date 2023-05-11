@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 import JMCodingKit
 import SwiftMime

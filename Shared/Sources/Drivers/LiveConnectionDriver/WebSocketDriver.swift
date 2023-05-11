@@ -7,14 +7,13 @@
 //
 
 import Foundation
-import JivoFoundation
 import JMCodingKit
 import JFWebSocket
 
 class WebSocketDriver: ILiveConnectionDriver {
-    var openHandler: (() -> Void)?
-    var messageHandler: ((Any) -> Void)?
-    var closeHandler: ((Int, String, Error?) -> Void)?
+    var openHandler: ((JournalChild) -> Void)?
+    var messageHandler: ((JournalChild, Any) -> Void)?
+    var closeHandler: ((JournalChild, Int, String, Error?) -> Void)?
     
     var isConnecting: Bool {
         return webSocket?.readyState == .connecting
@@ -40,15 +39,15 @@ class WebSocketDriver: ILiveConnectionDriver {
     
     private let jsonCoder = JsonCoder()
     private let websocketQueue: DispatchQueue
-    private var webSocket: WebSocket?
-    private var outgoingPackagesAccumulator: AccumulatorTool<Data>
+    private var webSocket: WebSocketVerbose?
+    private var outgoingPackagesAccumulator: AccumulatorTool<(JsonElement?, Data)>
     private var incomingPackagesAccumulator: TimedAccumulatorTool<String>?
     private weak var pingTimer: Timer?
     private weak var pongTimer: Timer?
     
     init(
         namespace: String,
-        outgoingPackagesAccumulator: AccumulatorTool<Data>,
+        outgoingPackagesAccumulator: AccumulatorTool<(JsonElement?, Data)>,
         incomingPackagesAccumulator: TimedAccumulatorTool<String>? = nil,
         pingTimeInterval: TimeInterval,
         pongTimeInterval: TimeInterval,
@@ -69,10 +68,6 @@ class WebSocketDriver: ILiveConnectionDriver {
         self.jsonPrivacyTool = jsonPrivacyTool
         
         websocketQueue = DispatchQueue(label: "\(namespace).networking.websocket-\(UUID().jv_shortString).queue")
-        
-        incomingPackagesAccumulator?.releaseBlock = { [weak self] messages in
-            self?.incomingPackagesAccumulatorReleased(withItems: messages)
-        }
     }
     
     deinit {
@@ -93,14 +88,6 @@ class WebSocketDriver: ILiveConnectionDriver {
     
     func startCaching() {
         isOutgoingPackagesCaching = true
-        
-        journal(
-            layer: .network,
-            subsystem: .general,
-            messages: [
-                .full: {"WebSocketDriver: start-caching"}
-            ]
-        )
     }
     
     func stopCaching(flush: Bool) {
@@ -108,31 +95,19 @@ class WebSocketDriver: ILiveConnectionDriver {
         
         if flush {
             let outgoingPackages = outgoingPackagesAccumulator.release()
-            outgoingPackages.forEach { package in
-                webSocket?.send(package)
+            outgoingPackages.forEach { json, data in
+                if let json = json {
+                    webSocket?.chain?.journal(.full) { [p = jsonPrivacyTool] in "WebSocket: [action=flush] \(p.filter(json: json))"}
+                }
+                
+                webSocket?.send(data)
             }
-            
-            journal(
-                layer: .network,
-                subsystem: .general,
-                messages: [
-                    .full: {"WebSocketDriver: stop-caching; flush-packets[\(outgoingPackages.count)]"}
-                ]
-            )
-        } else {
-            journal(
-                layer: .network,
-                subsystem: .general,
-                messages: [
-                    .full: {"WebSocketDriver: stop-caching; no-flush"}
-                ]
-            )
         }
     }
     
     func open(url: URL, withHeaders headers: [String: String]) {
         disconnect()
-        setupWebSocket()
+        setupWebSocket(url: url)
         
         var urlRequest = URLRequest(url: url)
         headers.forEach { pair in
@@ -146,15 +121,12 @@ class WebSocketDriver: ILiveConnectionDriver {
         guard let data = jsonCoder.encodeToBinary(json, encoding: .utf8) else { return }
         
         if isOutgoingPackagesCaching, supportsCaching {
-            outgoingPackagesAccumulator.accumulate(data)
-
-            journal { [p = jsonPrivacyTool] in "socket-send-enqueue[json]: \(p.filter(json: json))"}
+            outgoingPackagesAccumulator.accumulate((json, data))
         }
         else {
+            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: [action=send] \(p.filter(json: json))"}
             webSocket?.send(data)
             schedulePingTimer()
-
-            journal { [p = jsonPrivacyTool] in "socket-send-now[json]: \(p.filter(json: json))"}
         }
     }
     
@@ -165,15 +137,12 @@ class WebSocketDriver: ILiveConnectionDriver {
             else { return }
         
         if isOutgoingPackagesCaching, supportsCaching {
-            outgoingPackagesAccumulator.accumulate(data)
-
-            journal { [p = jsonPrivacyTool] in "socket-send-enqueue[legacy]: \(p.filter(json: payload))"}
+            outgoingPackagesAccumulator.accumulate((payload, data))
         }
         else {
+            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: [action=send] \(p.filter(json: payload))"}
             webSocket?.send(data)
             schedulePingTimer()
-
-            journal { [p = jsonPrivacyTool] in "socket-send-now[legacy]: \(p.filter(json: payload))"}
         }
     }
     
@@ -193,15 +162,12 @@ class WebSocketDriver: ILiveConnectionDriver {
             else { return rpcID }
         
         if isOutgoingPackagesCaching, supportsCaching {
-            outgoingPackagesAccumulator.accumulate(data)
-
-            journal { [p = jsonPrivacyTool] in "socket-send-enqueue[rpc]: \(p.filter(json: payload))"}
+            outgoingPackagesAccumulator.accumulate((payload, data))
         }
         else {
+            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: [action=send] \(p.filter(json: payload))"}
             webSocket?.send(data)
             schedulePingTimer()
-
-            journal { [p = jsonPrivacyTool] in "socket-send-now[rpc]: \(p.filter(json: payload))"}
         }
         
         return rpcID
@@ -211,7 +177,7 @@ class WebSocketDriver: ILiveConnectionDriver {
         guard let data = plain.data(using: .utf8) else { return }
         
         if isOutgoingPackagesCaching, supportsCaching {
-            outgoingPackagesAccumulator.accumulate(data)
+            outgoingPackagesAccumulator.accumulate((nil, data))
         }
         else {
             webSocket?.send(data)
@@ -220,6 +186,7 @@ class WebSocketDriver: ILiveConnectionDriver {
     }
     
     func close() {
+        webSocket?.chain?.journal(.full) {"WebSocket: [action=close]"}
         webSocket?.close()
         invalidateTimers()
     }
@@ -269,14 +236,6 @@ class WebSocketDriver: ILiveConnectionDriver {
     
     private func pingTimerFired(_ timer: Timer) {
         guard isConnected else {
-            journal (
-                layer: .network,
-                subsystem: .any,
-                messages: [
-                    .full: {"WebSocketDriver: not-connected; prevent-ping"}
-                ]
-            )
-            
             return
         }
         
@@ -284,28 +243,24 @@ class WebSocketDriver: ILiveConnectionDriver {
     }
     
     private func pongTimerFired(_ timer: Timer) {
-        journal(
-            layer: .network,
-            subsystem: .any,
-            messages: [
-                .full: {"WebSocketDriver: no-pong; perform-close"}
-            ]
-        )
-        
+        webSocket?.chain?.journal(.full) {"WebSocket: disconnect as no Pong arrived"}
         disconnect()
     }
     
-    private func setupWebSocket() {
-        webSocket = WebSocket()
+    private func setupWebSocket(url: URL) {
+        let chain = journal {"Configure WebSocket for endpoint:\n\(url.absoluteString)"}
+        
+        webSocket = WebSocketVerbose()
+        webSocket?.chain = chain
         
         webSocket?.eventQueue = websocketQueue
         
         webSocket?.event.open = { [weak self] in
-            self?.webSocketOpened()
+            self?.webSocketOpened(chain: chain)
         }
         
         webSocket?.event.message = { [weak self] message in
-            self?.webSocketReceived(message: message)
+            self?.webSocketReceived(chain: chain, message: message)
         }
         
         webSocket?.event.pong = { [weak self] pong in
@@ -313,20 +268,24 @@ class WebSocketDriver: ILiveConnectionDriver {
         }
         
         webSocket?.event.end = { [weak self] code, reason, _, error in
-            self?.webSocketClosedConnection(withCode: code, reason: reason, andError: error)
+            self?.webSocketClosedConnection(chain: chain, withCode: code, reason: reason, andError: error)
         }
     }
     
-    private func webSocketOpened() {
+    private func webSocketOpened(chain: JournalChild) {
+        incomingPackagesAccumulator?.releaseBlock = { [weak self] messages in
+            self?.incomingPackagesAccumulatorReleased(chain: chain, withItems: messages)
+        }
+        
         incomingPackagesAccumulator?.removeAllAccumulatedItems()
         
         schedulePingTimer()
         schedulePongTimer()
         
-        openHandler?()
+        openHandler?(chain)
     }
     
-    private func webSocketReceived(message: Any) {
+    private func webSocketReceived(chain: JournalChild, message: Any) {
         func _validateEnding(_ body: String) -> String {
             var mutatingBody = signToRemove.flatMap {
                 return body.hasSuffix($0) ? String(body.dropLast($0.count)) : body
@@ -346,7 +305,7 @@ class WebSocketDriver: ILiveConnectionDriver {
         if isIncomingPackagesCaching {
             incomingPackagesAccumulator?.accumulate(_validateEnding(message))
         } else {
-            messageHandler?(_validateEnding(message))
+            messageHandler?(chain, _validateEnding(message))
         }
     }
     
@@ -354,14 +313,14 @@ class WebSocketDriver: ILiveConnectionDriver {
         schedulePongTimer()
     }
     
-    private func webSocketClosedConnection(withCode code: Int, reason: String, andError error: Error?) {
-        closeHandler?(code, reason, error)
+    private func webSocketClosedConnection(chain: JournalChild, withCode code: Int, reason: String, andError error: Error?) {
+        closeHandler?(chain, code, reason, error)
         
         disconnect()
     }
     
-    private func incomingPackagesAccumulatorReleased(withItems packages: [String]) {
+    private func incomingPackagesAccumulatorReleased(chain: JournalChild, withItems packages: [String]) {
         let accumulatedString = packages.joined()
-        messageHandler?(accumulatedString)
+        messageHandler?(chain, accumulatedString)
     }
 }

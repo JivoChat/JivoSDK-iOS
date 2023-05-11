@@ -11,11 +11,11 @@ import SafeURL
 import CoreLocation
 import SwiftyNSException
 
-public enum JVUrlCommand {
+enum JVUrlCommand {
     case addContact(phone: String, name: String)
 }
 
-public extension URL {
+extension URL {
     static func jv_generateAvatarURL(ID: UInt64) -> (image: UIImage?, color: UIColor?) {
         let names = [
             "airplane", "apple", "ball", "bug" /*bee*/,
@@ -208,7 +208,7 @@ public extension URL {
     }
 }
 
-public extension URLRequest {
+extension URLRequest {
     var jv_debugFull: String {
         guard let url = url else { return String() }
         guard let c = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return String() }
@@ -225,7 +225,7 @@ public extension URLRequest {
     }
 }
 
-public extension URLResponse {
+extension URLResponse {
     var jv_debugFull: String {
         guard let url = url else { return String() }
 
@@ -249,7 +249,7 @@ public extension URLResponse {
     }
 }
 
-public extension Array where Element == URLQueryItem {
+extension Array where Element == URLQueryItem {
     func jv_value(forName name: String) -> String? {
         guard let item = first(where: { $0.name == name }) else { return nil }
         return item.value

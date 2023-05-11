@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JivoFoundation
 import CollectionAndTableViewCompatible
 
 

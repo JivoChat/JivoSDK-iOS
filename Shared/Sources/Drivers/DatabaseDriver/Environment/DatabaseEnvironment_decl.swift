@@ -8,6 +8,6 @@
 
 import Foundation
 
-public protocol JVIDatabaseEnvironment: AnyObject {
+protocol JVIDatabaseEnvironment: AnyObject {
     func performMessageRecalculate(uid: String)
 }

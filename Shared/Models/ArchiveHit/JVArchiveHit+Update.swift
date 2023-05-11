@@ -30,23 +30,23 @@ extension JVArchiveHit {
     }
 }
 
-public final class JVArchiveHitGeneralChange: JVDatabaseModelChange {
+final class JVArchiveHitGeneralChange: JVDatabaseModelChange {
     public let ID: String
     public let score: Float
     public let chatItem: JVArchiveHitChatItemGeneralChange?
     public let callItem: JVArchiveHitCallItemGeneralChange?
     
-    public override var stringKey: JVDatabaseModelCustomId<String>? {
+    override var stringKey: JVDatabaseModelCustomId<String>? {
         return JVDatabaseModelCustomId(key: "m_id", value: ID)
     }
     
-    public override var isValid: Bool {
+    override var isValid: Bool {
         if let item = chatItem, let change = item.chatChange, change.attendees.isEmpty { return true }
         if let _ = callItem { return true }
         return false
     }
     
-    public init(ID: String,
+    init(ID: String,
          score: Float,
          chatItem: JVArchiveHitChatItemGeneralChange?,
          callItem: JVArchiveHitCallItemGeneralChange?) {
@@ -57,7 +57,7 @@ public final class JVArchiveHitGeneralChange: JVDatabaseModelChange {
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = json["id"].stringValue
         score = json["score"].floatValue
         
@@ -78,7 +78,7 @@ public final class JVArchiveHitGeneralChange: JVDatabaseModelChange {
         super.init(json: json)
     }
     
-    public func copyUnrelative() -> JVArchiveHitGeneralChange {
+    func copyUnrelative() -> JVArchiveHitGeneralChange {
         return JVArchiveHitGeneralChange(
             ID: ID,
             score: score,

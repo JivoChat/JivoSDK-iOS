@@ -8,7 +8,6 @@
 
 import Foundation
 import UIKit
-import JivoFoundation
 import JMRepicKit
 import JMOnetimeCalculator
 import JMTimelineKit

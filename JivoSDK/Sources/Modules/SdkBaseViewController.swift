@@ -9,7 +9,6 @@
 import Foundation
 import UIKit
 import JMSidePanelKit
-import JivoFoundation
 
 
 protocol SdkBaseViewControllerDelegate: AnyObject {

@@ -9,31 +9,31 @@
 import Foundation
 
 extension JVCannedPhrase {
-    public var id: String {
+    var id: String {
         return m_id.jv_orEmpty
     }
     
-    public var message: String {
+    var message: String {
         return m_message.jv_orEmpty
     }
     
-    public var messageHashID: String {
+    var messageHashID: String {
         return m_message_hash_id.jv_orEmpty
     }
     
-    public var timestamp: Int {
+    var timestamp: Int {
         return Int(m_timestamp)
     }
     
-    public var sessionScore: Int {
+    var sessionScore: Int {
         return Int(m_session_score)
     }
     
-    public var totalScore: Int {
+    var totalScore: Int {
         return Int(m_total_score)
     }
     
-    public var wasDeleted: Bool {
+    var wasDeleted: Bool {
         return m_was_deleted
     }
 }

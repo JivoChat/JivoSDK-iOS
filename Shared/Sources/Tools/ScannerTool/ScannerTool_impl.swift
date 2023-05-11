@@ -6,15 +6,15 @@
 
 import Foundation
 
-public final class ScannerTool: IScannerTool {
+final class ScannerTool: IScannerTool {
     private let scanner: Scanner
     
-    public init(source: String) {
+    init(source: String) {
         scanner = Scanner(string: source)
     }
     
     @discardableResult
-    public func scan(till string: String) -> String? {
+    func scan(till string: String) -> String? {
         var result = String()
         
         if #available(iOS 13.0, *) {
@@ -35,7 +35,7 @@ public final class ScannerTool: IScannerTool {
     }
     
     @discardableResult
-    public func scan(over string: String) -> String? {
+    func scan(over string: String) -> String? {
         var result = String()
         
         if #available(iOS 13.0, *) {

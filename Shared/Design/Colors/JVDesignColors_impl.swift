@@ -8,8 +8,8 @@
 import Foundation
 import UIKit
 
-public final class JVDesignColors: JVDesignEnvironmental, JVIDesignColors {
-    public func resolve(_ color: JVDesignColor, style: JVDesignColorBrightness) -> UIColor {
+final class JVDesignColors: JVDesignEnvironmental, JVIDesignColors {
+    func resolve(_ color: JVDesignColor, style: JVDesignColorBrightness) -> UIColor {
         switch color {
         case .native(let value): return value
         case .hex(let hex): return obtainColor(byHex: hex)
@@ -18,19 +18,19 @@ public final class JVDesignColors: JVDesignEnvironmental, JVIDesignColors {
         }
     }
     
-    public func resolve(_ color: JVDesignColor) -> UIColor {
+    func resolve(_ color: JVDesignColor) -> UIColor {
         return resolve(color, style: .light)
     }
     
-    public func resolve(hex: Int) -> UIColor {
+    func resolve(hex: Int) -> UIColor {
         return resolve(.hex(hex))
     }
     
-    public func resolve(alias: JVDesignColorAlias) -> UIColor {
+    func resolve(alias: JVDesignColorAlias) -> UIColor {
         return resolve(.alias(alias))
     }
     
-    public func resolve(usage: JVDesignColorUsage) -> UIColor {
+    func resolve(usage: JVDesignColorUsage) -> UIColor {
         return resolve(.usage(usage))
     }
     

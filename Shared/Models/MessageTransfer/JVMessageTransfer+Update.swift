@@ -18,11 +18,11 @@ extension JVMessageTransfer {
     }
 }
 
-public final class JVMessageTransferGeneralChange: JVDatabaseModelChange {
+final class JVMessageTransferGeneralChange: JVDatabaseModelChange {
     public let agentID: Int
     public let comment: String?
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         agentID = json["agent_id"].intValue
         comment = json["text"].valuable
         super.init(json: json)

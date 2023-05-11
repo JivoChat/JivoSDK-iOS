@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 protocol ISdkNetworkingEventDispatcherFactory {
     func build() -> INetworkingEventDispatcher

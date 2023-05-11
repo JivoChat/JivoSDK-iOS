@@ -10,37 +10,37 @@ import Foundation
 import JMCodingKit
 import JMRepicKit
 
-open class JVDatabaseModelChange: NSObject {
+class JVDatabaseModelChange: NSObject {
     public let isOK: Bool
     
-    override public init() {
+    override init() {
         isOK = true
 
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         isOK = json["ok"].boolValue
     }
     
-    open var isValid: Bool {
+    var isValid: Bool {
         return true
     }
     
-    open var primaryValue: Int {
+    var primaryValue: Int {
         abort()
     }
     
-    open var integerKey: JVDatabaseModelCustomId<Int>? {
+    var integerKey: JVDatabaseModelCustomId<Int>? {
         return nil
     }
     
-    open var stringKey: JVDatabaseModelCustomId<String>? {
+    var stringKey: JVDatabaseModelCustomId<String>? {
         return nil
     }
 }
 
-public func JVValidChange<T: JVDatabaseModelChange>(_ change: T?) -> T? {
+func JVValidChange<T: JVDatabaseModelChange>(_ change: T?) -> T? {
     if let change = change, change.isValid {
         return change
     }
@@ -49,7 +49,7 @@ public func JVValidChange<T: JVDatabaseModelChange>(_ change: T?) -> T? {
     }
 }
 
-public enum JVSenderType: String {
+enum JVSenderType: String {
     case `self`
     case client = "client"
     case agent = "agent"
@@ -59,17 +59,12 @@ public enum JVSenderType: String {
     case department = "department"
 }
 
-public struct JVSenderData: Equatable {
-    public let type: JVSenderType
-    public let ID: Int
-    
-    public init(type: JVSenderType, ID: Int) {
-        self.type = type
-        self.ID = ID
-    }
+struct JVSenderData: Equatable {
+    let type: JVSenderType
+    let ID: Int
 }
 
-public enum JVDisplayNameKind {
+enum JVDisplayNameKind {
     case original
     case short
     case decorative(Decor)
@@ -77,12 +72,10 @@ public enum JVDisplayNameKind {
 }
 
 extension JVDisplayNameKind {
-    public struct Decor: OptionSet {
-        public let rawValue: Int
-        public init(rawValue: Int) { self.rawValue = rawValue }
-        
-        public static let role = Self(rawValue: 1 << 0)
-        public static let status = Self(rawValue: 1 << 1)
-        public static let all = Self(rawValue: ~0)
+    struct Decor: OptionSet {
+        let rawValue: Int
+        static let role = Self(rawValue: 1 << 0)
+        static let status = Self(rawValue: 1 << 1)
+        static let all = Self(rawValue: ~0)
     }
 }

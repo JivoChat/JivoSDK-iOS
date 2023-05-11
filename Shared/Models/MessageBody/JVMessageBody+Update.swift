@@ -39,7 +39,7 @@ extension JVMessageBody {
     }
 }
 
-public final class JVMessageBodyGeneralChange: JVDatabaseModelChange {
+final class JVMessageBodyGeneralChange: JVDatabaseModelChange {
     public let agentID: Int?
     public let to: String?
     public let from: String?
@@ -64,7 +64,7 @@ public final class JVMessageBodyGeneralChange: JVDatabaseModelChange {
     public let orderID: String?
     public let departmentID: Int?
 
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         let call = json.has(key: "call") ?? json
         let task = json.has(key: "reminder") ?? json
 
@@ -111,7 +111,7 @@ public final class JVMessageBodyGeneralChange: JVDatabaseModelChange {
         super.init(json: json)
     }
     
-    public var isValidCall: Bool {
+    var isValidCall: Bool {
         guard let _ = callID else { return false }
         guard let _ = type else { return false }
         return true

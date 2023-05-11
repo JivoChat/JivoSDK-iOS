@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 struct LocalizedMeta {
     let mode: JVLocalizedMetaMode

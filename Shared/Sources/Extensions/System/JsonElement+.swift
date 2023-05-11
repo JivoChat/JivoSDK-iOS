@@ -8,7 +8,7 @@
 import Foundation
 import JMCodingKit
 
-public extension JsonElement {
+extension JsonElement {
     init<T>(key: String, value: T?) {
         if let value = value {
             self.init([key: value])
@@ -48,6 +48,6 @@ public extension JsonElement {
     }
 }
 
-public func +(lhs: JsonElement, rhs: JsonElement) -> JsonElement {
+func +(lhs: JsonElement, rhs: JsonElement) -> JsonElement {
     return lhs.merged(with: rhs)
 }

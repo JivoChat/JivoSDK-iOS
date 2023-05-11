@@ -9,17 +9,17 @@
 import Foundation
 import CoreData
 
-public protocol JVValidatable {
+protocol JVValidatable {
     var jv_isValid: Bool { get }
 }
 
 extension NSManagedObject: JVValidatable {
-    public var jv_isValid: Bool {
+    var jv_isValid: Bool {
         return true
     }
 }
 
-public func jv_validate<T: JVValidatable>(_ object: T?) -> T? {
+func jv_validate<T: JVValidatable>(_ object: T?) -> T? {
     guard let object = object else { return nil }
     return object.jv_isValid ? object : nil
 }

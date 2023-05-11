@@ -7,14 +7,13 @@
 //
 
 import Foundation
-import JivoFoundation
 
 extension JVAgentWorktime {
-    public var agentID: Int {
+    var agentID: Int {
         return Int(m_agent_id)
     }
     
-    public var timezoneID: Int? {
+    var timezoneID: Int? {
         if m_timezone_id > 0 {
             return Int(m_timezone_id)
         }
@@ -23,37 +22,37 @@ extension JVAgentWorktime {
         }
     }
     
-    public var timezone: JVTimezone? {
+    var timezone: JVTimezone? {
         return m_timezone
     }
     
-    public var isEnabled: Bool {
+    var isEnabled: Bool {
         return m_is_enabled
     }
     
-    public var todayConfig: JVAgentWorktimeDayConfig? {
+    var todayConfig: JVAgentWorktimeDayConfig? {
         return unpackLocalConfig(day: .today)
     }
     
-    public var nextMetaPair: JVAgentWorktimeDayMetaPair {
+    var nextMetaPair: JVAgentWorktimeDayMetaPair {
         return JVAgentWorktimeDayMetaPair(
             today: obtainNextDayMeta(includingToday: true),
             anotherDay: obtainNextDayMeta(includingToday: false)
         )
     }
     
-    public var activeDays: Set<String> {
+    var activeDays: Set<String> {
         let days = JVAgentWorktimeDay.allCases
         let configs = days.map(unpackLocalConfig)
         let activePairs = zip(days, configs).filter { day, config in config.enabled }
         return Set(activePairs.map { day, config in day.rawValue })
     }
     
-    public func ifEnabled() -> JVAgentWorktime? {
+    func ifEnabled() -> JVAgentWorktime? {
         return m_is_enabled ? self : nil
     }
     
-    public func obtainNextDayMeta(includingToday: Bool) -> JVAgentWorktimeDayMeta? {
+    func obtainNextDayMeta(includingToday: Bool) -> JVAgentWorktimeDayMeta? {
         let originalSet = JVAgentWorktimeDay.allCases + JVAgentWorktimeDay.allCases
         guard let dayIndex = originalSet.firstIndex(of: .today) else { return nil }
         
@@ -70,7 +69,7 @@ extension JVAgentWorktime {
         return nil
     }
     
-    public func unpackLocalConfig(day: JVAgentWorktimeDay) -> JVAgentWorktimeDayConfig {
+    func unpackLocalConfig(day: JVAgentWorktimeDay) -> JVAgentWorktimeDayConfig {
         let source: Int64 = jv_convert(day) { day in
             switch day {
             case .monday:
@@ -100,30 +99,20 @@ extension JVAgentWorktime {
     }
 }
 
-public struct JVAgentWorktimePointPair {
-    public var since: JVAgentWorktimePoint
-    public var till: JVAgentWorktimePoint
-    
-    public init(since: JVAgentWorktimePoint, till: JVAgentWorktimePoint) {
-        self.since = since
-        self.till = till
-    }
+struct JVAgentWorktimePointPair {
+    let since: JVAgentWorktimePoint
+    let till: JVAgentWorktimePoint
 }
 
-public struct JVAgentWorktimePoint: Comparable {
-    public let hours: Int
-    public let minutes: Int
+struct JVAgentWorktimePoint: Comparable {
+    let hours: Int
+    let minutes: Int
     
-    public init(hours: Int, minutes: Int) {
-        self.hours = hours
-        self.minutes = minutes
-    }
-    
-    public func calculateSeconds() -> Int {
+    func calculateSeconds() -> Int {
         return (hours * 60 + minutes) * 60
     }
     
-    public static func <(lhs: JVAgentWorktimePoint, rhs: JVAgentWorktimePoint) -> Bool {
+    static func <(lhs: JVAgentWorktimePoint, rhs: JVAgentWorktimePoint) -> Bool {
         if lhs.hours < rhs.hours {
             return true
         }
@@ -136,7 +125,7 @@ public struct JVAgentWorktimePoint: Comparable {
     }
 }
 
-public enum JVAgentWorktimeDay: String, CaseIterable {
+enum JVAgentWorktimeDay: String, CaseIterable {
     case monday
     case tuesday
     case wednesday
@@ -145,12 +134,12 @@ public enum JVAgentWorktimeDay: String, CaseIterable {
     case saturday
     case sunday
     
-    public static var today: JVAgentWorktimeDay {
+    static var today: JVAgentWorktimeDay {
         let component = JVActiveLocale().calendar.component(.weekday, from: Date())
         return JVAgentWorktimeDay.fromIndex(component - 1)
     }
     
-    public static func fromIndex(_ index: Int) -> JVAgentWorktimeDay {
+    static func fromIndex(_ index: Int) -> JVAgentWorktimeDay {
         switch index {
         case 0: return .sunday
         case 1: return .monday
@@ -163,7 +152,7 @@ public enum JVAgentWorktimeDay: String, CaseIterable {
         }
     }
     
-    public var systemIndex: Int {
+    var systemIndex: Int {
         switch self {
         case .sunday: return 1
         case .monday: return 2
@@ -177,33 +166,19 @@ public enum JVAgentWorktimeDay: String, CaseIterable {
 }
 
 public struct JVAgentWorktimeDayConfig: Equatable {
-    public var enabled: Bool
-    public var startHour: Int
-    public var startMinute: Int
-    public var endHour: Int
-    public var endMinute: Int
+    var enabled: Bool
+    var startHour: Int
+    var startMinute: Int
+    var endHour: Int
+    var endMinute: Int
     
-    public init(
-        enabled: Bool,
-        startHour: Int,
-        startMinute: Int,
-        endHour: Int,
-        endMinute: Int
-    ) {
-        self.enabled = enabled
-        self.startHour = startHour
-        self.startMinute = startMinute
-        self.endHour = endHour
-        self.endMinute = endMinute
-    }
-    
-    public var timeDescription: String {
+    var timeDescription: String {
         let sinceMins = staticTimeFormatter.jv_format(startMinute)
         let tillMins = staticTimeFormatter.jv_format(endMinute)
         return "\(startHour):\(sinceMins) - \(endHour):\(tillMins)"
     }
     
-    public var date: Date {
+    var date: Date {
         let baseDate = Date()
         return JVActiveLocale().calendar.date(
             bySettingHour: endHour,
@@ -213,24 +188,14 @@ public struct JVAgentWorktimeDayConfig: Equatable {
     }
 }
 
-public struct JVAgentWorktimeDayMeta: Equatable {
-    public let day: JVAgentWorktimeDay
-    public let config: JVAgentWorktimeDayConfig
-    
-    public init(day: JVAgentWorktimeDay, config: JVAgentWorktimeDayConfig) {
-        self.day = day
-        self.config = config
-    }
+struct JVAgentWorktimeDayMeta: Equatable {
+    let day: JVAgentWorktimeDay
+    let config: JVAgentWorktimeDayConfig
 }
 
-public struct JVAgentWorktimeDayMetaPair: Equatable {
-    public let today: JVAgentWorktimeDayMeta?
-    public let anotherDay: JVAgentWorktimeDayMeta?
-    
-    public init(today: JVAgentWorktimeDayMeta?, anotherDay: JVAgentWorktimeDayMeta?) {
-        self.today = today
-        self.anotherDay = anotherDay
-    }
+struct JVAgentWorktimeDayMetaPair: Equatable {
+    let today: JVAgentWorktimeDayMeta?
+    let anotherDay: JVAgentWorktimeDayMeta?
 }
 
 fileprivate let staticTimeFormatter: NumberFormatter = {

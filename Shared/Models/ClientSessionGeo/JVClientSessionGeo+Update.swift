@@ -21,14 +21,14 @@ extension JVClientSessionGeo {
     }
 }
 
-public final class JVClientSessionGeoGeneralChange: JVDatabaseModelChange {
+final class JVClientSessionGeoGeneralChange: JVDatabaseModelChange {
     public let country: String?
     public let region: String?
     public let city: String?
     public let organization: String?
     public let countryCode: String?
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         if let demographics = json.has(key: "demographics") {
             let location = demographics["locationDeduced"]
             country = location["country"]["name"].valuable

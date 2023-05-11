@@ -20,10 +20,10 @@ extension JVClientSessionPage {
 //    }
 }
 
-//public final class JVClientSessionPageGeneralChange: JVPageGeneralChange {
+//final class JVClientSessionPageGeneralChange: JVPageGeneralChange {
 //    public let kind: JVClientSessionPageKind
 //
-//    required public init(json: JsonElement) {
+//    required init(json: JsonElement) {
 //        kind = .unknown
 //        super.init(json: json)
 //    }
@@ -42,7 +42,7 @@ extension JVClientSessionPage {
 //            time: time)
 //    }
 //
-//    public func copy(kind: JVClientSessionPageKind) -> Self {
+//    func copy(kind: JVClientSessionPageKind) -> Self {
 //        return Self.init(
 //            URL: URL,
 //            title: title,

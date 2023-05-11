@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import JivoFoundation
 import JMCodingKit
 
 final class OptionsStorage: IOptionsStorage {

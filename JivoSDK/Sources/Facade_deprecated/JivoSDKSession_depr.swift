@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 @objc
 public final class JivoSDKSession: NSObject, JVSessionDelegate {

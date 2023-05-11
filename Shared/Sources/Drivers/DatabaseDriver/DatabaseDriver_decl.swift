@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-public protocol JVIDatabaseDriver: AnyObject {
+protocol JVIDatabaseDriver: AnyObject {
     func refresh() -> JVIDatabaseDriver
 
     func reference<OT: JVDatabaseModel>(to object: OT?) -> JVDatabaseModelRef<OT>

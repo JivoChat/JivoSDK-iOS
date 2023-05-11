@@ -13,6 +13,6 @@ extension OptionSet where RawValue: BinaryInteger {
     }
 }
 
-public func +<Options: OptionSet>(lhs: Options, rhs: Options) -> Options {
+func +<Options: OptionSet>(lhs: Options, rhs: Options) -> Options {
     return lhs.union(rhs)
 }

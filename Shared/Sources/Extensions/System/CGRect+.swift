@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-public extension CGRect {
+extension CGRect {
     func jv_reduceBy(insets: UIEdgeInsets) -> CGRect {
         return CGRect(
             x: origin.x + insets.left,

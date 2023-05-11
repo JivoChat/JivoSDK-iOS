@@ -36,7 +36,7 @@ extension JVDepartment {
     }
 }
 
-public final class JVDepartmentGeneralChange: JVDatabaseModelChange, Codable {
+final class JVDepartmentGeneralChange: JVDatabaseModelChange, Codable {
     public let id: Int
     public let name: String
     public let icon: String
@@ -44,7 +44,7 @@ public final class JVDepartmentGeneralChange: JVDatabaseModelChange, Codable {
     public let channelsIds: [Int]
     public let agentsIds: [Int]
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return id
     }
     

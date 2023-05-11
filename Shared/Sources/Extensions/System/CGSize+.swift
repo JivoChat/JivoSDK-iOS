@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-public extension CGSize {
+extension CGSize {
     static func jv_sizeThatCovers(sizes: [CGSize]) -> CGSize {
         var maxWidth = CGFloat(0)
         var maxHeight = CGFloat(0)

@@ -7,15 +7,14 @@
 //
 
 import Foundation
-import JivoFoundation
 import JMRepicKit
 
 extension JVDepartment: JVDisplayable {
-    public var ID: Int {
+    var ID: Int {
         return Int(m_id)
     }
     
-    public var name: String {
+    var name: String {
         return m_name.jv_orEmpty
     }
     
@@ -32,42 +31,42 @@ extension JVDepartment: JVDisplayable {
             .contains(",\(channel.ID),")
     }
     
-    public var agentsIds: [Int] {
+    var agentsIds: [Int] {
         return m_agents_ids.jv_orEmpty
             .split(separator: ",")
             .filter { !$0.isEmpty }
             .map { String($0).jv_toInt() }
     }
     
-    public var channel: JVChannel? {
+    var channel: JVChannel? {
         return nil
     }
     
-    public func displayName(kind: JVDisplayNameKind) -> String {
+    func displayName(kind: JVDisplayNameKind) -> String {
         return name
     }
     
-    public var integration: JVChannelJoint? {
+    var integration: JVChannelJoint? {
         return nil
     }
     
-    public var hashedID: String {
+    var hashedID: String {
         return "department:\(ID)"
     }
     
-    public var isMe: Bool {
+    var isMe: Bool {
         return false
     }
     
-    public var isAvailable: Bool {
+    var isAvailable: Bool {
         return true
     }
     
-    public var senderType: JVSenderType {
+    var senderType: JVSenderType {
         return .department
     }
     
-    public func repicItem(transparent: Bool, scale: CGFloat?) -> JMRepicItem? {
+    func repicItem(transparent: Bool, scale: CGFloat?) -> JMRepicItem? {
         return JMRepicItem(
             backgroundColor: JVDesign.colors.resolve(usage: .contentBackground),
             source: .caption(icon, JVDesign.fonts.emoji(scale: nil)),

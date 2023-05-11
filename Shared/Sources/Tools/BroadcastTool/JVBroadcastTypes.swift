@@ -10,6 +10,6 @@ import Foundation
 
 public typealias JVBroadcastObserverID = UUID
 
-public enum JVBroadcastNullableValue {
+enum JVBroadcastNullableValue {
     case null
 }

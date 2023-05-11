@@ -11,7 +11,7 @@ import UIKit
 import SwiftUI
 
 @available(iOS 13.0, *)
-public extension View {
+extension View {
     func jv_build() -> UIView {
         return UIHostingController(rootView: self).view ?? UIView()
     }

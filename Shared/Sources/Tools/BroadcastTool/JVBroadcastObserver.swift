@@ -8,12 +8,12 @@
 
 import Foundation
 
-public final class JVBroadcastObserver<VT> {
+final class JVBroadcastObserver<VT> {
     public let ID: JVBroadcastObserverID
     
     private weak var broadcastTool: JVBroadcastTool<VT>?
     
-    public init(ID: JVBroadcastObserverID, broadcastTool: JVBroadcastTool<VT>) {
+    init(ID: JVBroadcastObserverID, broadcastTool: JVBroadcastTool<VT>) {
         self.ID = ID
         self.broadcastTool = broadcastTool
     }

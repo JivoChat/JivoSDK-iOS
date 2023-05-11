@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension Bundle {
+extension Bundle {
     var jv_ID: String? {
         return infoDictionary?["CFBundleIdentifier"] as? String
     }
@@ -36,7 +36,7 @@ public extension Bundle {
     }
     
     var jv_semanticVersion: String {
-        return "\(jv_version)-\(jv_build)"
+        return "\(jv_version)+build.\(jv_build)"
     }
     
     var jv_packageVersion: String {

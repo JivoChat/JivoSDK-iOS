@@ -9,8 +9,8 @@
 import Foundation
 
 @objc(JVChannel)
-public class JVChannel: JVDatabaseModel {
-    public override func apply(context: JVIDatabaseContext, change: JVDatabaseModelChange) {
+class JVChannel: JVDatabaseModel {
+    override func apply(context: JVIDatabaseContext, change: JVDatabaseModelChange) {
         super.apply(context: context, change: change)
         performApply(context: context, environment: context.environment, change: change)
     }

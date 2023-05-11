@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum APICallType: String, APISelectableType {
+enum APICallType: String, APISelectableType {
     case none = "call.none"
     case incoming = "call.incoming"
     case outgoing = "call.outgoing"
@@ -28,7 +28,7 @@ public enum APICallType: String, APISelectableType {
         }
     }
     
-    public var publicCode: String {
+    var publicCode: String {
         switch self {
             case .none: return "none"
             case .incoming: return "incoming"
@@ -39,7 +39,7 @@ public enum APICallType: String, APISelectableType {
         }
     }
     
-    public var isNone: Bool {
+    var isNone: Bool {
         return (self == .none)
     }
     
@@ -49,7 +49,7 @@ public enum APICallType: String, APISelectableType {
 }
 
 extension JVArchiveHitCallItem {
-    public var type: APICallType {
+    var type: APICallType {
         if m_status == "unsuccessful" {
             return .failed
         }

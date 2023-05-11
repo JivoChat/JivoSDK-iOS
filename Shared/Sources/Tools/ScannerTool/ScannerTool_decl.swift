@@ -6,7 +6,7 @@
 
 import Foundation
 
-public protocol IScannerTool: AnyObject {
+protocol IScannerTool: AnyObject {
     @discardableResult
     func scan(till string: String) -> String?
     

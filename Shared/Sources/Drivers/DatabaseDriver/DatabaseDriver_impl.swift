@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 
-public enum JVDatabaseWriting {
+enum JVDatabaseWriting {
     case anyThread
     case backgroundThread
 }
@@ -19,7 +19,7 @@ fileprivate struct DatabaseFetchingToken {
     let fetchDelegate: NSFetchedResultsControllerDelegate
 }
 
-open class JVDatabaseDriver: JVIDatabaseDriver {
+class JVDatabaseDriver: JVIDatabaseDriver {
     private let thread: JVIDispatchThread
     private let namespace: String
     private let writing: JVDatabaseWriting
@@ -89,15 +89,15 @@ open class JVDatabaseDriver: JVIDatabaseDriver {
         }
     }
 
-    public func refresh() -> JVIDatabaseDriver {
+    func refresh() -> JVIDatabaseDriver {
         return self
     }
 
-    public func reference<OT: JVDatabaseModel>(to object: OT?) -> JVDatabaseModelRef<OT> {
+    func reference<OT: JVDatabaseModel>(to object: OT?) -> JVDatabaseModelRef<OT> {
         return JVDatabaseModelRef(coreDataDriver: self, value: object)
     }
     
-    public func resolve<OT: JVDatabaseModel>(ref: JVDatabaseModelRef<OT>) -> OT? {
+    func resolve<OT: JVDatabaseModel>(ref: JVDatabaseModelRef<OT>) -> OT? {
         guard let objectId = ref.objectId
         else {
             return nil
@@ -107,13 +107,13 @@ open class JVDatabaseDriver: JVIDatabaseDriver {
         return value
     }
     
-    public func read(_ block: (JVIDatabaseContext) -> Void) {
+    func read(_ block: (JVIDatabaseContext) -> Void) {
         context.performTransaction { ctx in
             block(ctx)
         }
     }
     
-    public func readwrite(_ block: (JVIDatabaseContext) -> Void) {
+    func readwrite(_ block: (JVIDatabaseContext) -> Void) {
         switch writing {
         case .backgroundThread:
             assert(!Thread.isMainThread, "Please use background thread for modifications")
@@ -126,15 +126,15 @@ open class JVDatabaseDriver: JVIDatabaseDriver {
         }
     }
     
-    public func objects<OT: JVDatabaseModel>(_ type: OT.Type, options: JVDatabaseRequestOptions?) -> [OT] {
+    func objects<OT: JVDatabaseModel>(_ type: OT.Type, options: JVDatabaseRequestOptions?) -> [OT] {
         return context.objects(type, options: options)
     }
     
-    public func object<OT: JVDatabaseModel>(_ type: OT.Type, internalId: NSManagedObjectID) -> OT? {
+    func object<OT: JVDatabaseModel>(_ type: OT.Type, internalId: NSManagedObjectID) -> OT? {
         return context.object(type, internalId: internalId)
     }
     
-    public func object<OT: JVDatabaseModel, VT: Hashable>(_ type: OT.Type, primaryId: VT) -> OT? {
+    func object<OT: JVDatabaseModel, VT: Hashable>(_ type: OT.Type, primaryId: VT) -> OT? {
         if let key = primaryId as? String {
             return context.object(type, primaryId: key)
         }
@@ -146,7 +146,7 @@ open class JVDatabaseDriver: JVIDatabaseDriver {
         }
     }
     
-    public func object<OT: JVDatabaseModel, VT: Hashable>(_ type: OT.Type, customId: JVDatabaseModelCustomId<VT>) -> OT? {
+    func object<OT: JVDatabaseModel, VT: Hashable>(_ type: OT.Type, customId: JVDatabaseModelCustomId<VT>) -> OT? {
         return context.object(type, customId: customId)
     }
     
@@ -180,7 +180,7 @@ open class JVDatabaseDriver: JVIDatabaseDriver {
         }
     }
     
-    public func subscribe<OT: JVDatabaseModel>(_ type: OT.Type, options: JVDatabaseRequestOptions?, callback: @escaping ([OT]) -> Void) -> JVDatabaseListener {
+    func subscribe<OT: JVDatabaseModel>(_ type: OT.Type, options: JVDatabaseRequestOptions?, callback: @escaping ([OT]) -> Void) -> JVDatabaseListener {
         let objects = context.getObjects(type, options: options)
         callback(objects)
         
@@ -265,7 +265,7 @@ open class JVDatabaseDriver: JVIDatabaseDriver {
         }
     }
     
-    public func subscribe<OT: JVDatabaseModel>(object: OT, callback: @escaping (OT?) -> Void) -> JVDatabaseListener {
+    func subscribe<OT: JVDatabaseModel>(object: OT, callback: @escaping (OT?) -> Void) -> JVDatabaseListener {
         let runner = SubscriptionSingleDelegate(
             context: context.context,
             object: object,
@@ -278,7 +278,7 @@ open class JVDatabaseDriver: JVIDatabaseDriver {
         return JVDatabaseListener(token: internalToken, coreDataDriver: self)
     }
     
-    public func unsubscribe(_ token: JVDatabaseDriverSubscriberToken) {
+    func unsubscribe(_ token: JVDatabaseDriverSubscriberToken) {
         if let item = tokens[token] {
             item.fetchController.delegate = nil
             tokens.removeValue(forKey: token)
@@ -288,19 +288,19 @@ open class JVDatabaseDriver: JVIDatabaseDriver {
         }
     }
     
-    public func simpleRemove<OT: JVDatabaseModel>(objects: [OT]) -> Bool {
+    func simpleRemove<OT: JVDatabaseModel>(objects: [OT]) -> Bool {
         return context.performTransaction { ctx in
             ctx.simpleRemove(objects: objects)
         }
     }
     
-    public func customRemove<OT: JVDatabaseModel>(objects: [OT], recursive: Bool) {
+    func customRemove<OT: JVDatabaseModel>(objects: [OT], recursive: Bool) {
         context.performTransaction { ctx in
             ctx.customRemove(objects: objects, recursive: recursive)
         }
     }
     
-    public func removeAll() {
+    func removeAll() {
         _ = context.performTransaction { ctx in
             ctx.removeAll()
         }

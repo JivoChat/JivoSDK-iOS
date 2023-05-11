@@ -7,10 +7,9 @@
 //
 
 import Foundation
-import JivoFoundation
 import JMRepicKit
 
-public protocol JVPresentable: JVValidatable {
+protocol JVPresentable: JVValidatable {
     var senderType: JVSenderType { get }
     func repicItem(transparent: Bool, scale: CGFloat?) -> JMRepicItem?
 }

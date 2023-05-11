@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 final class NetworkingContext: INetworkingContext {
     let localeProvider: JVILocaleProvider

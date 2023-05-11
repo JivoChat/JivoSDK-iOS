@@ -8,7 +8,7 @@
 import Foundation
 import CoreData
 
-public final class JVDatabaseDriverMoc: NSManagedObjectContext {
+final class JVDatabaseDriverMoc: NSManagedObjectContext {
     let namespace: String
     
     init(namespace: String, concurrencyType ct: NSManagedObjectContextConcurrencyType) {

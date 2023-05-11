@@ -17,7 +17,7 @@ fileprivate var cachedRecentRestRequest = String()
 fileprivate var cachedRecentRestResponse = String()
 fileprivate var cachedRecentPayload: GraylogPayload?
 
-public extension Graylog {
+extension Graylog {
     static func jv_linkTo(_ link: String) {
         guard let url = URL(string: link) else { return }
         setURL(url)

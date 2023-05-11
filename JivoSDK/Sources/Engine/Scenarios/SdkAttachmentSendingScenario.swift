@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 struct SdkAttachmentSendingScenarioEnv: OptionSet {
     let rawValue: Int

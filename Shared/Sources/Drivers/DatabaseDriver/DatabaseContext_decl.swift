@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 
-public protocol JVIDatabaseContext: AnyObject {
+protocol JVIDatabaseContext: AnyObject {
     var context: JVDatabaseDriverMoc { get }
     var environment: JVIDatabaseEnvironment { get }
 
@@ -64,7 +64,7 @@ public struct JVDatabaseModelCustomId<VT: Hashable>: Hashable {
     let key: String
     let value: VT
 
-    public init(key: String, value: VT) {
+    init(key: String, value: VT) {
         self.key = key
         self.value = value
     }
@@ -75,7 +75,7 @@ public struct JVDatabaseRequestOptions {
     public let sortBy: [JVDatabaseResponseSort]
     public let notificationName: Notification.Name?
     
-    public init(filter: NSPredicate? = nil, sortBy: [JVDatabaseResponseSort] = [], notificationName: Notification.Name? = nil) {
+    init(filter: NSPredicate? = nil, sortBy: [JVDatabaseResponseSort] = [], notificationName: Notification.Name? = nil) {
         self.filter = filter
         self.sortBy = sortBy
         self.notificationName = notificationName
@@ -86,7 +86,7 @@ public struct JVDatabaseResponseSort {
     public let keyPath: String
     public let ascending: Bool
     
-    public init(keyPath: String, ascending: Bool) {
+    init(keyPath: String, ascending: Bool) {
         self.keyPath = keyPath
         self.ascending = ascending
     }

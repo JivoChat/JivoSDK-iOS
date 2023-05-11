@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 import SwiftDate
 import libPhoneNumber_iOS
 

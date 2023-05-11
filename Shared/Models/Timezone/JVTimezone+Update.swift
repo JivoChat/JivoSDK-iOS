@@ -65,7 +65,7 @@ extension JVTimezone {
     }
 }
 
-public final class JVTimezoneGeneralChange: JVDatabaseModelChange, Codable {
+final class JVTimezoneGeneralChange: JVDatabaseModelChange, Codable {
     private enum Keys: CodingKey {
         case ID
         case code
@@ -78,17 +78,17 @@ public final class JVTimezoneGeneralChange: JVDatabaseModelChange, Codable {
     public let displayNameEn: String?
     public let displayNameRu: String?
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public override var isValid: Bool {
+    override var isValid: Bool {
         guard ID > 0 else { return false }
         guard !code.isEmpty else { return false }
         return true
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = json["timezone_id"].intValue
         code = json["code"].stringValue
         displayNameEn = json["display_name_en"].string
@@ -96,7 +96,7 @@ public final class JVTimezoneGeneralChange: JVDatabaseModelChange, Codable {
         super.init(json: json)
     }
     
-    public init(from decoder: Decoder) throws {
+    init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: Keys.self)
         ID = try container.decode(Int.self, forKey: .ID)
         code = try container.decode(String.self, forKey: .code)
@@ -106,7 +106,7 @@ public final class JVTimezoneGeneralChange: JVDatabaseModelChange, Codable {
         super.init()
     }
     
-    public func encode(to encoder: Encoder) throws {
+    func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: Keys.self)
         try container.encode(ID, forKey: .ID)
         try container.encode(code, forKey: .code)

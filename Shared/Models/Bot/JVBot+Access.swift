@@ -10,30 +10,30 @@ import Foundation
 import JMRepicKit
 
 extension JVBot: JVPresentable {
-    public var senderType: JVSenderType {
+    var senderType: JVSenderType {
         return .bot
     }
     
-    public var id: Int {
+    var id: Int {
         return Int(m_id)
     }
     
-    public var title: String {
+    var title: String {
         return m_title.jv_orEmpty
     }
     
-    public var hashedID: String {
+    var hashedID: String {
         return "bot:\(id)"
     }
     
-    public func repicItem(transparent: Bool, scale: CGFloat?) -> JMRepicItem? {
+    func repicItem(transparent: Bool, scale: CGFloat?) -> JMRepicItem? {
         let url = m_avatar_link.flatMap(URL.init)
         let icon = UIImage(named: "avatar_bot", in: .jv_shared, compatibleWith: nil)
         let image = JMRepicItemSource.avatar(URL: url, image: icon, color: nil, transparent: transparent)
         return JMRepicItem(backgroundColor: nil, source: image, scale: scale ?? 1.0, clipping: .dual)
     }
     
-    public func displayName(kind: JVDisplayNameKind) -> String {
+    func displayName(kind: JVDisplayNameKind) -> String {
         switch kind {
         case .original:
             return m_display_name.jv_orEmpty

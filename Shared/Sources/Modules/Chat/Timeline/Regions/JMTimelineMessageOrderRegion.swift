@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import JivoFoundation
 import DTModelStorage
 import JMTimelineKit
 

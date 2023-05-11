@@ -9,5 +9,5 @@
 import Foundation
 
 @objc(JVArchiveHitItem)
-public class JVArchiveHitItem: JVDatabaseModel {
+class JVArchiveHitItem: JVDatabaseModel {
 }

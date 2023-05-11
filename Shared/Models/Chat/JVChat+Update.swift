@@ -381,7 +381,7 @@ extension JVChat {
     }
 }
 
-public final class JVChatGeneralChange: JVDatabaseModelChange {
+final class JVChatGeneralChange: JVDatabaseModelChange {
     public let ID: Int
     public let attendees: [JVChatAttendeeGeneralChange]
     public let client: JVClientShortChange?
@@ -401,16 +401,16 @@ public final class JVChatGeneralChange: JVDatabaseModelChange {
     public let department: String?
     public let knownArchived: Bool
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public override var isValid: Bool {
+    override var isValid: Bool {
         guard ID > 0 else { return false }
         return true
     }
     
-    public init(ID: Int,
+    init(ID: Int,
          attendees: [JVChatAttendeeGeneralChange],
          client: JVClientShortChange?,
          agentID: Int?,
@@ -449,7 +449,7 @@ public final class JVChatGeneralChange: JVDatabaseModelChange {
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         let parsedLastMessage: JVMessageLocalChange? = json["last_message"].parse()
         let parsedActiveRing: JVMessageLocalChange? = json["active_ring"].parse()
         
@@ -491,7 +491,7 @@ public final class JVChatGeneralChange: JVDatabaseModelChange {
     }
     
     /*
-    public func copy(without me: _JVAgent) -> JVChatGeneralChange {
+    func copy(without me: _JVAgent) -> JVChatGeneralChange {
         if let meAttendee = attendees.first(where: { $0.ID == me.ID }) ?? attendees.first {
             return JVChatGeneralChange(
                 ID: ID,
@@ -519,7 +519,7 @@ public final class JVChatGeneralChange: JVDatabaseModelChange {
     }
     */
 
-    public func copy(without meId: Int) -> JVChatGeneralChange {
+    func copy(without meId: Int) -> JVChatGeneralChange {
         if let meAttendee = attendees.first(where: { $0.ID == meId }) ?? attendees.first {
             return JVChatGeneralChange(
                 ID: ID,
@@ -546,7 +546,7 @@ public final class JVChatGeneralChange: JVDatabaseModelChange {
         }
     }
 
-    public func copy(relation: String, everybody: Bool) -> JVChatGeneralChange {
+    func copy(relation: String, everybody: Bool) -> JVChatGeneralChange {
         guard attendees.count == 1 || everybody else { return self }
 
         return JVChatGeneralChange(
@@ -570,7 +570,7 @@ public final class JVChatGeneralChange: JVDatabaseModelChange {
             knownArchived: knownArchived)
     }
     
-    public func copy(receivedMessageID: Int? = nil, knownArchived: Bool? = nil) -> JVChatGeneralChange {
+    func copy(receivedMessageID: Int? = nil, knownArchived: Bool? = nil) -> JVChatGeneralChange {
         return JVChatGeneralChange(
             ID: ID,
             attendees: attendees,
@@ -592,7 +592,7 @@ public final class JVChatGeneralChange: JVDatabaseModelChange {
             knownArchived: knownArchived ?? self.knownArchived)
     }
     
-    public func cachable() -> JVChatGeneralChange {
+    func cachable() -> JVChatGeneralChange {
         return JVChatGeneralChange(
             ID: ID,
             attendees: attendees.map { $0.cachable() },
@@ -614,7 +614,7 @@ public final class JVChatGeneralChange: JVDatabaseModelChange {
             knownArchived: knownArchived)
     }
     
-    public func findAttendeeRelation(agentID: Int) -> String? {
+    func findAttendeeRelation(agentID: Int) -> String? {
         for attendee in attendees {
             guard attendee.ID == agentID else { continue }
             return attendee.relation
@@ -624,7 +624,7 @@ public final class JVChatGeneralChange: JVDatabaseModelChange {
     }
 }
 
-public final class JVChatShortChange: JVDatabaseModelChange, NSCoding {
+final class JVChatShortChange: JVDatabaseModelChange, NSCoding {
     public let ID: Int
     public let client: JVClientShortChange?
     public let attendee: JVChatAttendeeGeneralChange?
@@ -647,7 +647,7 @@ public final class JVChatShortChange: JVDatabaseModelChange, NSCoding {
     private let codableIconKey = "icon"
     private let codableArchivedKey = "is_archived"
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
@@ -667,7 +667,7 @@ public final class JVChatShortChange: JVDatabaseModelChange, NSCoding {
             isArchived: true)
     }
     
-    public init(
+    init(
         ID: Int,
         client: JVClientShortChange?,
         attendee: JVChatAttendeeGeneralChange?,
@@ -691,7 +691,7 @@ public final class JVChatShortChange: JVDatabaseModelChange, NSCoding {
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = json["chat_id"].intValue
         client = json["client"].parse()
         attendee = nil
@@ -705,7 +705,7 @@ public final class JVChatShortChange: JVDatabaseModelChange, NSCoding {
         super.init(json: json)
     }
     
-    public init?(coder: NSCoder) {
+    init?(coder: NSCoder) {
         ID = coder.decodeInteger(forKey: codableIdKey)
         client = coder.decodeObject(of: JVClientShortChange.self, forKey: codableClientKey)
         attendee = coder.decodeObject(of: JVChatAttendeeGeneralChange.self, forKey: codableAttendeeKey)
@@ -719,7 +719,7 @@ public final class JVChatShortChange: JVDatabaseModelChange, NSCoding {
         super.init()
     }
     
-    public func encode(with coder: NSCoder) {
+    func encode(with coder: NSCoder) {
         coder.encode(ID, forKey: codableIdKey)
         coder.encode(client, forKey: codableClientKey)
         coder.encode(attendee, forKey: codableAttendeeKey)
@@ -732,7 +732,7 @@ public final class JVChatShortChange: JVDatabaseModelChange, NSCoding {
         coder.encode(isArchived, forKey: codableArchivedKey)
     }
     
-    public func copy(attendeeID: Int,
+    func copy(attendeeID: Int,
               rel: String?,
               comment: String?,
               invitedBy: Int?,
@@ -760,16 +760,16 @@ public final class JVChatShortChange: JVDatabaseModelChange, NSCoding {
     }
 }
 
-public final class JVChatLastMessageChange: JVDatabaseModelChange {
+final class JVChatLastMessageChange: JVDatabaseModelChange {
     public let chatID: Int
     public let messageID: Int?
     public let messageLocalID: String?
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return chatID
     }
     
-    public var messageGlobalKey: JVDatabaseModelCustomId<Int>? {
+    var messageGlobalKey: JVDatabaseModelCustomId<Int>? {
         if let messageID = messageID {
             return JVDatabaseModelCustomId(key: "m_id", value: messageID)
         }
@@ -778,7 +778,7 @@ public final class JVChatLastMessageChange: JVDatabaseModelChange {
         }
     }
     
-    public var messageLocalKey: JVDatabaseModelCustomId<String>? {
+    var messageLocalKey: JVDatabaseModelCustomId<String>? {
         if let messageLocalID = messageLocalID {
             return JVDatabaseModelCustomId(key: "m_local_id", value: messageLocalID)
         }
@@ -787,28 +787,28 @@ public final class JVChatLastMessageChange: JVDatabaseModelChange {
         }
     }
     
-    public init(chatID: Int, messageID: Int?, messageLocalID: String?) {
+    init(chatID: Int, messageID: Int?, messageLocalID: String?) {
         self.chatID = chatID
         self.messageID = messageID
         self.messageLocalID = messageLocalID
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVChatPreviewMessageChange: JVDatabaseModelChange {
+final class JVChatPreviewMessageChange: JVDatabaseModelChange {
     public let chatID: Int
     public let messageID: Int?
     public let messageLocalID: String?
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return chatID
     }
 
-    public var messageGlobalKey: JVDatabaseModelCustomId<Int>? {
+    var messageGlobalKey: JVDatabaseModelCustomId<Int>? {
         if let messageID = messageID {
             return JVDatabaseModelCustomId(key: "m_id", value: messageID)
         }
@@ -817,7 +817,7 @@ public final class JVChatPreviewMessageChange: JVDatabaseModelChange {
         }
     }
 
-    public var messageLocalKey: JVDatabaseModelCustomId<String>? {
+    var messageLocalKey: JVDatabaseModelCustomId<String>? {
         if let messageLocalID = messageLocalID {
             return JVDatabaseModelCustomId(key: "m_local_id", value: messageLocalID)
         }
@@ -826,81 +826,81 @@ public final class JVChatPreviewMessageChange: JVDatabaseModelChange {
         }
     }
     
-    public init(chatID: Int, messageID: Int?, messageLocalID: String?) {
+    init(chatID: Int, messageID: Int?, messageLocalID: String?) {
         self.chatID = chatID
         self.messageID = messageID
         self.messageLocalID = messageLocalID
         super.init()
     }
 
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVChatHistoryChange: JVDatabaseModelChange {
+final class JVChatHistoryChange: JVDatabaseModelChange {
     public let loadedPartialHistory: Bool?
     public let loadedEntirely: Bool
     public let lastMessageValid: Bool?
     
-    public init(loadedPartialHistory: Bool?, loadedEntirely: Bool, lastMessageValid: Bool?) {
+    init(loadedPartialHistory: Bool?, loadedEntirely: Bool, lastMessageValid: Bool?) {
         self.loadedPartialHistory = loadedPartialHistory
         self.loadedEntirely = loadedEntirely
         self.lastMessageValid = lastMessageValid
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVChatIncrementUnreadChange: JVDatabaseModelChange {
+final class JVChatIncrementUnreadChange: JVDatabaseModelChange {
     public let ID: Int
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int) {
+    init(ID: Int) {
         self.ID = ID
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVChatResetUnreadChange: JVDatabaseModelChange {
+final class JVChatResetUnreadChange: JVDatabaseModelChange {
     public let ID: Int
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int) {
+    init(ID: Int) {
         self.ID = ID
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVChatTransferRequestChange: JVDatabaseModelChange {
+final class JVChatTransferRequestChange: JVDatabaseModelChange {
     public let ID: Int
     public let agentID: Int?
     public let departmentID: Int?
     public let assisting: Bool
     public let comment: String?
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int, agentID: Int?, departmentID: Int?, assisting: Bool, comment: String?) {
+    init(ID: Int, agentID: Int?, departmentID: Int?, assisting: Bool, comment: String?) {
         self.ID = ID
         self.agentID = agentID
         self.departmentID = departmentID
@@ -909,21 +909,21 @@ public final class JVChatTransferRequestChange: JVDatabaseModelChange {
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVChatTransferCompleteChange: JVDatabaseModelChange {
+final class JVChatTransferCompleteChange: JVDatabaseModelChange {
     public let ID: Int
     public let date: Date
     public let assisting: Bool
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = json["chat_id"].intValue
         date = Date()
         assisting = json["assistant"].boolValue
@@ -931,8 +931,8 @@ public final class JVChatTransferCompleteChange: JVDatabaseModelChange {
     }
 }
 
-public final class JVChatTransferRejectChange: JVDatabaseModelChange {
-    public enum Reason: String {
+final class JVChatTransferRejectChange: JVDatabaseModelChange {
+    enum Reason: String {
         case rejectByAgent = "target_agent_reject"
         case rejectByDepartment = "target_group_reject"
         case unknown
@@ -942,11 +942,11 @@ public final class JVChatTransferRejectChange: JVDatabaseModelChange {
     public let assisting: Bool
     public let reason: Reason
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = json["chat_id"].intValue
         assisting = json["assistant"].boolValue
         reason = Reason(rawValue: json["reason"].stringValue) ?? .unknown
@@ -954,94 +954,94 @@ public final class JVChatTransferRejectChange: JVDatabaseModelChange {
     }
 }
 
-public final class JVChatTransferCancelChange: JVDatabaseModelChange {
+final class JVChatTransferCancelChange: JVDatabaseModelChange {
     public let ID: Int
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int) {
+    init(ID: Int) {
         self.ID = ID
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVChatFinishedChange: JVDatabaseModelChange {
+final class JVChatFinishedChange: JVDatabaseModelChange {
     public let ID: Int
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         self.ID = json["chat_id"].intValue
         super.init(json: json)
     }
     
-    public init(ID: Int) {
+    init(ID: Int) {
         self.ID = ID
         super.init()
     }
 }
 
-public final class JVChatRequestCancelledChange: JVDatabaseModelChange {
+final class JVChatRequestCancelledChange: JVDatabaseModelChange {
     public let ID: Int
     public let acceptedByID: Int
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int, acceptedByID: Int) {
+    init(ID: Int, acceptedByID: Int) {
         self.ID = ID
         self.acceptedByID = acceptedByID
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVChatRequestCancelChange: JVDatabaseModelChange {
+final class JVChatRequestCancelChange: JVDatabaseModelChange {
     public let ID: Int
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int) {
+    init(ID: Int) {
         self.ID = ID
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVChatAcceptChange: JVDatabaseModelChange {
+final class JVChatAcceptChange: JVDatabaseModelChange {
     public let ID: Int
     public let clientID: Int
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = json["chat_id"].intValue
         clientID = json["client_id"].intValue
         super.init(json: json)
     }
 }
 
-public final class JVChatAcceptFailChange: JVDatabaseModelChange {
-    public enum Reason: String {
+final class JVChatAcceptFailChange: JVDatabaseModelChange {
+    enum Reason: String {
         case alreadyAccepted = "client_already_has_agent_id"
         case hasCall = "chat_has_cw_call"
         case unknown
@@ -1052,11 +1052,11 @@ public final class JVChatAcceptFailChange: JVDatabaseModelChange {
     public let acceptedAgentID: Int?
     public let reason: Reason
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = json["chat_id"].intValue
         clientID = json["client_id"].intValue
         acceptedAgentID = json["accepted_agent_id"].intValue.jv_valuable
@@ -1065,54 +1065,54 @@ public final class JVChatAcceptFailChange: JVDatabaseModelChange {
     }
 }
 
-public final class JVChatTerminationChange: JVDatabaseModelChange {
+final class JVChatTerminationChange: JVDatabaseModelChange {
     public let ID: Int
     public let date: Date
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int, delay: TimeInterval) {
+    init(ID: Int, delay: TimeInterval) {
         self.ID = ID
         self.date = Date().addingTimeInterval(delay)
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVChatDraftChange: JVDatabaseModelChange {
+final class JVChatDraftChange: JVDatabaseModelChange {
     public let ID: Int
     public let draft: String?
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public init(ID: Int, draft: String?) {
+    init(ID: Int, draft: String?) {
         self.ID = ID
         self.draft = draft
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVSdkChatAgentsUpdateChange: JVDatabaseModelChange {
+final class JVSdkChatAgentsUpdateChange: JVDatabaseModelChange {
     public let id: Int
     public let agentIds: [Int]
     public let exclusive: Bool
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return id
     }
     
-    public init(id: Int, agentIds: [Int], exclusive: Bool) {
+    init(id: Int, agentIds: [Int], exclusive: Bool) {
         self.id = id
         self.agentIds = agentIds
         self.exclusive = exclusive
@@ -1120,7 +1120,7 @@ public final class JVSdkChatAgentsUpdateChange: JVDatabaseModelChange {
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }

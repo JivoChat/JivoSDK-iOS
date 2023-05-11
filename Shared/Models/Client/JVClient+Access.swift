@@ -18,31 +18,31 @@ public struct JVClientProfile {
     public let countryName: String?
     public let cityName: String?
     
-    public var hasEmail: Bool {
+    var hasEmail: Bool {
         if let _ = emailByClient { return true }
         if let _ = emailByAgent { return true }
         return false
     }
     
-    public var primaryPhone: String? {
+    var primaryPhone: String? {
         return phoneByAgent ?? phoneByClient
     }
 }
 
 extension JVClient: JVDisplayable {
-    public var senderType: JVSenderType {
+    var senderType: JVSenderType {
         return .client
     }
 
-    public var ID: Int {
+    var ID: Int {
         return Int(m_id)
     }
     
-    public var publicID: String {
+    var publicID: String {
         return m_public_id.jv_orEmpty
     }
     
-    public var chatID: Int? {
+    var chatID: Int? {
         if m_chat_id > .zero {
             return Int(m_chat_id)
         }
@@ -51,19 +51,19 @@ extension JVClient: JVDisplayable {
         }
     }
     
-    public var channelID: Int {
+    var channelID: Int {
         return Int(m_channel_id)
     }
     
-    public var channel: JVChannel? {
+    var channel: JVChannel? {
         return m_channel
     }
 
-    public var isMe: Bool {
+    var isMe: Bool {
         return false
     }
 
-    public func displayName(kind: JVDisplayNameKind) -> String {
+    func displayName(kind: JVDisplayNameKind) -> String {
         switch kind {
         case .original where m_display_name.jv_orEmpty.isEmpty:
             return loc[format: "Client.Title", m_id]
@@ -78,7 +78,7 @@ extension JVClient: JVDisplayable {
         }
     }
     
-    public func repicItem(transparent: Bool, scale: CGFloat?) -> JMRepicItem? {
+    func repicItem(transparent: Bool, scale: CGFloat?) -> JMRepicItem? {
         let url = m_avatar_link.flatMap(URL.init)
         
         if let avatarID = String(m_guest_id.jv_orEmpty.dropLast(3)).jv_toHexInt() {
@@ -93,7 +93,7 @@ extension JVClient: JVDisplayable {
         }
     }
     
-    public var profile: JVClientProfile {
+    var profile: JVClientProfile {
         return JVClientProfile(
             emailByClient: m_email_by_client,
             emailByAgent: m_email_by_agent,
@@ -105,19 +105,19 @@ extension JVClient: JVDisplayable {
         )
     }
     
-    public var visitsNumber: Int {
+    var visitsNumber: Int {
         return max(1, Int(m_visits_number))
     }
     
-    public func assignedAgent() -> JVAgent? {
+    func assignedAgent() -> JVAgent? {
         return m_assigned_agent
     }
     
-    public var navigatesNumber: Int {
+    var navigatesNumber: Int {
         return max(1, Int(m_navigates_number))
     }
     
-    public var session: JVClientSession? {
+    var session: JVClientSession? {
         switch integration {
         case .none:
             return m_active_session
@@ -126,7 +126,7 @@ extension JVClient: JVDisplayable {
         }
     }
     
-    public var customData: [JVClientCustomField] {
+    var customData: [JVClientCustomField] {
         if let allObjects = m_custom_data?.allObjects as? [JVClientCustomField] {
             return allObjects
         }
@@ -139,7 +139,7 @@ extension JVClient: JVDisplayable {
 //        return _proactiveRule
 //    }
     
-    public var isOnline: Bool {
+    var isOnline: Bool {
         if m_is_online {
             return true
         }
@@ -154,7 +154,7 @@ extension JVClient: JVDisplayable {
         }
     }
     
-    public var displayAsOnline: Bool {
+    var displayAsOnline: Bool {
         if m_is_online {
             return true
         }
@@ -166,11 +166,11 @@ extension JVClient: JVDisplayable {
         return false
     }
     
-    public var hasIntegration: Bool {
+    var hasIntegration: Bool {
         return (integration != nil)
     }
     
-    public var integration: JVChannelJoint? {
+    var integration: JVChannelJoint? {
         if let joint = channel?.jointType {
             return joint
         }
@@ -182,15 +182,15 @@ extension JVClient: JVDisplayable {
         }
     }
     
-    public var hashedID: String {
+    var hashedID: String {
         return "client:\(ID)"
     }
 
-    public var isAvailable: Bool {
+    var isAvailable: Bool {
         return true
     }
 
-    public var integrationURL: URL? {
+    var integrationURL: URL? {
         if let link = m_integration_link {
             return URL(string: link)
         }
@@ -199,7 +199,7 @@ extension JVClient: JVDisplayable {
         }
     }
     
-    public var requiresEmail: Bool {
+    var requiresEmail: Bool {
         guard channel?.jointType == JVChannelJoint.tel
         else {
             return false
@@ -208,23 +208,23 @@ extension JVClient: JVDisplayable {
         return !profile.hasEmail
     }
     
-    public var hasActiveCall: Bool {
+    var hasActiveCall: Bool {
         return m_has_active_call
     }
 
-    public var task: JVTask? {
+    var task: JVTask? {
         return m_task
     }
     
-    public var countryCode: String? {
+    var countryCode: String? {
         return m_active_session?.geo?.countryCode
     }
     
-    public var isBlocked: Bool {
+    var isBlocked: Bool {
         return m_is_blocked
     }
     
-    public func export() -> JVClientShortChange {
+    func export() -> JVClientShortChange {
         return JVClientShortChange(
             ID: ID,
             channelID: channel?.ID,

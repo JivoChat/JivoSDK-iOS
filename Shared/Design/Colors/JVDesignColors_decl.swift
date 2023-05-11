@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-public protocol JVIDesignColors {
+protocol JVIDesignColors {
     func resolve(_ color: JVDesignColor) -> UIColor
     func resolve(_ color: JVDesignColor, style: JVDesignColorBrightness) -> UIColor
     func resolve(hex: Int) -> UIColor
@@ -16,19 +16,19 @@ public protocol JVIDesignColors {
     func resolve(usage: JVDesignColorUsage) -> UIColor
 }
 
-public enum JVDesignColor {
+enum JVDesignColor {
     case native(UIColor)
     case hex(Int)
     case alias(JVDesignColorAlias)
     case usage(JVDesignColorUsage)
 }
 
-public enum JVDesignColorBrightness {
+enum JVDesignColorBrightness {
     case light
     case dark
 }
 
-public enum JVDesignColorAlias {
+enum JVDesignColorAlias {
     case darkBackground
     case white
     case black
@@ -63,7 +63,7 @@ public enum JVDesignColorAlias {
     case color_00bc31
 }
 
-public enum JVDesignColorUsage {
+enum JVDesignColorUsage {
     // global
     case white
     case black

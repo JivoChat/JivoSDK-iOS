@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 @testable import Jivo
 
 class AgentsRepoMock: IAgentsRepo {

@@ -20,13 +20,13 @@ extension JVClientCustomField {
     }
 }
 
-public final class JVClientCustomDataGeneralChange: JVDatabaseModelChange {
+final class JVClientCustomDataGeneralChange: JVDatabaseModelChange {
     public let title: String?
     public let key: String?
     public let content: String
     public let link: String?
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         title = json["title"].string?.jv_valuable
         key = json["key"].string?.jv_valuable
         content = json["content"].stringValue

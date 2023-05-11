@@ -8,8 +8,8 @@
 import Foundation
 import UIKit
 
-public final class JVDesignIcons: JVDesignEnvironmental, JVIDesignIcons {
-    public func find(logo: JVDesignIconsLogo, lang: String?) -> UIImage? {
+final class JVDesignIcons: JVDesignEnvironmental, JVIDesignIcons {
+    func find(logo: JVDesignIconsLogo, lang: String?) -> UIImage? {
         switch (logo, lang) {
         case (.full, "ru"):
             return resolve(
@@ -42,13 +42,13 @@ public final class JVDesignIcons: JVDesignEnvironmental, JVIDesignIcons {
         }
     }
     
-    public func find(preset: JVDesignIconsPreset) -> UIImage? {
+    func find(preset: JVDesignIconsPreset) -> UIImage? {
         return find(
             preset: preset,
             pointSize: nil)
     }
     
-    public func find(preset: JVDesignIconsPreset, pointSize: CGFloat?) -> UIImage? {
+    func find(preset: JVDesignIconsPreset, pointSize: CGFloat?) -> UIImage? {
         return resolve(
             systemName: preset.systemName,
             assetName: preset.assetName,
@@ -57,7 +57,7 @@ public final class JVDesignIcons: JVDesignEnvironmental, JVIDesignIcons {
             tintColor: nil)
     }
     
-    public func find(asset: JVDesignIconsAsset, rendering: JVDesignAssetRendering) -> UIImage? {
+    func find(asset: JVDesignIconsAsset, rendering: JVDesignAssetRendering) -> UIImage? {
         return resolve(
             systemName: nil,
             assetName: asset.name,
@@ -66,7 +66,7 @@ public final class JVDesignIcons: JVDesignEnvironmental, JVIDesignIcons {
             tintColor: nil)
     }
     
-    public func resolve(systemName: String?, assetName: String, rendering: JVDesignAssetRendering, pointSize: CGFloat?, tintColor: UIColor?) -> UIImage? {
+    func resolve(systemName: String?, assetName: String, rendering: JVDesignAssetRendering, pointSize: CGFloat?, tintColor: UIColor?) -> UIImage? {
         if #available(iOS 13.0, *), let systemName = systemName {
             let config: UIImage.SymbolConfiguration
             if let size = pointSize {

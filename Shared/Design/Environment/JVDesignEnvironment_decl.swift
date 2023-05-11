@@ -6,8 +6,9 @@
 //
 
 import Foundation
+import UIKit
 
-public protocol JVIDesignEnvironment {
+protocol JVIDesignEnvironment {
     var statusBarHeight: CGFloat { get }
     var activeWindow: UIWindow? { get }
     var previousTraits: UITraitCollection? { get }
@@ -16,7 +17,7 @@ public protocol JVIDesignEnvironment {
     func effectiveHorizontalClass() -> UIUserInterfaceSizeClass
 }
 
-public enum JVDesignScreen: Int, Comparable {
+enum JVDesignScreen: Int, Comparable {
     case small
     case standard
     case large

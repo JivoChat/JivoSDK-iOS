@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import JivoFoundation
 
 final class ErrorRenderer: UIView, Renderer {
     private lazy var contentView = UIView()

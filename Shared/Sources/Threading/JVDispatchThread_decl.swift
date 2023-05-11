@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol JVIDispatchThread: AnyObject, JVIDispatcher {
+protocol JVIDispatchThread: AnyObject, JVIDispatcher {
     func async(block: @escaping () -> Void)
     func sync(block: @escaping () -> Void)
     func stop()

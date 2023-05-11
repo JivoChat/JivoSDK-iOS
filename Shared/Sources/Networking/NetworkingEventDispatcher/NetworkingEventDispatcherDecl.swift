@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 protocol INetworkingEventDispatcher: AnyObject {
     func attach(to signal: JVBroadcastTool<NetworkingEvent>)

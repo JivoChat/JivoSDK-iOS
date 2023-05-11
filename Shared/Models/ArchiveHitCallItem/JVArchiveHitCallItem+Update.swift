@@ -36,14 +36,14 @@ extension JVArchiveHitCallItem {
     }
 }
 
-public final class JVArchiveHitCallItemGeneralChange: JVArchiveHitItemGeneralChange {
+final class JVArchiveHitCallItemGeneralChange: JVArchiveHitItemGeneralChange {
     public let type: String
     public let status: String
     public let cost: Float
     public let costCurrency: String
     public let callChange: JVCallGeneralChange?
     
-    public init(ID: String,
+    init(ID: String,
          responseTimeout: Int,
          duration: Int,
          eventsNumber: Int,
@@ -72,11 +72,11 @@ public final class JVArchiveHitCallItemGeneralChange: JVArchiveHitItemGeneralCha
         )
     }
     
-    public override var stringKey: JVDatabaseModelCustomId<String>? {
+    override var stringKey: JVDatabaseModelCustomId<String>? {
         return JVDatabaseModelCustomId(key: "m_id", value: ID)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         type = json["call_type"].stringValue
         status = json["call_status"].stringValue
         cost = json["cost"].floatValue
@@ -85,7 +85,7 @@ public final class JVArchiveHitCallItemGeneralChange: JVArchiveHitItemGeneralCha
         super.init(json: json)
     }
     
-    public func copyUnrelative() -> JVArchiveHitCallItemGeneralChange {
+    func copyUnrelative() -> JVArchiveHitCallItemGeneralChange {
         return JVArchiveHitCallItemGeneralChange(
             ID: ID,
             responseTimeout: responseTimeout,

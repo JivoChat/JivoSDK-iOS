@@ -7,10 +7,9 @@
 //
 
 import Foundation
-import JivoFoundation
 import JMCodingKit
 
-public extension JVMessage {
+extension JVMessage {
     func performApply(context: JVIDatabaseContext, environment: JVIDatabaseEnvironment, change: JVDatabaseModelChange) {
         defer {
             m_sender = m_sender_client ?? m_sender_agent ?? m_sender_bot
@@ -560,7 +559,7 @@ public extension JVMessage {
     }
 }
 
-open class JVMessageBaseGeneralChange: JVDatabaseModelChange, Comparable {
+class JVMessageBaseGeneralChange: JVDatabaseModelChange, Comparable {
     public let ID: Int
     public let creationTS: TimeInterval
     public let body: JVMessageBodyGeneralChange?
@@ -570,7 +569,7 @@ open class JVMessageBaseGeneralChange: JVDatabaseModelChange, Comparable {
         return JVDatabaseModelCustomId(key: "m_id", value: ID)
     }
     
-    public init(ID: Int, creationTS: TimeInterval, body: JVMessageBodyGeneralChange?) {
+    init(ID: Int, creationTS: TimeInterval, body: JVMessageBodyGeneralChange?) {
         self.ID = ID
         self.creationTS = creationTS
         self.body = body
@@ -578,7 +577,7 @@ open class JVMessageBaseGeneralChange: JVDatabaseModelChange, Comparable {
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = json["msg_id"].intValue
         creationTS = json["created_ts"].doubleValue
         body = json["body"].parse()
@@ -586,17 +585,17 @@ open class JVMessageBaseGeneralChange: JVDatabaseModelChange, Comparable {
         super.init(json: json)
     }
     
-    public func copy(ID: Int) -> JVMessageBaseGeneralChange {
+    func copy(ID: Int) -> JVMessageBaseGeneralChange {
         abort()
     }
 }
 
-open class JVMessageExtendedGeneralChange: JVMessageBaseGeneralChange {
+class JVMessageExtendedGeneralChange: JVMessageBaseGeneralChange {
     public let type: String
     public let isMarkdown: Bool
     public let senderType: String
     
-    public init(
+    init(
          ID: Int,
          creationTS: TimeInterval,
          body: JVMessageBodyGeneralChange?,
@@ -615,7 +614,7 @@ open class JVMessageExtendedGeneralChange: JVMessageBaseGeneralChange {
         )
     }
 
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         type = json["type"].stringValue
         isMarkdown = json["is_markdown"].boolValue
         senderType = json["from"].stringValue
@@ -631,7 +630,7 @@ open class JVMessageExtendedGeneralChange: JVMessageBaseGeneralChange {
     }
 }
 
-public final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
+final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
     public let clientID: Int
     public let chatID: Int
     public let senderID: Int
@@ -643,11 +642,11 @@ public final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
     public let reactions: [JVMessageReaction]
     public let isDeleted: Bool
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         abort()
     }
     
-    public init(ID: Int,
+    init(ID: Int,
          clientID: Int,
          chatID: Int,
          type: String,
@@ -684,7 +683,7 @@ public final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
         )
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         clientID = json["client_id"].intValue
         chatID = json["chat_id"].intValue
         senderID = json["from_id"].intValue
@@ -698,7 +697,7 @@ public final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
         super.init(json: json)
     }
     
-    public override var isValid: Bool {
+    override var isValid: Bool {
         if type == "message", media?.type == "conference", senderType == "agent" {
             return false
         }
@@ -706,11 +705,11 @@ public final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
         return super.isValid
     }
     
-    public var callID: String? {
+    var callID: String? {
         return body?.callID
     }
     
-    public override func copy(ID: Int) -> JVMessageBaseGeneralChange {
+    override func copy(ID: Int) -> JVMessageBaseGeneralChange {
         return JVMessageGeneralChange(
             ID: ID,
             clientID: clientID,
@@ -730,7 +729,7 @@ public final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
             isDeleted: isDeleted)
     }
     
-    public func copy(clientID: Int) -> JVMessageGeneralChange {
+    func copy(clientID: Int) -> JVMessageGeneralChange {
         return JVMessageGeneralChange(
             ID: ID,
             clientID: clientID,
@@ -751,7 +750,7 @@ public final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
     }
 }
 
-public final class JVMessageShortChange: JVDatabaseModelChange {
+final class JVMessageShortChange: JVDatabaseModelChange {
     public let ID: Int
     public let clientID: Int?
     public let chatID: Int
@@ -762,20 +761,20 @@ public final class JVMessageShortChange: JVDatabaseModelChange {
     public let time: String
     public let media: JVMessageMediaGeneralChange?
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         abort()
     }
     
-    public override var integerKey: JVDatabaseModelCustomId<Int>? {
+    override var integerKey: JVDatabaseModelCustomId<Int>? {
         return JVDatabaseModelCustomId(key: "m_id", value: ID)
     }
     
-    public override var isValid: Bool {
+    override var isValid: Bool {
         guard ID > 0 else { return false }
         return true
     }
     
-    public init(ID: Int,
+    init(ID: Int,
          clientID: Int?,
          chatID: Int,
          senderType: String,
@@ -796,7 +795,7 @@ public final class JVMessageShortChange: JVDatabaseModelChange {
         super.init()
     }
 
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = json["msg_id"].intValue
         clientID = json["client_id"].int
         chatID = json["chat_id"].intValue
@@ -809,7 +808,7 @@ public final class JVMessageShortChange: JVDatabaseModelChange {
         super.init(json: json)
     }
     
-    public func copy(clientID: Int?) -> JVMessageShortChange {
+    func copy(clientID: Int?) -> JVMessageShortChange {
         return JVMessageShortChange(
             ID: ID,
             clientID: clientID,
@@ -823,7 +822,7 @@ public final class JVMessageShortChange: JVDatabaseModelChange {
     }
 }
 
-public final class JVMessageLocalChange: JVMessageExtendedGeneralChange {
+final class JVMessageLocalChange: JVMessageExtendedGeneralChange {
     public let clientID: Int?
     public let chatID: Int
     public let senderID: Int
@@ -833,11 +832,11 @@ public final class JVMessageLocalChange: JVMessageExtendedGeneralChange {
     public let updatedTs: TimeInterval?
     public let isDeleted: Bool
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         abort()
     }
     
-    public init(ID: Int,
+    init(ID: Int,
          clientID: Int?,
          chatID: Int,
          type: String,
@@ -871,7 +870,7 @@ public final class JVMessageLocalChange: JVMessageExtendedGeneralChange {
         )
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         clientID = nil
         chatID = json["chat_id"].intValue
         senderID = json["from_id"].intValue
@@ -883,7 +882,7 @@ public final class JVMessageLocalChange: JVMessageExtendedGeneralChange {
         super.init(json: json)
     }
     
-    public override func copy(ID: Int) -> JVMessageLocalChange {
+    override func copy(ID: Int) -> JVMessageLocalChange {
         return JVMessageLocalChange(
             ID: ID,
             clientID: clientID,
@@ -902,7 +901,7 @@ public final class JVMessageLocalChange: JVMessageExtendedGeneralChange {
             isDeleted: isDeleted)
     }
 
-    public func attach(clientID: Int) -> JVMessageLocalChange {
+    func attach(clientID: Int) -> JVMessageLocalChange {
         return JVMessageLocalChange(
             ID: ID,
             clientID: clientID,
@@ -922,7 +921,7 @@ public final class JVMessageLocalChange: JVMessageExtendedGeneralChange {
     }
 }
 
-public final class JVMessageFromClientChange: JVDatabaseModelChange {
+final class JVMessageFromClientChange: JVDatabaseModelChange {
     public let ID: Int
     public let channelID: Int
     public let clientID: Int
@@ -930,15 +929,15 @@ public final class JVMessageFromClientChange: JVDatabaseModelChange {
     public let text: String
     public let media: JVMessageMediaGeneralChange?
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         abort()
     }
     
-    public override var integerKey: JVDatabaseModelCustomId<Int>? {
+    override var integerKey: JVDatabaseModelCustomId<Int>? {
         return JVDatabaseModelCustomId(key: "m_id", value: ID)
     }
     
-    public init(ID: Int, channelID: Int, clientID: Int, chatID: Int, text: String, media: JVMessageMediaGeneralChange?) {
+    init(ID: Int, channelID: Int, clientID: Int, chatID: Int, text: String, media: JVMessageMediaGeneralChange?) {
         self.ID = ID
         self.channelID = channelID
         self.clientID = clientID
@@ -948,7 +947,7 @@ public final class JVMessageFromClientChange: JVDatabaseModelChange {
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = json["msg_id"].intValue
         channelID = json["widget_id"].intValue
         clientID = json["client_id"].intValue
@@ -958,7 +957,7 @@ public final class JVMessageFromClientChange: JVDatabaseModelChange {
         super.init(json: json)
     }
     
-    public func copy(ID: Int) -> JVMessageFromClientChange {
+    func copy(ID: Int) -> JVMessageFromClientChange {
         return JVMessageFromClientChange(
             ID: ID,
             channelID: channelID,
@@ -970,7 +969,7 @@ public final class JVMessageFromClientChange: JVDatabaseModelChange {
     }
 }
 
-public final class JVMessageFromAgentChange: JVMessageExtendedGeneralChange {
+final class JVMessageFromAgentChange: JVMessageExtendedGeneralChange {
     public let clientID: Int?
     public let senderID: Int
     public let chatID: Int
@@ -981,11 +980,11 @@ public final class JVMessageFromAgentChange: JVMessageExtendedGeneralChange {
     public let updatedTs: TimeInterval?
     public let isDeleted: Bool
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         abort()
     }
     
-    public init(ID: Int,
+    init(ID: Int,
          creationTS: TimeInterval,
          clientID: Int?,
          type: String,
@@ -1020,7 +1019,7 @@ public final class JVMessageFromAgentChange: JVMessageExtendedGeneralChange {
         )
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         clientID = json["client_id"].int
         senderID = json["from_id"].intValue
         chatID = json["chat_id"].intValue
@@ -1033,7 +1032,7 @@ public final class JVMessageFromAgentChange: JVMessageExtendedGeneralChange {
         super.init(json: json)
     }
     
-    public override func copy(ID: Int) -> JVMessageFromAgentChange {
+    override func copy(ID: Int) -> JVMessageFromAgentChange {
         return JVMessageFromAgentChange(
             ID: ID,
             creationTS: creationTS,
@@ -1053,7 +1052,7 @@ public final class JVMessageFromAgentChange: JVMessageExtendedGeneralChange {
     }
 }
 
-public final class JVMessageStateChange: JVDatabaseModelChange {
+final class JVMessageStateChange: JVDatabaseModelChange {
     public let localID: String?
     public let globalID: Int
     public let chatID: Int?
@@ -1061,11 +1060,11 @@ public final class JVMessageStateChange: JVDatabaseModelChange {
     public let status: String?
     public let date: Date?
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         abort()
     }
     
-    public override var integerKey: JVDatabaseModelCustomId<Int>? {
+    override var integerKey: JVDatabaseModelCustomId<Int>? {
         if globalID > 0 {
             return JVDatabaseModelCustomId(key: "m_id", value: globalID)
         }
@@ -1074,7 +1073,7 @@ public final class JVMessageStateChange: JVDatabaseModelChange {
         }
     }
     
-    public override var stringKey: JVDatabaseModelCustomId<String>? {
+    override var stringKey: JVDatabaseModelCustomId<String>? {
         if let localID = localID {
             return JVDatabaseModelCustomId(key: "m_local_id", value: localID)
         }
@@ -1082,7 +1081,7 @@ public final class JVMessageStateChange: JVDatabaseModelChange {
             return nil
         }
     }
-    public init(globalID: Int, date: Date?) {
+    init(globalID: Int, date: Date?) {
         self.localID = nil
         self.globalID = globalID
         self.chatID = nil
@@ -1092,7 +1091,7 @@ public final class JVMessageStateChange: JVDatabaseModelChange {
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         localID = json["private_id"].string
         globalID = json["msg_id"].intValue
         chatID = json["chat_id"].int
@@ -1103,14 +1102,14 @@ public final class JVMessageStateChange: JVDatabaseModelChange {
     }
 }
 
-public final class JVMessageGeneralSystemChange: JVMessageBaseGeneralChange {
+final class JVMessageGeneralSystemChange: JVMessageBaseGeneralChange {
     public let clientID: Int?
     public let chatID: Int
     public let text: String
     public let interactiveID: String?
     public let iconLink: String?
     
-    public init(clientID: Int?, chatID: Int, date: Date, text: String, interactiveID: String?, iconLink: String?) {
+    init(clientID: Int?, chatID: Int, date: Date, text: String, interactiveID: String?, iconLink: String?) {
         self.clientID = clientID
         self.chatID = chatID
         self.text = text
@@ -1119,64 +1118,64 @@ public final class JVMessageGeneralSystemChange: JVMessageBaseGeneralChange {
         super.init(ID: 0, creationTS: date.timeIntervalSince1970, body: nil)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
     
-    public override func copy(ID: Int) -> JVMessageBaseGeneralChange {
+    override func copy(ID: Int) -> JVMessageBaseGeneralChange {
         return self
     }
 }
 
-public final class JVMessageSendingChange: JVDatabaseModelChange {
+final class JVMessageSendingChange: JVDatabaseModelChange {
     public let localID: String
     public let sendingDate: TimeInterval?
     public let sendingFailed: Bool?
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         abort()
     }
     
-    public override var stringKey: JVDatabaseModelCustomId<String>? {
+    override var stringKey: JVDatabaseModelCustomId<String>? {
         return JVDatabaseModelCustomId(key: "m_local_id", value: localID)
     }
     
-    public init(localID: String, sendingDate: TimeInterval?, sendingFailed: Bool?) {
+    init(localID: String, sendingDate: TimeInterval?, sendingFailed: Bool?) {
         self.localID = localID
         self.sendingDate = sendingDate
         self.sendingFailed = sendingFailed
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVMessageReadChange: JVDatabaseModelChange {
+final class JVMessageReadChange: JVDatabaseModelChange {
     public let ID: Int
     public let hasRead: Bool
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         abort()
     }
     
-    public override var integerKey: JVDatabaseModelCustomId<Int>? {
+    override var integerKey: JVDatabaseModelCustomId<Int>? {
         return JVDatabaseModelCustomId(key: "m_id", value: ID)
     }
     
-    public init(ID: Int, hasRead: Bool) {
+    init(ID: Int, hasRead: Bool) {
         self.ID = ID
         self.hasRead = hasRead
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVMessageReactionChange: JVDatabaseModelChange {
+final class JVMessageReactionChange: JVDatabaseModelChange {
     public let chatID: Int
     public let messageID: Int
     public let emoji: String
@@ -1184,20 +1183,20 @@ public final class JVMessageReactionChange: JVDatabaseModelChange {
     public let fromID: Int
     public let deleted: Bool
     
-    public override var isValid: Bool {
+    override var isValid: Bool {
         guard let _ = emoji.jv_valuable else { return false }
         return true
     }
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         abort()
     }
     
-    public override var integerKey: JVDatabaseModelCustomId<Int>? {
+    override var integerKey: JVDatabaseModelCustomId<Int>? {
         return JVDatabaseModelCustomId(key: "m_id", value: messageID)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         chatID = json["chat_id"].intValue
         messageID = json["to_msg_id"].intValue
         emoji = json["icon"].string?.jv_convertToEmojis() ?? String()
@@ -1208,30 +1207,30 @@ public final class JVMessageReactionChange: JVDatabaseModelChange {
     }
 }
 
-public final class JVMessageTextChange: JVDatabaseModelChange {
+final class JVMessageTextChange: JVDatabaseModelChange {
     public let UUID: String
     public let text: String
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         abort()
     }
     
-    public override var stringKey: JVDatabaseModelCustomId<String>? {
+    override var stringKey: JVDatabaseModelCustomId<String>? {
         return JVDatabaseModelCustomId(key: "m_uid", value: UUID)
     }
     
-    public init(UUID: String, text: String) {
+    init(UUID: String, text: String) {
         self.UUID = UUID
         self.text = text
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-open class JVMessageSdkClientChange: JVMessageExtendedGeneralChange {
+class JVMessageSdkClientChange: JVMessageExtendedGeneralChange {
     public let id: Int
     public let localId: String
     public let channelId: Int
@@ -1245,7 +1244,7 @@ open class JVMessageSdkClientChange: JVMessageExtendedGeneralChange {
         abort()
     }
     
-    public init(id: Int,
+    init(id: Int,
          localId: String,
          channelId: Int,
          clientId: Int,
@@ -1266,12 +1265,12 @@ open class JVMessageSdkClientChange: JVMessageExtendedGeneralChange {
         super.init(ID: id, creationTS: date.timeIntervalSince1970, body: nil, type: JVMessageType.message.rawValue, isMarkdown: false, senderType: JVSenderType.client.rawValue)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         abort()
     }
 }
 
-open class JVSdkMessageStatusChange: JVDatabaseModelChange {
+class JVSdkMessageStatusChange: JVDatabaseModelChange {
     public let id: Int
     public let localId: String
     public let status: JVMessageStatus?
@@ -1289,7 +1288,7 @@ open class JVSdkMessageStatusChange: JVDatabaseModelChange {
             : nil
     }
     
-    public init(id: Int = 0, localId: String = "", status: JVMessageStatus?, date: Date? = nil) {
+    init(id: Int = 0, localId: String = "", status: JVMessageStatus?, date: Date? = nil) {
         self.id = id
         self.localId = localId
         self.status = status
@@ -1298,14 +1297,14 @@ open class JVSdkMessageStatusChange: JVDatabaseModelChange {
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         abort()
     }
 }
 
-public enum JVMessagePropertyUpdate {
-    public enum Sender {
-        public enum DisplayNameUpdatingLogic {
+enum JVMessagePropertyUpdate {
+    enum Sender {
+        enum DisplayNameUpdatingLogic {
             case updating(with: String?)
             case withoutUpdate
         }
@@ -1331,11 +1330,11 @@ public enum JVMessagePropertyUpdate {
     case isSendingFailed(Bool)
 }
 
-public enum JVSdkMessageAtomChangeInitError: LocalizedError {
+enum JVSdkMessageAtomChangeInitError: LocalizedError {
     case idIsZero
     case localIdIsEmptyString
     
-    public var errorDescription: String? {
+    var errorDescription: String? {
         switch self {
         case .idIsZero:
             return "'id' parameter you passed to initializator is equal to zero. It should has some other value."
@@ -1345,12 +1344,12 @@ public enum JVSdkMessageAtomChangeInitError: LocalizedError {
     }
 }
 
-open class JVSdkMessageAtomChange: JVDatabaseModelChange {
+class JVSdkMessageAtomChange: JVDatabaseModelChange {
     let id: Int
     let localId: String
     public let updates: [JVMessagePropertyUpdate]
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         abort()
     }
     
@@ -1391,7 +1390,7 @@ open class JVSdkMessageAtomChange: JVDatabaseModelChange {
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
@@ -1422,7 +1421,7 @@ fileprivate func parseReactions(_ root: JsonElement) -> [JVMessageReaction] {
     }
 }
 
-public func ==(lhs: JVMessageBaseGeneralChange, rhs: JVMessageBaseGeneralChange) -> Bool {
+func ==(lhs: JVMessageBaseGeneralChange, rhs: JVMessageBaseGeneralChange) -> Bool {
     if lhs.ID > 0, rhs.ID > 0 {
         return (lhs.ID == rhs.ID && lhs.creationTS == rhs.creationTS)
     }
@@ -1431,7 +1430,7 @@ public func ==(lhs: JVMessageBaseGeneralChange, rhs: JVMessageBaseGeneralChange)
     }
 }
 
-public func <(lhs: JVMessageBaseGeneralChange, rhs: JVMessageBaseGeneralChange) -> Bool {
+func <(lhs: JVMessageBaseGeneralChange, rhs: JVMessageBaseGeneralChange) -> Bool {
     if lhs.ID > 0, rhs.ID > 0 {
         return (lhs.creationTS < rhs.creationTS || lhs.ID < rhs.ID)
     }
@@ -1440,7 +1439,7 @@ public func <(lhs: JVMessageBaseGeneralChange, rhs: JVMessageBaseGeneralChange) 
     }
 }
 
-public func <=(lhs: JVMessageBaseGeneralChange, rhs: JVMessageBaseGeneralChange) -> Bool {
+func <=(lhs: JVMessageBaseGeneralChange, rhs: JVMessageBaseGeneralChange) -> Bool {
     if lhs.ID > 0, rhs.ID > 0 {
         return (lhs.creationTS <= rhs.creationTS || lhs.ID <= rhs.ID)
     }
@@ -1449,7 +1448,7 @@ public func <=(lhs: JVMessageBaseGeneralChange, rhs: JVMessageBaseGeneralChange)
     }
 }
 
-public func >=(lhs: JVMessageBaseGeneralChange, rhs: JVMessageBaseGeneralChange) -> Bool {
+func >=(lhs: JVMessageBaseGeneralChange, rhs: JVMessageBaseGeneralChange) -> Bool {
     if lhs.ID > 0, rhs.ID > 0 {
         return (lhs.creationTS >= rhs.creationTS || lhs.ID >= rhs.ID)
     }
@@ -1458,7 +1457,7 @@ public func >=(lhs: JVMessageBaseGeneralChange, rhs: JVMessageBaseGeneralChange)
     }
 }
 
-public func >(lhs: JVMessageBaseGeneralChange, rhs: JVMessageBaseGeneralChange) -> Bool {
+func >(lhs: JVMessageBaseGeneralChange, rhs: JVMessageBaseGeneralChange) -> Bool {
     if lhs.ID > 0, rhs.ID > 0 {
         return (lhs.creationTS > rhs.creationTS || lhs.ID > rhs.ID)
     }
@@ -1488,7 +1487,7 @@ fileprivate func extractStatus(primary: [JsonElement], secondary: JsonElement) -
     return secondary.stringValue
 }
 
-public final class JVMessageOutgoingChange: JVDatabaseModelChange {
+final class JVMessageOutgoingChange: JVDatabaseModelChange {
     let localID: String
     let date: Date
     let clientID: Int?
@@ -1498,7 +1497,7 @@ public final class JVMessageOutgoingChange: JVDatabaseModelChange {
     let senderType: String
     let senderID: Int
     
-    public init(localID: String,
+    init(localID: String,
          date: Date,
          clientID: Int?,
          chatID: Int,
@@ -1522,7 +1521,7 @@ public final class JVMessageOutgoingChange: JVDatabaseModelChange {
     }
 }
 
-public class JVMessageSdkAgentChange: JVMessageExtendedGeneralChange {
+class JVMessageSdkAgentChange: JVMessageExtendedGeneralChange {
     let agent: JVAgent
     let chat: JVChat
     let creationDate: Date?
@@ -1532,11 +1531,11 @@ public class JVMessageSdkAgentChange: JVMessageExtendedGeneralChange {
     let updateDate: Date?
     let isDeleted: Bool
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         abort()
     }
     
-    public init(id: Int,
+    init(id: Int,
          agent: JVAgent,
          chat: JVChat,
          text: String,

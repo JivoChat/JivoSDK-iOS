@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension DispatchQueue {
+extension DispatchQueue {
     private static var onceExecutingLock = NSLock()
     private static var onceExecutedTokens = Set<UUID>()
 

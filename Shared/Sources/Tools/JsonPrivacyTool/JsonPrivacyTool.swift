@@ -9,7 +9,7 @@
 import Foundation
 import JMCodingKit
 
-public final class JVJsonPrivacyTool {
+final class JVJsonPrivacyTool {
     private struct Allowance {
         let rule: JsonPrivacyRule
         let isActive: Bool
@@ -22,19 +22,19 @@ public final class JVJsonPrivacyTool {
     private var currentAllowance = [Allowance]()
     private var exclusiveRun = NSLock()
     
-    public init(enabled: Bool, rules: [JsonPrivacyRule]) {
+    init(enabled: Bool, rules: [JsonPrivacyRule]) {
         self.enabled = enabled
         self.rules = rules
     }
     
-    public func setEnabled(_ enabled: Bool) {
+    func setEnabled(_ enabled: Bool) {
         self.enabled = enabled
     }
     
     /**
      The only point to perform some work on incoming json
      */
-    public func filter(json: JsonElement) -> JsonElement {
+    func filter(json: JsonElement) -> JsonElement {
         exclusiveRun.lock()
         defer { exclusiveRun.unlock() }
         

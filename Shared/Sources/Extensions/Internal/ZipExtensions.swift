@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 extension Zip2Sequence {
     func layout() where Sequence1.Element: UIView, Sequence2.Element == CGRect {

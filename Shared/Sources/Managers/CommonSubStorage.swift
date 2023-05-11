@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 
 protocol ICommonSubStorage: IBaseSubStorage {

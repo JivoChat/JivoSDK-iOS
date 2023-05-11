@@ -7,22 +7,21 @@
 //
 
 import Foundation
-import JivoFoundation
 import JMRepicKit
 
-public enum JVAgentState: Int {
+enum JVAgentState: Int {
     case none
     case active
     case away
 }
 
-public enum JVAgentCallingDestination: Int {
+enum JVAgentCallingDestination: Int {
     case disabled = 0
     case sip = 1
     case phone = 2
     case app = 3
 
-    public var isExternal: Bool {
+    var isExternal: Bool {
         switch self {
         case .disabled: return false
         case .sip: return true
@@ -32,7 +31,7 @@ public enum JVAgentCallingDestination: Int {
     }
 }
 
-public enum JVAgentCallingOptions: Int {
+enum JVAgentCallingOptions: Int {
     case availableForCalls
     case availableForMobileCalls
     case onCall
@@ -40,7 +39,7 @@ public enum JVAgentCallingOptions: Int {
     case supportsOffline
 }
 
-public enum JVAgentOrderingGroup: Int {
+enum JVAgentOrderingGroup: Int {
     case offline
     case awayZZ
     case onlineZZ
@@ -62,43 +61,43 @@ extension JVAgent {
 }
 
 extension JVAgent: JVDisplayable {
-    public var senderType: JVSenderType {
+    var senderType: JVSenderType {
         return .agent
     }
 
-    public var ID: Int {
+    var ID: Int {
         return Int(m_id)
     }
     
-    public var publicID: String {
+    var publicID: String {
         return m_public_id.jv_orEmpty
     }
     
-    public var email: String {
+    var email: String {
         return m_email.jv_orEmpty
     }
     
-    public var emailVerified: Bool {
+    var emailVerified: Bool {
         return m_email_verified
     }
     
-    public var nickname: String {
+    var nickname: String {
         return email.split(separator: "@").first.flatMap(String.init) ?? String()
     }
     
-    public var phone: String? {
+    var phone: String? {
         return m_phone?.jv_valuable
     }
     
-    public var isMe: Bool {
+    var isMe: Bool {
         return (m_session != nil)
     }
     
-    public var notMe: Bool {
+    var notMe: Bool {
         return !isMe
     }
     
-    public var state: JVAgentState {
+    var state: JVAgentState {
         get {
             return JVAgentState(rawValue: Int(m_state_id)) ?? .active
         }
@@ -107,23 +106,23 @@ extension JVAgent: JVDisplayable {
         }
     }
     
-    public var status: JVAgentStatus? {
+    var status: JVAgentStatus? {
         return m_status
     }
     
-    public var statusComment: String {
+    var statusComment: String {
         return m_status_comment.jv_orEmpty
     }
     
-    public var isWorktimeEnabled: Bool {
+    var isWorktimeEnabled: Bool {
         return m_session?.isWorking ?? m_is_working
     }
     
-    public var channel: JVChannel? {
+    var channel: JVChannel? {
         return nil
     }
     
-    public var statusImage: UIImage? {
+    var statusImage: UIImage? {
         switch state {
         case .active where isWorktimeEnabled:
             return UIImage(named: "status_def_online")
@@ -140,14 +139,14 @@ extension JVAgent: JVDisplayable {
         }
     }
     
-    public func repicItem(transparent: Bool, scale: CGFloat?) -> JMRepicItem? {
+    func repicItem(transparent: Bool, scale: CGFloat?) -> JMRepicItem? {
         let url = m_avatar_link.flatMap(URL.init)
         let icon = UIImage(named: "avatar_agent", in: .jv_shared, compatibleWith: nil)
         let image = JMRepicItemSource.avatar(URL: url, image: icon, color: nil, transparent: transparent)
         return JMRepicItem(backgroundColor: nil, source: image, scale: scale ?? 1.0, clipping: .dual)
     }
     
-    public func displayName(kind: JVDisplayNameKind) -> String {
+    func displayName(kind: JVDisplayNameKind) -> String {
         switch kind {
         case .original:
             return m_display_name.jv_orEmpty
@@ -169,31 +168,31 @@ extension JVAgent: JVDisplayable {
         }
     }
     
-    public var title: String {
+    var title: String {
         return m_title.jv_orEmpty
     }
     
-    public var isOwner: Bool {
+    var isOwner: Bool {
         return m_is_owner
     }
     
-    public var isAdmin: Bool {
+    var isAdmin: Bool {
         return m_is_admin
     }
 
-    public var isOperator: Bool {
+    var isOperator: Bool {
         return m_is_operator
     }
 
-    public var callingDestination: JVAgentCallingDestination {
+    var callingDestination: JVAgentCallingDestination {
         return JVAgentCallingDestination(rawValue: Int(m_calling_destination)) ?? .disabled
     }
 
-    public var draft: String? {
+    var draft: String? {
         return m_draft?.jv_valuable
     }
     
-    public func availableForChatInvite(operatorsOnly: Bool) -> Bool {
+    func availableForChatInvite(operatorsOnly: Bool) -> Bool {
         if operatorsOnly, !isOperator {
             return false
         }
@@ -208,7 +207,7 @@ extension JVAgent: JVDisplayable {
         }
     }
 
-    public func availableForChatTransfer(operatorsOnly: Bool) -> Bool {
+    func availableForChatTransfer(operatorsOnly: Bool) -> Bool {
         if operatorsOnly, !(isOperator) {
             return false
         }
@@ -223,7 +222,7 @@ extension JVAgent: JVDisplayable {
         }
     }
 
-    public var availableForCallTransfer: Bool {
+    var availableForCallTransfer: Bool {
         if isMe {
             return false
         }
@@ -244,27 +243,27 @@ extension JVAgent: JVDisplayable {
         }
     }
 
-    public var session: JVAgentSession? {
+    var session: JVAgentSession? {
         return m_session
     }
     
-    public var lastMessage: JVMessage? {
+    var lastMessage: JVMessage? {
         return m_last_message
     }
     
-    public var chat: JVChat? {
+    var chat: JVChat? {
         return m_chat
     }
     
-    public var integration: JVChannelJoint? {
+    var integration: JVChannelJoint? {
         return nil
     }
     
-    public var hashedID: String {
+    var hashedID: String {
         return "agent:\(ID)"
     }
 
-    public var isAvailable: Bool {
+    var isAvailable: Bool {
         switch state {
         case .none:
             return false
@@ -275,31 +274,31 @@ extension JVAgent: JVDisplayable {
         }
     }
 
-    public var onCall: Bool {
+    var onCall: Bool {
         return Int(m_calling_options).jv_hasBit(1 << JVAgentCallingOptions.onCall.rawValue)
     }
     
-    public var worktime: JVAgentWorktime? {
+    var worktime: JVAgentWorktime? {
         return m_worktime
     }
     
-    public var hasSession: Bool {
+    var hasSession: Bool {
         return m_has_session
     }
     
-    public var lastMessageDate: Date? {
+    var lastMessageDate: Date? {
         return m_last_message_date
     }
     
-    public var orderingGroup: Int {
+    var orderingGroup: Int {
         return Int(m_ordering_group)
     }
     
-    public var orderingName: String {
+    var orderingName: String {
         return m_ordering_name.jv_orEmpty
     }
     
-    public var isExisting: Bool {
+    var isExisting: Bool {
         return !(m_email.jv_orEmpty.isEmpty)
     }
 }

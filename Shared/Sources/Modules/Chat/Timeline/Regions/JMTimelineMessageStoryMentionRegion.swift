@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 import DTModelStorage
 
 final class JMTimelineMessageStoryMentionRegion: JMTimelineMessageCanvasRegion {

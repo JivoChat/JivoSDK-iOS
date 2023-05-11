@@ -19,12 +19,12 @@ extension JVClientProactiveRule {
     }
 }
 
-public final class JVClientProactiveRuleGeneralChange: JVDatabaseModelChange {
+final class JVClientProactiveRuleGeneralChange: JVDatabaseModelChange {
     public let agentID: Int
     public let date: Date
     public let text: String
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         agentID = json["agent_id"].intValue
         date = json["time"].string?.jv_parseDateUsingFullFormat() ?? Date(timeIntervalSince1970: 0)
         text = json["invitation_text"].stringValue

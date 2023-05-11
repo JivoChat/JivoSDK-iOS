@@ -9,23 +9,23 @@
 import Foundation
 
 extension JVClientSessionGeo {
-    public var country: String? {
+    var country: String? {
         return m_country?.jv_valuable
     }
     
-    public var region: String? {
+    var region: String? {
         return m_region?.jv_valuable
     }
     
-    public var city: String? {
+    var city: String? {
         return m_city?.jv_valuable
     }
     
-    public var organization: String? {
+    var organization: String? {
         return m_organization?.jv_valuable
     }
     
-    public var countryCode: String? {
+    var countryCode: String? {
         return m_country_code?.jv_valuable?.lowercased()
     }
 }

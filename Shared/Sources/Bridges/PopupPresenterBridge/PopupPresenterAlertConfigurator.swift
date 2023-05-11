@@ -8,7 +8,6 @@
 
 import Foundation
 import UIKit
-import JivoFoundation
 
 struct PopupPresenterAlertConfigurator: IPopupPresenterConfigurator {
     let items: [PopupPresenterItem]

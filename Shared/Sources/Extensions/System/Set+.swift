@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension Optional where Wrapped == NSSet {
+extension Optional where Wrapped == NSSet {
     var jv_orEmpty: NSSet {
         return self ?? NSSet()
     }

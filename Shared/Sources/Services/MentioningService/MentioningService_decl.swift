@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 /// interface for this subsystem
 protocol IMentioningService: AnyObject {

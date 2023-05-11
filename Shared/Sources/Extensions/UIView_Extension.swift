@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import JivoFoundation
 
 extension UIView {
     func jv_addBorder(edges: UIRectEdge, color: UIColor, width: CGFloat) {

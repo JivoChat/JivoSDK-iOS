@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension Formatter {
+extension Formatter {
     func jv_format(_ obj: Any?) -> String {
         return string(for: obj) ?? String(describing: obj)
     }

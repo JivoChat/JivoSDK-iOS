@@ -13,7 +13,7 @@ final class WaveFormDrawer {
     
     static var shared = WaveFormDrawer()
     
-    public func image(samples: [Float],
+    func image(samples: [Float],
                       configuration: WaveformConfiguration) -> UIImage? {
         UIGraphicsBeginImageContextWithOptions(configuration.size, false, UIScreen.main.scale)
         guard let context = UIGraphicsGetCurrentContext() else { return nil }

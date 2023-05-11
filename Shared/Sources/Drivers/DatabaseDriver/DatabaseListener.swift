@@ -8,7 +8,7 @@
 
 import Foundation
 
-public final class JVDatabaseListener {
+final class JVDatabaseListener {
     private let token: JVDatabaseDriverSubscriberToken
     private weak var coreDataDriver: JVIDatabaseDriver!
     

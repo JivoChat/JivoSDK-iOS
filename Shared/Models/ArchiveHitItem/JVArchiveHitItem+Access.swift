@@ -9,7 +9,7 @@
 import Foundation
 
 extension JVArchiveHitItem {
-    public var agents: [JVAgent] {
+    var agents: [JVAgent] {
         if let allObjects = m_agents?.allObjects as? [JVAgent] {
             return allObjects
         }
@@ -18,11 +18,11 @@ extension JVArchiveHitItem {
         }
     }
     
-    public var chat: JVChat? {
+    var chat: JVChat? {
         return m_chat
     }
     
-    public var duration: TimeInterval {
+    var duration: TimeInterval {
         return TimeInterval(m_duration)
     }
 }

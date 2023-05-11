@@ -40,7 +40,7 @@ extension JVClientSession {
     }
 }
 
-public final class JVClientSessionGeneralChange: JVDatabaseModelChange {
+final class JVClientSessionGeneralChange: JVDatabaseModelChange {
     public let creationTS: TimeInterval?
     public let UTM: JVClientSessionUTMGeneralChange?
     public let lastIP: String
@@ -49,7 +49,7 @@ public final class JVClientSessionGeneralChange: JVDatabaseModelChange {
     public let chatStartPage: JVPageGeneralChange?
     public let currentPage: JVPageGeneralChange?
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         if let value = json.has(key: "created_ts") {
             creationTS = value.doubleValue
         }

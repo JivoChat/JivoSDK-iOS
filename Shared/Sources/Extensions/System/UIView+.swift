@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-public extension UIView {
+extension UIView {
     enum JVPinMode {
         case bottomFlexible
         case bottomCentered

@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension Int {
+extension Int {
     var jv_valuable: Int? {
         return (self == 0 ? nil : self)
     }

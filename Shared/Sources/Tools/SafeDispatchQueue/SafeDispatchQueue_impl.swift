@@ -8,10 +8,10 @@
 
 import Foundation
 
-public final class JVSafeDispatchQueue: DispatchQueue {
+final class JVSafeDispatchQueue: DispatchQueue {
     private var suspensionsNumber = 0
     
-    public func safeSuspend(mutex: NSLock) {
+    func safeSuspend(mutex: NSLock) {
         mutex.lock()
         defer {
             mutex.unlock()
@@ -21,7 +21,7 @@ public final class JVSafeDispatchQueue: DispatchQueue {
         suspensionsNumber += 1
     }
     
-    public func safeResume(mutex: NSLock) {
+    func safeResume(mutex: NSLock) {
         mutex.lock()
         defer {
             mutex.unlock()

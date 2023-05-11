@@ -24,7 +24,7 @@ public struct JsonPrivacyRule {
      */
     let masks: [Mask]
     
-    public init(condition: Condition?, masks: [Mask]) {
+    init(condition: Condition?, masks: [Mask]) {
         self.condition = condition
         self.masks = masks
     }
@@ -35,18 +35,18 @@ extension JsonPrivacyRule {
         let path: String
         let value: AnyHashable
         
-        public init(path: String, value: AnyHashable) {
+        init(path: String, value: AnyHashable) {
             self.path = path
             self.value = value
         }
     }
     
     public struct Mask {
-        public enum Replacement { case stars, trimming, custom((JsonElement) -> JsonElement) }
+        enum Replacement { case stars, trimming, custom((JsonElement) -> JsonElement) }
         let path: String
         let replacement: Replacement
         
-        public init(path: String, replacement: Replacement) {
+        init(path: String, replacement: Replacement) {
             self.path = path
             self.replacement = replacement
         }

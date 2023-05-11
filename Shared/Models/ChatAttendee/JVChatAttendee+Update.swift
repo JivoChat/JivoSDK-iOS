@@ -34,7 +34,7 @@ extension JVChatAttendee {
     }
 }
 
-public final class JVChatAttendeeGeneralChange: JVDatabaseModelChange, NSCoding {
+final class JVChatAttendeeGeneralChange: JVDatabaseModelChange, NSCoding {
     public let ID: Int
     public let relation: String?
     public let comment: String?
@@ -53,7 +53,7 @@ public final class JVChatAttendeeGeneralChange: JVDatabaseModelChange, NSCoding 
     private let codableUnreadKey = "unread"
     private let codableNotificationsKey = "notifications"
     
-    public init(ID: Int,
+    init(ID: Int,
          relation: String?,
          comment: String?,
          invitedBy: Int?,
@@ -72,7 +72,7 @@ public final class JVChatAttendeeGeneralChange: JVDatabaseModelChange, NSCoding 
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = json["agent_id"].intValue
         relation = json["rel"].valuable
         comment = json["comment"].valuable
@@ -84,7 +84,7 @@ public final class JVChatAttendeeGeneralChange: JVDatabaseModelChange, NSCoding 
         super.init(json: json)
     }
     
-    public init?(coder: NSCoder) {
+    init?(coder: NSCoder) {
         ID = coder.decodeInteger(forKey: codableIdKey)
         relation = coder.decodeObject(forKey: codableRelationKey) as? String
         comment = coder.decodeObject(forKey: codableCommentKey) as? String
@@ -96,7 +96,7 @@ public final class JVChatAttendeeGeneralChange: JVDatabaseModelChange, NSCoding 
         super.init()
     }
     
-    public func encode(with coder: NSCoder) {
+    func encode(with coder: NSCoder) {
         coder.encode(ID, forKey: codableIdKey)
         coder.encode(relation, forKey: codableRelationKey)
         coder.encode(comment, forKey: codableCommentKey)
@@ -107,7 +107,7 @@ public final class JVChatAttendeeGeneralChange: JVDatabaseModelChange, NSCoding 
         coder.encode(notifications, forKey: codableNotificationsKey)
     }
     
-    public func copy(relation: String) -> JVChatAttendeeGeneralChange {
+    func copy(relation: String) -> JVChatAttendeeGeneralChange {
         return JVChatAttendeeGeneralChange(
             ID: ID,
             relation: relation,
@@ -120,7 +120,7 @@ public final class JVChatAttendeeGeneralChange: JVDatabaseModelChange, NSCoding 
         )
     }
     
-    public func cachable() -> JVChatAttendeeGeneralChange {
+    func cachable() -> JVChatAttendeeGeneralChange {
         return JVChatAttendeeGeneralChange(
             ID: ID,
             relation: relation,
@@ -134,35 +134,35 @@ public final class JVChatAttendeeGeneralChange: JVDatabaseModelChange, NSCoding 
     }
 }
 
-public final class JVChatAttendeeAcceptChange: JVDatabaseModelChange {
+final class JVChatAttendeeAcceptChange: JVDatabaseModelChange {
 }
 
-public final class JVChatAttendeeResetUnreadChange: JVDatabaseModelChange {
+final class JVChatAttendeeResetUnreadChange: JVDatabaseModelChange {
     public let ID: Int
     public let messageID: Int
     
-    public init(ID: Int, messageID: Int) {
+    init(ID: Int, messageID: Int) {
         self.ID = ID
         self.messageID = messageID
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         abort()
     }
 }
 
-public final class JVChatAttendeeNotificationsChange: JVDatabaseModelChange {
+final class JVChatAttendeeNotificationsChange: JVDatabaseModelChange {
     public let ID: Int
     public let notifications: Int
     
-    public init(ID: Int, notifications: Int) {
+    init(ID: Int, notifications: Int) {
         self.ID = ID
         self.notifications = notifications
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         abort()
     }
 }

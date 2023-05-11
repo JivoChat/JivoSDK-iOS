@@ -25,21 +25,21 @@ extension JVAgentStatus {
     }
 }
 
-public final class JVAgentStatusGeneralChange: JVDatabaseModelChange, Codable {
+final class JVAgentStatusGeneralChange: JVDatabaseModelChange, Codable {
     public let statusID: Int
     public let title: String
     public let emoji: String
     public let position: Int
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return statusID
     }
     
-    public override var isValid: Bool {
+    override var isValid: Bool {
         return (statusID > 0)
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         statusID = json["agent_status_id"].intValue
         title = json["title"].stringValue
         position = json["position"].intValue
@@ -49,29 +49,29 @@ public final class JVAgentStatusGeneralChange: JVDatabaseModelChange, Codable {
 }
 
 public struct JVAgentTechConfig: Codable {
-    public var priceListId: Int? = nil
-    public var guestInsightEnabled: Bool = true
-    public var fileSizeLimit: Int = 10
-    public var disableArchiveForRegular: Bool = false
-    public var iosTelephonyEnabled: Bool? = nil
-    public var limitedCRM: Bool = true
-    public var assignedAgentEnabled: Bool = true
-    public var messageEditingEnabled: Bool = true
-    public var groupsEnabled: Bool = true
-    public var mentionsEnabled: Bool = true
-    public var commentsEnabled: Bool = true
-    public var reactionsEnabled: Bool = true
-    public var businessChatEnabled: Bool = true
-    public var billingUpdateEnabled: Bool = true
-    public var standaloneTasks: Bool = true
-    public var feedbackSdkEnabled: Bool = true
-    public var mediaServiceEnabled: Bool = true
-    public var voiceMessagesEnabled: Bool = false
+    var priceListId: Int? = nil
+    var guestInsightEnabled: Bool = true
+    var fileSizeLimit: Int = 10
+    var disableArchiveForRegular: Bool = false
+    var iosTelephonyEnabled: Bool? = nil
+    var limitedCRM: Bool = true
+    var assignedAgentEnabled: Bool = true
+    var messageEditingEnabled: Bool = true
+    var groupsEnabled: Bool = true
+    var mentionsEnabled: Bool = true
+    var commentsEnabled: Bool = true
+    var reactionsEnabled: Bool = true
+    var businessChatEnabled: Bool = true
+    var billingUpdateEnabled: Bool = true
+    var standaloneTasks: Bool = true
+    var feedbackSdkEnabled: Bool = true
+    var mediaServiceEnabled: Bool = true
+    var voiceMessagesEnabled: Bool = false
     
-    public init() {
+    init() {
     }
     
-    public init(
+    init(
         priceListId: Int?,
         guestInsightEnabled: Bool,
         fileSizeLimit: Int,
@@ -111,14 +111,14 @@ public struct JVAgentTechConfig: Codable {
         self.voiceMessagesEnabled = voiceMessagesEnabled
     }
     
-    public var canReceiveCalls: Bool? {
+    var canReceiveCalls: Bool? {
         guard let enabled = iosTelephonyEnabled else { return nil }
         guard AVAudioSession.sharedInstance().recordPermission != .denied else { return false }
         return enabled
     }
 }
 
-public enum JVAgentLicensedFeature: Int {
+enum JVAgentLicensedFeature: Int {
     case blacklist
     case geoip
     case phrases
@@ -130,32 +130,32 @@ public enum JVAgentLicensedFeature: Int {
     case files
     case guests
     
-    public func resolveBit(within raw: Int) -> Bool {
+    func resolveBit(within raw: Int) -> Bool {
         return (raw & (1 << rawValue)) > 0
     }
 }
 
-public final class JVAgentSessionGeneralChange: JVDatabaseModelChange, Codable {
-    public var sessionID: String
-    public var email: String
-    public var siteID: Int
-    public var isAdmin: Bool
-    public var isOperator: Bool
-    public var voxLogin: String
-    public var voxPassword: String
-    public var mobileCalls: Bool
-    public var workingState: Bool
+final class JVAgentSessionGeneralChange: JVDatabaseModelChange, Codable {
+    var sessionID: String
+    var email: String
+    var siteID: Int
+    var isAdmin: Bool
+    var isOperator: Bool
+    var voxLogin: String
+    var voxPassword: String
+    var mobileCalls: Bool
+    var workingState: Bool
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return siteID
     }
     
-    public override var isValid: Bool {
+    override var isValid: Bool {
         guard let _ = sessionID.jv_valuable else { return false }
         return true
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         sessionID = json["agent_info"]["agent_session_id"].string ?? json["jv_sess_id"].stringValue
         email = json["agent_info"]["email"].stringValue
         isAdmin = json["agent_info"]["is_admin"].boolValue
@@ -169,7 +169,7 @@ public final class JVAgentSessionGeneralChange: JVDatabaseModelChange, Codable {
     }
 }
 
-public final class JVAgentSessionContextChange: JVDatabaseModelChange {
+final class JVAgentSessionContextChange: JVDatabaseModelChange {
     public let scanned: Bool
     public let widgetPublicID: String?
     public let agentsJSON: JsonElement?
@@ -180,11 +180,11 @@ public final class JVAgentSessionContextChange: JVDatabaseModelChange {
     public let pricelistID: Int?
     public let licenseLimit: Int?
 
-    public override var isValid: Bool {
+    override var isValid: Bool {
         return scanned
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         if let context = json.has(key: "rmo_context") {
             scanned = true
             
@@ -243,39 +243,39 @@ public final class JVAgentSessionContextChange: JVDatabaseModelChange {
     }
 }
 
-public final class JVAgentSessionBoxesChange: JVDatabaseModelChange {
+final class JVAgentSessionBoxesChange: JVDatabaseModelChange {
     public let source: JsonElement
     public let chats: [JVChatGeneralChange]
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         source = json
         chats = json["chats"].parseList() ?? []
         super.init(json: json)
     }
     
-    public init(source: JsonElement, chats: [JVChatGeneralChange]) {
+    init(source: JsonElement, chats: [JVChatGeneralChange]) {
         self.source = source
         self.chats = chats
         super.init()
     }
 
-    public var clientChats: [JVChatGeneralChange] {
+    var clientChats: [JVChatGeneralChange] {
         return chats.filter { $0.client != nil }
     }
 
-    public var teamChats: [JVChatGeneralChange] {
+    var teamChats: [JVChatGeneralChange] {
         return chats.filter { !($0.isGroup == true) && $0.client == nil }
     }
     
-    public var groupChats: [JVChatGeneralChange] {
+    var groupChats: [JVChatGeneralChange] {
         return chats.filter { ($0.isGroup == true) }
     }
     
-    public var chatIDs: [Int] {
+    var chatIDs: [Int] {
         return chats.map { $0.ID }
     }
     
-    public func cachable() -> JVAgentSessionBoxesChange {
+    func cachable() -> JVAgentSessionBoxesChange {
         return JVAgentSessionBoxesChange(
             source: source,
             chats: chats.map { $0.cachable() }
@@ -283,44 +283,44 @@ public final class JVAgentSessionBoxesChange: JVDatabaseModelChange {
     }
 }
 
-public final class JVAgentSessionActivityChange: JVDatabaseModelChange {
+final class JVAgentSessionActivityChange: JVDatabaseModelChange {
     public let isActive: Bool
-        public init(isActive: Bool) {
+        init(isActive: Bool) {
         self.isActive = isActive
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVAgentSessionMobileCallsChange: JVDatabaseModelChange {
+final class JVAgentSessionMobileCallsChange: JVDatabaseModelChange {
     public let enabled: Bool
     
-    public init(enabled: Bool) {
+    init(enabled: Bool) {
         self.enabled = enabled
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError("init(json:) has not been implemented")
     }
 }
 
-public final class JVAgentSessionWorktimeChange: JVDatabaseModelChange {
+final class JVAgentSessionWorktimeChange: JVDatabaseModelChange {
     public let agentID: Int?
     public let isWorking: Bool?
     public let isWorkingHidden: Bool
     
-    public init(isWorking: Bool?, isWorkingHidden: Bool) {
+    init(isWorking: Bool?, isWorkingHidden: Bool) {
         self.agentID = nil
         self.isWorking = isWorking
         self.isWorkingHidden = isWorkingHidden
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         agentID = json["agent_id"].int
         isWorking = json["work_state"].int.flatMap { $0 > 0 }
         isWorkingHidden = false
@@ -328,47 +328,47 @@ public final class JVAgentSessionWorktimeChange: JVDatabaseModelChange {
     }
 }
 
-public final class JVAgentSessionChannelsChange: JVDatabaseModelChange {
+final class JVAgentSessionChannelsChange: JVDatabaseModelChange {
     public let channels: [JVChannelGeneralChange]
     
-    public init(channels: [JVChannelGeneralChange]) {
+    init(channels: [JVChannelGeneralChange]) {
         self.channels = channels
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         channels = []
         super.init(json: json)
     }
 }
 
-public final class JVAgentSessionChannelUpdateChange: JVDatabaseModelChange {
+final class JVAgentSessionChannelUpdateChange: JVDatabaseModelChange {
     public let channel: JVChannelGeneralChange
     
-    public init(channel: JVChannelGeneralChange) {
+    init(channel: JVChannelGeneralChange) {
         self.channel = channel
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError()
     }
 }
 
-public final class JVAgentSessionChannelRemoveChange: JVDatabaseModelChange {
+final class JVAgentSessionChannelRemoveChange: JVDatabaseModelChange {
     public let channelId: Int
     
-    public init(channelId: Int) {
+    init(channelId: Int) {
         self.channelId = channelId
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fatalError()
     }
 }
 
-public func JVAgentSessionParseFeatures(source: JsonElement) -> Int {
+func JVAgentSessionParseFeatures(source: JsonElement) -> Int {
     func _bit(key: String, flag: JVAgentLicensedFeature) -> Int {
         let value = source[key].boolValue ? 1 : 0
         return (value << flag.rawValue)

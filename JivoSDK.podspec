@@ -1,6 +1,6 @@
 Pod::Spec.new do |root|
     root.name = 'JivoSDK'
-    root.version = '4.0.0-beta.15'
+    root.version = '4.0.0-beta.17'
     root.homepage = 'https://github.com/JivoChat'
     root.authors = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
     root.summary = 'Jivo business chat Mobile SDK'
@@ -54,7 +54,6 @@ Pod::Spec.new do |root|
     }
 
     root.subspec 'SDK' do |spec|
-        spec.dependency 'JivoFoundation', "#{root.version}"
         spec.dependency 'JFMarkdownKit', '1.2.2'
         spec.dependency 'JFEmojiPicker', '1.2'
         spec.dependency 'JFWebSocket', '2.9.4'
@@ -81,18 +80,13 @@ Pod::Spec.new do |root|
         spec.dependency 'XCGLogger', '~> 7.0.1'
 
         spec.framework = 'SystemConfiguration'
-        spec.source_files = 'Shared/Models', 'Shared/Models/**/*.swift', 'JivoSDK/Sources/**/*.{h,swift}', 'Shared/Sources/**/*.swift', 'Shared/Sources/Extensions/System/*+{database,locale}.swift'
-        spec.resource = 'Shared/Models/*.xcdatamodeld', 'JivoSDK/Resources/Assets.xcassets', 'JivoSDK/Resources/*.lproj', 'JivoSDK/*.docc'
+        spec.source_files = 'Shared/Models', 'Shared/Models/**/*.swift', 'JivoSDK/Sources/**/*.{h,swift}', 'Shared/Sources/**/*.swift', 'Shared/Sources/Extensions/System/*.swift', 'Shared/Design/**/*.swift'
+        spec.resource = 'Shared/Models/*.xcdatamodeld', 'JivoSDK/Resources/Assets.xcassets', 'JivoSDK/Resources/Langpack/*.lproj', 'JivoSDK/*.docc', 'Shared/Design/*.{xcassets,ttf}'
 
         spec.exclude_files = [
             'Shared/**/*Unit.swift',
             'Shared/**/*Tests.swift',
             'Shared/**/*Mock.swift',
-            'Shared/Sources/Extensions/System/*+.swift',
-            'Shared/Sources/Tools/BroadcastTool',
-            'Shared/Sources/Tools/PureParserTool',
-            'Shared/Sources/Tools/JVJsonPrivacyTool',
-            'Shared/Sources/Tools/SafeDispatchQueue',
             '**/DevicePlaybackAudioPlayer.swift',
             '**/DevicePlaybackDriver.swift',
         ]

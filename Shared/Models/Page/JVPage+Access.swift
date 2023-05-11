@@ -9,15 +9,15 @@
 import Foundation
 
 extension JVPage {
-    public var URL: URL? {
+    var URL: URL? {
         return Foundation.URL(string: m_url.jv_orEmpty)
     }
     
-    public var title: String {
+    var title: String {
         return m_title.jv_orEmpty
     }
     
-    public var time: String? {
+    var time: String? {
         return m_time
     }
 }

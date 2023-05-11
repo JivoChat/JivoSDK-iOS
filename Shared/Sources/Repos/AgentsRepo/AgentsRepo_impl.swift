@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 enum AgentRepoRetrievalLookup {
     case storedOnly

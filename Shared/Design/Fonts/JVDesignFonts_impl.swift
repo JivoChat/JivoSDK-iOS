@@ -10,7 +10,7 @@ import UIKit
 
 fileprivate let f_dynamicFontEnabled = true
 
-public final class JVDesignFonts: JVDesignEnvironmental, JVIDesignFonts {
+final class JVDesignFonts: JVDesignEnvironmental, JVIDesignFonts {
     /**
      Examples:
      JVDesign.fonts.resolve(.regular(14), sizing: .callout)
@@ -18,7 +18,7 @@ public final class JVDesignFonts: JVDesignEnvironmental, JVIDesignFonts {
      JVDesign.fonts.resolve(.medium(compact: 18, regular: 22), sizing: .body)
      JVDesign.fonts.resolve(.medium(compact: 18...20, regular: 22...25), sizing: .body)
      */
-    public func resolve(_ meta: JVDesignFontMeta, scaling style: UIFont.TextStyle) -> UIFont {
+    func resolve(_ meta: JVDesignFontMeta, scaling style: UIFont.TextStyle) -> UIFont {
         let fontSizing: JVDesignFontSizing = {
             switch environment.effectiveHorizontalClass() {
             case .regular:
@@ -63,18 +63,18 @@ public final class JVDesignFonts: JVDesignEnvironmental, JVIDesignFonts {
         return metrics.scaledFont(for: anchorFont, maximumPointSize: limit)
     }
     
-    public func emoji(scale: CGFloat?) -> UIFont {
+    func emoji(scale: CGFloat?) -> UIFont {
         let fontSize = CGFloat(24 * (scale ?? 1))
         return resolve(.regular(fontSize), scaling: .body)
     }
     
-    public func entypo(ofSize size: CGFloat) -> UIFont? {
+    func entypo(ofSize size: CGFloat) -> UIFont? {
         let name = "fontello_entypo"
         ensureFontLoaded(fontName: name, fileName: name)
         return UIFont(name: name, size: size)
     }
     
-    public func numberOfLines(standard: Int) -> Int {
+    func numberOfLines(standard: Int) -> Int {
         let dynamicDescriptor = UIFontDescriptor.preferredFontDescriptor(withTextStyle: .body)
         
         switch dynamicDescriptor.pointSize {
@@ -85,7 +85,7 @@ public final class JVDesignFonts: JVDesignEnvironmental, JVIDesignFonts {
         }
     }
     
-    public func scaled(_ value: CGFloat, category: UIFont.TextStyle) -> CGFloat {
+    func scaled(_ value: CGFloat, category: UIFont.TextStyle) -> CGFloat {
         if #available(iOS 11.0, *) {
             return UIFontMetrics(forTextStyle: category).scaledValue(for: value)
         }
@@ -94,7 +94,7 @@ public final class JVDesignFonts: JVDesignEnvironmental, JVIDesignFonts {
         }
     }
     
-    public func scaled(_ size: CGSize, category: UIFont.TextStyle) -> CGSize {
+    func scaled(_ size: CGSize, category: UIFont.TextStyle) -> CGSize {
         return CGSize(
             width: scaled(size.width, category: category),
             height: scaled(size.height, category: category)
@@ -125,13 +125,13 @@ public struct JVDesignFontMeta: Equatable {
     let compactSizing: JVDesignFontSizing
     let regularSizing: JVDesignFontSizing
     
-    public init(weight: JVDesignFontWeight, sizing: JVDesignFontSizing) {
+    init(weight: JVDesignFontWeight, sizing: JVDesignFontSizing) {
         self.weight = weight
         self.compactSizing = sizing
         self.regularSizing = sizing
     }
     
-    public init(weight: JVDesignFontWeight, compact: JVDesignFontSizing, regular: JVDesignFontSizing) {
+    init(weight: JVDesignFontWeight, compact: JVDesignFontSizing, regular: JVDesignFontSizing) {
         self.weight = weight
         self.compactSizing = compact
         self.regularSizing = regular
@@ -144,43 +144,43 @@ public struct JVDesignFontMeta: Equatable {
 }
 
 extension CGFloat: JVDesignFontSizing {
-    public var jv_lower: CGFloat {
+    var jv_lower: CGFloat {
         return CGFloat(self)
     }
     
-    public var jv_upper: CGFloat {
+    var jv_upper: CGFloat {
         return CGFloat(self)
     }
     
-    public var jv_isRange: Bool {
+    var jv_isRange: Bool {
         return false
     }
 }
 
 extension Int: JVDesignFontSizing {
-    public var jv_lower: CGFloat {
+    var jv_lower: CGFloat {
         return CGFloat(self)
     }
     
-    public var jv_upper: CGFloat {
+    var jv_upper: CGFloat {
         return CGFloat(self)
     }
     
-    public var jv_isRange: Bool {
+    var jv_isRange: Bool {
         return false
     }
 }
 
 extension ClosedRange: JVDesignFontSizing where Bound == Int {
-    public var jv_lower: CGFloat {
+    var jv_lower: CGFloat {
         return CGFloat(lowerBound)
     }
     
-    public var jv_upper: CGFloat {
+    var jv_upper: CGFloat {
         return CGFloat(upperBound)
     }
     
-    public var jv_isRange: Bool {
+    var jv_isRange: Bool {
         return true
     }
 }

@@ -33,7 +33,7 @@ extension JVTask {
     }
 }
 
-public final class JVTaskGeneralChange: JVDatabaseModelChange, NSCoding {
+final class JVTaskGeneralChange: JVDatabaseModelChange, NSCoding {
     public let ID: Int
     public let siteID: Int?
     public let clientID: Int?
@@ -58,16 +58,16 @@ public final class JVTaskGeneralChange: JVDatabaseModelChange, NSCoding {
     private let codableTimepointKey = "timepoint"
     private let codableStatusKey = "status"
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    public override var isValid: Bool {
+    override var isValid: Bool {
         guard ID > 0 else { return false }
         return true
     }
     
-    public init(ID: Int,
+    init(ID: Int,
          agentID: Int,
          agent: JVAgentGeneralChange?,
          text: String,
@@ -89,7 +89,7 @@ public final class JVTaskGeneralChange: JVDatabaseModelChange, NSCoding {
         super.init()
     }
 
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         ID = json["reminder_id"].intValue
         siteID = json["site_id"].int
         clientID = json["client_id"].int
@@ -104,7 +104,7 @@ public final class JVTaskGeneralChange: JVDatabaseModelChange, NSCoding {
         super.init(json: json)
     }
     
-    public init?(coder: NSCoder) {
+    init?(coder: NSCoder) {
         ID = coder.decodeInteger(forKey: codableIdKey)
         siteID = coder.decodeObject(forKey: codableSiteKey) as? Int
         clientID = coder.decodeObject(forKey: codableClientIDKey) as? Int
@@ -119,7 +119,7 @@ public final class JVTaskGeneralChange: JVDatabaseModelChange, NSCoding {
         super.init()
     }
     
-    public func encode(with coder: NSCoder) {
+    func encode(with coder: NSCoder) {
         coder.encode(ID, forKey: codableIdKey)
         coder.encode(siteID, forKey: codableSiteKey)
         coder.encode(clientID, forKey: codableClientIDKey)
@@ -134,14 +134,14 @@ public final class JVTaskGeneralChange: JVDatabaseModelChange, NSCoding {
     }
 }
 
-public final class JVTaskCompleteChange: JVDatabaseModelChange {
+final class JVTaskCompleteChange: JVDatabaseModelChange {
     public let ID: Int
 
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
 
-    public init(ID: Int) {
+    init(ID: Int) {
         self.ID = ID
         super.init()
     }

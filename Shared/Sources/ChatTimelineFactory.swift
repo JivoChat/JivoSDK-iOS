@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 import UIKit
 import DTCollectionViewManager
@@ -2767,7 +2766,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 ID: bot.hashedID,
                 icon: bot.repicItem(transparent: false, scale: nil),
                 name: bot.displayName(kind: displayNameKind),
-                mark: loc["Message.Sender.Bot"],
+                mark: loc["messages.label.bot"],
                 style: _obtainItemSender_style(contentKind: .bot)
             )
         }
@@ -2797,8 +2796,8 @@ final class ChatTimelineFactory: JMTimelineFactory {
                         scale: 1.0,
                         clipping: .dual
                     ),
-                    name: agent.displayName(kind: displayNameKind).jv_valuable ?? loc["Message.Sender.Bot"],
-                    mark: loc["Message.Sender.Bot"],
+                    name: agent.displayName(kind: displayNameKind).jv_valuable ?? loc["messages.label.bot"],
+                    mark: loc["messages.label.bot"],
                     style: _obtainItemSender_style(contentKind: .bot)
                 )
             }

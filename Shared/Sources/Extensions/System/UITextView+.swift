@@ -13,7 +13,7 @@ fileprivate let calculateStorage = NSTextStorage()
 fileprivate let calculateContainer = NSTextContainer()
 fileprivate let calculateManager = NSLayoutManager()
 
-public extension UITextView {
+extension UITextView {
     func jv_calculateSize(for width: CGFloat, numberOfLines: Int?, exclusionPaths: [UIBezierPath] = []) -> CGSize {
         calculateContainer.size = CGSize(width: width, height: .infinity)
         calculateContainer.exclusionPaths = exclusionPaths

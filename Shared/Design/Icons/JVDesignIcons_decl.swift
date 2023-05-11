@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-public protocol JVIDesignIcons {
+protocol JVIDesignIcons {
     func find(logo: JVDesignIconsLogo, lang: String?) -> UIImage?
     func find(preset: JVDesignIconsPreset) -> UIImage?
     func find(preset: JVDesignIconsPreset, pointSize: CGFloat?) -> UIImage?
@@ -16,7 +16,7 @@ public protocol JVIDesignIcons {
     func resolve(systemName: String?, assetName: String, rendering: JVDesignAssetRendering, pointSize: CGFloat?, tintColor: UIColor?) -> UIImage?
 }
 
-public enum JVDesignIconsLogo {
+enum JVDesignIconsLogo {
     case full
     case mini
 }
@@ -25,13 +25,13 @@ public struct JVDesignIconsPreset {
     let systemName: String
     let assetName: String
     
-    public init(systemName: String, assetName: String) {
+    init(systemName: String, assetName: String) {
         self.systemName = systemName
         self.assetName = assetName
     }
 }
 
-public enum JVDesignAssetRendering {
+enum JVDesignAssetRendering {
     case original
     case template
 }
@@ -47,7 +47,7 @@ extension JVDesignIconsPreset {
 public struct JVDesignIconsAsset {
     let name: String
     
-    public init(name: String) {
+    init(name: String) {
         self.name = name
     }
 }

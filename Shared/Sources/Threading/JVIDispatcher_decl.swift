@@ -7,7 +7,7 @@
 
 import Foundation
 
-public protocol JVIDispatcher: AnyObject {
+protocol JVIDispatcher: AnyObject {
     func addOperation(_ block: @escaping () -> Void)
 }
 

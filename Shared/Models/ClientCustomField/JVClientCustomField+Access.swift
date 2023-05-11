@@ -9,19 +9,19 @@
 import Foundation
 
 extension JVClientCustomField {
-    public var title: String? {
+    var title: String? {
         return m_title?.jv_valuable
     }
     
-    public var key: String? {
+    var key: String? {
         return m_key?.jv_valuable
     }
     
-    public var content: String {
+    var content: String {
         return m_content.jv_orEmpty
     }
     
-    public var URL: URL? {
+    var URL: URL? {
         if let link = m_link?.jv_valuable {
             if URLComponents(string: link)?.scheme == nil {
                 return Foundation.URL(string: "https://" + link)

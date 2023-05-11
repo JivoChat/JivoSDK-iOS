@@ -6,7 +6,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 final class UuidSubUserAgentGenerator: IUuidSubUserAgentGenerator {
     private let bundle: Bundle
@@ -91,7 +90,7 @@ final class UuidSubUserAgentGenerator: IUuidSubUserAgentGenerator {
     }
     
     private func collectPlatformInfo() -> String {
-        let family = UIDevice.current.systemName
+        let family = UIDevice.current.systemName.lowercased().replacingOccurrences(of: "ipados", with: "ios")
         let version = UIDevice.current.systemVersion
         return "\(family)/\(version)"
     }
@@ -100,7 +99,7 @@ final class UuidSubUserAgentGenerator: IUuidSubUserAgentGenerator {
         let bundle = Bundle.main
         
         if let name = bundle.jv_ID ?? bundle.jv_name {
-            return collectPackageInfo(name: name, version: "\(bundle.jv_version)+\(bundle.jv_build)")
+            return collectPackageInfo(name: name, version: bundle.jv_version)
         }
         else {
             return collectPackageInfo(name: "unknown", version: "0")

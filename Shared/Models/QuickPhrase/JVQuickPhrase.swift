@@ -9,8 +9,8 @@
 import Foundation
 
 @objc(JVQuickPhrase)
-public class JVQuickPhrase: JVDatabaseModel {
-    public override func apply(context: JVIDatabaseContext, change: JVDatabaseModelChange) {
+class JVQuickPhrase: JVDatabaseModel {
+    override func apply(context: JVIDatabaseContext, change: JVDatabaseModelChange) {
         super.apply(context: context, change: change)
         performApply(context: context, environment: context.environment, change: change)
     }

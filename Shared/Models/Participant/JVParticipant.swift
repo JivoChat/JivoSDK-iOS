@@ -8,5 +8,5 @@
 import Foundation
 
 @objc(JVParticipant)
-public class JVParticipant: JVDatabaseModel {
+class JVParticipant: JVDatabaseModel {
 }

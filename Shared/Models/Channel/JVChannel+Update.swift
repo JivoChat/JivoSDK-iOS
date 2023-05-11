@@ -27,7 +27,7 @@ extension JVChannel {
     }
 }
 
-public final class JVChannelGeneralChange: JVDatabaseModelChange {
+final class JVChannelGeneralChange: JVDatabaseModelChange {
     public let ID: Int
     public let publicID: String
     public let stateID: Int
@@ -36,11 +36,11 @@ public final class JVChannelGeneralChange: JVDatabaseModelChange {
     public let jointType: String?
     public let agentIDs: [Int]
     
-    public override var primaryValue: Int {
+    override var primaryValue: Int {
         return ID
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         let info = json["widget_info"]
         ID = info["widget_id"].intValue
         publicID = info["public_id"].stringValue

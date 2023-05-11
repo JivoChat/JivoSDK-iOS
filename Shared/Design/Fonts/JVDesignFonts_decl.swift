@@ -8,7 +8,7 @@
 import Foundation
 import UIKit
 
-public protocol JVIDesignFonts {
+protocol JVIDesignFonts {
     /**
      Examples:
      JVDesign.fonts.resolve(.regular(14), sizing: .callout)
@@ -25,29 +25,29 @@ public protocol JVIDesignFonts {
 }
 
 extension JVDesignFontMeta {
-    public static func italics(_ sizing: JVDesignFontSizing) -> Self { .init(weight: .italics, sizing: sizing) }
-    public static func italics(compact: JVDesignFontSizing, regular: JVDesignFontSizing) -> Self { .init(weight: .italics, compact: compact, regular: regular) }
+    static func italics(_ sizing: JVDesignFontSizing) -> Self { .init(weight: .italics, sizing: sizing) }
+    static func italics(compact: JVDesignFontSizing, regular: JVDesignFontSizing) -> Self { .init(weight: .italics, compact: compact, regular: regular) }
 
-    public static func light(_ sizing: JVDesignFontSizing) -> Self { .init(weight: .light, sizing: sizing) }
-    public static func light(compact: JVDesignFontSizing, regular: JVDesignFontSizing) -> Self { .init(weight: .light, compact: compact, regular: regular) }
+    static func light(_ sizing: JVDesignFontSizing) -> Self { .init(weight: .light, sizing: sizing) }
+    static func light(compact: JVDesignFontSizing, regular: JVDesignFontSizing) -> Self { .init(weight: .light, compact: compact, regular: regular) }
     
-    public static func regular(_ sizing: JVDesignFontSizing) -> Self { .init(weight: .regular, sizing: sizing) }
-    public static func regular(compact: JVDesignFontSizing, regular: JVDesignFontSizing) -> Self { .init(weight: .regular, compact: compact, regular: regular) }
+    static func regular(_ sizing: JVDesignFontSizing) -> Self { .init(weight: .regular, sizing: sizing) }
+    static func regular(compact: JVDesignFontSizing, regular: JVDesignFontSizing) -> Self { .init(weight: .regular, compact: compact, regular: regular) }
     
-    public static func medium(_ sizing: JVDesignFontSizing) -> Self { .init(weight: .medium, sizing: sizing) }
-    public static func medium(compact: JVDesignFontSizing, regular: JVDesignFontSizing) -> Self { .init(weight: .medium, compact: compact, regular: regular) }
+    static func medium(_ sizing: JVDesignFontSizing) -> Self { .init(weight: .medium, sizing: sizing) }
+    static func medium(compact: JVDesignFontSizing, regular: JVDesignFontSizing) -> Self { .init(weight: .medium, compact: compact, regular: regular) }
     
-    public static func semibold(_ sizing: JVDesignFontSizing) -> Self { .init(weight: .semibold, sizing: sizing) }
-    public static func semibold(compact: JVDesignFontSizing, regular: JVDesignFontSizing) -> Self { .init(weight: .semibold, compact: compact, regular: regular) }
+    static func semibold(_ sizing: JVDesignFontSizing) -> Self { .init(weight: .semibold, sizing: sizing) }
+    static func semibold(compact: JVDesignFontSizing, regular: JVDesignFontSizing) -> Self { .init(weight: .semibold, compact: compact, regular: regular) }
     
-    public static func bold(_ sizing: JVDesignFontSizing) -> Self { .init(weight: .bold, sizing: sizing) }
-    public static func bold(compact: JVDesignFontSizing, regular: JVDesignFontSizing) -> Self { .init(weight: .bold, compact: compact, regular: regular) }
+    static func bold(_ sizing: JVDesignFontSizing) -> Self { .init(weight: .bold, sizing: sizing) }
+    static func bold(compact: JVDesignFontSizing, regular: JVDesignFontSizing) -> Self { .init(weight: .bold, compact: compact, regular: regular) }
     
-    public static func heavy(_ sizing: JVDesignFontSizing) -> Self { .init(weight: .heavy, sizing: sizing) }
-    public static func heavy(compact: JVDesignFontSizing, regular: JVDesignFontSizing) -> Self { .init(weight: .heavy, compact: compact, regular: regular) }
+    static func heavy(_ sizing: JVDesignFontSizing) -> Self { .init(weight: .heavy, sizing: sizing) }
+    static func heavy(compact: JVDesignFontSizing, regular: JVDesignFontSizing) -> Self { .init(weight: .heavy, compact: compact, regular: regular) }
 }
 
-public enum JVDesignFontWeight {
+enum JVDesignFontWeight {
     case italics
     case light
     case regular
@@ -57,7 +57,7 @@ public enum JVDesignFontWeight {
     case heavy
 }
 
-public protocol JVDesignFontSizing {
+protocol JVDesignFontSizing {
     var jv_lower: CGFloat { get }
     var jv_upper: CGFloat { get }
     var jv_isRange: Bool { get }

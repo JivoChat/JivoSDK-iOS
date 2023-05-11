@@ -6,13 +6,14 @@
 //
 
 import Foundation
+import UIKit
 
-public final class JVDesignEnvironment: JVIDesignEnvironment {
-    public var statusBarHeight = CGFloat.zero
-    public var activeWindow: UIWindow?
-    public var previousTraits: UITraitCollection?
+final class JVDesignEnvironment: JVIDesignEnvironment {
+    var statusBarHeight = CGFloat.zero
+    var activeWindow: UIWindow?
+    var previousTraits: UITraitCollection?
     
-    public func grabFrom(application: UIApplication, window: UIWindow) {
+    func grabFrom(application: UIApplication, window: UIWindow) {
         if #available(iOS 13.0, *) {
             statusBarHeight = window.windowScene?.statusBarManager?.statusBarFrame.height ?? .zero
         }
@@ -24,7 +25,7 @@ public final class JVDesignEnvironment: JVIDesignEnvironment {
         previousTraits = window.traitCollection
     }
     
-    public func screenSize() -> JVDesignScreen {
+    func screenSize() -> JVDesignScreen {
         let idiom = UIDevice.current.userInterfaceIdiom
         let scale = UIScreen.main.nativeScale
         let height = UIScreen.main.nativeBounds.height / scale
@@ -47,7 +48,7 @@ public final class JVDesignEnvironment: JVIDesignEnvironment {
         }
     }
     
-    public func effectiveHorizontalClass() -> UIUserInterfaceSizeClass {
+    func effectiveHorizontalClass() -> UIUserInterfaceSizeClass {
         let sizeClass = (
             Thread.isMainThread
             ? activeWindow?.traitCollection.horizontalSizeClass

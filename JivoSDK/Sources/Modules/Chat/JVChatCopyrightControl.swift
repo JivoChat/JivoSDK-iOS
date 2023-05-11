@@ -6,7 +6,6 @@
 //
 
 import UIKit
-import JivoFoundation
 
 class JVChatCopyrightControl: UIView {
     

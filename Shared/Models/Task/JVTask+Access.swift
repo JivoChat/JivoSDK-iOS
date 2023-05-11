@@ -8,11 +8,11 @@
 
 import Foundation
 
-public enum JVTaskStatus: String {
+enum JVTaskStatus: String {
     case unknown
     case active = "active"
     case fired = "fired"
-    public var iconName: String? {
+    var iconName: String? {
         switch self {
         case .unknown: return nil
         case .active: return "reminder_active"
@@ -22,39 +22,39 @@ public enum JVTaskStatus: String {
 }
 
 extension JVTask {
-    public var ID: Int {
+    var ID: Int {
         return Int(m_id)
     }
     
-    public var siteID: Int {
+    var siteID: Int {
         return Int(m_site_id)
     }
     
-    public var clientID: Int {
+    var clientID: Int {
         return Int(m_client_id)
     }
     
-    public var client: JVClient? {
+    var client: JVClient? {
         return m_client
     }
     
-    public var agent: JVAgent? {
+    var agent: JVAgent? {
         return m_agent
     }
     
-    public var text: String? {
+    var text: String? {
         return m_text?.jv_valuable
     }
     
-    public var notifyAt: Date {
+    var notifyAt: Date {
         return Date(timeIntervalSince1970: m_notify_timstamp)
     }
     
-    public var status: JVTaskStatus {
+    var status: JVTaskStatus {
         return JVTaskStatus(rawValue: m_status.jv_orEmpty) ?? .unknown
     }
     
-    public var iconName: String? {
+    var iconName: String? {
         switch status {
         case .active:
             return "reminder_active"
@@ -65,7 +65,7 @@ extension JVTask {
         }
     }
     
-    public func convertToMessageBody() -> JVMessageBodyTask {
+    func convertToMessageBody() -> JVMessageBodyTask {
         return JVMessageBodyTask(
             taskID: Int(m_id),
             agent: m_agent,

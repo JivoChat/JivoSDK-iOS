@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 protocol IProto: INetworkingEventDecoder {
     func contextual(object: Any?) -> Self

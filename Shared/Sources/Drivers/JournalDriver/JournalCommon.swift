@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 import XCGLogger
 import SwiftGraylog
 
@@ -156,6 +155,85 @@ struct JournalChild {
                         line: line,
                         includeCaches: true)
                 }
+            }
+        }
+        
+        return JournalChild(
+            file: file,
+            call: call
+        )
+    }
+    
+    @discardableResult
+    func journal(line: Int = #line,
+                 function: String = #function,
+                 scope: Any? = nil,
+                 target: JournalTarget = .local,
+                 layer: JournalLayer = .debug,
+                 subsystem: JournalSubsystem = .any,
+                 pointOfInterest: String? = nil,
+                 debugging: JournalDebuggingToken? = nil,
+                 _ level: JournalLevel,
+                 message: @escaping () -> AnyHashable
+    ) -> JournalChild {
+        guard let call = call,
+              level == globalJournalLevel
+        else {
+            return JournalChild(file: file, call: nil)
+        }
+        
+        let meta = JournalMeta(
+            call: call,
+            file: file,
+            line: line,
+            function: function,
+            scope: scope,
+            target: target,
+            layer: layer,
+            subsystem: subsystem,
+            pointOfInterest: pointOfInterest,
+            debugging: debugging,
+            unimessage: message
+        )
+        
+        let generator: JournalGenerator = {
+            switch globalJournalLevel {
+            case .silent:
+                return silentGenerator
+            case .compact:
+                return compactGenerator
+            case .full:
+                return fullGenerator
+            }
+        }()
+        
+        if generator.isEnabled {
+            if target.contains(.local) {
+                globalJournalQueue.addOperation {
+                    JournalDriverLogger.logln(.debug, functionName: String()) {
+                        let message = generator.generateEntry(
+                            meta: meta,
+                            recentCall: globalJournalRecentCall,
+                            historyOfCalls: globalJournalHistory)
+                        
+                        globalJournalRecentCall = meta.call
+                        globalJournalHistory = (globalJournalHistory + [meta.call]).suffix(100)
+                        
+                        return message + "\n"
+                    }
+                }
+            }
+            
+            if target.contains(.remote), let key = pointOfInterest {
+                Graylog.jv_send(
+                    brief: key,
+                    details: generator.generateEntry(
+                        meta: meta,
+                        recentCall: UUID(),
+                        historyOfCalls: []),
+                    file: file,
+                    line: line,
+                    includeCaches: true)
             }
         }
         
@@ -326,6 +404,32 @@ func journal(file: String = #file,
              messages: [JournalLevel: () -> String]) -> JournalChild {
     guard
         let message = messages[globalJournalLevel]
+    else {
+        return JournalChild(
+            file: file,
+            call: nil
+        )
+    }
+    
+    return journal(
+        file: file,
+        line: line,
+        function: function,
+        layer: layer,
+        subsystem: subsystem,
+        unimessage: message
+    )
+}
+
+@discardableResult
+func journal(file: String = #file,
+             line: Int = #line,
+             function: String = #function,
+             layer: JournalLayer = .debug,
+             subsystem: JournalSubsystem = .any,
+             _ level: JournalLevel,
+             message: @escaping () -> String) -> JournalChild {
+    guard level == globalJournalLevel
     else {
         return JournalChild(
             file: file,

@@ -9,7 +9,7 @@
 import Foundation
 
 extension JVClientSession {
-    public var creationDate: Date? {
+    var creationDate: Date? {
         if m_creation_ts > 0 {
             return Date(timeIntervalSince1970: m_creation_ts)
         }
@@ -21,15 +21,15 @@ extension JVClientSession {
         }
     }
     
-    public var UTM: JVClientSessionUtm? {
+    var UTM: JVClientSessionUtm? {
         return m_utm
     }
     
-    public var lastIP: String? {
+    var lastIP: String? {
         return m_last_ip?.jv_valuable
     }
     
-    public var history: [JVPage] {
+    var history: [JVPage] {
         if let allObjects = m_history?.allObjects as? [JVPage] {
             return allObjects
         }
@@ -38,15 +38,15 @@ extension JVClientSession {
         }
     }
     
-    public var geo: JVClientSessionGeo? {
+    var geo: JVClientSessionGeo? {
         return m_geo
     }
     
-    public var chatStartPage: JVPage? {
+    var chatStartPage: JVPage? {
         return m_start_page ?? m_current_page ?? history.last
     }
     
-    public var currentPage: JVPage? {
+    var currentPage: JVPage? {
         return m_current_page
     }
 }

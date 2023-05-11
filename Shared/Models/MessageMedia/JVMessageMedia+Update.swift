@@ -39,7 +39,7 @@ extension JVMessageMedia {
     }
 }
 
-public final class JVMessageMediaGeneralChange: JVDatabaseModelChange {
+final class JVMessageMediaGeneralChange: JVDatabaseModelChange {
     public let type: String
     public let mime: String?
     public let thumbLink: String?
@@ -58,12 +58,12 @@ public final class JVMessageMediaGeneralChange: JVDatabaseModelChange {
     public let link: String?
     public let text: String?
 
-    public override var isValid: Bool {
+    override var isValid: Bool {
         guard type != "error" else { return false }
         return true
     }
     
-    public init(type: String, mime: String, name: String, link: String, size: Int, width: Int, height: Int) {
+    init(type: String, mime: String, name: String, link: String, size: Int, width: Int, height: Int) {
         self.type = type
         self.mime = mime
         self.thumbLink = nil
@@ -84,7 +84,7 @@ public final class JVMessageMediaGeneralChange: JVDatabaseModelChange {
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         type = json["type"].stringValue
         mime = nil
         thumbLink = json["thumb"].stringValue

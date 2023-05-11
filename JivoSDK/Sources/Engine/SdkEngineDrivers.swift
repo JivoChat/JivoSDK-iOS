@@ -3,9 +3,9 @@
 //  JivoSDK
 //
 import Foundation
-import JivoFoundation
 import KeychainSwift
 import JMTimelineKit
+import JMCodingKit
 
 extension CacheDriverItem {
     static let activeLogs = CacheDriverItem(fileName: "jivosdk.active.logs")
@@ -38,7 +38,7 @@ struct SdkEngineDriversFactory {
     let urlSession: URLSession
     let schedulingCore: ISchedulingCore
     let jsonPrivacyTool: JVJsonPrivacyTool
-    let outgoingPackagesAccumulator: AccumulatorTool<Data>
+    let outgoingPackagesAccumulator: AccumulatorTool<(JsonElement?, Data)>
 
     func build() -> SdkEngineDrivers {
         let cacheDriver = buildCacheDriver(namespace: namespace)

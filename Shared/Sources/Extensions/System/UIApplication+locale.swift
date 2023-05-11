@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-public extension UIApplication {
+extension UIApplication {
     func jv_openLocalizedURL(for key: String) {
         let link = loc[key]
         guard let url = URL(string: link) else { return }

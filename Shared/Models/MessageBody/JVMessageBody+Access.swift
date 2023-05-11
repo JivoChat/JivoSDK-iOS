@@ -8,13 +8,13 @@
 
 import Foundation
 
-public enum JVMessageBodyCallType: String {
+enum JVMessageBodyCallType: String {
     case callback = "callback"
     case incoming = "incoming"
     case outgoing = "outgoing"
     case unknown
     
-    public var isIncoming: Bool {
+    var isIncoming: Bool {
         switch self {
         case .callback: return false
         case .incoming: return true
@@ -24,12 +24,12 @@ public enum JVMessageBodyCallType: String {
     }
 }
 
-public enum JVMessageBodyCallEndCallSide: String {
+enum JVMessageBodyCallEndCallSide: String {
     case from = "from"
     case to = "to"
 }
 
-public enum JVMessageBodyCallEvent: String {
+enum JVMessageBodyCallEvent: String {
     case start = "start"
     case agentConnecting = "agent_connecting"
     case agentConnected = "agent_connected"
@@ -41,7 +41,7 @@ public enum JVMessageBodyCallEvent: String {
     case unknown
 }
 
-public enum JVMessageBodyCallReason: String {
+enum JVMessageBodyCallReason: String {
     case isBusy = "is_busy"
     case allBusy = "all_busy"
     case invalidNumber = "invalid_number"
@@ -52,7 +52,7 @@ public struct JVMessageBodyConference {
     public let url: URL?
     public let title: String
     
-    public init(url: URL?, title: String) {
+    init(url: URL?, title: String) {
         self.url = url
         self.title = title
     }
@@ -65,7 +65,7 @@ public struct JVMessageBodyStory {
     public let file: URL?
     public let title: String
     
-    public init(text: String, fileName: String, thumb: URL?, file: URL?, title: String) {
+    init(text: String, fileName: String, thumb: URL?, file: URL?, title: String) {
         self.text = text
         self.fileName = fileName
         self.thumb = thumb
@@ -74,14 +74,14 @@ public struct JVMessageBodyStory {
     }
 }
 
-public enum JVMessageBodyContactFormStatus: String {
+enum JVMessageBodyContactFormStatus: String {
     case inactive
     case editable
     case syncing
     case snapshot
 }
 
-public enum JVMessageBodyTaskStatus: String {
+enum JVMessageBodyTaskStatus: String {
     case created = "created"
     case updated = "updated"
     case completed = "completed"
@@ -89,7 +89,7 @@ public enum JVMessageBodyTaskStatus: String {
     case fired = "fired"
     case unknown
 
-    public var isFinished: Bool {
+    var isFinished: Bool {
         switch self {
         case .created: return false
         case .updated: return false
@@ -117,17 +117,17 @@ struct JVMessageBodyInvite {
     let comment: String?
 }
 
-public struct JVMessageBodyCall {
-    public let callID: String
-    public let agent: JVAgent?
-    public let type: JVMessageBodyCallType
-    public let phone: String?
-    public let event: JVMessageBodyCallEvent
-    public let endCallSide: JVMessageBodyCallEndCallSide?
-    public let reason: JVMessageBodyCallReason?
-    public let recordLink: String?
+struct JVMessageBodyCall {
+    let callID: String
+    let agent: JVAgent?
+    let type: JVMessageBodyCallType
+    let phone: String?
+    let event: JVMessageBodyCallEvent
+    let endCallSide: JVMessageBodyCallEndCallSide?
+    let reason: JVMessageBodyCallReason?
+    let recordLink: String?
 
-    public var recordURL: URL? {
+    var recordURL: URL? {
         if let link = recordLink {
             return URL(string: link)
         }
@@ -136,28 +136,28 @@ public struct JVMessageBodyCall {
         }
     }
 
-    public var isFailed: Bool {
+    var isFailed: Bool {
         return (event == .error)
     }
 }
 
-public struct JVMessageBodyTask {
-    public let taskID: Int
-    public let agent: JVAgent?
-    public let text: String
-    public let createdAt: Date?
-    public let updatedAt: Date?
-    public let transitionedAt: Date?
-    public let notifyAt: Date
-    public let status: JVMessageBodyTaskStatus
+struct JVMessageBodyTask {
+    let taskID: Int
+    let agent: JVAgent?
+    let text: String
+    let createdAt: Date?
+    let updatedAt: Date?
+    let transitionedAt: Date?
+    let notifyAt: Date
+    let status: JVMessageBodyTaskStatus
 }
 
-public struct JVMessageBodyOrder {
-    public let orderID: String
-    public let email: String?
-    public let phone: String?
-    public let subject: String
-    public let text: String
+struct JVMessageBodyOrder {
+    let orderID: String
+    let email: String?
+    let phone: String?
+    let subject: String
+    let text: String
 }
 
 extension JVMessageBody {

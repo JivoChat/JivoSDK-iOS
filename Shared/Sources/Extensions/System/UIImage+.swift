@@ -35,7 +35,7 @@ extension UIImage {
         }
     }
     
-    public func jv_rounded() -> UIImage? {
+    func jv_rounded() -> UIImage? {
         let layer = CALayer()
         layer.frame = CGRect(origin: .zero, size: size)
         layer.contents = cgImage
@@ -56,7 +56,7 @@ extension UIImage {
 }
 
 extension Optional where Wrapped == UIImage {
-    public var jv_orEmpty: UIImage {
+    var jv_orEmpty: UIImage {
         return self ?? UIImage()
     }
 }

@@ -9,15 +9,15 @@ import Foundation
 import CoreData
 
 fileprivate let JVDatabaseContextClientFinderKey = "jv_clientFinder"
-public typealias JVDatabaseContextClientFinder = (Int) -> JVClient?
+typealias JVDatabaseContextClientFinder = (Int) -> JVClient?
 
-public extension NSManagedObjectContext {
+extension NSManagedObjectContext {
     func jv_setClientFinder(finder: @escaping JVDatabaseContextClientFinder) {
         userInfo.setObject(finder, forKey: JVDatabaseContextClientFinderKey as NSString)
     }
 }
 
-public extension NSManagedObject {
+extension NSManagedObject {
     func jv_retrieveClient(id: Int) -> JVClient? {
         guard let context = managedObjectContext
         else {

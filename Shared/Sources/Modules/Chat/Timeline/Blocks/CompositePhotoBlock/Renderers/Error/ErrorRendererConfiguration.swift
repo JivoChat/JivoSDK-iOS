@@ -7,7 +7,6 @@
 //
 
 import UIKit
-import JivoFoundation
 
 fileprivate final class BundleObject {
 }

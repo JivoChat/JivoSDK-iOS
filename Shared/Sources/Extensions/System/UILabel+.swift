@@ -10,7 +10,7 @@ import Foundation
 import UIKit
 
 extension UILabel {
-    public var jv_hasText: Bool {
+    var jv_hasText: Bool {
         if let text = text {
             return !text.isEmpty
         }
@@ -19,7 +19,7 @@ extension UILabel {
         }
     }
     
-    public func jv_calculateSize(forWidth width: CGFloat) -> CGSize {
+    func jv_calculateSize(forWidth width: CGFloat) -> CGSize {
         if jv_hasText {
             let bounds = CGRect(x: 0, y: 0, width: width, height: .infinity)
             return textRect(forBounds: bounds, limitedToNumberOfLines: numberOfLines).size
@@ -29,7 +29,7 @@ extension UILabel {
         }
     }
     
-    public func jv_calculateHeight(forWidth width: CGFloat) -> CGFloat {
+    func jv_calculateHeight(forWidth width: CGFloat) -> CGFloat {
         return jv_calculateSize(forWidth: width).height
     }
 }

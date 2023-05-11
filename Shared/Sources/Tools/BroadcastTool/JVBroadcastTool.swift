@@ -8,9 +8,8 @@
 
 import Foundation
 
-public struct JVBroadcastToolTag: OptionSet {
-    public let rawValue: Int
-    public init(rawValue: Int) { self.rawValue = rawValue }
+struct JVBroadcastToolTag: OptionSet {
+    let rawValue: Int
 }
 
 public struct JVBroadcastMeta<Value> {
@@ -18,7 +17,7 @@ public struct JVBroadcastMeta<Value> {
     public let actual: Value
 }
 
-open class JVBroadcastTool<Value> {
+class JVBroadcastTool<Value> {
     public typealias Observer = (Value) -> Void
     public typealias MetaObserver = (JVBroadcastMeta<Value>) -> Void
 
@@ -26,7 +25,7 @@ open class JVBroadcastTool<Value> {
     private var convertingTokens = [Any]()
     private var observingTokens = [Any]()
 
-    public init() {
+    init() {
     }
     
     public subscript<Target>(_ type: Target.Type) -> JVBroadcastTool<Target> {
@@ -35,26 +34,26 @@ open class JVBroadcastTool<Value> {
         return converter
     }
     
-    public func addObserver(ignoring tags: JVBroadcastToolTag = [], _ observer: @escaping Observer) -> JVBroadcastObserver<Value> {
+    func addObserver(ignoring tags: JVBroadcastToolTag = [], _ observer: @escaping Observer) -> JVBroadcastObserver<Value> {
         let id = UUID()
         observers.append((id, observer, tags))
         return JVBroadcastObserver(ID: id, broadcastTool: self)
     }
     
-    public func attachObserver(ignoring tags: JVBroadcastToolTag = [], _ observer: Observer?) {
+    func attachObserver(ignoring tags: JVBroadcastToolTag = [], _ observer: Observer?) {
         guard let observer = observer else { return }
         let id = UUID()
         observers.append((id, observer, tags))
         observingTokens.append(JVBroadcastObserver(ID: id, broadcastTool: self))
     }
     
-    public func attachObserver(observer: @escaping Observer) {
+    func attachObserver(observer: @escaping Observer) {
         let id = UUID()
         observers.append((id, observer, []))
         observingTokens.append(JVBroadcastObserver(ID: id, broadcastTool: self))
     }
     
-    public func removeObserver(_ observer: JVBroadcastObserver<Value>) {
+    func removeObserver(_ observer: JVBroadcastObserver<Value>) {
         let id = observer.ID
         
         if let index = observers.map({ $0.0 }).firstIndex(of: id) {
@@ -62,7 +61,7 @@ open class JVBroadcastTool<Value> {
         }
     }
     
-    public func broadcast(_ value: Value, tag: JVBroadcastToolTag? = nil) {
+    func broadcast(_ value: Value, tag: JVBroadcastToolTag? = nil) {
         observers.forEach { observer in
             if let tag = tag, observer.2.contains(tag) {
                 return
@@ -72,16 +71,16 @@ open class JVBroadcastTool<Value> {
         }
     }
     
-    public func broadcast(_ value: Value) {
+    func broadcast(_ value: Value) {
         broadcast(value, tag: nil)
     }
     
-    public func broadcast(_ value: Value, async queue: DispatchQueue) {
+    func broadcast(_ value: Value, async queue: DispatchQueue) {
         let signal = self
         queue.async { signal.broadcast(value) }
     }
     
-    public func broadcast(_ value: Value, sync queue: DispatchQueue) {
+    func broadcast(_ value: Value, sync queue: DispatchQueue) {
         let signal = self
         queue.sync { signal.broadcast(value) }
     }

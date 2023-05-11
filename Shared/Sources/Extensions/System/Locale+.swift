@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension Locale {
+extension Locale {
     var jv_langId: String {
         let parts = identifier.components(separatedBy: .punctuationCharacters)
         return parts.first ?? identifier

@@ -25,11 +25,11 @@ extension JVMediaUpload {
     }
 }
 
-public enum JVMediaUploadingPurpose: Equatable {
+enum JVMediaUploadingPurpose: Equatable {
     case transfer(JVSenderData, chatID: Int)
     case avatar
     
-    public var chatID: Int? {
+    var chatID: Int? {
         switch self {
         case .transfer(_, let chatID): return chatID
         case .avatar: return nil
@@ -37,7 +37,7 @@ public enum JVMediaUploadingPurpose: Equatable {
     }
 }
 
-public enum JVMediaUploadingResult {
+enum JVMediaUploadingResult {
     public struct Success {
         public let storage: String
         public let mime: String
@@ -47,7 +47,7 @@ public enum JVMediaUploadingResult {
         public let dataSize: Int
         public let pixelSize: CGSize
         
-        public init(
+        init(
             storage: String,
             mime: String,
             name: String,
@@ -73,7 +73,7 @@ public enum JVMediaUploadingResult {
     case unknownError
 }
 
-public final class JVMediaUploadChange: JVDatabaseModelChange {
+final class JVMediaUploadChange: JVDatabaseModelChange {
     public let ID: String
     public let chatID: Int?
     public let filePath: String?
@@ -83,7 +83,7 @@ public final class JVMediaUploadChange: JVDatabaseModelChange {
     public let sessionID: String
     public let completion: (JVMediaUploadingResult) -> Void
     
-    public init(ID: String,
+    init(ID: String,
                 chatID: Int?,
                 filePath: String?,
                 purpose: JVMediaUploadingPurpose,
@@ -102,11 +102,11 @@ public final class JVMediaUploadChange: JVDatabaseModelChange {
         super.init()
     }
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         abort()
     }
     
-    public func copy(filePath: String?) -> JVMediaUploadChange {
+    func copy(filePath: String?) -> JVMediaUploadChange {
         return JVMediaUploadChange(
             ID: ID,
             chatID: chatID,
@@ -118,14 +118,14 @@ public final class JVMediaUploadChange: JVDatabaseModelChange {
             completion: completion)
     }
     
-    public var recipientType: String {
+    var recipientType: String {
         switch purpose {
         case .avatar: return "self"
         case .transfer(let target, _): return target.type.rawValue
         }
     }
     
-    public var recipientID: Int {
+    var recipientID: Int {
         switch purpose {
         case .avatar: return 0
         case .transfer(let target, _): return target.ID

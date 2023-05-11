@@ -10,10 +10,10 @@ import Foundation
 import CoreData
 
 @objc(JVDatabaseModel)
-open class JVDatabaseModel: NSManagedObject {
-    @NSManaged public var m_uid: String?
-    @NSManaged public var m_pk_num: Int64
-    @NSManaged public var m_pk_str: String?
+class JVDatabaseModel: NSManagedObject {
+    @NSManaged var m_uid: String?
+    @NSManaged var m_pk_num: Int64
+    @NSManaged var m_pk_str: String?
     private var cache = [String: Any]()
 
     open override func awakeFromInsert() {

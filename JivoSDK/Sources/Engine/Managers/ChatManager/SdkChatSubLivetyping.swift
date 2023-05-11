@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JivoFoundation
 
 struct TypingStatusData {
     let clientHash: Int

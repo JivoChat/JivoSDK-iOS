@@ -19,12 +19,12 @@ extension JVMessageImage {
     }
 }
 
-public final class JVMessageImageGeneralChange: JVDatabaseModelChange {
+final class JVMessageImageGeneralChange: JVDatabaseModelChange {
     public let fileName: String
     public let URL: String
     public let uploadTS: Int
     
-    required public init(json: JsonElement) {
+    required init(json: JsonElement) {
         fileName = json["filename"].stringValue
         URL = json["url"].stringValue
         uploadTS = json["uploaded_ts"].intValue

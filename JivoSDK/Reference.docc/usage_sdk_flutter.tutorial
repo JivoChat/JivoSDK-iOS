@@ -1,0 +1,12 @@
+@Tutorial {
+    @Intro(title: "Basic usage in Flutter environment") {
+    }
+    
+    @Section(title: "Overview") {
+        @ContentAndMedia {
+        }
+        
+        @Steps {
+        }
+    }
+}

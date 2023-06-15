@@ -1,0 +1,45 @@
+import Foundation
+import UIKit
+import UserNotifications
+import JivoSDK
+
+final class AppDelegate: UIResponder
+, UIApplicationDelegate
+, UNUserNotificationCenterDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        JivoSDK.notifications.handleLaunch(options: launchOptions)
+        UNUserNotificationCenter.current().delegate = self
+        return true
+    }
+    
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        JivoSDK.notifications.setPushToken(data: deviceToken)
+    }
+    
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        JivoSDK.notifications.setPushToken(data: nil)
+    }
+    
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        if JivoSDK.notifications.handleIncoming(userInfo: userInfo, completionHandler: completionHandler) {
+            return
+        }
+        
+        completionHandler(.noData)
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        JivoSDK.notifications.configurePresentation(notification: notification, proxyTo: completionHandler) { target, event in
+            switch target {
+            case .app:
+                return []
+            case .sdk:
+                return [.alert]
+            }
+        }
+    }
+    
+    func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
+        JivoSDK.notifications.handleUser(response: response)
+    }
+}

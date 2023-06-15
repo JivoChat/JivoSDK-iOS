@@ -1,0 +1,15 @@
+import Foundation
+
+struct User {
+    let email: String
+    let fullName: String?
+    let phoneNumber: String?
+}
+
+final class UserManager {
+    private(set) var user: User?
+    
+    func update(user: User) {
+        self.user = user
+    }
+}

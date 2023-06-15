@@ -1,0 +1,28 @@
+import JivoSDK from './JivoSDKModule'
+
+class UserManager {
+    constructor() {
+        this.user = null
+    }
+
+    updateUser(user) {
+        this.user = user
+        this._configureJivoSession()
+    }
+
+    _configureJivoSession() {
+        if (this.user) {
+            const info = {
+                'name': this.user.full_name,
+                'email': this.user.email,
+                'phone': this.user.phone_number
+            }
+            
+            JivoSDK.startUpSession("YOUR_CHANNEL_ID", this.user.email)
+            JivoSDK.setSession.ContactInfo(info)
+        }
+        else {
+            JivoSDK.shutDownSession()
+        }
+    }
+}

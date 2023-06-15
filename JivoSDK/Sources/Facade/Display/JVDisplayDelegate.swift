@@ -7,6 +7,9 @@
 
 import Foundation
 
+/**
+ Acts like feedback from ``Jivo.display`` namespace
+ */
 @objc(JVDisplayDelegate)
 public protocol JVDisplayDelegate {
     /**

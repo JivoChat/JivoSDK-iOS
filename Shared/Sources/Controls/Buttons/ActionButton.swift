@@ -25,6 +25,7 @@ enum ActionButtonSize {
     case regular
     case compact
     case smallest
+    case largest
 }
 
 enum ActionButtonLayout {
@@ -53,6 +54,7 @@ final class ActionButton: BaseButton {
                     case .regular: return UIEdgeInsets(top: 13, left: 10, bottom: 13, right: 10)
                     case .compact: return UIEdgeInsets(top: 8, left: 10, bottom: 8, right: 10)
                     case .smallest: return UIEdgeInsets(top: 8, left: 10, bottom: 8, right: 10)
+                    case .largest: return UIEdgeInsets(top: 20, left: 10, bottom: 20, right: 10)
                     }
                 },
                 regularFillColor: nil,
@@ -130,6 +132,8 @@ final class ActionButton: BaseButton {
             return obtainCompactFont(weight: weight)
         case .smallest:
             return obtainSmallestFont(weight: weight)
+        case .largest:
+            return obtainRegularFont(weight: weight, fontLimit: fontLimit)
         }
     }
     

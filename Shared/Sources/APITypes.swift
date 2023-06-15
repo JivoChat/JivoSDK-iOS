@@ -266,6 +266,15 @@ struct APIPhone {
     let countryCode: String
     let channelID: Int
     let type: String
+    let status: String
+    let price: Float
+    let nextRenewalDate: String
+    let isSmsSupported: Bool
+    let purchasePrice: Float
+    let ivrAvailable: Bool
+    let sipURI: String?
+    let autoChange: Bool?
+    let sipStatus: String?
     
     init(
         ID: Int,
@@ -273,15 +282,33 @@ struct APIPhone {
         number: String,
         countryCode: String,
         channelID: Int,
-        type: String
+        type: String,
+        status: String,
+        price: Float,
+        nextRenewalDate: String,
+        isSmsSupported: Bool,
+        purchasePrice: Float,
+        ivrAvailable: Bool,
+        sipURI: String?,
+        autoChange: Bool?,
+        sipStatus: String?
     ) {
-        self.ID = ID
-        self.active = active
-        self.number = number
-        self.countryCode = countryCode
-        self.channelID = channelID
-        self.type = type
-    }
+            self.ID = ID
+            self.active = active
+            self.number = number
+            self.countryCode = countryCode
+            self.channelID = channelID
+            self.type = type
+            self.status = status
+            self.price = price
+            self.nextRenewalDate = nextRenewalDate
+            self.isSmsSupported = isSmsSupported
+            self.purchasePrice = purchasePrice
+            self.ivrAvailable = ivrAvailable
+            self.sipURI = sipURI
+            self.autoChange = autoChange
+            self.sipStatus = sipStatus
+        }
 }
 
 struct APITelephony {

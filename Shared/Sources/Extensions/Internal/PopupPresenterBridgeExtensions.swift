@@ -249,6 +249,9 @@ extension IPopupPresenterBridge {
     }
     
     func notifyAboutMediaUploadingError() {
+        journal {"Failed uploading"}
+            .nextLine {"Failed to upload the file"}
+        
         informShortly(
             message: loc["Media.Uploading.UploadingError"],
             icon: nil,

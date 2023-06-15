@@ -9,7 +9,7 @@
 import UIKit
 
 /**
- Responsible for everything related to the visual representation of the chat on the screen
+ ``Jivo.display`` namespace for SDK displaying
  */
 @objc(JVDisplayController)
 public final class JVDisplayController: NSObject {

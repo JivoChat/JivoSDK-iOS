@@ -164,6 +164,7 @@ final class JVDesignColors: JVDesignEnvironmental, JVIDesignColors {
         case .agentTime: return dynamicColor(light: .alias(.steel), dark: .alias(.steel))
         case .botButtonBackground: return dynamicColor(light: .hex(0xC0D0E0), dark: .hex(0x505050))
         case .botButtonForeground: return dynamicColor(light: .hex(0x202020), dark: .hex(0xD0D0D0))
+        case .commentInput: return dynamicColor(light: .hex(0xFEFAEB), dark: .hex(0x614800))
         case .commentBackground: return dynamicColor(light: .hex(0xFEEAAC), dark: .hex(0x614800))
         case .callBorder: return dynamicColor(light: .alias(.grayDark), dark: .alias(.grayDark))
         case .failedBackground: return dynamicColor(light: .alias(.orangeRed), dark: .alias(.orangeRed))

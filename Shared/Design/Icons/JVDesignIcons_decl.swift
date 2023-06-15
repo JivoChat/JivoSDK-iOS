@@ -21,14 +21,9 @@ enum JVDesignIconsLogo {
     case mini
 }
 
-public struct JVDesignIconsPreset {
+struct JVDesignIconsPreset {
     let systemName: String
     let assetName: String
-    
-    init(systemName: String, assetName: String) {
-        self.systemName = systemName
-        self.assetName = assetName
-    }
 }
 
 enum JVDesignAssetRendering {
@@ -37,17 +32,13 @@ enum JVDesignAssetRendering {
 }
 
 extension JVDesignIconsPreset {
-    public static let back = Self.init(systemName: "chevron.left", assetName: "nav_back")
-    public static let dismiss = Self.init(systemName: "xmark", assetName: "nav_dismiss")
-    public static let check = Self.init(systemName: "checkmark", assetName: "cell_check")
-    public static let forward = Self.init(systemName: "chevron.right", assetName: "nav_forward")
-    public static let dots = Self.init(systemName: "ellipsis", assetName: "dots")
+    static let back = Self.init(systemName: "chevron.left", assetName: "nav_back")
+    static let dismiss = Self.init(systemName: "xmark", assetName: "nav_dismiss")
+    static let check = Self.init(systemName: "checkmark", assetName: "cell_check")
+    static let forward = Self.init(systemName: "chevron.right", assetName: "nav_forward")
+    static let dots = Self.init(systemName: "ellipsis", assetName: "dots")
 }
 
-public struct JVDesignIconsAsset {
+struct JVDesignIconsAsset {
     let name: String
-    
-    init(name: String) {
-        self.name = name
-    }
 }

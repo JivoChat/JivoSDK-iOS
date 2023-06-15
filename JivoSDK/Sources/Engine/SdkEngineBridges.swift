@@ -41,6 +41,7 @@ struct SdkEngineBridgesFactory {
     private func buildPhotoPickingBridge(popupPresenterBridge: IPopupPresenterBridge) -> IPhotoPickingBridge {
         return PhotoPickingBridge(
             namespace: "jivosdk",
+            attachmentsNumberLimit: SdkConfig.attachmentsNumberLimit,
             popupPresenterBridge: popupPresenterBridge,
             photoLibraryDriver: photoLibraryDriver,
             cameraDriver: cameraDriver)

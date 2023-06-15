@@ -116,7 +116,7 @@
         <attribute name="m_latest_chat_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_response_timeout" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_type" optional="YES" attributeType="String" defaultValueString=""/>
-        <relationship name="b_hit" maxCount="1" deletionRule="Cascade" destinationEntity="JVArchiveHit" inverseName="m_item" inverseEntity="JVArchiveHit"/>
+        <relationship name="b_hit" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="JVArchiveHit" inverseName="m_item" inverseEntity="JVArchiveHit"/>
         <relationship name="m_agents" toMany="YES" deletionRule="Nullify" destinationEntity="JVAgent"/>
         <relationship name="m_chat" optional="YES" maxCount="1" deletionRule="No Action" destinationEntity="JVChat"/>
     </entity>
@@ -143,6 +143,7 @@
         <attribute name="m_guests_number" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_joint_type" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_joint_url" optional="YES" attributeType="String"/>
         <attribute name="m_public_id" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_site_url" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_state_id" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -204,6 +205,7 @@
         <attribute name="m_display_name" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_email_by_agent" optional="YES" attributeType="String"/>
         <attribute name="m_email_by_client" optional="YES" attributeType="String"/>
+        <attribute name="m_emails_extra" optional="YES" attributeType="String"/>
         <attribute name="m_guest_id" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_has_active_call" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="m_has_startup" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
@@ -215,6 +217,7 @@
         <attribute name="m_navigates_number" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_phone_by_agent" optional="YES" attributeType="String"/>
         <attribute name="m_phone_by_client" optional="YES" attributeType="String"/>
+        <attribute name="m_phones_extra" optional="YES" attributeType="String"/>
         <attribute name="m_public_id" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_visits_number" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <relationship name="b_chats" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="JVChat" inverseName="m_client" inverseEntity="JVChat"/>
@@ -336,11 +339,13 @@
         <attribute name="m_sending_date" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="m_sending_failed" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="m_status" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_target" optional="YES" attributeType="Binary"/>
         <attribute name="m_text" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_type" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_updated_timepoint" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="m_was_deleted" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <relationship name="m_body" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="JVMessageBody" inverseName="b_message" inverseEntity="JVMessageBody"/>
+        <relationship name="m_channel" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVChannel"/>
         <relationship name="m_client" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVClient" inverseName="b_messages" inverseEntity="JVClient"/>
         <relationship name="m_media" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="JVMessageMedia" inverseName="b_message" inverseEntity="JVMessageMedia"/>
         <relationship name="m_sender" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVParticipant"/>

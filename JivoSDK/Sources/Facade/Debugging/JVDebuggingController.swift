@@ -7,6 +7,9 @@
 
 import Foundation
 
+/**
+ ``Jivo.debugging`` namespace for SDK debugging
+ */
 @objc(JVDebuggingController)
 public final class JVDebuggingController: NSObject {
     /**

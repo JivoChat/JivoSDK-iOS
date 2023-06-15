@@ -7,6 +7,9 @@
 
 import Foundation
 
+/**
+ How detailed are the logs
+ */
 @objc(JVDebuggingLevel)
 public enum JVDebuggingLevel: Int {
     /// Capture nothing

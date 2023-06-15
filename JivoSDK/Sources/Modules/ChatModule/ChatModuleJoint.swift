@@ -152,12 +152,21 @@ final class ChatModuleJoint
             case .fileSizeExceeded(let megabytes):
                 return loc[format: "media_uploading_too_large", megabytes]
             case .networkClientError, .cannotHandleUploadResult:
+                journal {"Failed uploading"}
+                    .nextLine {"Failed to upload the file"}
+                
                 return loc["media_uploading_common_error"]
             case let .uploadDeniedByAServer(brief):
+                journal {"Failed uploading"}
+                    .nextLine {"Failed to upload the file"}
+                
                 return brief ?? loc["media_uploading_common_error"]
             case .unsupportedMediaType:
                 return loc["message_unsupported_media"]
             case let .unknown(brief):
+                journal {"Failed uploading"}
+                    .nextLine {"Failed to upload the file"}
+                
                 return brief ?? loc["media_uploading_common_error"]
             }
         }()

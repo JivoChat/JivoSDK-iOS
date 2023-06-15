@@ -187,6 +187,14 @@ struct SdkEngineManagersFactory {
             chatSubStorage: chatSubStorage
         )
         
+        let chatSubHelloStateFeature = SdkChatSubHello(
+            databaseDriver: databaseDriver,
+            preferencesDriver: preferencesDriver,
+            messagingEventObservable: messagingContext.eventObservable,
+            chatContext: chatContext,
+            chatSubStorage: chatSubStorage
+        )
+        
         let chatManager = SdkChatManager(
             pipeline: pipeline,
             thread: workerThread,
@@ -201,6 +209,7 @@ struct SdkEngineManagersFactory {
             chatSubSender: chatSubSender,
             subUploader: chatSubUploader,
             subOfflineStateFeature: chatSubOfflineStateFeature,
+            subHelloStateFeature: chatSubHelloStateFeature,
             systemMessagingService: systemMessagingService,
             networkEventDispatcher: networkEventDispatcher,
             typingCacheService: typingCacheService,

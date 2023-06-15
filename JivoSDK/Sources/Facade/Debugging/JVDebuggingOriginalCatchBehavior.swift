@@ -8,7 +8,7 @@
 import Foundation
 
 /**
- Determine what JivoSDK should perform for logging event
+ What should SDK do with original event catching behavior
  */
 @objc(JVDebuggingOriginalCatchBehavior)
 public enum JVDebuggingOriginalCatchBehavior: Int {

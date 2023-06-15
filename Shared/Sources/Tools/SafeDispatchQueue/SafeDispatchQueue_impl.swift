@@ -8,8 +8,23 @@
 
 import Foundation
 
-final class JVSafeDispatchQueue: DispatchQueue {
+@propertyWrapper
+final class JVSafeDispatching {
+    private var queue: DispatchQueue
     private var suspensionsNumber = 0
+    
+    init(wrappedValue: DispatchQueue) {
+        self.queue = wrappedValue
+    }
+    
+    var wrappedValue: DispatchQueue {
+        get {
+            return queue
+        }
+        set {
+            queue = newValue
+        }
+    }
     
     func safeSuspend(mutex: NSLock) {
         mutex.lock()
@@ -17,7 +32,7 @@ final class JVSafeDispatchQueue: DispatchQueue {
             mutex.unlock()
         }
         
-        suspend()
+        queue.suspend()
         suspensionsNumber += 1
     }
     
@@ -32,7 +47,7 @@ final class JVSafeDispatchQueue: DispatchQueue {
             return
         }
         
-        resume()
+        queue.resume()
         suspensionsNumber -= 1
     }
 }

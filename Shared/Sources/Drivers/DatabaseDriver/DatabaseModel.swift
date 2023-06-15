@@ -33,6 +33,6 @@ class JVDatabaseModel: NSManagedObject {
     }
 }
 
-public struct JVMetaProviders {
+struct JVMetaProviders {
     let clientProvider: (Int) -> JVClient?
 }

@@ -14,4 +14,5 @@ protocol JVIDesignLayout {
     var controlSmallRadius: CGFloat { get }
     var alertRadius: CGFloat { get }
     var defaultMediaRatio: CGFloat { get }
+    var timelineMessageRadius: CGFloat { get }
 }

@@ -7,7 +7,6 @@
 //
 
 import Foundation
-
 import JMTimelineKit
 
 protocol ISystemMessagingService: AnyObject {
@@ -636,6 +635,9 @@ final class SystemMessagingService: ISystemMessagingService {
         case .proactive(let text):
             return .init(exact: text.jv_plain())
             
+        case .hello(let text):
+            return .init(exact: text.jv_plain())
+
         case .offline(let text):
             return .init(exact: text.jv_plain())
 

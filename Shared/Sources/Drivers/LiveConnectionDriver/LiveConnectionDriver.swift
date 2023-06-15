@@ -101,7 +101,7 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
     var closeHandler: ((JournalChild, Int, String, Error?) -> Void)?
     
     private let jsonCoder = JsonCoder()
-    private let websocketQueue = generateWebSocketQueue()
+    @JVSafeDispatching private var websocketQueue = generateWebSocketQueue()
     private let websocketMutex = NSLock()
     private var webSocket: WebSocketVerbose?
     private var outgoingCachedPackets: [(JsonElement?, Data)]?
@@ -143,11 +143,11 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
     }
     
     func pause() {
-        websocketQueue.safeSuspend(mutex: websocketMutex)
+        _websocketQueue.safeSuspend(mutex: websocketMutex)
     }
     
     func resume() {
-        websocketQueue.safeResume(mutex: websocketMutex)
+        _websocketQueue.safeResume(mutex: websocketMutex)
     }
     
     func isCachingEnabled() -> Bool {
@@ -459,7 +459,7 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
     }
 }
 
-fileprivate func generateWebSocketQueue() -> JVSafeDispatchQueue {
+fileprivate func generateWebSocketQueue() -> DispatchQueue {
     let label = "com.jivosite.mobile.websocket:" + UUID().jv_shortString
-    return JVSafeDispatchQueue(label: label, qos: .default)
+    return DispatchQueue(label: label, qos: .default)
 }

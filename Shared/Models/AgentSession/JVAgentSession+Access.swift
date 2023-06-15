@@ -51,6 +51,10 @@ extension JVAgentSession {
         }
     }
     
+    func findChannel(id: Int) -> JVChannel? {
+        return channels.first(where: { $0.ID == id })
+    }
+    
     var widgetChannels: [JVChannel] {
         return channels.filter { $0.jointType == nil }
     }

@@ -11,8 +11,8 @@ import UIKit
 final class SdkChatReplyControl: ChatGrowingSubmitControl<SdkChatReplyControl.Output> {
     private(set) lazy var menuButton = UIButton()
     
-    override init() {
-        super.init()
+    init() {
+        super.init(linesLimit: 1)
         
         backgroundColor = JVDesign.colors.resolve(usage: .primaryBackground)
         
@@ -107,18 +107,6 @@ final class SdkChatReplyControl: ChatGrowingSubmitControl<SdkChatReplyControl.Ou
         didSet {
             inputArea.tintColor = tintColor
         }
-    }
-    
-    override func shouldAllowSubmitting() -> Bool {
-        if super.shouldAllowSubmitting() {
-            return true
-        }
-        
-        if attachmentBar.hasAttachments {
-            return true
-        }
-        
-        return false
     }
     
     override func sizeThatFits(_ size: CGSize) -> CGSize {

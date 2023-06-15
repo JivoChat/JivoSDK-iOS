@@ -14,6 +14,7 @@ enum FormattingPhoneStyle {
     case exchangable
     case plain
     case printable
+    case decorative
 }
 
 protocol IFormattingProvider: AnyObject {
@@ -226,9 +227,12 @@ final class FormattingProvider: IFormattingProvider {
 
     private func format(number: NBPhoneNumber, style: FormattingPhoneStyle) throws -> String {
         switch style {
-        case .exchangable: return try phoneNumberKit.format(number, numberFormat: .E164).replacingOccurrences(of: "+", with: String())
-        case .plain: return try phoneNumberKit.format(number, numberFormat: .E164)
-        case .printable: return try phoneNumberKit.format(number, numberFormat: .INTERNATIONAL)
+        case .exchangable:
+            return try phoneNumberKit.format(number, numberFormat: .E164).replacingOccurrences(of: "+", with: String())
+        case .plain:
+            return try phoneNumberKit.format(number, numberFormat: .E164)
+        case .printable, .decorative:
+            return try phoneNumberKit.format(number, numberFormat: .INTERNATIONAL)
         }
     }
 }

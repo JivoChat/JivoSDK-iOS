@@ -48,30 +48,17 @@ enum JVMessageBodyCallReason: String {
     case unknown
 }
 
-public struct JVMessageBodyConference {
-    public let url: URL?
-    public let title: String
-    
-    init(url: URL?, title: String) {
-        self.url = url
-        self.title = title
-    }
+struct JVMessageBodyConference {
+    let url: URL?
+    let title: String
 }
 
-public struct JVMessageBodyStory {
-    public let text: String
-    public let fileName: String
-    public let thumb: URL?
-    public let file: URL?
-    public let title: String
-    
-    init(text: String, fileName: String, thumb: URL?, file: URL?, title: String) {
-        self.text = text
-        self.fileName = fileName
-        self.thumb = thumb
-        self.file = file
-        self.title = title
-    }
+struct JVMessageBodyStory {
+    let text: String
+    let fileName: String
+    let thumb: URL?
+    let file: URL?
+    let title: String
 }
 
 enum JVMessageBodyContactFormStatus: String {

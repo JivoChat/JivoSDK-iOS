@@ -10,14 +10,9 @@ import Foundation
 import JMCodingKit
 import JMRepicKit
 
-public struct JVMessageContentHash {
-    public let ID: Int
-    public let value: Int
-    
-    init(ID: Int, value: Int) {
-        self.ID = ID
-        self.value = value
-    }
+struct JVMessageContentHash {
+    let ID: Int
+    let value: Int
     
     func hasChanged(relatedTo anotherHash: JVMessageContentHash?) -> Bool {
         guard let anotherHash = anotherHash else { return false }
@@ -26,24 +21,14 @@ public struct JVMessageContentHash {
     }
 }
 
-public struct JVMessageReactor: Codable {
-    public let subjectKind: String
-    public let subjectID: Int
-    
-    init(subjectKind: String, subjectID: Int) {
-        self.subjectKind = subjectKind
-        self.subjectID = subjectID
-    }
+struct JVMessageReactor: Codable {
+    let subjectKind: String
+    let subjectID: Int
 }
 
-public struct JVMessageReaction: Codable {
-    public let emoji: String
+struct JVMessageReaction: Codable {
+    let emoji: String
     var reactors: [JVMessageReactor]
-    
-    init(emoji: String, reactors: [JVMessageReactor]) {
-        self.emoji = emoji
-        self.reactors = reactors
-    }
 }
 
 enum JVMessageDirection {
@@ -74,8 +59,26 @@ enum JVMessageType: String {
     case contactForm = "contact_form"
 }
 
+enum JVMessageTarget: Codable {
+    case regular
+    case email(fromEmail: String, toEmail: String)
+    case sms(fromChannel: Int, toPhone: String)
+    case whatsapp(fromChannel: Int, toPhone: String)
+    case comment
+    
+    var supportsFileExchange: Bool {
+        switch self {
+        case .regular, .email, .whatsapp:
+            return true
+        case .sms, .comment:
+            return false
+        }
+    }
+}
+
 enum JVMessageContent {
     case proactive(message: String)
+    case hello(message: String)
     case offline(message: String)
     case text(message: String)
     case comment(message: String)
@@ -107,6 +110,8 @@ enum JVMessageContent {
     var isEditable: Bool {
         switch self {
         case .proactive:
+            return false
+        case .hello:
             return false
         case .offline:
             return false
@@ -151,6 +156,8 @@ enum JVMessageContent {
         switch self {
         case .proactive:
             return false
+        case .hello:
+            return false
         case .offline:
             return true
         case .text:
@@ -191,7 +198,7 @@ enum JVMessageContent {
     }
 }
 
-public struct JVMessageUpdateMeta {
+struct JVMessageUpdateMeta {
     let agent: JVAgent
     let date: Date
 }
@@ -225,6 +232,21 @@ extension JVMessage {
         return Int(m_chat_id)
     }
     
+    var target: JVMessageTarget {
+        guard let source = m_target, !source.isEmpty
+        else {
+            return .regular
+        }
+        
+        do {
+            let result = try JSONDecoder().decode(JVMessageTarget.self, from: source)
+            return result
+        }
+        catch {
+            return .regular
+        }
+    }
+    
     var direction: JVMessageDirection {
         if ["system", "transfer", "join", "left", "line", "reminder"].contains(type) {
             return .system
@@ -251,6 +273,8 @@ extension JVMessage {
     var isSystemLike: Bool {
         switch type {
         case "proactive":
+            return false
+        case "hello":
             return false
         case "email":
             return false
@@ -281,6 +305,10 @@ extension JVMessage {
         }
     }
     
+    var channel: JVChannel? {
+        return m_channel
+    }
+    
     var content: JVMessageContent {
         switch type {
         case "proactive":
@@ -288,6 +316,11 @@ extension JVMessage {
                 message: m_text.jv_orEmpty
             )
             
+        case "hello":
+            return .hello(
+                message: m_text.jv_orEmpty
+            )
+
         case "offline":
             return .offline(
                 message: m_text.jv_orEmpty
@@ -306,7 +339,7 @@ extension JVMessage {
                 assertionFailure()
             }
             
-        case "message":
+        case "message", "keyboard":
             if let media = m_media {
                 let link = (media.fullURL ?? media.thumbURL)?.absoluteString ?? ""
                 let name = media.name ?? link
@@ -572,6 +605,7 @@ extension JVMessage {
     func iconContent() -> UIImage? {
         switch content {
         case .proactive,
+             .hello,
              .offline,
              .text,
              .comment,
@@ -792,34 +826,4 @@ extension JVMessage {
     func canUpgradeStatus(to newStatus: String) -> Bool {
         return (m_status != newStatus)
     }
-}
-
-class JVSDKMessageOfflineChange: JVDatabaseModelChange {
-    public let localId = JVSDKMessageOfflineChange.id
-    public let date = Date()
-    public let type = "offline"
-    
-    public let content: JVMessageContent
-    
-    override var primaryValue: Int {
-        abort()
-    }
-    
-    override var stringKey: JVDatabaseModelCustomId<String>? {
-        return JVDatabaseModelCustomId<String>(key: "m_local_id", value: localId)
-    }
-    
-    init(message: String) {
-        content = .offline(message: message)
-        
-        super.init()
-    }
-    
-    required init(json: JsonElement) {
-        fatalError("init(json:) has not been implemented")
-    }
-}
-
-extension JVSDKMessageOfflineChange {
-    public static let id = "OFFLINE_MESSAGE"
 }

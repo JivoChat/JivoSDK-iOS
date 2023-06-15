@@ -15,15 +15,36 @@ extension JVChannel {
             m_pk_num = m_id
         }
         
-        if let c = change as? JVChannelGeneralChange {
+        if let c = change as? JVChannelBlankChange {
+            m_id = c.ID.jv_toInt64
+        }
+        else if let c = change as? JVChannelGeneralChange {
             m_id = c.ID.jv_toInt64
             m_public_id = c.publicID
             m_state_id = c.stateID.jv_toInt16
             m_site_url = c.siteURL
             m_guests_number = c.guestsNumber.jv_toInt16
             m_joint_type = c.jointType ?? ""
+            m_joint_url = c.jointURL ?? ""
             m_agents_ids = "," + c.agentIDs.jv_stringify().joined(separator: ",") + ","
         }
+    }
+}
+
+final class JVChannelBlankChange: JVDatabaseModelChange {
+    public let ID: Int
+    
+    override var primaryValue: Int {
+        return ID
+    }
+    
+    init(ID: Int) {
+        self.ID = ID
+        super.init()
+    }
+    
+    required init(json: JsonElement) {
+        fatalError()
     }
 }
 
@@ -34,6 +55,7 @@ final class JVChannelGeneralChange: JVDatabaseModelChange {
     public let siteURL: String
     public let guestsNumber: Int
     public let jointType: String?
+    public let jointURL: String?
     public let agentIDs: [Int]
     
     override var primaryValue: Int {
@@ -48,6 +70,7 @@ final class JVChannelGeneralChange: JVDatabaseModelChange {
         siteURL = info["site_url"].stringValue
         guestsNumber = info["visitors_insight"].intValue
         jointType = info["joint_type"].string
+        jointURL = info["prepared_joint_options"]["url"].stringValue
         agentIDs = json["agents"].intArray ?? []
         super.init(json: json)
     }

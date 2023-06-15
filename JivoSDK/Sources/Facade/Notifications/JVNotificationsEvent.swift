@@ -7,6 +7,9 @@
 
 import Foundation
 
+/**
+ Event category of notification
+ */
 @objc(JVNotificationsEvent)
 public enum JVNotificationsEvent: Int {
     /// Any event

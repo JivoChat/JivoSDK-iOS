@@ -1,13 +1,13 @@
 Pod::Spec.new do |root|
     root.name = 'JivoSDK'
-    root.version = '4.0.0-beta.17'
+    root.version = '4.0.0'
     root.homepage = 'https://github.com/JivoChat'
     root.authors = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
     root.summary = 'Jivo business chat Mobile SDK'
     root.license = 'Apache 2.0'
     root.source = { :git => 'https://github.com/JivoChat/JivoSDK-iOS.git', :tag => "v#{root.version}" }
     root.info_plist = {"CFBundleShortVersionString" => "#{root.version.version.partition('-').first}", "JVPackageVersion" => "#{root.version}"}
-    root.swift_versions = ['5.5', '5.6', '5.7', '5.8']
+    root.swift_versions = ['5.5', '5.6', '5.7', '5.8', '5.9']
     root.ios.deployment_target = '11.0'
     root.default_subspec = 'SDK'
 
@@ -59,8 +59,8 @@ Pod::Spec.new do |root|
         spec.dependency 'JFWebSocket', '2.9.4'
         spec.dependency 'JMCodingKit', '5.0.2'
         spec.dependency 'JMRepicKit', '1.0.5'
-        spec.dependency 'JMTimelineKit', '4.2.2'
-        spec.dependency 'JMMarkdownKit', '1.2.1'
+        spec.dependency 'JMTimelineKit', '4.2.4'
+        spec.dependency 'JMMarkdownKit', '1.2.2'
         spec.dependency 'JMDesignKit', '1.0.0'
         spec.dependency 'JMOnetimeCalculator', '1.0.0'
         spec.dependency 'JMScalableView', '1.0.0'

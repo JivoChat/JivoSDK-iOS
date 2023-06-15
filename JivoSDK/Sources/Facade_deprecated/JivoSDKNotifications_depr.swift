@@ -7,7 +7,9 @@
 
 import Foundation
 
-@objc public class JivoSDKNotifications: NSObject, JVNotificationsDelegate {
+@available(*, deprecated)
+@objc(JivoSDKNotifications)
+public class JivoSDKNotifications: NSObject, JVNotificationsDelegate {
     @objc(delegate)
     public var delegate: JivoSDKNotificationsDelegate? {
         didSet {
@@ -54,19 +56,25 @@ import Foundation
     }
 }
 
-@objc public enum JivoSDKNotificationsPermissionAskingMoment: Int {
+@available(*, deprecated)
+@objc(JivoSDKNotificationsPermissionAskingMoment)
+public enum JivoSDKNotificationsPermissionAskingMoment: Int {
     case never
     case onConnect
     case onAppear
     case onSend
 }
 
-@objc public enum JivoSDKNotificationsPermissionAskingHandler: Int {
+@available(*, deprecated)
+@objc(JivoSDKNotificationsPermissionAskingHandler)
+public enum JivoSDKNotificationsPermissionAskingHandler: Int {
     case sdk
     case current
 }
 
-@objc public protocol JivoSDKNotificationsDelegate {
+@available(*, deprecated)
+@objc(JivoSDKNotificationsDelegate)
+public protocol JivoSDKNotificationsDelegate {
     @objc(jivoNeedAccessToNotifications:proceedBlock:)
     optional func jivo(needAccessToNotifications sdk: JivoSDK, proceedBlock: @escaping () -> Void)
 }

@@ -7,7 +7,6 @@
 //
 
 import Foundation
-
 import AVFoundation
 
 final class DevicePlaybackAudioPlayer: AVAudioPlayer {

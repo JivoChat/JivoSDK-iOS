@@ -18,6 +18,7 @@ fileprivate var globalJournalRecentCall = UUID()
 fileprivate var globalJournalHistory = [UUID]()
 
 fileprivate let silentGenerator = JournalSilentGenerator()
+fileprivate let plainGenerator = JournalPlainGenerator()
 fileprivate let compactGenerator = JournalCompactGenerator()
 fileprivate let fullGenerator = JournalFullGenerator()
 
@@ -242,6 +243,21 @@ struct JournalChild {
             call: call
         )
     }
+    
+    @discardableResult
+    func nextLine(unimessage: @escaping () -> AnyHashable) -> Self {
+        globalJournalQueue.addOperation {
+            let message = plainGenerator.generateEntry(unimessage: unimessage)
+            
+            globalJournalQueue.addOperation {
+                JournalDriverLogger.logln(.debug, functionName: String()) {
+                    return message + "\n"
+                }
+            }
+        }
+        
+        return self
+    }
 }
 
 class JournalGenerator {
@@ -256,6 +272,10 @@ class JournalGenerator {
     }
     
     func generateEntry(meta: JournalMeta, recentCall: UUID, historyOfCalls: [UUID]) -> String {
+        return String()
+    }
+    
+    func generateEntry(unimessage: () -> AnyHashable) -> String {
         return String()
     }
     
@@ -348,6 +368,16 @@ class JournalCompactGenerator: JournalGenerator {
     
     private func generateBody(meta: JournalMeta) -> String {
         return formatMessage(value: meta.unimessage())
+    }
+}
+
+class JournalPlainGenerator: JournalGenerator {
+    override func generateEntry(meta: JournalMeta, recentCall: UUID, historyOfCalls: [UUID]) -> String {
+        return formatMessage(value: meta.unimessage())
+    }
+    
+    override func generateEntry(unimessage: () -> AnyHashable) -> String {
+        return formatMessage(value: unimessage())
     }
 }
 

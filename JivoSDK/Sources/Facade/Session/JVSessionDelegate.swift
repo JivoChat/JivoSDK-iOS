@@ -7,6 +7,9 @@
 
 import Foundation
 
+/**
+ Acts like feedback from ``Jivo.session`` namespace
+ */
 @objc(JVSessionDelegate)
 public protocol JVSessionDelegate {
     /**

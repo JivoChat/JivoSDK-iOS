@@ -37,7 +37,7 @@ final class ChatModulePresenter
     override func update(firstAppear: Bool) {
         if firstAppear {
             feedPrimaryLayout()
-            pipeline?.notify(update: .inputUpdate(.update(.initial)))
+            pipeline?.notify(update: .inputUpdate(.update(.initial(placeholder: state.uiConfig.inputPlaceholder))))
         }
     }
     
@@ -136,7 +136,7 @@ final class ChatModulePresenter
 //            update: .inputUpdate(.update(.init(
 //                input: (
 //                    state.shouldEnableInput
-//                    ? .enabled(placeholder: loc["input_message_placeholder"], text: state.inputText)
+//                    ? .enabled(placeholder: uiConfig.inputPlaceholder, text: state.inputText)
 //                    : .disabled(reason: state.placeholderForInput)
 //                ),
 //                submit: state.submitState,

@@ -58,9 +58,9 @@ protocol JVIDatabaseContext: AnyObject {
     func messageWithCallID(_ callID: String?) -> JVMessage?
 }
 
-public typealias JVDatabaseDriverSubscriberToken = UUID
+typealias JVDatabaseDriverSubscriberToken = UUID
 
-public struct JVDatabaseModelCustomId<VT: Hashable>: Hashable {
+struct JVDatabaseModelCustomId<VT: Hashable>: Hashable {
     let key: String
     let value: VT
 
@@ -70,10 +70,10 @@ public struct JVDatabaseModelCustomId<VT: Hashable>: Hashable {
     }
 }
 
-public struct JVDatabaseRequestOptions {
-    public let filter: NSPredicate?
-    public let sortBy: [JVDatabaseResponseSort]
-    public let notificationName: Notification.Name?
+struct JVDatabaseRequestOptions {
+    let filter: NSPredicate?
+    let sortBy: [JVDatabaseResponseSort]
+    let notificationName: Notification.Name?
     
     init(filter: NSPredicate? = nil, sortBy: [JVDatabaseResponseSort] = [], notificationName: Notification.Name? = nil) {
         self.filter = filter
@@ -82,12 +82,7 @@ public struct JVDatabaseRequestOptions {
     }
 }
 
-public struct JVDatabaseResponseSort {
-    public let keyPath: String
-    public let ascending: Bool
-    
-    init(keyPath: String, ascending: Bool) {
-        self.keyPath = keyPath
-        self.ascending = ascending
-    }
+struct JVDatabaseResponseSort {
+    let keyPath: String
+    let ascending: Bool
 }

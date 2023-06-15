@@ -7,6 +7,9 @@
 
 import Foundation
 
+/**
+ Listing UI elements available for customization
+ */
 @objc(JVDisplayElement)
 public enum JVDisplayElement: Int {
     /// Back button in Header Bar

@@ -148,6 +148,8 @@ extension JVAgent: JVDisplayable {
     
     func displayName(kind: JVDisplayNameKind) -> String {
         switch kind {
+        case .original where (-1...0).contains(m_id):
+            return .jv_empty
         case .original:
             return m_display_name.jv_orEmpty
         case .short:

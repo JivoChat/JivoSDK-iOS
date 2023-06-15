@@ -7,6 +7,9 @@
 
 import Foundation
 
+/**
+ Target of Push Notification
+ */
 @objc(JVNotificationsTarget)
 public enum JVNotificationsTarget: Int {
     /// Sent by Jivo and intended for JivoSDK

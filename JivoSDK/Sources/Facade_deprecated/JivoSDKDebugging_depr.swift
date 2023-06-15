@@ -7,7 +7,9 @@
 
 import Foundation
 
-@objc public class JivoSDKDebugging: NSObject {
+@available(*, deprecated)
+@objc(JivoSDKDebugging)
+public class JivoSDKDebugging: NSObject {
     @objc(level)
     public var level: JivoSDKDebuggingLevel = .silent {
         didSet {
@@ -23,12 +25,16 @@ import Foundation
     }
 }
 
-@objc public enum JivoSDKDebuggingLevel: Int {
+@available(*, deprecated)
+@objc(JivoSDKDebuggingLevel)
+public enum JivoSDKDebuggingLevel: Int {
     case silent
     case full
 }
 
-@objc public enum JivoSDKArchivingStatus: Int {
+@available(*, deprecated)
+@objc(JivoSDKArchivingStatus)
+public enum JivoSDKArchivingStatus: Int {
     case success
     case failedAccessing
     case failedPreparing

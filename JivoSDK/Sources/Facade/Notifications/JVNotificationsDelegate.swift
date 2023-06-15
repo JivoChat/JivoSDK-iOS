@@ -7,6 +7,9 @@
 
 import Foundation
 
+/**
+ Acts like feedback from ``Jivo.notifications`` namespace
+ */
 @objc(JVNotificationsDelegate)
 public protocol JVNotificationsDelegate {
     /**

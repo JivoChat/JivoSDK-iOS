@@ -124,6 +124,7 @@ extension JVMessage {
         
         if let c = change as? JVMessageGeneralChange {
             if m_id == 0 { m_id = c.ID.jv_toInt64 }
+            m_channel = c.widgetID.flatMap { context.upsert(of: JVChannel.self, with: JVChannelBlankChange(ID: $0)) }
             m_date = m_date_freezed ? m_date : Date(timeIntervalSince1970: TimeInterval(c.creationTS))
             m_client_id = c.clientID.jv_toInt64
             m_client = context.client(for: Int(m_client_id), needsDefault: false)
@@ -212,6 +213,7 @@ extension JVMessage {
         else if let c = change as? JVMessageFromClientChange {
             m_id = c.ID.jv_toInt64
             m_date = m_date_freezed ? m_date : Date()
+            m_channel = context.upsert(of: JVChannel.self, with: JVChannelBlankChange(ID: c.channelID))
             m_client_id = c.clientID.jv_toInt64
             m_client = context.client(for: Int(m_client_id), needsDefault: false)
             m_chat_id = c.chatID.jv_toInt64
@@ -276,13 +278,36 @@ extension JVMessage {
             m_client = context.client(for: Int(m_client_id), needsDefault: false)
             m_chat_id = c.chatID.jv_toInt64
             m_is_incoming = false
-            m_type = c.type
+            m_target = try? JSONEncoder().encode(c.target)
             m_is_markdown = false
             m_status = String()
             
+            switch c.target {
+            case .regular:
+                m_type = "message"
+            case .email:
+                m_type = "email"
+            case .sms:
+                m_type = "message"
+            case .whatsapp:
+                m_type = "message"
+            case .comment:
+                m_type = "comment"
+            }
+
             switch c.contents {
             case .text(let text):
                 m_text = text.jv_trimmed()
+                
+                switch c.target {
+                case .email(let fromEmail, let toEmail):
+                    m_body = context.insert(
+                        of: JVMessageBody.self,
+                        with: JVMessageBodyGeneralChange(json: ["from": fromEmail, "to": toEmail]),
+                        validOnly: true)
+                default:
+                    break
+                }
                 
             case .comment(let text):
                 m_text = text.jv_trimmed()
@@ -322,7 +347,7 @@ extension JVMessage {
                     )
                 )
                 
-            case .proactive, .offline, .transfer, .transferDepartment, .join, .left, .call, .line, .task, .bot, .order, .conference, .story:
+            case .proactive, .hello, .offline, .transfer, .transferDepartment, .join, .left, .call, .line, .task, .bot, .order, .conference, .story:
                 assertionFailure()
                 
             case .contactForm(let status):
@@ -556,6 +581,17 @@ extension JVMessage {
                 m_text = text
             }
         }
+        else if let c = change as? JVSDKMessageHelloChange {
+            m_chat_id = c.chatId.jv_toInt64
+            m_local_id = c.localId
+            m_date = c.date
+            m_type = c.type
+            m_sender_agent = context.agent(for: -1, provideDefault: true)
+
+            if case let .hello(text) = c.content {
+                m_text = text
+            }
+        }
     }
 }
 
@@ -633,6 +669,7 @@ class JVMessageExtendedGeneralChange: JVMessageBaseGeneralChange {
 final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
     public let clientID: Int
     public let chatID: Int
+    public let widgetID: Int?
     public let senderID: Int
     public let text: String
     public let status: String
@@ -649,6 +686,7 @@ final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
     init(ID: Int,
          clientID: Int,
          chatID: Int,
+         widgetID: Int?,
          type: String,
          isMarkdown: Bool,
          senderID: Int,
@@ -664,6 +702,7 @@ final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
          isDeleted: Bool) {
         self.clientID = clientID
         self.chatID = chatID
+        self.widgetID = widgetID
         self.senderID = senderID
         self.text = text
         self.status = status
@@ -684,6 +723,7 @@ final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
     }
     
     required init(json: JsonElement) {
+        widgetID = json["source"]["widget_id"].int ?? json["widget_id"].int
         clientID = json["client_id"].intValue
         chatID = json["chat_id"].intValue
         senderID = json["from_id"].intValue
@@ -714,6 +754,7 @@ final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
             ID: ID,
             clientID: clientID,
             chatID: chatID,
+            widgetID: widgetID,
             type: type,
             isMarkdown: isMarkdown,
             senderID: senderID,
@@ -734,6 +775,7 @@ final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
             ID: ID,
             clientID: clientID,
             chatID: chatID,
+            widgetID: widgetID,
             type: type,
             isMarkdown: isMarkdown,
             senderID: senderID,
@@ -1492,7 +1534,7 @@ final class JVMessageOutgoingChange: JVDatabaseModelChange {
     let date: Date
     let clientID: Int?
     let chatID: Int
-    let type: String
+    let target: JVMessageTarget
     let contents: JVMessageContent
     let senderType: String
     let senderID: Int
@@ -1501,7 +1543,7 @@ final class JVMessageOutgoingChange: JVDatabaseModelChange {
          date: Date,
          clientID: Int?,
          chatID: Int,
-         type: String,
+         target: JVMessageTarget,
          contents: JVMessageContent,
          senderType: String,
          senderID: Int) {
@@ -1509,7 +1551,7 @@ final class JVMessageOutgoingChange: JVDatabaseModelChange {
         self.date = date
         self.clientID = clientID
         self.chatID = chatID
-        self.type = type
+        self.target = target
         self.contents = contents
         self.senderType = senderType
         self.senderID = senderID
@@ -1572,3 +1614,58 @@ class JVMessageSdkAgentChange: JVMessageExtendedGeneralChange {
     }
 }
 
+class JVSDKMessageOfflineChange: JVDatabaseModelChange {
+    static let id = "OFFLINE_MESSAGE"
+    
+    let localId = JVSDKMessageOfflineChange.id
+    let date = Date()
+    let type = "offline"
+    let content: JVMessageContent
+    
+    override var primaryValue: Int {
+        abort()
+    }
+    
+    override var stringKey: JVDatabaseModelCustomId<String>? {
+        return JVDatabaseModelCustomId<String>(key: "m_local_id", value: localId)
+    }
+    
+    init(message: String) {
+        content = .offline(message: message)
+        
+        super.init()
+    }
+    
+    required init(json: JsonElement) {
+        fatalError("init(json:) has not been implemented")
+    }
+}
+
+class JVSDKMessageHelloChange: JVDatabaseModelChange {
+    static let id = "HELLO_MESSAGE"
+    
+    let chatId: Int
+    let localId = JVSDKMessageHelloChange.id
+    let date = Date()
+    let type = "hello"
+    let content: JVMessageContent
+    
+    override var primaryValue: Int {
+        abort()
+    }
+    
+    override var stringKey: JVDatabaseModelCustomId<String>? {
+        return JVDatabaseModelCustomId<String>(key: "m_local_id", value: localId)
+    }
+    
+    init(chatId: Int, message: String) {
+        self.chatId = chatId
+        content = .hello(message: message)
+        
+        super.init()
+    }
+    
+    required init(json: JsonElement) {
+        fatalError("init(json:) has not been implemented")
+    }
+}

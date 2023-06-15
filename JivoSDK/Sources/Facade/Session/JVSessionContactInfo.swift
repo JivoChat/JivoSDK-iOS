@@ -8,7 +8,7 @@
 import Foundation
 
 /**
- Holds the contact info of a client
+ You may want to assign contact info to user
  */
 @objc(JVSessionContactInfo)
 public class JVSessionContactInfo: NSObject {
@@ -25,10 +25,10 @@ public class JVSessionContactInfo: NSObject {
     let brief: String?
     
     @objc public init(name: String? = nil, email: String? = nil, phone: String? = nil, brief: String? = nil) {
-        self.name = name
-        self.email = email
-        self.phone = phone
-        self.brief = brief
+        self.name = name?.jv_valuable
+        self.email = email?.jv_valuable
+        self.phone = phone?.jv_valuable
+        self.brief = brief?.jv_valuable
         super.init()
     }
     
@@ -43,7 +43,9 @@ public class JVSessionContactInfo: NSObject {
 
 extension JVSessionContactInfo {
     var hasAnyField: Bool {
-        return jv_not(collectSignificantFields.joined().isEmpty)
+        if let _ = email?.jv_valuable { return true }
+        if let _ = phone?.jv_valuable { return true }
+        return false
     }
     
     var hasAllFields: Bool {

@@ -7,7 +7,6 @@
 //
 
 import Foundation
-
 import JMCodingKit
 import SwiftMime
 
@@ -61,6 +60,7 @@ struct SdkEngineServicesFactory {
     private func buildTypingCacheService() -> ITypingCacheService {
         return TypingCacheService(
             fileURL: drivers.cacheDriver.url(item: .typingCache) ?? URL(fileURLWithPath: "/tmp/typing_cache.plist"),
+            attachmentsNumberLimit: SdkConfig.attachmentsNumberLimit,
             databaseDriver: drivers.databaseDriver)
     }
     

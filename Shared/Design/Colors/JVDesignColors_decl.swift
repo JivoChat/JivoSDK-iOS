@@ -179,6 +179,7 @@ enum JVDesignColorUsage {
     case agentLinkForeground
     case agentIdentityForeground
     case agentTime
+    case commentInput
     case commentBackground
     case botButtonBackground
     case botButtonForeground

@@ -9,23 +9,26 @@
 import Foundation
 import JMRepicKit
 
-public struct JVClientProfile {
-    public let emailByClient: String?
-    public let emailByAgent: String?
-    public let phoneByClient: String?
-    public let phoneByAgent: String?
-    public let comment: String?
-    public let countryName: String?
-    public let cityName: String?
+struct JVClientProfile {
+    let emailByClient: String?
+    let emailByAgent: String?
+    let emailsExtra: [String]
+    let phoneByClient: String?
+    let phoneByAgent: String?
+    let phonesExtra: [String]
+    let comment: String?
+    let countryName: String?
+    let cityName: String?
     
     var hasEmail: Bool {
         if let _ = emailByClient { return true }
         if let _ = emailByAgent { return true }
+        if let _ = emailsExtra.first { return true }
         return false
     }
     
     var primaryPhone: String? {
-        return phoneByAgent ?? phoneByClient
+        return phoneByAgent ?? phoneByClient ?? phonesExtra.first
     }
 }
 
@@ -97,8 +100,10 @@ extension JVClient: JVDisplayable {
         return JVClientProfile(
             emailByClient: m_email_by_client,
             emailByAgent: m_email_by_agent,
+            emailsExtra: m_emails_extra?.jv_valuable?.components(separatedBy: ";") ?? .jv_empty,
             phoneByClient: m_phone_by_client,
             phoneByAgent: m_phone_by_agent,
+            phonesExtra: m_phones_extra?.jv_valuable?.components(separatedBy: ";") ?? .jv_empty,
             comment: m_comment,
             countryName: m_active_session?.geo?.country,
             cityName: m_active_session?.geo?.city

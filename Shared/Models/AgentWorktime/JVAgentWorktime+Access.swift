@@ -165,7 +165,7 @@ enum JVAgentWorktimeDay: String, CaseIterable {
     }
 }
 
-public struct JVAgentWorktimeDayConfig: Equatable {
+struct JVAgentWorktimeDayConfig: Equatable {
     var enabled: Bool
     var startHour: Int
     var startMinute: Int

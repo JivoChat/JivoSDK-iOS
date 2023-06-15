@@ -524,6 +524,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             return
         }
         
+        keychainDriver.retrieveAccessor(forToken: .endpoint).string = meta.body.chatserverHost
         keychainDriver.retrieveAccessor(forToken: .siteID).number = meta.body.siteId
         
         sessionContext.accountConfig = SdkClientAccountConfig(

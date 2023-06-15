@@ -12,7 +12,7 @@ import JMCodingKit
 /**
  A rule means doing some replaces based on provided condition
  */
-public struct JsonPrivacyRule {
+struct JsonPrivacyRule {
     /**
      Condition is used to detect whether logic should apply the masks;
      condition means some path equals to some value (e.g. path="method" value="chat_message")
@@ -31,24 +31,21 @@ public struct JsonPrivacyRule {
 }
 
 extension JsonPrivacyRule {
-    public struct Condition {
+    struct Condition {
         let path: String
         let value: AnyHashable
-        
-        init(path: String, value: AnyHashable) {
-            self.path = path
-            self.value = value
-        }
     }
     
-    public struct Mask {
-        enum Replacement { case stars, trimming, custom((JsonElement) -> JsonElement) }
+    struct Mask {
         let path: String
         let replacement: Replacement
-        
-        init(path: String, replacement: Replacement) {
-            self.path = path
-            self.replacement = replacement
-        }
+    }
+}
+
+extension JsonPrivacyRule.Mask {
+    enum Replacement {
+        case stars
+        case trimming
+        case custom((JsonElement) -> JsonElement)
     }
 }

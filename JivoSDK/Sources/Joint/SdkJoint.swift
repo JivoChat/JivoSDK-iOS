@@ -120,7 +120,7 @@ class SdkJoint: ISdkJoint {
             )
         }
         
-        let container = JVNavigationController(rootViewController: built.view)
+        let container = JVNavigationContainer(rootViewController: built.view)
         container.configureModality()
         displayDelegate.jv_customizeHeader(
             navigationBar: container.navigationBar,
@@ -141,6 +141,7 @@ class SdkJoint: ISdkJoint {
         engine.providers.localeProvider.activeLocale = config.locale ?? .autoupdatingCurrent
         uiConfig = buildChatModuleUIConfig(from: config, displayDelegate: displayDelegate)
         engine.managers.chatManager.subOffline.customText = uiConfig.offlineMessage.jv_valuable
+        engine.managers.chatManager.subHello.customText = uiConfig.helloMessage.jv_valuable
     }
     
     private func buildChatModuleUIConfig(from config: SdkInputConfig, displayDelegate: JVDisplayDelegate?) -> ChatModuleUIConfig {

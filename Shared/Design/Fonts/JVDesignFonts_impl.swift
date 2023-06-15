@@ -120,7 +120,7 @@ final class JVDesignFonts: JVDesignEnvironmental, JVIDesignFonts {
     }
 }
 
-public struct JVDesignFontMeta: Equatable {
+struct JVDesignFontMeta: Equatable {
     let weight: JVDesignFontWeight
     let compactSizing: JVDesignFontSizing
     let regularSizing: JVDesignFontSizing
@@ -137,7 +137,7 @@ public struct JVDesignFontMeta: Equatable {
         self.regularSizing = regular
     }
     
-    public static func == (lhs: Self, rhs: Self) -> Bool {
+    static func == (lhs: Self, rhs: Self) -> Bool {
         guard lhs.weight == rhs.weight else { return false }
         return true
     }

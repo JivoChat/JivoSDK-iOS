@@ -7,6 +7,9 @@
 
 import Foundation
 
+/**
+ Acts like feedback from ``Jivo.debugging`` namespace
+ */
 @objc(JVDebuggingDelegate)
 public protocol JVDebuggingDelegate {
     /**

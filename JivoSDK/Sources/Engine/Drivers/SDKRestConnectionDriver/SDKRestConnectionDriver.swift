@@ -116,11 +116,11 @@ class SDKRestConnectionDriver: IRestConnectionDriver {
                 self.activeRequests.removeValue(forKey: url)
                 self.activeMutex.unlock()
                 
-                guard
-                    let data = data,
-                    let httpResponse = response as? HTTPURLResponse,
-                    let url = httpResponse.url
+                guard let data = data,
+                      let httpResponse = response as? HTTPURLResponse,
+                      let url = httpResponse.url
                 else {
+                    journal {"Failed requesting url[\(String(describing: request.url))] with error[\(String(describing: error))]"}
                     return
                 }
                 

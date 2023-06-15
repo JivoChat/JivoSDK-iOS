@@ -7,7 +7,6 @@
 //
 
 import Foundation
-
 import UIKit
 import DTCollectionViewManager
 import JMTimelineKit
@@ -242,6 +241,9 @@ final class ChatTimelineFactory: JMTimelineFactory {
         }
         else if case .email = message.content {
             return generateEmailItem(for: message)
+        }
+        else if case .hello = message.content {
+            return generatePlainItem(for: message)
         }
         else if let agent = message.senderAgent, agent.ID < 0 {
             return generateBotItem(for: message, position: position)
@@ -2761,12 +2763,21 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 style: _obtainItemSender_style(contentKind: .client)
             )
         }
+        else if case .hello = message.content {
+            return JMTimelineItemSender(
+                ID: noneSenderUUID,
+                icon: nil,
+                name: nil,
+                mark: nil,
+                style: _obtainItemSender_style(contentKind: .agent)
+            )
+        }
         else if let bot = message.senderBot {
             return JMTimelineItemSender(
                 ID: bot.hashedID,
                 icon: bot.repicItem(transparent: false, scale: nil),
                 name: bot.displayName(kind: displayNameKind),
-                mark: loc["messages.label.bot"],
+                mark: loc["messages.label.bot", "Message.Sender.Bot"],
                 style: _obtainItemSender_style(contentKind: .bot)
             )
         }
@@ -2796,8 +2807,8 @@ final class ChatTimelineFactory: JMTimelineFactory {
                         scale: 1.0,
                         clipping: .dual
                     ),
-                    name: agent.displayName(kind: displayNameKind).jv_valuable ?? loc["messages.label.bot"],
-                    mark: loc["messages.label.bot"],
+                    name: agent.displayName(kind: displayNameKind).jv_valuable ?? String(" "),
+                    mark: loc["messages.label.bot", "Message.Sender.Bot"],
                     style: _obtainItemSender_style(contentKind: .bot)
                 )
             }
@@ -2919,26 +2930,31 @@ final class ChatTimelineFactory: JMTimelineFactory {
     }
     
     private func detectSenderType(for message: JVMessage) -> ChatTimelineSenderType {
+        let content = message.content
+        
         if let _ = message.call {
             return .call
         }
         else if let _ = message.order {
             return .info
         }
-        else if case .order = message.content {
+        else if case .order = content {
             return .agent
         }
-        else if case .proactive = message.content {
+        else if case .proactive = content {
             return .agent
         }
-        else if case .offline = message.content {
+        else if case .hello = content {
             return .agent
         }
-        else if case .conference = message.content {
+        else if case .offline = content {
+            return .agent
+        }
+        else if case .conference = content {
             return .call
         }
         else if let _ = message.senderAgent {
-            if case .photo = message.content {
+            if case .photo = content {
                 return .neutral
             }
             else {
@@ -2949,7 +2965,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
             return .bot
         }
         else {
-            if case .photo = message.content {
+            if case .photo = content {
                 return .neutral
             }
             else {

@@ -10,7 +10,7 @@ import Foundation
 import UserNotifications
 
 /**
- Contains methods responsible for setting up and processing PUSH notifications
+ ``Jivo.notifications`` namespace for Push Notifications
  */
 @objc(JVNotificationsController)
 public final class JVNotificationsController: NSObject {

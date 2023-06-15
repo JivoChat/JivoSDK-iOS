@@ -7,7 +7,6 @@
 //
 
 import Foundation
-
 import UIKit
 import JMImageLoader
 import JMTimelineKit
@@ -43,7 +42,9 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
         
         super.init()
         
-        clipsToBounds = true
+        layer.borderWidth = 1
+        layer.borderColor = JVDesign.colors.resolve(usage: .secondarySeparator).cgColor
+        layer.cornerRadius = JVDesign.layout.timelineMessageRadius
         
         waitingIndicator.hidesWhenStopped = true
         addSubview(waitingIndicator)
@@ -130,7 +131,6 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
         waitingIndicator.stopAnimating()
     }
     
-    
     override func updateDesign() {
     }
     
@@ -170,6 +170,11 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
     override func layoutSubviews() {
         super.layoutSubviews()
         waitingIndicator.frame = bounds
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        layer.borderColor = JVDesign.colors.resolve(usage: .secondarySeparator).cgColor
     }
     
     override func willMove(toWindow newWindow: UIWindow?) {

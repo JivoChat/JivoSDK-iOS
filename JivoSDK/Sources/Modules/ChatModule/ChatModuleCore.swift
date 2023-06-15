@@ -218,13 +218,35 @@ final class ChatModuleCore
         contactInfoStatusObserver = chatManager.contactInfoStatusObservable.addObserver { [weak self] status in
             switch status {
             case .omit:
-                self?.pipeline?.notify(event: .inputUpdate(.update(.init(input: .active(placeholder: loc["input_message_placeholder"], text: nil, menu: nil), submit: nil))))
+                self?.pipeline?.notify(event: .inputUpdate(.update(.init(
+                    input: .active(
+                        placeholder: uiConfig.inputPlaceholder,
+                        text: nil,
+                        menu: nil
+                    ),
+                    submit: nil))))
             case .askDesired:
-                self?.pipeline?.notify(event: .inputUpdate(.update(.init(input: .active(placeholder: loc["input_message_placeholder"], text: nil, menu: nil), submit: nil))))
+                self?.pipeline?.notify(event: .inputUpdate(.update(.init(
+                    input: .active(
+                        placeholder: uiConfig.inputPlaceholder,
+                        text: nil,
+                        menu: nil
+                    ),
+                    submit: nil))))
             case .askRequired:
-                self?.pipeline?.notify(event: .inputUpdate(.update(.init(input: .inactive(reason: loc["chat_input.status.contact_info"]), submit: nil))))
+                self?.pipeline?.notify(event: .inputUpdate(.update(.init(
+                    input: .inactive(
+                        reason: loc["chat_input.status.contact_info"]
+                    ),
+                    submit: nil))))
             case .sent:
-                self?.pipeline?.notify(event: .inputUpdate(.update(.init(input: .active(placeholder: loc["input_message_placeholder"], text: nil, menu: nil), submit: nil))))
+                self?.pipeline?.notify(event: .inputUpdate(.update(.init(
+                    input: .active(
+                        placeholder: uiConfig.inputPlaceholder,
+                        text: nil,
+                        menu: nil
+                    ),
+                    submit: nil))))
             }
             
             self?.pipeline?.notify(event: .hasInputUpdates)
@@ -324,10 +346,9 @@ final class ChatModuleCore
     }
     
     private func handleWillAppear() {
-        if let input = typingCacheService.currentInput {
-            let text = input.text ?? String()
-            pipeline?.notify(event: .inputUpdate(.fill(text: text, attachments: input.attachments)))
-        }
+        let input = typingCacheService.currentInput
+        let text = input.text.jv_orEmpty
+        pipeline?.notify(event: .inputUpdate(.fill(text: text, attachments: input.attachments)))
         
 //        if let placeholder = chatManager.inactivityPlaceholder {
 //            pipeline?.notify(event: .inputUpdate(.disable(placeholder: placeholder)))
@@ -439,8 +460,8 @@ final class ChatModuleCore
         switch event {
         case .chatObtained(let chat):
             handleChatObtainedEvent(chat: chat)
-        case let .sessionInitialized(isFirstSessionInitialization):
-            handleSessionInitializedEvent(isFirst: isFirstSessionInitialization)
+//        case let .sessionInitialized(isFirstSessionInitialization):
+//            handleSessionInitializedEvent(isFirst: isFirstSessionInitialization)
         case .channelAgentsUpdated(let agents):
             handleChannelAgentsUpdated(agents: agents.compactMap(\.resolved))
         case .chatAgentsUpdated(let agents):
@@ -454,9 +475,11 @@ final class ChatModuleCore
         case .exception(let payload):
             handleExceptionEvent(payload)
         case .enableReplying:
-            pipeline?.notify(event: .inputUpdate(.update(.init(input: .active(placeholder: loc["input_message_placeholder"], text: nil, menu: nil), submit: nil))))
+            pipeline?.notify(event: .inputUpdate(.update(.init(input: .active(placeholder: uiConfig.inputPlaceholder, text: nil, menu: nil), submit: nil))))
         case .disableReplying(let reason):
             pipeline?.notify(event: .inputUpdate(.update(.init(input: .inactive(reason: reason), submit: nil))))
+        default:
+            break
         }
     }
     
@@ -506,18 +529,18 @@ final class ChatModuleCore
         }
     }
 
-    private func appendActiveMessage(isFirstSessionInitialization: Bool) {
-        if let activeMessage = self.uiConfig.helloMessage.jv_valuable {
-            DispatchQueue.main.asyncAfter(deadline: .now() + (isFirstSessionInitialization ? 0.5 : 0)) { [weak self] in
-                guard let `self` = self else { return }
-                
-                if self.chatHistory.messages.isEmpty {
-                    let activeMessage = self.buildActiveMessage(withText: activeMessage)
-                    self.chatHistory.populate(withMessages: [activeMessage])
-                }
-            }
-        }
-    }
+//    private func appendActiveMessage(isFirstSessionInitialization: Bool) {
+//        if let activeMessage = self.uiConfig.helloMessage.jv_valuable {
+//            DispatchQueue.main.asyncAfter(deadline: .now() + (isFirstSessionInitialization ? 0.5 : 0)) { [weak self] in
+//                guard let `self` = self else { return }
+//
+//                if self.chatHistory.messages.isEmpty {
+//                    let activeMessage = self.buildActiveMessage(withText: activeMessage)
+//                    self.chatHistory.populate(withMessages: [activeMessage])
+//                }
+//            }
+//        }
+//    }
     
     private func removeActiveMessage() {
         if let activeMessage = chatHistory.messages.first(where: { $0.UUID == "activeMessage" }) {
@@ -540,9 +563,9 @@ final class ChatModuleCore
         }
     }
     
-    private func handleSessionInitializedEvent(isFirst isFirstSessionInitialization: Bool) {
-        appendActiveMessage(isFirstSessionInitialization: isFirstSessionInitialization)
-    }
+//    private func handleSessionInitializedEvent(isFirst isFirstSessionInitialization: Bool) {
+//        appendActiveMessage(isFirstSessionInitialization: isFirstSessionInitialization)
+//    }
     
     private func handleHistoryErasedEvent() {
         chat = nil
@@ -677,7 +700,7 @@ final class ChatModuleCore
             return
         }
         
-        let attachments = typingCacheService.currentInput?.attachments ?? Array()
+        let attachments = typingCacheService.currentInput.attachments
         guard validateSendingMessageContent(text: message, attachments: attachments) else {
             journal {"Failed validating the message content"}
             return
@@ -694,7 +717,7 @@ final class ChatModuleCore
         }
         
         pipeline?.notify(event: .messageSent)
-        pipeline?.notify(event: .inputUpdate(.update(.init(input: .active(placeholder: loc["input_message_placeholder"], text: .jv_empty, menu: nil), submit: .send))))
+        pipeline?.notify(event: .inputUpdate(.update(.init(input: .active(placeholder: uiConfig.inputPlaceholder, text: .jv_empty, menu: nil), submit: .send))))
     }
     
     private func validateSendingMessageContent(text: String?, attachments: [ChatPhotoPickerObject]) -> Bool {
@@ -782,11 +805,17 @@ final class ChatModuleCore
     }
     
     private func notifyReplyingState() {
-        if let input = typingCacheService.currentInput {
-            state.inputText = input.text.jv_orEmpty
-        }
+        let input = typingCacheService.currentInput
+        state.inputText = input.text.jv_orEmpty
         
-        pipeline?.notify(event: .inputUpdate(.update(.init(input: .active(placeholder: loc["input_message_placeholder"], text: state.inputText, menu: nil), submit: nil))))
+        pipeline?.notify(event: .inputUpdate(.update(.init(
+            input: .active(
+                placeholder: uiConfig.inputPlaceholder,
+                text: state.inputText,
+                menu: nil
+            ),
+            submit: nil
+        ))))
     }
     
     private func handleMeta(_ meta: ChatPickedMeta?, callback: @escaping (ChatPhotoPickerObject) -> Void) {
@@ -908,18 +937,18 @@ final class ChatModuleCore
 //        }
     }
     
-    private func buildActiveMessage(withText text: String) -> JVMessage {
-        var message: JVMessage!
-        
-        databaseDriver.readwrite { context in
-            let entityName = String(describing: JVMessage.self)
-            message = NSEntityDescription.insertNewObject(forEntityName: entityName, into: context.context) as? JVMessage
-            message.m_uid = "activeMessage"
-            message.m_text = text
-            message.m_date = Date()
-            message.m_sender_agent = context.agent(for: -1, provideDefault: true)
-        }
-        
-        return message
-    }
+//    private func buildActiveMessage(withText text: String) -> JVMessage {
+//        var message: JVMessage!
+//
+//        databaseDriver.readwrite { context in
+//            let entityName = String(describing: JVMessage.self)
+//            message = NSEntityDescription.insertNewObject(forEntityName: entityName, into: context.context) as? JVMessage
+//            message.m_uid = "activeMessage"
+//            message.m_text = text
+//            message.m_date = Date()
+//            message.m_sender_agent = context.agent(for: -1, provideDefault: true)
+//        }
+//
+//        return message
+//    }
 }

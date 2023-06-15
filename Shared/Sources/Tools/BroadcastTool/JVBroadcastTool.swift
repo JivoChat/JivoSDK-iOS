@@ -12,9 +12,9 @@ struct JVBroadcastToolTag: OptionSet {
     let rawValue: Int
 }
 
-public struct JVBroadcastMeta<Value> {
-    public let previous: Value?
-    public let actual: Value
+struct JVBroadcastMeta<Value> {
+    let previous: Value?
+    let actual: Value
 }
 
 class JVBroadcastTool<Value> {

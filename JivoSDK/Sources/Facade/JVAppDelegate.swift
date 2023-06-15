@@ -9,6 +9,9 @@ import Foundation
 import UIKit
 import UserNotifications
 
+/**
+ You may use this class as parent for your own App delegate, for easier SDK integration
+ */
 @objc(JVAppDelegate)
 open class JVAppDelegate: UIResponder
 , UIApplicationDelegate
@@ -64,6 +67,9 @@ open class JVAppDelegate: UIResponder
     }
 }
 
+/**
+ Determines how to display incoming notifications
+ */
 @objc(JVAppBannerPresentingDelegate)
 public protocol JVAppBannerPresentingDelegate: AnyObject {
     /**

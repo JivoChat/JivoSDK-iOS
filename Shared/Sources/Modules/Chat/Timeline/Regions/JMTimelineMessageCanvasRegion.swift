@@ -334,7 +334,7 @@ fileprivate struct Layout {
     }
     
     var backgroundViewCornerRadius: CGFloat {
-        return 8
+        return JVDesign.layout.timelineMessageRadius
     }
     
     private var quoteControlSpace: CGFloat {

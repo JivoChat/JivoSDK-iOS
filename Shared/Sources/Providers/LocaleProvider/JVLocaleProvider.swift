@@ -32,9 +32,9 @@ protocol JVILocaleProvider: AnyObject {
     func obtainCountries() -> [JVSignupCountry]
 }
 
-public struct JVSignupCountry {
-    public let code: String
-    public let title: String
+struct JVSignupCountry {
+    let code: String
+    let title: String
 }
 
 final class JVLocaleProvider: JVILocaleProvider {

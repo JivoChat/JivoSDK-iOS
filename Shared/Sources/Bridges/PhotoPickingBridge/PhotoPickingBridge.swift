@@ -30,6 +30,7 @@ protocol IPhotoPickingBridge: AnyObject {
 }
 
 final class PhotoPickingBridge: NSObject, IPhotoPickingBridge, PHPickerViewControllerDelegate, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
+    private let attachmentsNumberLimit: Int
     private let popupPresenterBridge: IPopupPresenterBridge
     private let photoLibraryDriver: IPhotoLibraryDriver
     private let cameraDriver: ICameraDriver
@@ -38,7 +39,8 @@ final class PhotoPickingBridge: NSObject, IPhotoPickingBridge, PHPickerViewContr
     private lazy var loadingSemaphore = DispatchSemaphore(value: 1)
     private var completion: PhotoPickingCompletion?
 
-    init(namespace: String, popupPresenterBridge: IPopupPresenterBridge, photoLibraryDriver: IPhotoLibraryDriver, cameraDriver: ICameraDriver) {
+    init(namespace: String, attachmentsNumberLimit: Int, popupPresenterBridge: IPopupPresenterBridge, photoLibraryDriver: IPhotoLibraryDriver, cameraDriver: ICameraDriver) {
+        self.attachmentsNumberLimit = attachmentsNumberLimit
         self.popupPresenterBridge = popupPresenterBridge
         self.photoLibraryDriver = photoLibraryDriver
         self.cameraDriver = cameraDriver
@@ -67,7 +69,7 @@ final class PhotoPickingBridge: NSObject, IPhotoPickingBridge, PHPickerViewContr
                     var config = PHPickerConfiguration(photoLibrary: .shared())
                     config.filter = .images
                     config.preferredAssetRepresentationMode = .current
-                    config.selectionLimit = 4
+                    config.selectionLimit = attachmentsNumberLimit
                     
                     let picker = PHPickerViewController(configuration: config)
                     picker.delegate = self

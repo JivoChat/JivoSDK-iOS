@@ -7,7 +7,6 @@
 //
 
 import Foundation
-
 import JMTimelineKit
 import JMCodingKit
 import Gzip

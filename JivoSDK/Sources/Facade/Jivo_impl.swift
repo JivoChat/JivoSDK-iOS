@@ -7,6 +7,12 @@
 
 import Foundation
 
+/**
+ Entry Point to communicate with SDK
+
+ > Tip: You can find the full documentation here:
+ > https://github.com/JivoChat/JivoSDK-iOS
+ */
 @objc(Jivo)
 public final class Jivo: NSObject {
     static let shared = Jivo()

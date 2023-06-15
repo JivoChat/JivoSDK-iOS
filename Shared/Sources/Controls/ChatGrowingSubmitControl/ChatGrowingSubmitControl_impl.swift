@@ -13,10 +13,12 @@ class ChatGrowingSubmitControl<T>: UIView {
     
     let attachmentBar = ChatReplyAttachmentBar()
     let inputAreaContainer = UIView()
-    let inputArea = ExtendedTextView()
+    let inputArea: ExtendedTextView
     let submitButton = UIButton()
 
-    init() {
+    init(linesLimit: Int) {
+        inputArea = ExtendedTextView(linesLimit: linesLimit)
+        
         super.init(frame: .zero)
         
         addSubview(attachmentBar)
@@ -69,7 +71,7 @@ class ChatGrowingSubmitControl<T>: UIView {
     
     func removeAttachment(at index: Int) {
         attachmentBar.remove(at: index)
-        attachmentBar.isHidden = attachmentBar.hasAttachments
+        attachmentBar.isHidden = !attachmentBar.hasAttachments
         
         actualizeSubmitControls()
         notifyAboutActualHeight()
@@ -101,7 +103,9 @@ class ChatGrowingSubmitControl<T>: UIView {
     }
     
     func shouldAllowSubmitting() -> Bool {
-        return inputArea.hasText
+        if inputArea.hasText { return true }
+        if attachmentBar.hasAttachments { return true }
+        return false
     }
     
     func handleInputChange(text: String) {

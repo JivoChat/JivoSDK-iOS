@@ -48,7 +48,7 @@ final class JVAgentStatusGeneralChange: JVDatabaseModelChange, Codable {
     }
 }
 
-public struct JVAgentTechConfig: Codable {
+struct JVAgentTechConfig: Codable {
     var priceListId: Int? = nil
     var guestInsightEnabled: Bool = true
     var fileSizeLimit: Int = 10

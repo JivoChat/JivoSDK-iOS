@@ -189,7 +189,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
         stateID = 0
         status = nil
         avatarLink = String()
-        displayName = "(\(loc["Agent.DisplayName.Deleted"]))"
+        displayName = (placeholderID > 0 ? "(\(loc["Agent.DisplayName.Deleted"]))" : .jv_empty)
         title = ""
         callingDestination = -1
         callingOptions = 0

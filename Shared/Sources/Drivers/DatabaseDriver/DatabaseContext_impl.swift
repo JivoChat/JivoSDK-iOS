@@ -217,7 +217,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
             }
             catch let exc {
                 exceptionHandler(exc)
-                fatalError(exc.localizedDescription)
+                assertionFailure(exc.localizedDescription)
             }
 
             return value

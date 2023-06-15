@@ -7,7 +7,8 @@
 
 import Foundation
 
-@objc
+@available(*, deprecated)
+@objc(JivoSDKSession)
 public final class JivoSDKSession: NSObject, JVSessionDelegate {
     @objc(delegate)
     public var delegate: JivoSDKSessionDelegate? {
@@ -51,10 +52,14 @@ public final class JivoSDKSession: NSObject, JVSessionDelegate {
     }
 }
 
-@objc public protocol JivoSDKSessionDelegate {
+@available(*, deprecated)
+@objc(JivoSDKSessionDelegate)
+public protocol JivoSDKSessionDelegate {
 }
 
-@objc public enum JivoSDKSessionServer: Int {
+@available(*, deprecated)
+@objc(JivoSDKSessionServer)
+public enum JivoSDKSessionServer: Int {
     case auto
     case europe
     case russia
@@ -69,15 +74,17 @@ public class JivoSDKSessionCustomData: NSObject {
     let brief: String?
     
     @objc public init(name: String? = nil, email: String? = nil, phone: String? = nil, brief: String? = nil) {
-        self.name = name
-        self.email = email
-        self.phone = phone
-        self.brief = brief
+        self.name = name?.jv_valuable
+        self.email = email?.jv_valuable
+        self.phone = phone?.jv_valuable
+        self.brief = brief?.jv_valuable
         
         super.init()
     }
 }
 
+@available(*, deprecated)
+@objc(JivoSDKSessionClientInfo)
 public class JivoSDKSessionClientInfo: NSObject {
     let name: String?
     let email: String?
@@ -85,10 +92,10 @@ public class JivoSDKSessionClientInfo: NSObject {
     let brief: String?
     
     @objc public init(name: String? = nil, email: String? = nil, phone: String? = nil, brief: String? = nil) {
-        self.name = name
-        self.email = email
-        self.phone = phone
-        self.brief = brief
+        self.name = name?.jv_valuable
+        self.email = email?.jv_valuable
+        self.phone = phone?.jv_valuable
+        self.brief = brief?.jv_valuable
         
         super.init()
     }
@@ -123,6 +130,8 @@ public class JivoSDKSessionClientInfo: NSObject {
     }
 }
 
+@available(*, deprecated)
+@objc(JivoSDKSessionCustomDataField)
 public class JivoSDKSessionCustomDataField: NSObject {
     let title: String?
     let key: String?

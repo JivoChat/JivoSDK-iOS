@@ -7,7 +7,6 @@
 //
 
 import Foundation
-
 import UIKit
 
 final class StackViewChildIcon: UIView {

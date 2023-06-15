@@ -201,6 +201,9 @@ class SdkChatSubUploader: ISdkChatSubUploader {
                     let errorDescription = "Error \(statusCode.flatMap { " \($0.jv_toString())" } ?? ""): \(error?.localizedDescription ?? "")"
                     completion(.failure(.uploadDeniedByAServer(errorDescription: errorDescription)))
                     #else
+                    journal {"Failed uploading"}
+                        .nextLine {"Failed to upload the file"}
+                    
                     completion(.failure(.uploadDeniedByAServer(errorDescription: loc["media_uploading_common_error"])))
                     #endif
                     
@@ -208,6 +211,9 @@ class SdkChatSubUploader: ISdkChatSubUploader {
                     #if DEBUG
                     completion(.failure(.uploadDeniedByAServer(errorDescription: "Error: \(error)")))
                     #else
+                    journal {"Failed uploading"}
+                        .nextLine {"Failed to upload the file"}
+                    
                     completion(.failure(.uploadDeniedByAServer(errorDescription: loc["media_uploading_common_error"])))
                     #endif
                 }

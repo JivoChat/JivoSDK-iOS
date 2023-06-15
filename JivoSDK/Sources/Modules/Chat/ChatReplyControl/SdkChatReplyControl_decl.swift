@@ -35,11 +35,14 @@ extension SdkChatReplyControl.Update {
         case connecting
     }
     
-    static let initial = Self.init(
-        input: .active(
-            placeholder: loc["input_message_placeholder"],
-            text: nil,
-            menu: nil
-        ),
-        submit: .send)
+    static func initial(placeholder: String) -> Self {
+        return .init(
+            input: .active(
+                placeholder: placeholder,
+                text: nil,
+                menu: nil
+            ),
+            submit: .send
+        )
+    }
 }

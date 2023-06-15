@@ -146,6 +146,10 @@ extension JVChannel {
         return m_joint_type.flatMap(JVChannelJoint.init)
     }
     
+    var jointURL: String {
+        return m_joint_url ?? String()
+    }
+    
     var isTestable: Bool {
         switch jointType {
         case nil:

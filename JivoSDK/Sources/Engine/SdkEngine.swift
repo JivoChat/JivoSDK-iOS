@@ -10,6 +10,7 @@ import JMCodingKit
 
 struct SdkConfig {
     static let replyLengthLimit = 1000
+    static let attachmentsNumberLimit = 2
     
     struct uploadingLimit {
         static let megabytes = 10
@@ -187,7 +188,7 @@ final class SdkEngine: ISdkEngine {
             preferencesDriver: drivers.preferencesDriver,
             keychainDriver: drivers.keychainDriver,
             jsonPrivacyTool: jsonPrivacyTool,
-            hostProvider: { _, scope in
+            hostProvider: { baseURL, scope in
                 guard let config = sessionContext.endpointConfig
                 else {
                     return nil
@@ -196,11 +197,26 @@ final class SdkEngine: ISdkEngine {
                 switch scope {
                 case RestConnectionTargetBuildScope.api.value:
                     return URL(string: config.apiHost)
-                case RestConnectionTargetBuildScope.chatServer.value:
-                    let port = config.chatserverPort.flatMap { ":\($0)" } ?? .jv_empty
-                    return URL(string: "\(config.chatserverHost)\(port)")
                 default:
-                    return nil
+                    guard var baseComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false),
+                          let baseHost = baseComponents.host
+                    else {
+                        return nil
+                    }
+
+                    var hostParts = baseHost.split(separator: ".")
+                    guard hostParts.first == "api"
+                    else {
+                        return nil
+                    }
+
+                    if let subdomain = scope.split(separator: ".").first {
+                        hostParts[0] = subdomain
+                    }
+
+                    baseComponents.host = hostParts.joined(separator: ".")
+                    baseComponents.port = config.chatserverPort
+                    return baseComponents.url
                 }
             }
         )

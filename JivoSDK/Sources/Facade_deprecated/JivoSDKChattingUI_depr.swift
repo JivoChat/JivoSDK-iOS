@@ -8,7 +8,9 @@
 import Foundation
 import UIKit
 
-@objc public class JivoSDKChattingUI: NSObject, JVDisplayDelegate {
+@available(*, deprecated)
+@objc(JivoSDKChattingUI)
+public class JivoSDKChattingUI: NSObject, JVDisplayDelegate {
     private var config = JivoSDKChattingConfig() {
         didSet {
             Jivo.display.setLocale(config.locale)
@@ -134,7 +136,9 @@ import UIKit
     }
 }
 
-@objc public protocol JivoSDKChattingUIDelegate {
+@available(*, deprecated)
+@objc(JivoSDKChattingUIDelegate)
+public protocol JivoSDKChattingUIDelegate {
     @objc(jivoDidRequestShowing:)
     optional func jivo(didRequestShowing sdk: JivoSDK)
     
@@ -145,26 +149,33 @@ import UIKit
     optional func jivo(didDisappear sdk: JivoSDK)
 }
 
-@objc public enum JivoSDKChattingCloseButton: Int {
+@available(*, deprecated)
+@objc(JivoSDKChattingCloseButton)
+public enum JivoSDKChattingCloseButton: Int {
     case omit
     case back
     case dismiss
 }
 
+@available(*, deprecated)
 public enum JivoSDKTitleBarIconStyle {
     case `default`
     case hidden
     case custom(UIImage)
 }
 
-@objc public enum JivoSDKChattingPaletteAlias: Int {
+@available(*, deprecated)
+@objc(JivoSDKChattingPaletteAlias)
+public enum JivoSDKChattingPaletteAlias: Int {
     public static let standard = JivoSDKChattingPaletteAlias.green
     case green
     case blue
     case graphite
 }
 
-@objc public class JivoSDKChattingConfig: NSObject {
+@available(*, deprecated)
+@objc(JivoSDKChattingConfig)
+public class JivoSDKChattingConfig: NSObject {
     let locale: Locale?
     let icon: JivoSDKTitleBarIconStyle?
     let titleColor: UIColor?

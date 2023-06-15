@@ -41,6 +41,12 @@ extension JVClient {
                 m_phone_by_agent = c.phoneByAgent.map(simplifyPhoneNumber)
             }
             
+            m_phones_extra = c.phonesExtra.map(simplifyPhoneNumber).filter { phone in
+                if phone == m_phone_by_client { return false }
+                if phone == m_phone_by_agent { return false }
+                return true
+            }.joined(separator: ";").jv_valuable
+            
             if c.emailByAgent == c.emailByClient {
                 m_email_by_client = nil
                 m_email_by_agent = c.emailByAgent
@@ -49,6 +55,12 @@ extension JVClient {
                 m_email_by_client = c.emailByClient
                 m_email_by_agent = c.emailByAgent
             }
+            
+            m_emails_extra = c.emailsExtra.filter { email in
+                if email == m_email_by_client { return false }
+                if email == m_email_by_agent { return false }
+                return true
+            }.joined(separator: ";").jv_valuable
             
             switch c.assignedAgentID {
             case .none:
@@ -83,7 +95,8 @@ extension JVClient {
             m_guest_id = c.guestID
             m_display_name = c.displayName ?? String()
             m_avatar_link = c.avatarURL ?? m_avatar_link
-            
+            m_emails_extra = [c.email].jv_flatten().joined(separator: ";").jv_valuable
+
             if let channelID = c.channelID {
                 m_channel_id = Int64(channelID)
                 m_channel = context.object(JVChannel.self, primaryId: channelID)
@@ -154,8 +167,10 @@ final class JVClientGeneralChange: JVDatabaseModelChange {
     public let avatarURL: String?
     public let emailByClient: String?
     public let emailByAgent: String?
+    public let emailsExtra: [String]
     public let phoneByClient: String?
     public let phoneByAgent: String?
+    public let phonesExtra: [String]
     public let comment: String?
     public let visitsNumber: Int?
     public let navigatesNumber: Int?
@@ -188,8 +203,10 @@ final class JVClientGeneralChange: JVDatabaseModelChange {
         avatarURL = nil
         emailByClient = nil
         emailByAgent = nil
+        emailsExtra = .jv_empty
         phoneByClient = nil
         phoneByAgent = nil
+        phonesExtra = .jv_empty
         comment = nil
         visitsNumber = nil
         assignedAgentID = nil
@@ -236,8 +253,10 @@ final class JVClientGeneralChange: JVDatabaseModelChange {
             avatarURL = ci["avatar_url"].valuable
             emailByClient = ci["email"].valuable
             emailByAgent = ci["agent_client_email"].valuable
+            emailsExtra = ci["contacts"].arrayValue.filter({ $0["contact_type"].string == "email" }).compactMap({ $0["contact"].string })
             phoneByClient = ci["phone"].valuable
             phoneByAgent = ci["agent_client_phone"].valuable
+            phonesExtra = ci["contacts"].arrayValue.filter({ $0["contact_type"].string == "phone" }).compactMap({ $0["contact"].string })
             comment = ci["description"].valuable
             visitsNumber = json["visits_count"].int
             assignedAgentID = ci["assigned_agent_id"].int
@@ -254,8 +273,10 @@ final class JVClientGeneralChange: JVDatabaseModelChange {
             avatarURL = json["avatar_url"].valuable
             emailByClient = json["email"].valuable
             emailByAgent = json["agent_client_email"].valuable
+            emailsExtra = json["contacts"].arrayValue.filter({ $0["contact_type"].string == "email" }).compactMap({ $0["contact"].string })
             phoneByClient = json["phone"].valuable
             phoneByAgent = json["agent_client_phone"].valuable
+            phonesExtra = json["contacts"].arrayValue.filter({ $0["contact_type"].string == "phone" }).compactMap({ $0["contact"].string })
             comment = json["description"].valuable
             visitsNumber = json["visits_count"].int
             assignedAgentID = json["assigned_agent_id"].int
@@ -364,6 +385,7 @@ final class JVClientShortChange: JVDatabaseModelChange, NSCoding {
     public let channelID: Int?
     public let displayName: String?
     public let avatarURL: String?
+    public let email: String?
     public let task: JVTaskGeneralChange?
     public let assignedAgentID: Int?
 
@@ -372,6 +394,7 @@ final class JVClientShortChange: JVDatabaseModelChange, NSCoding {
     private let codableChannelKey = "channel"
     private let codableNameKey = "name"
     private let codableAvatarKey = "avatar"
+    private let codableEmailKey = "name"
     private let codableTaskKey = "reminder"
     private let codableAssignedAgentKey = "assigned_agent"
 
@@ -389,6 +412,7 @@ final class JVClientShortChange: JVDatabaseModelChange, NSCoding {
         channelID = json["widget_id"].int
         displayName = json["agent_client_name"].valuable ?? json["client_name"].valuable ?? json["display_name"].valuable
         avatarURL = json["avatar_url"].valuable
+        email = json["email"].string
         task = json["reminder"].parse()
         assignedAgentID = json["assigned_agent_id"].int
         super.init(json: json)
@@ -400,6 +424,7 @@ final class JVClientShortChange: JVDatabaseModelChange, NSCoding {
         self.channelID = channelID
         self.displayName = nil
         self.avatarURL = nil
+        self.email = nil
         self.task = task
         self.assignedAgentID = 0
         super.init()
@@ -411,6 +436,7 @@ final class JVClientShortChange: JVDatabaseModelChange, NSCoding {
         channelID = coder.decodeObject(forKey: codableChannelKey) as? Int
         displayName = coder.decodeObject(forKey: codableNameKey) as? String
         avatarURL = coder.decodeObject(forKey: codableAvatarKey) as? String
+        email = coder.decodeObject(forKey: codableEmailKey) as? String
         task = coder.decodeObject(of: JVTaskGeneralChange.self, forKey: codableTaskKey)
         assignedAgentID = coder.decodeObject(of: NSNumber.self, forKey: codableAssignedAgentKey)?.intValue
         super.init()
@@ -422,6 +448,7 @@ final class JVClientShortChange: JVDatabaseModelChange, NSCoding {
         coder.encode(channelID, forKey: codableChannelKey)
         coder.encode(displayName, forKey: codableNameKey)
         coder.encode(avatarURL, forKey: codableAvatarKey)
+        coder.encode(email, forKey: codableEmailKey)
         coder.encode(task, forKey: codableTaskKey)
         coder.encode(assignedAgentID.flatMap(NSNumber.init), forKey: codableAssignedAgentKey)
     }

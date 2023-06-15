@@ -24,8 +24,8 @@ final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
     var heightUpdateHandler: (() -> Void)?
     var finishEditingHandler: ((String) -> Void)?
 
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(linesLimit: Int) {
+        super.init(frame: .zero)
         
         textView.backgroundColor = UIColor.clear
         textView.textColor = JVDesign.colors.resolve(usage: .primaryForeground)
@@ -36,7 +36,8 @@ final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
         addSubview(textView)
         
         placeholderLabel.textColor = JVDesign.colors.resolve(usage: .secondaryForeground).jv_withAlpha(0.45)
-        placeholderLabel.numberOfLines = 0
+        placeholderLabel.numberOfLines = linesLimit
+        placeholderLabel.lineBreakMode = (linesLimit == 1 ? .byTruncatingTail : .byWordWrapping)
         addSubview(placeholderLabel)
     }
     
@@ -60,13 +61,19 @@ final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
     }
     
     var placeholder: String? {
-        get { return placeholderLabel.text }
-        set { placeholderLabel.text = newValue }
+        get {
+            return placeholderLabel.text
+        }
+        set {
+            guard newValue != placeholderLabel.text else { return }
+            placeholderLabel.text = newValue
+            setNeedsLayout()
+        }
     }
     
     var placeholderOffset: CGPoint = .zero {
         didSet {
-            placeholderLabel.frame = CGRect(origin: placeholderOffset, size: placeholderLabel.frame.size)
+            setNeedsLayout()
         }
     }
     
@@ -191,11 +198,12 @@ final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
         textView.frame = bounds
         
         if placeholderOffset == .zero {
-            let size = placeholderLabel.sizeThatFits(bounds.size)
-            placeholderLabel.frame = CGRect(x: 0, y: textView.textContainerInset.top, width: size.width, height: size.height)
+            let size = placeholderLabel.jv_calculateSize(forWidth: bounds.width)
+            placeholderLabel.frame = CGRect(x: 0, y: (bounds.height - size.height) * 0.5 - 1, width: size.width, height: size.height)
         }
         else {
-            placeholderLabel.frame = bounds.offsetBy(dx: placeholderOffset.x, dy: placeholderOffset.y - 1)
+            let size = placeholderLabel.jv_calculateSize(forWidth: bounds.divided(atDistance: placeholderOffset.x, from: .minXEdge).remainder.width)
+            placeholderLabel.frame = CGRect(x: placeholderOffset.x, y: placeholderOffset.y - 1, width: size.width, height: max(bounds.height, size.height))
         }
     }
     

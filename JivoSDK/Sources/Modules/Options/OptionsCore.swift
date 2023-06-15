@@ -6,7 +6,6 @@
 //
 
 import Foundation
-
 import JMCodingKit
 
 enum ContextMenuOptionType {

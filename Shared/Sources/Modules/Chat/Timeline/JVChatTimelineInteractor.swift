@@ -7,7 +7,6 @@
 //
 
 import Foundation
-
 import JMTimelineKit
 import JMMarkdownKit
 import Gzip

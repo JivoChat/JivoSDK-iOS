@@ -9,8 +9,7 @@
 import Foundation
 
 /**
- Responsible for everything related to the communication session,
- such as connection and client data
+ ``Jivo.session`` namespace for managing the user session
  */
 @objc(JVSessionController)
 public final class JVSessionController: NSObject {

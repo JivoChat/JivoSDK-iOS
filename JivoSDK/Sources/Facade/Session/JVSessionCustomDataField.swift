@@ -7,6 +7,9 @@
 
 import Foundation
 
+/**
+ You may want to assign one or more custom fields to user
+ */
 @objc(JVSessionCustomDataField)
 public class JVSessionCustomDataField: NSObject {
     let title: String?

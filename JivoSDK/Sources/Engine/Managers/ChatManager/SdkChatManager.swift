@@ -42,6 +42,7 @@ protocol ISdkChatManager: ISdkManager {
     var eventObservable: JVBroadcastTool<SdkChatEvent> { get }
     var contactInfoStatusObservable: JVBroadcastTool<SdkChatContactInfoStatus> { get }
     var subOffline: ISdkChatSubOffline { get }
+    var subHello: ISdkChatSubHello { get }
     var hasActiveChat: Bool { get set }
     var hasMessagesInQueue: Bool { get }
     var inactivityPlaceholder: String? { get }
@@ -90,7 +91,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     let AGENT_DEFAULT_DISPLAY_NAME_LOC_KEY = "agent_name_default"
     
     let subOffline: ISdkChatSubOffline
-    
+    let subHello: ISdkChatSubHello
+
     // MARK: - Private properties
     
     private var chatMessages: [JVDatabaseModelRef<JVMessage>] = []
@@ -140,6 +142,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         chatSubSender: ISdkChatSubSender,
         subUploader: ISdkChatSubUploader,
         subOfflineStateFeature: ISdkChatSubOffline,
+        subHelloStateFeature: ISdkChatSubHello,
         systemMessagingService: ISystemMessagingService,
         networkEventDispatcher: INetworkingEventDispatcher,
         typingCacheService: ITypingCacheService,
@@ -157,7 +160,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         self.subSender = chatSubSender
         self.subUploader = subUploader
         self.subOffline = subOfflineStateFeature
-        
+        self.subHello = subHelloStateFeature
+
         self.typingCacheService = typingCacheService
         self.apnsService = apnsService
         self.preferencesDriver = preferencesDriver
@@ -709,6 +713,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     private func _handlePipelineTurnInactiveEvent(subsystems: SdkManagerSubsystem) {
         if subsystems.contains(.connection) {
             subOffline.reactToInactiveConnection()
+            subHello.reactToInactiveConnection()
         }
         
         if subsystems.contains(.artifacts) {
@@ -944,6 +949,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         notifyObservers(event: .chatAgentsUpdated(agents: []), onQueue: .main)
         
         subOffline.reactToActiveConnection()
+        subHello.reactToActiveConnection()
+        
         subSender.run()
     }
     
@@ -951,7 +958,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         userDataReceivingMode = .channel
         
         subOffline.reactToInactiveConnection()
-//        subSender.stop()
+        subHello.reactToInactiveConnection()
     }
     
     private func handleRecentMessages(meta: ProtoEventSubjectPayload.RecentActivity) {

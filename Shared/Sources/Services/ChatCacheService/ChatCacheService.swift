@@ -7,7 +7,6 @@
 //
 
 import Foundation
-
 import UIKit
 
 fileprivate let kTypingActiveTimeout = TimeInterval(5)

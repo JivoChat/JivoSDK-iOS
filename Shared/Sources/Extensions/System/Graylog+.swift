@@ -10,7 +10,7 @@ import Foundation
 import SwiftGraylog
 import JMCodingKit
 
-public typealias GraylogPayload = [String: String]
+typealias GraylogPayload = [String: String]
 fileprivate var cachedAgentID: Int?
 fileprivate var cachedRecentLivePacket = String()
 fileprivate var cachedRecentRestRequest = String()

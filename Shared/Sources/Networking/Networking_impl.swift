@@ -141,7 +141,7 @@ final class Networking: INetworking {
     func silent() {
     }
 
-    func send(output: NetworkingOutputSubject, caching: NetworkingOutputCaching) -> Self{
+    func send(output: NetworkingOutputSubject, caching: NetworkingOutputCaching) -> Self {
         let requestID = UUID()
         
         switch output {
@@ -189,15 +189,36 @@ final class Networking: INetworking {
         case .rest(let kindID, let target, let options, let contextID):
             let resolvedURL: URL
             switch target {
-            case .url(let url):
-                resolvedURL = URL(string: url) ?? baseURL
+            case .url(let link):
+                if let url = URL(string: link) {
+                    resolvedURL = url
+                }
+                else {
+                    let chain = journal {"Failed constructing the absolute url"}
+                    chain.nextLine { "Link: " + String(describing: link) }
+                    return self
+                }
             case .build(.chatServer, let path):
-                let sub = endpointAccessor.string ?? String()
-                let scopedURL = hostProvider(baseURL, sub) ?? baseURL
-                resolvedURL = scopedURL.appendingPathComponent(path)
+                if let sub = endpointAccessor.string, let scopedURL = hostProvider(baseURL, sub) {
+                    resolvedURL = scopedURL.appendingPathComponent(path)
+                }
+                else {
+                    let chain = journal {"Failed constructing the scoped url for chatServer"}
+                    chain.nextLine { [value = baseURL] in "Base URL: " + String(describing: value) }
+                    chain.nextLine { [value = endpointAccessor.string] in "Endpoint: " + String(describing: value) }
+                    chain.nextLine { "Path: " + String(describing: path) }
+                    return self
+                }
             case .build(let scope, let path) where scope.kind == .specific:
-                let scopedURL = hostProvider(baseURL, scope.value) ?? baseURL
-                resolvedURL = scopedURL.appendingPathComponent(path)
+                if let scopedURL = hostProvider(baseURL, scope.value) {
+                    resolvedURL = scopedURL.appendingPathComponent(path)
+                }
+                else {
+                    let chain = journal {"Failed constructing the scoped url for \(scope)"}
+                    chain.journal { [value = baseURL] in "baseURL: " + String(describing: value) }
+                    chain.journal { "path: " + String(describing: path) }
+                    return self
+                }
             case .build:
                 resolvedURL = baseURL
                 assertionFailure()

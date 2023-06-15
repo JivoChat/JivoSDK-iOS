@@ -23,23 +23,25 @@ enum TypingCacheAttachmentReaction {
     case ignore
 }
 
+enum InputMode: Int, Codable {
+    case regular = 0
+    case editing
+    case comment
+    case sms
+    case whatsapp
+    case email
+}
+
 struct TypingCacheInput {
     let text: String?
     let attachments: [ChatPhotoPickerObject]
-    
-    init(
-        text: String?,
-        attachments: [ChatPhotoPickerObject]
-    ) {
-        self.text = text
-        self.attachments = attachments
-    }
+    let mode: InputMode?
 }
 
 protocol ITypingCacheService: AnyObject {
-    var currentInput: TypingCacheInput? { get }
-    var maximumCountOfAttachments: Int { get }
+    var currentInput: TypingCacheInput { get }
     var canAttachMore: Bool { get }
+    func cache(mode: InputMode)
     func cache(text: String?)
     func cache(attachment: ChatPhotoPickerObject) -> TypingCacheAttachmentReaction
     func uncache(attachmentAt index: Int)
@@ -51,30 +53,36 @@ protocol ITypingCacheService: AnyObject {
 
 final class TypingCacheService: ITypingCacheService {
     private let fileURL: URL?
+    private let attachmentsNumberLimit: Int
     private let databaseDriver: JVIDatabaseDriver
 
     private var records = [TypingCacheRecord]()
     private var currentText: String?
     private var currentAttachments = [ChatPhotoPickerObject]()
-
-    init(fileURL: URL?, databaseDriver: JVIDatabaseDriver) {
+    private var currentMode: InputMode?
+    
+    init(fileURL: URL?, attachmentsNumberLimit: Int, databaseDriver: JVIDatabaseDriver) {
         self.fileURL = fileURL
+        self.attachmentsNumberLimit = attachmentsNumberLimit
         self.databaseDriver = databaseDriver
 
         read()
     }
     
-    var currentInput: TypingCacheInput? {
+    var currentInput: TypingCacheInput {
         return TypingCacheInput(
             text: currentText,
-            attachments: currentAttachments
+            attachments: currentAttachments,
+            mode: currentMode
         )
     }
     
-    let maximumCountOfAttachments = 4
-
     var canAttachMore: Bool {
-        return (currentAttachments.count < maximumCountOfAttachments)
+        return (currentAttachments.count < attachmentsNumberLimit)
+    }
+    
+    func cache(mode: InputMode) {
+        currentMode = mode
     }
     
     func cache(text: String?) {
@@ -100,47 +108,31 @@ final class TypingCacheService: ITypingCacheService {
     }
     
     func saveInput(context: TypingContext, flush: Bool) {
+        let record = TypingCacheRecord(
+            context: context,
+            text: currentText,
+            attachments: currentAttachments,
+            mode: currentMode
+        )
+        
         if let index = recordIndex(context: context) {
-            if currentText == nil, currentAttachments.isEmpty {
+            if record != records[index] {
+                records[index] = record
+                applyDraft(currentText, to: context)
+                save()
+            }
+            else if record.isEmpty {
                 records.remove(at: index)
                 applyDraft(nil, to: context)
                 save()
             }
-            else if currentText != records[index].text {
-                let record = TypingCacheRecord(
-                    context: context,
-                    text: currentText,
-                    attachments: currentAttachments
-                )
-                
-                records[index] = record
-                applyDraft(currentText, to: context)
-                save()
-            }
-            else if currentAttachments != records[index].attachments {
-                let record = TypingCacheRecord(
-                    context: context,
-                    text: currentText,
-                    attachments: currentAttachments
-                )
-                
-                records[index] = record
-                applyDraft(currentText, to: context)
-                save()
-            }
         }
-        else if currentText != nil || !currentAttachments.isEmpty {
-            let record = TypingCacheRecord(
-                context: context,
-                text: currentText,
-                attachments: currentAttachments
-            )
-            
+        else if !record.isEmpty {
             records.append(record)
             applyDraft(currentText, to: context)
             save()
         }
-
+        
         if flush {
             currentText = nil
             currentAttachments = []
@@ -160,6 +152,7 @@ final class TypingCacheService: ITypingCacheService {
         if let input = obtainInput(context: context) {
             currentText = input.text
             currentAttachments = input.attachments
+            currentMode = input.mode
         }
         else {
             currentText = nil

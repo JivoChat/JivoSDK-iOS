@@ -15,7 +15,17 @@ final class JVDatabaseModelRef<Value: JVDatabaseModel> {
     
     init(coreDataDriver: JVIDatabaseDriver, value: Value?) {
         self.coreDataDriver = coreDataDriver
-        self.objectId = value?.objectID
+        
+        if let value = value {
+            if value.objectID.isTemporaryID {
+                try? value.managedObjectContext?.obtainPermanentIDs(for: [value])
+            }
+            
+            self.objectId = value.objectID
+        }
+        else {
+            self.objectId = nil
+        }
     }
     
     var resolved: Value? {

@@ -18,9 +18,11 @@ extension JVArchiveHit {
         if let c = change as? JVArchiveHitGeneralChange {
             if let chatItem = c.chatItem {
                 m_item = context.upsert(of: JVArchiveHitChatItem.self, with: chatItem)
+                m_item?.b_hit = self
             }
             else if let callItem = c.callItem {
                 m_item = context.upsert(of: JVArchiveHitCallItem.self, with: callItem)
+                m_item?.b_hit = self
             }
             
             m_id = c.ID

@@ -54,7 +54,7 @@ final class SdkChatSubSender: ISdkChatSubSender {
         outgoingMessagesListener = databaseDriver.subscribe(
             JVMessage.self,
             options: JVDatabaseRequestOptions(
-                filter: NSPredicate(format: "m_status = '' AND m_type != 'system' AND m_type != 'offline' AND m_type != 'contact_form'"),
+                filter: NSPredicate(format: "m_status = '' AND m_type != 'system' AND m_type != 'offline' AND m_type != 'proactive' AND m_type != 'contact_form'"),
                 sortBy: [JVDatabaseResponseSort(keyPath: "m_date", ascending: true)]
             ),
             callback: { [unowned self] messages in

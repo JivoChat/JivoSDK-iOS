@@ -7,6 +7,9 @@
 
 import Foundation
 
+/**
+ Listing of Menus available for customization
+ */
 @objc(JVDisplayMenu)
 public enum JVDisplayMenu: Int {
     /// Attach Menu in replying area

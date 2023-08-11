@@ -167,7 +167,10 @@ final class SdkEngine: ISdkEngine {
             jsonPrivacyTool: jsonPrivacyTool
         )
         
-        let sessionContext = SdkSessionContext()
+        let sessionContext = SdkSessionContext(
+            accountConfigAccessor: drivers.preferencesDriver.retrieveAccessor(forToken: .accountConfig),
+            endpointConfigAccessor: drivers.preferencesDriver.retrieveAccessor(forToken: .endpointConfig)
+        )
         self.sessionContext = sessionContext
         
         let clientContext = SdkClientContext(
@@ -189,14 +192,15 @@ final class SdkEngine: ISdkEngine {
             keychainDriver: drivers.keychainDriver,
             jsonPrivacyTool: jsonPrivacyTool,
             hostProvider: { baseURL, scope in
-                guard let config = sessionContext.endpointConfig
-                else {
-                    return nil
-                }
-                
                 switch scope {
                 case RestConnectionTargetBuildScope.api.value:
-                    return URL(string: config.apiHost)
+                    if let config = sessionContext.endpointConfig {
+                        return URL(string: config.apiHost)
+                    }
+                    else {
+                        return nil
+                    }
+                    
                 default:
                     guard var baseComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false),
                           let baseHost = baseComponents.host
@@ -215,7 +219,7 @@ final class SdkEngine: ISdkEngine {
                     }
 
                     baseComponents.host = hostParts.joined(separator: ".")
-                    baseComponents.port = config.chatserverPort
+                    baseComponents.port = sessionContext.endpointConfig?.chatserverPort.jv_valuable
                     return baseComponents.url
                 }
             }

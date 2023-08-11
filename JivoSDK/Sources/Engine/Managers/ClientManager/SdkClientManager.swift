@@ -296,7 +296,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     
     private func subscribeDeviceToApns() {
         guard let accountConfig = sessionContext.accountConfig,
-              let siteId = accountConfig.siteId,
+              accountConfig.siteId > 0,
               let clientId = clientContext.clientId,
               let apnsLiveToken = apnsDeviceLiveToken
         else {
@@ -307,7 +307,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         journal {"Subscribe to APNS with deviceId[\(deviceId)]"}
         
         let credentials = SdkClientSubPusherCredentials(
-            siteId: siteId,
+            siteId: accountConfig.siteId,
             channelId: accountConfig.channelId,
             clientId: clientId,
             deviceId: deviceId,

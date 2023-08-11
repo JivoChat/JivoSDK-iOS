@@ -264,13 +264,17 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         }
         
         let accountConfig = SdkClientAccountConfig(
-            siteId: keychainDriver.retrieveAccessor(forToken: .siteID).number,
+            siteId: keychainDriver.retrieveAccessor(forToken: .siteID).number ?? .zero,
             channelId: meta.endpointInfo.channelId
         )
 
         sessionContext.identifyingToken = clientToken
         sessionContext.accountConfig = accountConfig
         clientContext.personalNamespace = meta.personalNamespace
+        
+        if let _ = sessionContext.authorizingPath {
+            preferredStartupMode = .resume
+        }
         
         apnsService.requestForPermission(at: .onConnect)
         
@@ -385,7 +389,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     private func _establishConnection() {
         guard let accountConfig = sessionContext.accountConfig,
               let endpointConfig = sessionContext.endpointConfig,
-              let siteId = accountConfig.siteId
+              accountConfig.siteId > .zero
         else {
             sessionContext.connectionAllowance = .allowed
             return
@@ -428,7 +432,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
                 host: endpointConfig.chatserverHost,
                 port: endpointConfig.chatserverPort,
                 credentials: .ids(
-                    siteId: siteId,
+                    siteId: accountConfig.siteId,
                     widgetId: accountConfig.channelId,
                     clientToken: sessionContext.identifyingToken
                 ))
@@ -468,6 +472,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         }
         
         if subsystems.contains(.artifacts) {
+            preferredStartupMode = .fresh
             sessionContext.reset()
         }
     }
@@ -516,7 +521,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         journal {"Received the connection config with @response[\(meta.body)]"}
         let parts = meta.body.chatserverHost.split(separator: ":")
         let host = parts.first
-        let port = parts.last.flatMap(String.init).flatMap(Int.init)
+        let port = parts.last.flatMap(String.init).flatMap(Int.init) ?? .zero
         
         guard let context = context?.object as? SdkSessionConnectionContext,
               let host = host.flatMap({ "wss://\($0)" })

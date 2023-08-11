@@ -78,7 +78,7 @@ struct SdkEngineServicesFactory {
             cacheDriver: drivers.cacheDriver,
             centerProvider: { purpose in
                 guard let identity = sessionContext.accountConfig,
-                      let siteID = identity.siteId
+                      identity.siteId > 0
                 else {
                     journal {"Missing credentials for File Upload"}
                     return nil
@@ -95,7 +95,7 @@ struct SdkEngineServicesFactory {
                 case .exchange:
                     return RemoteStorageCenter(
                         engine: .files,
-                        path: "api/1.0/sites/\(siteID)/widgets/\(identity.channelId)/media/transfer/access/gain",
+                        path: "api/1.0/sites/\(identity.siteId)/widgets/\(identity.channelId)/media/transfer/access/gain",
                         auth: .apply
                     )
                     

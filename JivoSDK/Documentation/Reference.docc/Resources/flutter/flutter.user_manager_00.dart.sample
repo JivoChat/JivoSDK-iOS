@@ -1,0 +1,14 @@
+class User {
+    String email;
+    String? fullName;
+    String? phoneNumber;
+    User(this.email, this.fullName, this.phoneNumber);
+}
+
+class UserManager {
+    User? user;
+    
+    void updateUser(User? user) {
+        this.user = user;
+    }
+}

@@ -8,40 +8,51 @@
 import Foundation
 
 /**
- Listing UI elements available for customization
+ UI elements available for customization
  */
 @objc(JVDisplayElement)
 public enum JVDisplayElement: Int {
-    /// Back button in Header Bar
+    /// Back button in Header Bar,
+    /// customizable: image
     case headerIcon
     
-    /// First line in Header Bar
+    /// First line in Header Bar,
+    /// customizable: text, color
     case headerTitle
     
-    /// Second line in Header Bar
+    /// Second line in Header Bar,
+    /// customizable: text, color
     case headerSubtitle
     
-    /// Outgoing elements from client
+    /// Outgoing elements from client,
+    /// customizable: color
     case outgoingElements
     
-    /// Textual content of Hello Message in chat
+    /// Textual content of Hello Message in chat,
+    /// customizable: text
     case messageHello
     
-    /// Textual content of Offline Message in chat
+    /// Textual content of Offline Message in chat,
+    /// customizable: text
     case messageOffline
     
-    /// Placeholder for replying area
+    /// Placeholder for replying area,
+    /// customizable: text
     case replyPlaceholder
     
-    /// Text to prefill the replying area
+    /// Text to prefill the replying area,
+    /// customizable: text
     case replyPrefill
     
-    /// Caption for "Take a Photo" action in Attach Menu
+    /// Caption for "Take a Photo" action in Attach Menu,
+    /// customizable: text
     case attachCamera
     
-    /// Caption for "Choose from Library" action in Attach Menu
+    /// Caption for "Choose from Library" action in Attach Menu,
+    /// customizable: text
     case attachLibrary
     
-    /// Caption for "Pick a Document" action in Attach Menu
+    /// Caption for "Pick a Document" action in Attach Menu,
+    /// customizable: text
     case attachFile
 }

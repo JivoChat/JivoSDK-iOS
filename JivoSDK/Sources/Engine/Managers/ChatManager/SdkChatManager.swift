@@ -921,16 +921,16 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     
     private func handleConnectionConfig(meta: ProtoEventSubjectPayload.ConnectionConfig, context: ProtoEventContext?) {
         guard let accountConfig = sessionContext.accountConfig,
-           let siteId = accountConfig.siteId,
-           let clientId = clientContext.clientId,
-           let _ = sessionContext.localChatId
+              accountConfig.siteId > .zero,
+              let clientId = clientContext.clientId,
+              let _ = sessionContext.localChatId
         else {
             return
         }
         
         proto
             .requestRecentActivity(
-                siteId: siteId,
+                siteId: accountConfig.siteId,
                 channelId: accountConfig.channelId,
                 clientId: clientId)
             .silent()

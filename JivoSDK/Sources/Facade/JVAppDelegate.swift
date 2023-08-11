@@ -10,7 +10,7 @@ import UIKit
 import UserNotifications
 
 /**
- You may use this class as parent for your own App delegate, for easier SDK integration
+ Feel free to use this class as parent for your own App Delegate, for easier SDK integration
  */
 @objc(JVAppDelegate)
 open class JVAppDelegate: UIResponder
@@ -38,8 +38,9 @@ open class JVAppDelegate: UIResponder
         if Jivo.notifications.handleIncoming(userInfo: userInfo, completionHandler: completionHandler) {
             return
         }
-        
-        completionHandler(.noData)
+        else {
+            completionHandler(.noData)
+        }
     }
     
     open func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
@@ -55,6 +56,7 @@ open class JVAppDelegate: UIResponder
     
     open func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
         Jivo.notifications.handleUser(response: response)
+        completionHandler()
     }
     
     open func jivoApp(bannerPresentation sdk: Jivo, target: JVNotificationsTarget, event: JVNotificationsEvent, notification: UNNotification) -> UNNotificationPresentationOptions {
@@ -68,13 +70,13 @@ open class JVAppDelegate: UIResponder
 }
 
 /**
- Determines how to display incoming notifications
+ Determines a way incoming notifications gets displayed
  */
 @objc(JVAppBannerPresentingDelegate)
 public protocol JVAppBannerPresentingDelegate: AnyObject {
     /**
-     Here you can determine what Presentation Options
-     have to be applied for foreground notifications
+     Here you can determine UNNotificationPresentationOptions
+     to be applied for foreground notifications
      
      - Parameter sdk:
      Reference to JivoSDK

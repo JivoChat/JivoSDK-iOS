@@ -1,0 +1,101 @@
+@Tutorial {
+    @Intro(title: "Basic usage") {
+        Some scenarios of how to use SDK
+        
+        - How to handle user session
+        - How to display SDK
+        - How to handle Push Notifications
+    }
+    
+    @Section(title: "How to handle user session") {
+        @ContentAndMedia {
+            Keep track of user activity, and perform the following actions:
+            - start session
+            - update user info
+            - stop session
+        }
+        
+        @Steps {
+            @Step {
+                Let's assume you have a UserManager class
+                that helps you to manage your active user
+                
+                @Code(name: "UserManager.js", file: react.user_manager_00.js.sample)
+            }
+            
+            @Step {
+                As mandatory, you have to start the Jivo session for user
+                
+                > Note: You can also pass `null` as userToken
+                > to start an incognito chat session 
+                
+                @Code(name: "UserManager.js", file: react.user_manager_01.js.sample)
+            }
+            
+            @Step {
+                Optionally, you may specify some contact info
+                
+                > Note: It will help you to contact him easier in future
+                
+                @Code(name: "UserManager.js", file: react.user_manager_02.js.sample)
+            }
+        }
+    }
+    
+    @Section(title: "How to display SDK") {
+        @ContentAndMedia {
+            Next thing is to display the JivoSDK UI onscreen
+        }
+        
+        @Steps {
+            @Step {
+                Let's assume you have an App class
+                which is responsible for Help Center of your app
+                
+                @Code(name: "ProfileComponent.js", file: react.profile_component_00.js.sample)
+            }
+            
+            @Step {
+                First step is to define the additional button
+                for opening the support screen
+                
+                @Code(name: "ProfileComponent.js", file: react.profile_component_02.js.sample)
+            }
+            
+            @Step {
+                Then, import the JivoSDK module and push SDK into the navigation stack
+                
+                @Code(name: "ProfileComponent.js", file: react.profile_component_02.js.sample)
+            }
+        }
+    }
+    
+    @Section(title: "How to handle Push Notifications") {
+        @ContentAndMedia {
+            Let's assume you have an AppDelegate class
+            that manages your app lifecycle
+        }
+        
+        @Steps {
+            @Step {
+                In most projects, this class just implements the entry point
+                
+                @Code(name: "AppDelegate.swift", file: react.app_delegate_00.swift.sample)
+            }
+            
+            @Step {
+                To support Push Notifications for SDK,
+                JivoSDK should take care of related system methods
+                
+                @Code(name: "AppDelegate.swift", file: react.app_delegate_01.swift.sample)
+            }
+            
+            @Step {
+                Also, JivoSDK can support User Notifications
+                to take care of notifications displaying in foreground
+                
+                @Code(name: "AppDelegate.swift", file: react.app_delegate_02.swift.sample)
+            }
+        }
+    }
+}

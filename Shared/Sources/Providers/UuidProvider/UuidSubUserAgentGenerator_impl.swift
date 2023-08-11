@@ -173,10 +173,10 @@ final class UuidSubUserAgentGenerator: IUuidSubUserAgentGenerator {
             return "flutter"
         }
         else if let _ = objc_getClass("RCTBridge") {
-            return "react-native"
+            return "react"
         }
         else if let _ = objc_getClass("SharedBase"), let _ = objc_getClass("SharedNumber") {
-            return "kotlin-mm"
+            return "kotlin"
         }
         else {
             return nil

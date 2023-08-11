@@ -1,0 +1,41 @@
+import Foundation
+import UIKit
+import JivoSDK
+
+final class SdkDisplayingDelegate: NSObject, JVDisplayDelegate {
+    func jivoDisplay(asksToAppear sdk: Jivo) {
+    }
+    
+    func jivoDisplay(willAppear sdk: Jivo) {
+    }
+    
+    func jivoDisplay(didDisappear sdk: Jivo) {
+    }
+    
+    func jivoDisplay(defineText sdk: Jivo, forElement element: JVDisplayElement) -> String? {
+        switch element {
+        case .headerTitle:
+            return "Friendly Support"
+        default:
+            return nil
+        }
+    }
+    
+    func jivoDisplay(defineColor sdk: Jivo, forElement element: JVDisplayElement) -> UIColor? {
+        switch element {
+        case .headerTitle:
+            return UIColor.purple
+        default:
+            return nil
+        }
+    }
+    
+    func jivoDisplay(defineImage sdk: Jivo, forElement element: JVDisplayElement) -> UIImage? {
+        switch element {
+        case .headerIcon:
+            return UIImage()
+        default:
+            return nil
+        }
+    }
+}

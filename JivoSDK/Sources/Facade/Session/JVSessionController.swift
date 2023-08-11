@@ -9,15 +9,12 @@
 import Foundation
 
 /**
- ``Jivo.session`` namespace for managing the user session
+ ``Jivo``.``Jivo/session`` namespace for managing user session
  */
 @objc(JVSessionController)
 public final class JVSessionController: NSObject {
     /**
-     Delegate for handling events related to connection and client session
-     
-     > Note: At the moment, the ``JivoSessionDelegate`` protocol does not contain any declarations within itself.
-     > Let us know what properties or callback methods you would like to see in it
+     Object that handles session events
      */
     @objc(delegate)
     public weak var delegate: JVSessionDelegate? {
@@ -27,7 +24,7 @@ public final class JVSessionController: NSObject {
     }
     
     /**
-     Sets the preferred server for SDK connection to Jivo backend
+     Specifies preferred server for SDK to connect to Jivo
      */
     @objc(setPreferredServer:)
     public func setPreferredServer(_ server: JVSessionServer) {
@@ -35,10 +32,10 @@ public final class JVSessionController: NSObject {
     }
     
     /**
-     Establishes a connection between the SDK and our servers,
-     either creating a new session or resuming an existing one
+     Establishes connection between SDK and Jivo,
+     by either creating a new session or resuming existing one
      
-     > Warning: Please avoid calling this method while JivoSDK is displayed onscreen
+     > Warning: Please avoid calling this method while SDK is displayed onscreen
      
      - Parameter channelID:
      Your channel ID in Jivo (same as widget_id)
@@ -53,7 +50,8 @@ public final class JVSessionController: NSObject {
     }
     
     /**
-     Specifies the contact info for the client, to communicate him easier in future
+     Assigns contact info to user,
+     to reach him easier in future
      */
     @objc(setContactInfo:)
     public func setContactInfo(_ info: JVSessionContactInfo?) {
@@ -61,8 +59,8 @@ public final class JVSessionController: NSObject {
     }
     
     /**
-     Specifies additional info about a client needed for your business,
-     such as his order id
+     Assigns custom data to user,
+     if needed for your business
      */
     @objc(setCustomData:)
     public func setCustomData(fields: [JVSessionCustomDataField]) {
@@ -70,8 +68,8 @@ public final class JVSessionController: NSObject {
     }
 
     /**
-     Closes the current connection, cleans up the local database,
-     and sends a request to unsubscribe the device from Push Notifications to the client session
+     Closes current connection, clears the local database,
+     and unsubscribes device from Push Notifications
      */
     @objc(shutDown)
     public func shutDown() {

@@ -8,7 +8,7 @@
 import Foundation
 
 /**
- What should SDK do with original event catching behavior
+ SDK behavior for catching logging events
  */
 @objc(JVDebuggingOriginalCatchBehavior)
 public enum JVDebuggingOriginalCatchBehavior: Int {

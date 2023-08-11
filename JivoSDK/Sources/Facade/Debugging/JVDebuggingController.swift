@@ -8,12 +8,12 @@
 import Foundation
 
 /**
- ``Jivo.debugging`` namespace for SDK debugging
+ ``Jivo``.``Jivo/debugging`` namespace for SDK debugging
  */
 @objc(JVDebuggingController)
 public final class JVDebuggingController: NSObject {
     /**
-     Object that controls the debugging process
+     Object that controls debugging process
      */
     @objc(delegate)
     public weak var delegate = JVDebuggingDelegate?.none {
@@ -23,7 +23,7 @@ public final class JVDebuggingController: NSObject {
     }
     
     /**
-     Set the level of logging verbosity
+     Current level of logging verbosity
      */
     @objc(level)
     public var level = JVDebuggingLevel.silent {
@@ -33,9 +33,9 @@ public final class JVDebuggingController: NSObject {
     }
     
     /**
-     Performs archiving of saved log entries
+     Performs archiving of local log entries
      and returns a link to the created archive
-     via completion block with a status
+     via completion block with status
      
      - Parameter handler:
      The block that would be called when an archive is ready

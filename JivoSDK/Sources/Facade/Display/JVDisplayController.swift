@@ -9,14 +9,14 @@
 import UIKit
 
 /**
- ``Jivo.display`` namespace for SDK displaying
+ ``Jivo``.``Jivo/display`` namespace for SDK displaying
  */
 @objc(JVDisplayController)
 public final class JVDisplayController: NSObject {
     private let joint = SdkJoint(engine: SdkEngine.shared)
 
     /**
-     Sets a delegate to monitor the JivoSDK displaying lifecycle
+     Object that controls displaying lifecycle
      */
     @objc(delegate)
     public weak var delegate: JVDisplayDelegate? {
@@ -26,7 +26,7 @@ public final class JVDisplayController: NSObject {
     }
     
     /**
-     Checks whether the JivoSDK is currently in the view hierarchy
+     Determines whether SDK is currently in UI hierarchy
      */
     @objc(isOnscreen)
     public var isOnscreen: Bool {
@@ -34,7 +34,7 @@ public final class JVDisplayController: NSObject {
     }
     
     /**
-     Sets the custom locale to be used instead of one provided by system
+     Sets the custom locale for use instead of system one
      
      > Note: May be helpful in case you implement your own logic
      for changing a language locally within your app
@@ -45,9 +45,7 @@ public final class JVDisplayController: NSObject {
     }
     
     /**
-     Sets the extra custom menu items
-     in case you wish to provide some extra buttons or actions
-     within JivoSDK screen
+     Sets your own extra items to display within menu
      
      - Parameter menu:
      Which menu you wish to attach your extra actions to
@@ -62,7 +60,7 @@ public final class JVDisplayController: NSObject {
     }
     
     /**
-     Adds the JivoSDK into the navigation stack (animated)
+     Places SDK into navigation stack (animated)
      
      - Parameter navigationController:
      Your existing UINavigationController to push the JivoSDK into
@@ -73,13 +71,13 @@ public final class JVDisplayController: NSObject {
     }
 
     /**
-     Removes the entire stack of the passed navigationController,
-     and adds the JivoSDK into it (not animated)
+     Cleans entire stack of the passed navigationController,
+     and then places SDK into it (not animated)
      
      - Parameter navigationController:
      Your existing UINavigationController to push the JivoSDK into
      - Parameter closeButton:
-     Design of Close Button that mostly fits your needs in this case
+     Close Button look that mostly fits your needs in this case
      */
     @objc(placeWithin:closeButton:)
     public func place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton) {
@@ -87,7 +85,7 @@ public final class JVDisplayController: NSObject {
     }
     
     /**
-     Displays the JivoSDK modally on the screen, from bottom edge (animated)
+     Displays SDK modally on screen, slides it up from bottom edge (animated)
      
      - Parameter viewController:
      Your UIViewController on top of which the JivoSDK will be displayed

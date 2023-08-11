@@ -1,0 +1,30 @@
+import Foundation
+import UIKit
+
+fileprivate enum ProfileMenuItem: Int {
+    case faq
+    case website
+}
+
+final class ProfileViewController: UITableViewController, UITableViewDelegate {
+    // ...
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        switch ProfileMenuItem(rawValue: indexPath.row) {
+        case .faq:
+            handleProfileMenuItemFaqTap()
+        case .website:
+            handleProfileMenuItemWebsiteTap()
+        case nil:
+            break
+        }
+    }
+    
+    private func handleProfileMenuItemFaqTap() {
+        // navigate to faq screen
+    }
+    
+    private func handleProfileMenuItemWebsiteTap() {
+        // open website in safari
+    }
+}

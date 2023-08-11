@@ -8,7 +8,7 @@
 import Foundation
 
 /**
- Log archiving completion status
+ Determines how logs archiving operation was completed
  */
 @objc(JVDebuggingArchiveStatus)
 public enum JVDebuggingArchiveStatus: Int {

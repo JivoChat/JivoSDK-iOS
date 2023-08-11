@@ -27,8 +27,8 @@ enum SdkClientContextEvent {
     case licenseStateUpdated(SdkClientLicensing?)
 }
 
-struct SdkClientAccountConfig: Equatable {
-    let siteId: Int?
+struct SdkClientAccountConfig: Equatable, Codable {
+    let siteId: Int
     let channelId: String
 }
 

@@ -7,15 +7,16 @@
 //
 
 import Foundation
+import UIKit
 import UserNotifications
 
 /**
- ``Jivo.notifications`` namespace for Push Notifications
+ ``Jivo``.``Jivo/notifications`` namespace for Push Notifications
  */
 @objc(JVNotificationsController)
 public final class JVNotificationsController: NSObject {
     /**
-     Delegate for handling events related to notifications
+     Object that handles notifications events
      */
     @objc(delegate)
     public weak var delegate = JVNotificationsDelegate?.none {
@@ -25,7 +26,7 @@ public final class JVNotificationsController: NSObject {
     }
     
     /**
-     Specifies when the SDK should request access to Push Notifications
+     Specifies when SDK should request access to Push Notifications
      
      - Parameter moment:
      The moment of requesting access to Push Notifications
@@ -36,12 +37,12 @@ public final class JVNotificationsController: NSObject {
     }
     
     /**
-     Associate the Push Token with current user using his userToken
+     Associate the Push Token with current user using his userToken in raw-binary form
      
      - Parameter data:
      Push Token as raw data
      
-     > Important: Call this method from ``application(_:didRegisterForRemoteNotificationsWithDeviceToken:)``
+     > Important: Call this method from ``UIApplicationDelegate/application(_:didRegisterForRemoteNotificationsWithDeviceToken:)``
      */
     @objc(setPushTokenData:)
     public func setPushToken(data: Data?) {
@@ -49,12 +50,12 @@ public final class JVNotificationsController: NSObject {
     }
     
     /**
-     Associate the Push Token with current user using his userToken
+     Associate the Push Token with current user using his userToken in hex-string form
      
      - Parameter hex:
      Push Token as hex string
      
-     > Important: Call this method from ``application(_:didRegisterForRemoteNotificationsWithDeviceToken:)``
+     > Important: Call this method from ``UIApplicationDelegate/application(_:didRegisterForRemoteNotificationsWithDeviceToken:)``
      */
     @objc(setPushTokenHex:)
     public func setPushToken(hex: String?) {
@@ -77,7 +78,7 @@ public final class JVNotificationsController: NSObject {
     }
     
     /**
-     Processes the userInfo of a Push Notification
+     Processes userInfo of Push Notification
      
      - Parameter userInfo:
      userInfo of Push Notification
@@ -87,9 +88,9 @@ public final class JVNotificationsController: NSObject {
      true, if a notification was intended for JivoSDK;
      or false, otherwise
      
-     > Important: Call this method from ``application(_:didReceiveRemoteNotification:fetchCompletionHandler:)``
+     > Important: Call this method from ``UIApplicationDelegate/application(_:didReceiveRemoteNotification:fetchCompletionHandler:)``
      
-     > Note: The ``JivoChattingUIDisplayingDelegate/jivo(requestedToDisplay:)`` method might be called
+     > Note: The ``JVDisplayDelegate/jivoDisplay(asksToAppear:)`` method might be called
      > if Push Notification is related to JivoSDK
      */
     @objc(handleIncomingUserInfo:completionHandler:)
@@ -98,7 +99,7 @@ public final class JVNotificationsController: NSObject {
     }
     
     /**
-     Determine the presentation options for Notification
+     Determines the presentation options for Push Notification
      
      - Parameter notification:
      Incoming Notification
@@ -113,7 +114,7 @@ public final class JVNotificationsController: NSObject {
     }
     
     /**
-     Process the User Response
+     Processes the User Response
      
      - Parameter response:
      User's response

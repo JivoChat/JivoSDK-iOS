@@ -8,30 +8,31 @@
 import Foundation
 
 /**
- Acts like feedback from ``Jivo.display`` namespace
+ Interface to control displaying lifecycle,
+ relates to ``Jivo.display`` namespace
  */
 @objc(JVDisplayDelegate)
 public protocol JVDisplayDelegate {
     /**
-     Called when the JivoSDK logic needs to display the chat UI on the screen.
+     Called when SDK needs to display chat UI on screen
      */
     @objc(jivoDisplayAsksToAppear:)
     func jivoDisplay(asksToAppear sdk: Jivo)
     
     /**
-     Called before the JivoSDK opens
+     Called before opening the SDK
      */
     @objc(jivoDisplayWillAppear:)
     func jivoDisplay(willAppear sdk: Jivo)
     
     /**
-     Called after the JivoSDK has closed
+     Called after the SDK is closed
      */
     @objc(jivoDisplayDidDisappear:)
     func jivoDisplay(didDisappear sdk: Jivo)
     
     /**
-     Here you can customize the appearance of Header Bar
+     Called to customize Header Bar appearance
      
      - Parameter sdk:
      Reference to JivoSDK
@@ -44,8 +45,7 @@ public protocol JVDisplayDelegate {
     optional func jivoDisplay(customizeHeader sdk: Jivo, navigationBar: UINavigationBar, navigationItem: UINavigationItem)
     
     /**
-     Here you can customize the captions and texts
-     for some JivoSDK elements enlisted in enum
+     Called to customize captions and texts for some elements
      
      - Parameter sdk:
      Reference to JivoSDK
@@ -56,8 +56,7 @@ public protocol JVDisplayDelegate {
     optional func jivoDisplay(defineText sdk: Jivo, forElement element: JVDisplayElement) -> String?
     
     /**
-     Here you can customize the colors
-     for some JivoSDK elements enlisted in enum
+     Called to customize colors for some elements
      
      - Parameter sdk:
      Reference to JivoSDK
@@ -68,8 +67,7 @@ public protocol JVDisplayDelegate {
     optional func jivoDisplay(defineColor sdk: Jivo, forElement element: JVDisplayElement) -> UIColor?
     
     /**
-     Here you can customize the icons
-     for some JivoSDK elements enlisted in enum
+     Called to customize icons for some elements
      
      - Parameter sdk:
      Reference to JivoSDK

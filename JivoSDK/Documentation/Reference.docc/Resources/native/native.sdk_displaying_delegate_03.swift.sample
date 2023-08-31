@@ -1,0 +1,4 @@
+let displayingDelegate = SdkDisplayingDelegate()
+self.strongDisplayingDelegate = displayingDelegate
+
+Jivo.display.delegate = displayingDelegate

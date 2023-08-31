@@ -8,7 +8,7 @@
 import Foundation
 
 /**
- Choose the preferred Close Button look
+ Close Button look
  */
 @objc(JVDisplayCloseButton)
 public enum JVDisplayCloseButton: Int {

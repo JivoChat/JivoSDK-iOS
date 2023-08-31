@@ -1,0 +1,14 @@
+import Foundation
+import UIKit
+import JivoSDK
+
+final class SdkDisplayingDelegate: NSObject, JVDisplayDelegate {
+    func jivoDisplay(asksToAppear sdk: Jivo) {
+    }
+    
+    func jivoDisplay(willAppear sdk: Jivo) {
+    }
+    
+    func jivoDisplay(didDisappear sdk: Jivo) {
+    }
+}

@@ -1,0 +1,18 @@
+import React from 'react';
+import { SafeAreaView, Button } from 'react-native';
+import Jivo from './jivosdk_module'
+
+export default class ProfileComponent extends React.Component {
+    render() {
+        return (
+            <SafeAreaView>
+            <Button
+                title="Contact Support"
+                onPress={() => {
+                    Jivo.present()
+                }}
+            />
+            </SafeAreaView>
+        );
+    }
+}

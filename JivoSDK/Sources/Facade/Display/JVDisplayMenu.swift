@@ -8,7 +8,7 @@
 import Foundation
 
 /**
- Listing of Menus available for customization
+ Menus available for customization
  */
 @objc(JVDisplayMenu)
 public enum JVDisplayMenu: Int {

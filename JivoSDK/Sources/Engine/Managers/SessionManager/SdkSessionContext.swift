@@ -20,6 +20,11 @@ protocol ISdkSessionContext: AnyObject {
     func reset()
 }
 
+extension PreferencesToken {
+    static let accountConfig = PreferencesToken(key: "accountConfig", hint: SdkClientAccountConfig.self)
+    static let endpointConfig = PreferencesToken(key: "endpointConfig", hint: SdkSessionEndpointConfig.self)
+}
+
 enum SdkSessionContextEvent {
     case networkingStateChanged(ReachabilityMode)
     case connectionStateChanged(SdkSessionConnectionState)
@@ -41,15 +46,26 @@ enum SdkSessionConnectionState {
     case connected
 }
 
-struct SdkSessionEndpointConfig {
+struct SdkSessionEndpointConfig: Codable {
     let chatserverHost: String
-    let chatserverPort: Int?
+    let chatserverPort: Int
     let apiHost: String
     let filesHost: String
 }
 
 final class SdkSessionContext: ISdkSessionContext {
     let eventSignal = JVBroadcastTool<SdkSessionContextEvent>()
+    
+    private let accountConfigAccessor: IPreferencesAccessor
+    private let endpointConfigAccessor: IPreferencesAccessor
+    
+    init(accountConfigAccessor: IPreferencesAccessor, endpointConfigAccessor: IPreferencesAccessor) {
+        self.accountConfigAccessor = accountConfigAccessor
+        self.endpointConfigAccessor = endpointConfigAccessor
+        
+        accountConfig = accountConfigAccessor.accountConfig
+        endpointConfig = endpointConfigAccessor.endpointConfig
+    }
     
     var networkingState = ReachabilityMode.none {
         didSet {
@@ -72,13 +88,18 @@ final class SdkSessionContext: ISdkSessionContext {
         }
     }
 
-    public var accountConfig: SdkClientAccountConfig? {
+    var accountConfig: SdkClientAccountConfig? {
         didSet {
+            accountConfigAccessor.accountConfig = accountConfig
             eventSignal.broadcast(.accountConfigChanged(accountConfig))
         }
     }
     
-    var endpointConfig: SdkSessionEndpointConfig?
+    var endpointConfig: SdkSessionEndpointConfig? {
+        didSet {
+            endpointConfigAccessor.endpointConfig = endpointConfig
+        }
+    }
     
     var identifyingToken: String? {
         didSet {
@@ -107,5 +128,25 @@ final class SdkSessionContext: ISdkSessionContext {
         accountConfig = nil
         identifyingToken = nil
         authorizingPath = nil
+    }
+}
+
+extension IPreferencesAccessor {
+    var accountConfig: SdkClientAccountConfig? {
+        get {
+            data.flatMap { try? JSONDecoder().decode(SdkClientAccountConfig.self, from: $0) }
+        }
+        set {
+            data = try? JSONEncoder().encode(newValue)
+        }
+    }
+    
+    var endpointConfig: SdkSessionEndpointConfig? {
+        get {
+            data.flatMap { try? JSONDecoder().decode(SdkSessionEndpointConfig.self, from: $0) }
+        }
+        set {
+            data = try? JSONEncoder().encode(newValue)
+        }
     }
 }

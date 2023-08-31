@@ -1,0 +1,42 @@
+import Foundation
+import UIKit
+import JivoSDK
+
+#if DEBUG
+#if FB_SONARKIT_ENABLED
+import FlipperKit
+#endif
+#endif
+
+@UIApplicationMain
+final class AppDelegate: UIResponder
+, UIApplicationDelegate {
+    func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
+        initializeFlipper(with: application)
+        
+        // ...
+        
+        Jivo.notifications.handleLaunch(options: launchOptions)
+        return true
+    }
+    
+    func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        Jivo.notifications.setPushToken(data: deviceToken)
+    }
+    
+    func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
+        Jivo.notifications.setPushToken(data: nil)
+    }
+    
+    func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        if Jivo.notifications.handleIncoming(userInfo: userInfo, completionHandler: completionHandler) {
+            return
+        }
+        
+        completionHandler(.noData)
+    }
+    
+    private func initializeFlipper(with application: UIApplication) {
+        // ...
+    }
+}

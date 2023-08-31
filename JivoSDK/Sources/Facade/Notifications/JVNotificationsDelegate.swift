@@ -8,16 +8,17 @@
 import Foundation
 
 /**
- Acts like feedback from ``Jivo.notifications`` namespace
+ Interface to handle notifications events,
+ relates to ``Jivo.notifications`` namespace
  */
 @objc(JVNotificationsDelegate)
 public protocol JVNotificationsDelegate {
     /**
-     Informs about JivoSDK wants to access Push Notifications
+     Called when SDK wants to access Push Notifications
      
      > Tip: You may want to present your custom UI
-     > to inform user about Push Notifications,
-     > before the JivoSDK will trigger the System Request
+     > to inform user about accessing to Push Notifications,
+     > before SDK will trigger System Request
      
      - Parameter sdk:
      Reference to JivoSDK
@@ -29,7 +30,9 @@ public protocol JVNotificationsDelegate {
     func jivoNotifications(accessRequested sdk: Jivo, proceedBlock: @escaping () -> Void)
     
     /**
-     Here you can prepare the Push Notification Banner
+     Called when SDK is going to present Push Notification banner
+     
+     > Tip: Here you can prepare banner for displaying
      
      - Parameter sdk:
      Reference to JivoSDK

@@ -8,13 +8,14 @@
 import Foundation
 
 /**
- Acts like feedback from ``Jivo.debugging`` namespace
+ Interface to control debugging process,
+ relates to ``Jivo.debugging`` namespace
  */
 @objc(JVDebuggingDelegate)
 public protocol JVDebuggingDelegate {
     /**
-     Called when JivoSDK wants to log a message,
-     you are able to replace the standard way with your own implementation
+     Called when SDK is going to log event,
+     here you are able to replace the standard behavior with your own implementation
      */
     func jivoDebugging(catchEvent: Jivo, text: String) -> JVDebuggingOriginalCatchBehavior
 }

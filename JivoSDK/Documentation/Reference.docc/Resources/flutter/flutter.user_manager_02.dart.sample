@@ -1,0 +1,34 @@
+import 'package:jivosdk_plugin/bridge.dart';
+
+class User {
+    String email;
+    String? fullName;
+    String? phoneNumber;
+    User(this.email, this.fullName, this.phoneNumber);
+}
+
+class UserManager {
+    User? user;
+    
+    void updateUser(User? user) {
+        this.user = user;
+        _configureJivoSession();
+    }
+  
+    void _configureJivoSession() {
+        if (user != null) {
+            Jivo.session.startUp(
+                channelID: 'YOUR_CHANNEL_ID',
+                userToken: user?.email ?? '');
+          
+            Jivo.session.setContactInfo(
+                name: user?.fullName,
+                email: user?.email,
+                phone: user?.phoneNumber,
+                brief: "Awesome person");
+        }
+        else {
+            Jivo.session.shutDown();
+        }
+    }
+}

@@ -8,7 +8,7 @@
 import Foundation
 
 /**
- You may want to assign contact info to user
+ Contact Info for user
  */
 @objc(JVSessionContactInfo)
 public class JVSessionContactInfo: NSObject {

@@ -8,7 +8,7 @@
 import Foundation
 
 /**
- You may want to assign one or more custom fields to user
+ Custom Data Field for user
  */
 @objc(JVSessionCustomDataField)
 public class JVSessionCustomDataField: NSObject {

@@ -8,12 +8,13 @@
 import Foundation
 
 /**
- Acts like feedback from ``Jivo.session`` namespace
+ Interface to handle session events,
+ relates to ``Jivo.session`` namespace
  */
 @objc(JVSessionDelegate)
 public protocol JVSessionDelegate {
     /**
-     Here you can listen for unread counter updates
+     Called when unread counter changes
      
      - Parameter sdk:
      Reference to JivoSDK

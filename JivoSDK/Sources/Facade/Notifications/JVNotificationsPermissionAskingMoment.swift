@@ -8,7 +8,7 @@
 import Foundation
 
 /**
- When user should be requested for access to Push Notifications
+ Moment to request access to Push Notifications
  */
 @objc(JVNotificationsPermissionAskingMoment)
 public enum JVNotificationsPermissionAskingMoment: Int {

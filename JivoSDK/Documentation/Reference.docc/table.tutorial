@@ -1,0 +1,19 @@
+@Tutorials(name: "Basic usage") {
+    @Intro(title: "JivoSDK Samples") {
+    }
+    
+    @Chapter(name: "Native app") {
+        Swift API
+        @TutorialReference(tutorial: "doc:native_usage_basics")
+    }
+    
+    @Chapter(name: "React Native app") {
+        JavaScript API
+        @TutorialReference(tutorial: "doc:react_usage_basics")
+    }
+    
+    @Chapter(name: "Flutter app") {
+        Dart API
+        @TutorialReference(tutorial: "doc:flutter_usage_basics")
+    }
+}

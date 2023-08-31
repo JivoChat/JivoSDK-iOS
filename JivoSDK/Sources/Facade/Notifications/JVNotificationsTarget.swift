@@ -8,7 +8,7 @@
 import Foundation
 
 /**
- Target of Push Notification
+ Target subsystem of Push Notification
  */
 @objc(JVNotificationsTarget)
 public enum JVNotificationsTarget: Int {

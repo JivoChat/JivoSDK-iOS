@@ -8,7 +8,7 @@
 import Foundation
 
 /**
- Preferred server to connect, by geographical region
+ Primary Jivo servers, by geographical region
  */
 @objc(JVSessionServer)
 public enum JVSessionServer: Int {

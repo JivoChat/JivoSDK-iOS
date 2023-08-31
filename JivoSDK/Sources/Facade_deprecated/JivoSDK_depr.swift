@@ -10,6 +10,8 @@ import Foundation
 @available(*, deprecated, renamed: "Jivo")
 @objc(JivoSDK)
 public final class JivoSDK: NSObject {
+    public typealias Jivo = JivoSDK
+    
     @objc public static let shared = JivoSDK()
     private override init() {
         super.init()

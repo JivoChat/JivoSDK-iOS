@@ -10,7 +10,9 @@ import Foundation
 import UIKit
 
 /**
- Helpful for UI setup using `appearance(whenContainedInInstancesOf:)`
+ Descendent of UINavigationController for UI hierarchy
+ 
+ > Tip: Feel free to use this class for UI setup using `appearance(whenContainedInInstancesOf:)`
  */
 open class JVNavigationContainer: UINavigationController {
 }

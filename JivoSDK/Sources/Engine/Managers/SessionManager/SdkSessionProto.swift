@@ -100,7 +100,7 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
             return false
         }
         
-        components.port = port
+        components.port = port?.jv_valuable
         components.path = "/atom"
         
         switch credentials {

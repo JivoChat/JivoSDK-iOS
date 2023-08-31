@@ -12,6 +12,7 @@ Jivo Mobile SDK (hereinafter referred to as SDK) is the mobile framework for int
 
 - <doc:common_channel_setup>
 - <doc:common_project_config>
+- <doc:common_user_token>
 
 ### For native project
 

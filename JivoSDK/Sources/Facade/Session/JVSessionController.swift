@@ -35,14 +35,17 @@ public final class JVSessionController: NSObject {
      Establishes connection between SDK and Jivo,
      by either creating a new session or resuming existing one
      
-     > Warning: Please avoid calling this method while SDK is displayed onscreen
-     
      - Parameter channelID:
      Your channel ID in Jivo (same as widget_id)
      - Parameter userToken:
-     An unique string that you generate to identify a client
-     and determines whether it is necessary to create a new session with a new dialog,
-     or restore an existing one and load the history of the initiated dialog
+     An unique string that you generate to identify a client,
+     and it determines whether it is necessary to create a new session with a new dialog,
+     or restore an existing one and load the history of the initiated dialog (should be a JWT token)
+     
+     > Important: Please take a look at "User Token" section of SDK Documentation
+     > to know more about how to use JWT here
+     
+     > Warning: Please avoid calling this method while SDK is displayed onscreen
      */
     @objc(startUpWithChannelID:userToken:)
     public func startUp(channelID: String, userToken: String) {

@@ -240,6 +240,15 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
             }
     }
     
+    func focusMessage(uid: String) {
+    }
+    
+    func requestHistoryPast(item: JMTimelineItem) {
+    }
+    
+    func requestHistoryFuture(item: JMTimelineItem) {
+    }
+    
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {
         return false
     }

@@ -33,8 +33,10 @@ extension ErrorRendererConfiguration {
             image: UIImage(named: "unavailable_image_stub", in: Bundle(for: JVDesign.self), compatibleWith: nil),
             errorDescriptionProvider: { error in
                 switch error {
-                case .notFound: return loc["file_download_expired"]
-                default: return loc["file_download_unavailable"]
+                case .notFound:
+                    return loc["file_download_expired"]
+                default:
+                    return loc["file_download_unavailable"]
                 }
             },
             style: ErrorRenderer.Style(

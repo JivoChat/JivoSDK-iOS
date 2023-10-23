@@ -179,6 +179,12 @@ final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
     
     func insertText(_ text: String) {
         textView.insertText(text)
+        if isOverLimit {
+            textView.textColor = JVDesign.colors.resolve(usage: .warningForeground)
+        }
+        else {
+            textView.textColor = JVDesign.colors.resolve(usage: .primaryForeground)
+        }
     }
     
     func register(_ responder: UIResponder, for actions: [Selector]) {

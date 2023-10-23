@@ -19,8 +19,8 @@ extension JVArchiveHitCallItem {
             m_id = c.ID
             m_type = c.type
             m_status = c.status
-            m_response_timeout = c.responseTimeout.jv_toInt32
-            m_duration = c.duration.jv_toInt32
+            m_response_timeout = c.responseTimeout.jv_toInt32(.standard)
+            m_duration = c.duration.jv_toInt32(.standard)
             m_events_number = Int16(c.eventsNumber)
             m_cost = c.cost
             m_cost_currency = c.costCurrency

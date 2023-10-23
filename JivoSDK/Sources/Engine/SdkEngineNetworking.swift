@@ -20,7 +20,7 @@ struct SdkEngineNetworkingFactory: ISdkEngineNetworkingFactory {
     let preferencesDriver: IPreferencesDriver
     let keychainDriver: IKeychainDriver
     let jsonPrivacyTool: JVJsonPrivacyTool
-    let hostProvider: (URL, String) -> URL?
+    let urlBuilder: NetworkingUrlBuilder
     
     func build() -> INetworking {
         let networkSubSocket = NetworkingSubSocket(
@@ -46,7 +46,7 @@ struct SdkEngineNetworkingFactory: ISdkEngineNetworkingFactory {
             preferencesDriver: preferencesDriver,
             keychainDriver: keychainDriver,
             jsonPrivacyTool: jsonPrivacyTool,
-            hostProvider: hostProvider
+            urlBuilder: urlBuilder
         )
     }
 }

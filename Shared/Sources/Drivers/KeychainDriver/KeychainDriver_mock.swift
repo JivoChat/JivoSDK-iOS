@@ -8,7 +8,7 @@
 
 import Foundation
 import KeychainSwift
-@testable import Jivo
+@testable import App
 
 class KeychainDriverMock: IKeychainDriver {
     var lastOperationFailure: OSStatus? {

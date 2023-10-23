@@ -7,8 +7,10 @@
 //
 
 import XCTest
+@testable import App
+
 open class PureParserToolUnit: XCTestCase {
-    private let tool = PureParserTool()
+    private let tool = JVPureParserTool()
     
     public func test_plainSource() {
         let result = tool.execute("Please wait.", collapseSpaces: true)

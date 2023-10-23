@@ -18,16 +18,20 @@ enum RemoteStorageFileMetaRequestState {
 
 final class RemoteStorageSubMediaDown: RemoteStorageSubDown {
     private let networking: INetworking
+    private let endpointAccessor: IKeychainAccessor
     private let tokenProvider: () -> String?
+    private let urlBuilder: NetworkingUrlBuilder
     
     private let jsonCoder = JsonCoder()
     private var resolvedSigns: [CachedParams: (url: URL, tillTime: Date)]
     private var enqueuedSignedURLCallbacks: [CachedParams: [(URL?) -> Void]]
     private var fileMetaRequestStates: [URL: RemoteStorageFileMetaRequestState]
     
-    init(networking: INetworking, cacheDriver: ICacheDriver, cachingDirectory: String, tokenProvider: @escaping () -> String?) {
+    init(networking: INetworking, endpointAccessor: IKeychainAccessor, cacheDriver: ICacheDriver, cachingDirectory: String, tokenProvider: @escaping () -> String?, urlBuilder: @escaping NetworkingUrlBuilder) {
         self.networking = networking
+        self.endpointAccessor = endpointAccessor
         self.tokenProvider = tokenProvider
+        self.urlBuilder = urlBuilder
         
         resolvedSigns = Dictionary()
         enqueuedSignedURLCallbacks = Dictionary()
@@ -110,9 +114,12 @@ final class RemoteStorageSubMediaDown: RemoteStorageSubDown {
         }
         
         guard
-            var signComponents = URLComponents(string: "https://api.\(networking.primaryDomain)/api/1.0/auth/media/app/sign/get")
+            let sub = endpointAccessor.string,
+            let url = urlBuilder(networking.baseURL(module: "api"), sub, .replace("auth"), "/api/1.0/auth/media/app/sign/get"),
+            var signComponents = URLComponents(string: url.absoluteString)
         else {
-            return informAboutSignedURL(params: params, signedURL: nil, on: completionQueue)
+            informAboutSignedURL(params: params, signedURL: params.url, on: completionQueue)
+            return
         }
         
         signComponents.queryItems = [
@@ -123,7 +130,8 @@ final class RemoteStorageSubMediaDown: RemoteStorageSubDown {
             let signURL = signComponents.url,
             let token = tokenProvider() // Кажется, что проверка существования токена должна осуществляться вовне сервиса
         else {
-            return informAboutSignedURL(params: params, signedURL: params.url, on: completionQueue)
+            informAboutSignedURL(params: params, signedURL: params.url, on: completionQueue)
+            return
         }
         
         var signRequest = URLRequest(url: signURL)
@@ -131,7 +139,6 @@ final class RemoteStorageSubMediaDown: RemoteStorageSubDown {
         
         URLSession.shared
             .dataTask(with: signRequest) { [unowned self] data, response, error in // Не понял, почему мы используем unowned self вместо weak self
-                
                 guard let data = data else {
                     return resourceQueue.addOperation { [unowned self] in
                         informAboutSignedURL(params: params, signedURL: nil, on: completionQueue)

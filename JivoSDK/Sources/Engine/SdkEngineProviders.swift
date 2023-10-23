@@ -46,7 +46,8 @@ struct SdkEngineProvidersFactory {
                 JVLocaleProvider.activeLocale == nil
                     ? Locale.current
                     : JVLocaleProvider.activeLocale
-            )
+            ),
+            availableLangs: [.en, .ru, .hy, .es, .pt, .tr]
         )
     }
     

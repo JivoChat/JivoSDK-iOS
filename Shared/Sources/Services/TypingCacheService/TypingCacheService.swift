@@ -45,6 +45,8 @@ protocol ITypingCacheService: AnyObject {
     func cache(text: String?)
     func cache(attachment: ChatPhotoPickerObject) -> TypingCacheAttachmentReaction
     func uncache(attachmentAt index: Int)
+    func canUseAiSummarize(for chatID: Int?) -> Bool
+    func incSummarizeCount(for chatID: Int?)
     func saveInput(context: TypingContext, flush: Bool)
     func obtainInput(context: TypingContext) -> TypingCacheRecord?
     func activateInput(context: TypingContext) -> TypingCacheInput?
@@ -54,17 +56,21 @@ protocol ITypingCacheService: AnyObject {
 final class TypingCacheService: ITypingCacheService {
     private let fileURL: URL?
     private let attachmentsNumberLimit: Int
-    private let databaseDriver: JVIDatabaseDriver
+    private let agentsRepo: IAgentsRepo
+    private let chatsRepo: IChatsRepo
 
     private var records = [TypingCacheRecord]()
     private var currentText: String?
     private var currentAttachments = [ChatPhotoPickerObject]()
     private var currentMode: InputMode?
+    private var summarizeCount = Int()
+    private var lastChatID = Int()
     
-    init(fileURL: URL?, attachmentsNumberLimit: Int, databaseDriver: JVIDatabaseDriver) {
+    init(fileURL: URL?, attachmentsNumberLimit: Int, agentsRepo: IAgentsRepo, chatsRepo: IChatsRepo) {
         self.fileURL = fileURL
         self.attachmentsNumberLimit = attachmentsNumberLimit
-        self.databaseDriver = databaseDriver
+        self.agentsRepo = agentsRepo
+        self.chatsRepo = chatsRepo
 
         read()
     }
@@ -107,12 +113,31 @@ final class TypingCacheService: ITypingCacheService {
         currentAttachments.remove(at: index)
     }
     
+    func incSummarizeCount(for chatID: Int?) {
+        guard let chatID = chatID else { return }
+        if chatID == lastChatID {
+            summarizeCount += 1
+        } else {
+            lastChatID = chatID
+            summarizeCount = 1
+        }
+    }
+    
+    func canUseAiSummarize(for chatID: Int?) -> Bool {
+        if chatID != lastChatID {
+            return true
+        }
+        return summarizeCount < 3
+    }
+    
     func saveInput(context: TypingContext, flush: Bool) {
         let record = TypingCacheRecord(
             context: context,
             text: currentText,
             attachments: currentAttachments,
-            mode: currentMode
+            mode: currentMode,
+            lastChatID: lastChatID,
+            aiSummarizeCount: summarizeCount
         )
         
         if let index = recordIndex(context: context) {
@@ -153,6 +178,8 @@ final class TypingCacheService: ITypingCacheService {
             currentText = input.text
             currentAttachments = input.attachments
             currentMode = input.mode
+            lastChatID = input.lastChatID
+            summarizeCount = input.aiSummarizeCount
         }
         else {
             currentText = nil
@@ -202,11 +229,9 @@ final class TypingCacheService: ITypingCacheService {
     private func applyDraft(_ draft: String?, to context: TypingContext) {
         switch context.kind {
         case .chat:
-            let change = JVChatDraftChange(ID: context.ID, draft: currentText)
-            _ = databaseDriver.update(of: JVChat.self, with: change)
+            chatsRepo.updateDraft(id: context.ID, currentText: currentText)
         case .agent:
-            let change = JVAgentDraftChange(ID: context.ID, draft: currentText)
-            _ = databaseDriver.update(of: JVAgent.self, with: change)
+            agentsRepo.updateDraft(id: context.ID, currentText: currentText)
         }
     }
 }

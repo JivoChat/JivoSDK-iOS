@@ -24,6 +24,16 @@ extension JsonElement {
         }
     }
     
+    func parse<T: JVDatabaseModelChange>(model: T.Type, force: Bool = false) -> T? {
+        if exists(withValue: true) {
+            let change = T(json: self)
+            return (change.isValid || force ? change : nil)
+        }
+        else {
+            return nil
+        }
+    }
+    
     func parseList<T: JVDatabaseModelChange>() -> [T]? {
         return array?.map { T(json: $0) }
     }

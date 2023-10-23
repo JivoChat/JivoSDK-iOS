@@ -16,13 +16,13 @@ extension JVAgentWorktime {
         }
         
         if let c = change as? JVAgentWorktimeBaseChange, m_agent_id == 0 {
-            m_agent_id = c.agentID.jv_toInt64
+            m_agent_id = c.agentID.jv_toInt64(.standard)
         }
         
         if let c = change as? JVAgentWorktimeGeneralChange {
-            if m_agent_id == 0 { m_agent_id = c.agentID.jv_toInt64 }
+            if m_agent_id == 0 { m_agent_id = c.agentID.jv_toInt64(.standard) }
             
-            m_timezone_id = c.timezoneID.jv_toInt16
+            m_timezone_id = c.timezoneID.jv_toInt16(.standard)
             m_timezone = context.object(JVTimezone.self, primaryId: Int(m_timezone_id))
             
             if !m_is_dirty {
@@ -67,7 +67,7 @@ extension JVAgentWorktime {
             m_last_update = Date()
         }
         else if let c = change as? JVAgentWorktimeTimezoneChange {
-            m_timezone_id = c.timezoneID?.jv_toInt16 ?? m_timezone_id
+            m_timezone_id = c.timezoneID?.jv_toInt16(.standard) ?? m_timezone_id
             m_timezone = context.object(JVTimezone.self, primaryId: Int(m_timezone_id))
         }
         else if let c = change as? JVAgentWorktimeToggleChange {

@@ -61,7 +61,12 @@ struct SdkEngineServicesFactory {
         return TypingCacheService(
             fileURL: drivers.cacheDriver.url(item: .typingCache) ?? URL(fileURLWithPath: "/tmp/typing_cache.plist"),
             attachmentsNumberLimit: SdkConfig.attachmentsNumberLimit,
-            databaseDriver: drivers.databaseDriver)
+            agentsRepo: AgentsRepo(
+                databaseDriver: drivers.databaseDriver
+            ),
+            chatsRepo: ChatsRepo(
+                databaseDriver: drivers.databaseDriver
+            ))
     }
     
     private func buildWorkflowsService() -> IWorkflowsService {
@@ -76,6 +81,7 @@ struct SdkEngineServicesFactory {
             networkingHelper: networkingHelper,
             networkEventDispatcher: networkingEventDispatcher,
             cacheDriver: drivers.cacheDriver,
+            keychainDriver: drivers.keychainDriver,
             centerProvider: { purpose in
                 guard let identity = sessionContext.accountConfig,
                       identity.siteId > 0
@@ -105,6 +111,9 @@ struct SdkEngineServicesFactory {
                 }
             },
             tokenProvider: {
+                return nil
+            },
+            urlBuilder: { standardURL, endpoint, scope, path -> URL? in
                 return nil
             }
         )
@@ -138,7 +147,7 @@ struct NetworkServiceFactory: INetworkServiceFactory {
     let preferencesDriver: IPreferencesDriver
     let keychainDriver: IKeychainDriver
     let jsonPrivacyTool: JVJsonPrivacyTool
-    let hostProvider: (URL, String) -> URL?
+    let urlBuilder: NetworkingUrlBuilder
     
     func build() -> INetworking {
         let networkSubSocket = NetworkingSubSocket(
@@ -164,7 +173,7 @@ struct NetworkServiceFactory: INetworkServiceFactory {
             preferencesDriver: preferencesDriver,
             keychainDriver: keychainDriver,
             jsonPrivacyTool: jsonPrivacyTool,
-            hostProvider: hostProvider
+            urlBuilder: urlBuilder
         )
     }
 }

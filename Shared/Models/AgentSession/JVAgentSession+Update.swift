@@ -19,7 +19,9 @@ extension JVAgentSession {
             m_id = c.sessionID
             m_site_id = Int32(c.siteID)
             m_email = c.email
+            m_is_owner = c.isOwner
             m_is_admin = c.isAdmin
+            m_is_supervisor = c.isSupervisor
             m_is_operator = c.isOperator
             m_is_active = true
             m_vox_login = c.voxLogin
@@ -28,27 +30,8 @@ extension JVAgentSession {
             m_is_working = c.workingState
         }
         else if let c = change as? JVAgentSessionContextChange {
-            if let features = c.techConfig {
-                m_global_received = true
-                m_global_pricelist_id = Int16(c.pricelistID ?? 0)
-                m_global_guests_insight_enabled = features.guestInsightEnabled
-                m_global_file_size_limit = Int16(features.fileSizeLimit)
-                m_global_disable_archive_for_regular = features.disableArchiveForRegular
-                m_global_platform_telephony_enabled = features.iosTelephonyEnabled ?? true
-                m_global_limited_crm = features.limitedCRM
-                m_global_assigned_agent_enabled = features.assignedAgentEnabled
-                m_global_message_editing_enabled = features.messageEditingEnabled
-                m_global_groups_enabled = features.groupsEnabled
-                m_global_mentions_enabled = features.mentionsEnabled
-                m_global_comments_enabled = features.commentsEnabled
-                m_global_reactions_enabled = features.reactionsEnabled
-                m_global_business_chat_enabled = features.businessChatEnabled
-                m_global_billing_update_enabled = features.billingUpdateEnabled
-                m_global_standalone_tasks_enabled = features.standaloneTasks
-                m_global_feedback_sdk_enabled = features.feedbackSdkEnabled
-                m_global_media_service_enabled = features.mediaServiceEnabled
-                m_global_voice_messages_enabled = features.voiceMessagesEnabled
-            }
+            m_global_received = true
+            m_global_pricelist_id = Int16(c.pricelistID ?? 0)
         }
         else if let c = change as? JVAgentSessionMobileCallsChange {
             m_allow_mobile_calls = c.enabled

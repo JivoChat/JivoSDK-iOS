@@ -10,11 +10,12 @@ import Foundation
 import DTModelStorage
 
 final class JMTimelineMessagePhotoRegion: JMTimelineMessageCanvasRegion {
+    private let quotingBlock = JMTimelineCompositeQuotingBlock(sideOffset: 10)
     private let imageBlock = JMTimelineCompositePhotoBlock(errorRendererConfiguration: .forObsoleteImageLink)
     
     init() {
         super.init(renderMode: .content(time: .over))
-        integrateBlocks([imageBlock], gap: 0)
+        integrateBlocks([quotingBlock, imageBlock], gap: 0)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -31,6 +32,13 @@ final class JMTimelineMessagePhotoRegion: JMTimelineMessageCanvasRegion {
             interactor: interactor)
 
         if let info = info as? JMTimelineMessagePhotoInfo {
+            quotingBlock.configure(
+                message: info.quotedMessage,
+                style: JMTimelineCompositeQuotingStyle(
+                    textColor: info.contentTint
+                ),
+                interactor: interactor)
+
             let meta = info.scaleMeta(minimum: 120, maximum: 150)
             imageBlock.configure(
                 url: info.url,
@@ -39,7 +47,13 @@ final class JMTimelineMessagePhotoRegion: JMTimelineMessageCanvasRegion {
                 allowFullscreen: info.allowFullscreen,
                 style: JMTimelineCompositePhotoStyle(
                     ratio: JVDesign.layout.defaultMediaRatio,
-                    contentMode: info.contentMode
+                    contentMode: info.contentMode,
+                    decorationColor: resolveDecorationColor(),
+                    corners: (
+                        info.quotedMessage == nil
+                        ? CACornerMask(rawValue: ~0)
+                        : [CACornerMask.layerMinXMaxYCorner, CACornerMask.layerMaxXMaxYCorner]
+                    )
                 ),
                 provider: provider,
                 interactor: interactor)

@@ -193,8 +193,11 @@ extension URL {
     }
     
     func jv_normalized() -> URL {
-        guard URLComponents(url: self, resolvingAgainstBaseURL: false)?.scheme == nil else { return self }
-        return URL(string: "http://" + absoluteString) ?? self
+        if #available(iOS 17.0, *) {
+            return URL(string: "http://" + absoluteString, encodingInvalidCharacters: false) ?? self
+        } else {
+            return URL(string: "http://" + absoluteString) ?? self
+        }
     }
     
     func jv_excludedFromBackup() -> URL {

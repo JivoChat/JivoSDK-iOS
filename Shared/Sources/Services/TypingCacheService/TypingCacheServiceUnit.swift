@@ -8,11 +8,9 @@
 
 import XCTest
 import JMTimelineKit
-import JMShared
-@testable import Jivo
+@testable import App
 
 final class TypingCacheServiceUnit: XCTestCase {
-    
     private let textSamples = ["Test text", nil, "Test text2"]
     
     func testCacheString() {
@@ -20,7 +18,7 @@ final class TypingCacheServiceUnit: XCTestCase {
         
         for sample in textSamples {
             sut.cache(text: sample)
-            XCTAssertEqual(sut.currentInput?.text, sample)
+            XCTAssertEqual(sut.currentInput.text, sample)
         }
     }
     
@@ -31,10 +29,10 @@ final class TypingCacheServiceUnit: XCTestCase {
         
         XCTAssertEqual(sut.cache(attachment: attachment), .accept)
         XCTAssertEqual(sut.cache(attachment: attachment), .ignore)
-        XCTAssertEqual(sut.currentInput?.attachments, [attachment])
+        XCTAssertEqual(sut.currentInput.attachments, [attachment])
         
         sut.uncache(attachmentAt: 0)
-        XCTAssertEqual(sut.currentInput?.attachments.count, 0)
+        XCTAssertEqual(sut.currentInput.attachments.count, 0)
     }
     
     func testSaveAndResetInput() {
@@ -94,23 +92,16 @@ final class TypingCacheServiceUnit: XCTestCase {
     }
     
     private func buildTypingCacheService() -> TypingCacheService {
-        let itemURL: URL = URL(fileURLWithPath: "/tmp/jivo/test")
-        let timelineCache = JMTimelineCache()
-        let dbDriver = JVDatabaseDriver(writing: .anyThread,
-                                        fileURL: itemURL,
-                                        memoryIdentifier: "live",
-                                        timelineCache: timelineCache,
-                                        localizer: JVLocalizer.init())
-        
-        let service = TypingCacheService(fileURL: itemURL,
-            databaseDriver: dbDriver)
-        
-        return service
+        return TypingCacheService(
+            fileURL: nil,
+            agentsRepo: AgentsRepoMock(agents: .jv_empty),
+            chatsRepo: ChatsRepoMock()
+        )
     }
     
     private func createAttachment() -> ChatPhotoPickerObject {
         return ChatPhotoPickerObject(
             uuid: UUID(),
-            payload: .file(.init(url: URL(fileURLWithPath: "test"), name: "test", size: 32)))
+            payload: .file(.init(url: URL(fileURLWithPath: "test"), name: "test", size: 32, duration: 0)))
     }
 }

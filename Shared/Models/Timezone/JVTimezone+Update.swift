@@ -23,13 +23,13 @@ extension JVTimezone {
             let metaEn = extractMeta(c.displayNameEn)
             let metaRu = extractMeta(c.displayNameRu)
             
-            m_id = c.ID.jv_toInt16
+            m_id = c.ID.jv_toInt16(.standard)
             m_identifier = c.code
             m_display_name_en = c.displayNameEn
             m_display_name_ru = c.displayNameRu
             
             m_display_gmt = (metaEn ?? metaRu)?.gmt
-            m_sorting_offset = ((metaEn ?? metaRu)?.offset ?? gmtOffset).jv_toInt16
+            m_sorting_offset = ((metaEn ?? metaRu)?.offset ?? gmtOffset).jv_toInt32(.standard)
             m_sorting_region_en = metaEn?.region ?? defaultTimezone.localizedName(for: .generic, locale: localeEn)
             m_sorting_region_ru = metaRu?.region ?? defaultTimezone.localizedName(for: .generic, locale: localeRu)
         }

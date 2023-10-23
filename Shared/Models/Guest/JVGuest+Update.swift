@@ -17,7 +17,7 @@ extension JVGuest {
         
         if let c = change as? JVGuestBaseChange {
             if m_id == String() { m_id = c.ID }
-            if m_agent_id == 0 { m_agent_id = abs(c.agentID?.jv_toInt64 ?? m_agent_id) }
+            if m_agent_id == 0 { m_agent_id = abs(c.agentID?.jv_toInt64(.standard) ?? m_agent_id) }
             if m_start_date == nil { m_start_date = Date() }
             if jv_not(c.siteID.isEmpty) { m_channel_id = c.siteID }
         }
@@ -29,8 +29,8 @@ extension JVGuest {
         
         if let c = change as? JVGuestGeneralChange {
             m_source_ip = c.sourceIP
-            m_source_port = c.sourcePort.jv_toInt32
-            m_region_code = c.regionCode.jv_toInt16
+            m_source_port = c.sourcePort.jv_toInt32(.standard)
+            m_region_code = c.regionCode.jv_toInt32(.clamping)
             m_country_code = c.countryCode
             m_country_name = c.countryName
             m_region_name = c.regionName
@@ -38,7 +38,7 @@ extension JVGuest {
             m_organization = c.organization
         }
         else if let c = change as? JVGuestClientChange {
-            m_client_id = c.clientID.jv_toInt64
+            m_client_id = c.clientID.jv_toInt64(.standard)
         }
         else if let c = change as? JVGuestNameChange {
             m_name = c.name
@@ -62,10 +62,10 @@ extension JVGuest {
             m_utm = context.insert(of: JVClientSessionUtm.self, with: c.utm)
         }
         else if let c = change as? JVGuestVisitsChange {
-            m_visits_number = c.number.jv_toInt16
+            m_visits_number = c.number.jv_toInt16(.clamping)
         }
         else if let c = change as? JVGuestNavigatesChange {
-            m_navigates_number = c.number.jv_toInt16
+            m_navigates_number = c.number.jv_toInt16(.clamping)
         }
         else if let c = change as? JVGuestVisibleChange {
             m_visible = c.value

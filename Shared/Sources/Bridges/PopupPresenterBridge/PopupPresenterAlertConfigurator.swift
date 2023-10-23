@@ -13,7 +13,23 @@ struct PopupPresenterAlertConfigurator: IPopupPresenterConfigurator {
     let items: [PopupPresenterItem]
     
     func configure(alert: UIAlertController) {
-        for command in generateCommands(items: items) {
+        var hasDismissButton = false
+        
+        for item in items {
+            guard let command = generateCommand(item: item)
+            else {
+                continue
+            }
+            
+            if case .dismiss = item {
+                if hasDismissButton {
+                    continue
+                }
+                else {
+                    hasDismissButton = true
+                }
+            }
+            
             command.configure(alert: alert)
         }
     }
@@ -24,21 +40,23 @@ fileprivate protocol PopupPresenterAlertConfiguratorCommand: PopupPresenterConfi
 }
 
 fileprivate func generateCommands(items: [PopupPresenterItem]) -> [PopupPresenterAlertConfiguratorCommand] {
-    return items.compactMap { item in
-        switch item {
-        case .action(let title, let icon, let state):
-            return ConfiguratorActionCommand(title: title, icon: icon, state: state)
-        case .input(let title, let placeholder):
-            return ConfiguratorInputCommand(placeholder: placeholder, value: title)
-        case .settings:
-            return ConfiguratorSettingsCommand()
-        case .dismiss(let kind):
-            return ConfiguratorDismissCommand(kind: kind)
-        case .children(let children):
-            return ConfiguratorChildrenCommand(items: children)
-        case .omit:
-            return nil
-        }
+    return items.compactMap(generateCommand)
+}
+
+fileprivate func generateCommand(item: PopupPresenterItem) -> PopupPresenterAlertConfiguratorCommand? {
+    switch item {
+    case .action(let title, let icon, let state):
+        return ConfiguratorActionCommand(title: title, icon: icon, state: state)
+    case .input(let title, let placeholder):
+        return ConfiguratorInputCommand(placeholder: placeholder, value: title)
+    case .settings:
+        return ConfiguratorSettingsCommand()
+    case .dismiss(let kind):
+        return ConfiguratorDismissCommand(kind: kind)
+    case .children(let title, let children):
+        return ConfiguratorChildrenCommand(title: title, items: children)
+    case .omit:
+        return nil
     }
 }
 
@@ -113,6 +131,7 @@ fileprivate struct ConfiguratorDismissCommand: PopupPresenterAlertConfiguratorCo
 }
 
 fileprivate struct ConfiguratorChildrenCommand: PopupPresenterAlertConfiguratorCommand {
+    let title: String?
     let items: [PopupPresenterItem]
     
     func configure(alert: UIAlertController) {

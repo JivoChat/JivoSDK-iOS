@@ -42,4 +42,9 @@ final class AgentsRepo: IAgentsRepo {
             return databaseDriver.agents(withMe: false)
         }
     }
+    
+    func updateDraft(id: Int, currentText: String?) {
+        let change = JVAgentDraftChange(ID: id, draft: currentText)
+        _ = databaseDriver.update(of: JVAgent.self, with: change)
+    }
 }

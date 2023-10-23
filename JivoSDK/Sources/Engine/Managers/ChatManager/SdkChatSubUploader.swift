@@ -39,7 +39,7 @@ class SdkChatSubUploader: ISdkChatSubUploader {
 
     var uploadingAttachments: [ChatPhotoPickerObject] = []
     
-    private var semaphore = CountingSemaphore(value: 0)
+    private let semaphore = CountingSemaphore(value: 0)
     
     private let uploadingQueue: DispatchQueue
     private let workerThread: JVIDispatchThread
@@ -56,34 +56,40 @@ class SdkChatSubUploader: ISdkChatSubUploader {
     }
     
     func upload(attachments: [ChatPhotoPickerObject], clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void) {
-        uploadingQueue.async { [weak self] in
-            attachments.forEach { attachment in
-                guard let `self` = self else { return }
-                
-                self.uploadingAttachments.append(attachment)
+        uploadingQueue.async { [unowned self] in
+            for attachment in attachments {
+                uploadingAttachments.append(attachment)
                 
                 switch attachment.payload {
                 case let .image(meta):
-                    self.uploadImage(uuid: attachment.uuid, meta: meta, clientId: clientId, channelId: channelId, siteId: siteId) { result in
-                        self.semaphore.setCounter(to: 0)
+                    _ = meta.url?.startAccessingSecurityScopedResource()
+                    uploadImage(uuid: attachment.uuid, meta: meta, clientId: clientId, channelId: channelId, siteId: siteId) { [unowned self] result in
+                        meta.url?.stopAccessingSecurityScopedResource()
+                        semaphore.setCounter(to: 0)
                         completion(result)
                     }
                     
                 case let .file(meta):
-                    self.uploadFile(uuid: attachment.uuid, meta: meta, clientId: clientId, channelId: channelId, siteId: siteId) { result in
-                        self.semaphore.setCounter(to: 0)
+                    _ = meta.url.startAccessingSecurityScopedResource()
+                    uploadFile(uuid: attachment.uuid, meta: meta, clientId: clientId, channelId: channelId, siteId: siteId) { [unowned self] result in
+                        meta.url.stopAccessingSecurityScopedResource()
+                        semaphore.setCounter(to: 0)
                         completion(result)
                     }
                     
                 case let .voice(meta):
-                    self.uploadFile(uuid: attachment.uuid, meta: meta, clientId: clientId, channelId: channelId, siteId: siteId) { result in
-                        self.semaphore.setCounter(to: 0)
+                    _ = meta.url.startAccessingSecurityScopedResource()
+                    uploadFile(uuid: attachment.uuid, meta: meta, clientId: clientId, channelId: channelId, siteId: siteId) { [unowned self] result in
+                        meta.url.stopAccessingSecurityScopedResource()
+                        semaphore.setCounter(to: 0)
                         completion(result)
                     }
-                case .progress: break
+                    
+                case .progress:
+                    break
                 }
                 
-                self.semaphore.setCounter(to: -1)
+                semaphore.setCounter(to: -1)
             }
         }
     }
@@ -161,20 +167,17 @@ class SdkChatSubUploader: ISdkChatSubUploader {
             ]
         )
         
-        remoteStorageService.upload(target: target, file: file) { [weak self] result in
-            // '_self' variable is using because of bug in Swift <5.5 compiler thinking that optional self reference in guard-condition else block is unavailable `self` variable declared in the beginning of guard-condition
-            guard let _self = self else { self?.semaphore.setCounter(to: 0); return }
-            
-            _self.workerThread.async {
-                let attachmentToRemoveIndex = _self.uploadingAttachments.firstIndex {
+        remoteStorageService.upload(target: target, file: file) { [unowned self] result in
+            workerThread.async { [unowned self] in
+                let attachmentToRemoveIndex = uploadingAttachments.firstIndex {
                     $0.uuid.uuidString == uuid.uuidString
                 }
-                let chatPhotoPickerObject = attachmentToRemoveIndex.flatMap { _self.uploadingAttachments.remove(at: $0) }
+                let chatPhotoPickerObject = attachmentToRemoveIndex.flatMap { uploadingAttachments.remove(at: $0) }
                 
                 switch result {
                 case let .success(url):
                     if let chatPhotoPickerObject = chatPhotoPickerObject,
-                       let content = _self.messageContentFor(
+                       let content = messageContentFor(
                         chatPhotoPickerObject: chatPhotoPickerObject,
                         fileName: fileName,
                         mimeType: mimeType ?? String(),
@@ -218,7 +221,7 @@ class SdkChatSubUploader: ISdkChatSubUploader {
                     #endif
                 }
                 
-                _self.semaphore.setCounter(to: 0)
+                semaphore.setCounter(to: 0)
             }
         }
     }
@@ -258,7 +261,7 @@ class SdkChatSubUploader: ISdkChatSubUploader {
     }
 }
 
-struct CountingSemaphore {
+class CountingSemaphore {
     private(set) var counter: Int
     
     private let dispatchSemaphore: DispatchSemaphore
@@ -268,17 +271,17 @@ struct CountingSemaphore {
         self.dispatchSemaphore = DispatchSemaphore(value: value)
     }
     
-    mutating func wait() {
+    func wait() {
         counter -= 1
         dispatchSemaphore.wait()
     }
     
-    mutating func signal() {
+    func signal() {
         counter += 1
         dispatchSemaphore.signal()
     }
     
-    mutating func setCounter(to newValue: Int) {
+    func setCounter(to newValue: Int) {
         let difference = abs(newValue - counter)
         if newValue > counter {
             (0..<difference).forEach { _ in

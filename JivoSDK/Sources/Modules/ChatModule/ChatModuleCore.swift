@@ -315,7 +315,7 @@ final class ChatModuleCore
             handleSendMessageRequest(message: text)
         case .messageTap(let itemUUID, let interaction):
             handleMessageItemDidTap(itemUUID: itemUUID, tapType: interaction)
-        case .timelineEvent(.latestPointOfHistory(let hasData)):
+        case .timelineEvent(.latestPointOfHistory(let visible, let hasData)):
             timelineFirstItemVisibleHandler(isVisible: hasData)
         case .timelineEvent(.exceptionHappened):
             timelineExceptionHandler()

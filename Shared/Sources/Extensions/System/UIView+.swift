@@ -21,6 +21,10 @@ extension UIView {
         return view
     }
     
+    var jv_isVisible: Bool {
+        return !isHidden
+    }
+    
     var jv_safeInsets: UIEdgeInsets {
         if #available(iOS 11.0, *) {
             return safeAreaInsets
@@ -146,5 +150,35 @@ extension UIView {
         _perform(alpha: 1.0) {
             _perform(alpha: 0, completion: flasher.removeFromSuperview)
         }
+    }
+    
+    func jv_animateGlow(delay: Double) {
+        let gradient = CAGradientLayer()
+        gradient.startPoint = CGPoint(x: 0, y: 0)
+        gradient.endPoint = CGPoint(x: 1.3, y: 0.05)
+        gradient.frame = CGRect(x: 0, y: 0, width: bounds.size.width*3, height: bounds.size.height)
+
+        let lowerAlpha: CGFloat = 0.4
+        let solid = UIColor(white: 1, alpha: 1).cgColor
+        let clear = UIColor(white: 1, alpha: lowerAlpha).cgColor
+        gradient.colors     = [ solid, solid, clear, clear, solid, solid ]
+        gradient.locations  = [ 0,     0.3,   0.45,  0.55,  0.7,   1     ]
+
+        let theAnimation : CABasicAnimation = CABasicAnimation(keyPath: "transform.translation.x")
+        theAnimation.beginTime = CACurrentMediaTime() + delay
+        theAnimation.duration = 0.75
+        theAnimation.repeatCount = 1
+        theAnimation.autoreverses = false
+        theAnimation.isRemovedOnCompletion = true
+        theAnimation.fillMode = CAMediaTimingFillMode.forwards
+        theAnimation.fromValue = -bounds.size.width * 2
+        theAnimation.toValue = 0
+        gradient.add(theAnimation, forKey: "animateGlow")
+
+        layer.mask = gradient
+    }
+    
+    func jv_discardGlow() {
+        layer.mask = nil
     }
 }

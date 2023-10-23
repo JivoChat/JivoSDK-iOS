@@ -16,9 +16,9 @@ extension JVTask {
         }
         
         if let c = change as? JVTaskGeneralChange {
-            m_id = c.ID.jv_toInt64
-            m_site_id = c.siteID?.jv_toInt64 ?? 0
-            m_client_id = c.clientID?.jv_toInt64 ?? 0
+            m_id = c.ID.jv_toInt64(.standard)
+            m_site_id = c.siteID?.jv_toInt64(.standard) ?? 0
+            m_client_id = c.clientID?.jv_toInt64(.standard) ?? 0
             m_client = c.client.flatMap { context.client(for: $0.ID, needsDefault: true) }
             m_agent = context.agent(for: c.agentID, provideDefault: true)
             m_text = c.text

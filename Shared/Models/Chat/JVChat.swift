@@ -14,4 +14,8 @@ class JVChat: JVDatabaseModel {
         super.apply(context: context, change: change)
         performApply(context: context, environment: context.environment, change: change)
     }
+    
+    override func validateForDelete() throws {
+        try super.validateForDelete()
+    }
 }

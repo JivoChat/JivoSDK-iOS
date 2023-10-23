@@ -164,7 +164,7 @@ class SdkChatSubOffline: ISdkChatSubOffline {
         let offlineMessage = chatSubStorage.message(withLocalId: JVSDKMessageOfflineChange.id)
         
         guard let chatId = chatContext.chatRef?.resolved?.ID,
-              let lastMessage = chatSubStorage.history(chatId: chatId, after: anchorDate).first
+              let lastMessage = chatSubStorage.history(chatId: chatId, after: anchorDate, limit: 1).first
         else {
             return (offlineMessage == nil ? .missing : .existing)
         }
@@ -186,7 +186,7 @@ class SdkChatSubOffline: ISdkChatSubOffline {
     
     private func detectNextNature(after anchorDate: Date?) -> OfflineMessageNature {
         guard let chatId = chatContext.chatRef?.resolved?.ID,
-              let lastMessage = chatSubStorage.history(chatId: chatId, after: anchorDate).first
+              let lastMessage = chatSubStorage.history(chatId: chatId, after: anchorDate, limit: 1).first
         else {
             return .missing
         }

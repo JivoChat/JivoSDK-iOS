@@ -26,7 +26,7 @@ extension JVMessageBody {
             m_type = c.type
             m_reason = c.reason
             m_record_link = c.recordLink
-            m_task_id = c.taskID?.jv_toInt64 ?? 0
+            m_task_id = c.taskID?.jv_toInt64(.standard) ?? 0
             m_created_at = c.createdTs.flatMap { Date(timeIntervalSince1970: $0) }
             m_updated_at = c.updatedTs.flatMap { Date(timeIntervalSince1970: $0) }
             m_transitioned_at = c.transitionTs.flatMap { Date(timeIntervalSince1970: $0) }

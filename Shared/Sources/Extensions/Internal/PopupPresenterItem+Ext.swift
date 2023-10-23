@@ -19,6 +19,7 @@ extension PopupPresenterItem.ActionIconPreset {
     static let safari = Self.init(assetName: nil, systemName: "safari")
     static let quit = Self.init(assetName: nil, systemName: "bubble.left.and.bubble.right")
     static let checkmark = Self.init(assetName: nil, systemName: "checkmark")
+    static let checkmarkCircle = Self.init(assetName: nil, systemName: "checkmark.circle")
     static let confirm = Self.init(assetName: nil, systemName: "checkmark.circle")
     static let edit = Self.init(assetName: nil, systemName: "pencil")
     static let save = Self.init(assetName: nil, systemName: "square.and.arrow.down")
@@ -44,4 +45,9 @@ extension PopupPresenterItem.ActionIconPreset {
     static let pointer = Self.init(assetName: "send_webpointer", systemName: nil)
     static let sms = Self.init(assetName: nil, systemName: "bubble.left")
     static let whatsapp = Self.init(assetName: nil, systemName: "bubble.left")
+    static let paintBrush = Self.init(assetName: nil, systemName: "paintbrush.pointed")
+    static let briefcase = Self.init(assetName: nil, systemName: "briefcase")
+    static let text = Self.init(assetName: nil, systemName: "text.justify.left")
+    static let questionmarkCircle = Self.init(assetName: nil, systemName: "questionmark.circle")
+    static let textQuote = Self.init(assetName: nil, systemName: "text.quote")
 }

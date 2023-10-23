@@ -81,7 +81,7 @@ class SdkChatSubHello: ISdkChatSubHello {
             return
         }
         
-        let messages = chatSubStorage.history(chatId: chatId, after: nil)
+        let messages = chatSubStorage.history(chatId: chatId, after: nil, limit: 1)
         if messages.isEmpty, Date().timeIntervalSince(socketConnectedAt) > 2 {
             messageTimer?.invalidate()
             messageTimer = Timer.scheduledTimer(

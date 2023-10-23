@@ -86,6 +86,9 @@ extension JVMessage {
             if m_type == "comment", m_was_deleted {
                 m_is_hidden = true
             }
+            else if JVMessageFlags(rawValue: Int(m_flags)).contains(.detachedFromHistory) {
+                m_is_hidden = true
+            }
             else {
                 m_is_hidden = false
             }
@@ -122,19 +125,33 @@ extension JVMessage {
             )
         }
         
-        if let c = change as? JVMessageGeneralChange {
-            if m_id == 0 { m_id = c.ID.jv_toInt64 }
+        if let c = change as? JVMessageEmptyChange {
+            if m_id == 0 { m_id = c.ID.jv_toInt64(.standard) }
+        }
+        else if let c = change as? JVMessageGeneralChange {
+            if change is JVMessageQuoteChange {
+                if m_id == 0 {
+                    m_flags = JVMessageFlags([.detachedFromHistory]).rawValue.jv_toInt16(.standard)
+                }
+            }
+            else {
+                m_flags = JVMessageFlags(rawValue: Int(m_flags)).subtracting(.detachedFromHistory).rawValue.jv_toInt16(.standard)
+            }
+            
+            if m_id == 0 { m_id = c.ID.jv_toInt64(.standard) }
+            
             m_channel = c.widgetID.flatMap { context.upsert(of: JVChannel.self, with: JVChannelBlankChange(ID: $0)) }
             m_date = m_date_freezed ? m_date : Date(timeIntervalSince1970: TimeInterval(c.creationTS))
-            m_client_id = c.clientID.jv_toInt64
+            m_client_id = c.clientID.jv_toInt64(.standard)
             m_client = context.client(for: Int(m_client_id), needsDefault: false)
-            m_chat_id = c.chatID.jv_toInt64
+            m_chat_id = c.chatID.jv_toInt64(.standard)
             m_type = c.type
             m_is_markdown = c.isMarkdown
             m_text = c.text.jv_trimmed()
             m_body = context.insert(of: JVMessageBody.self, with: c.body, validOnly: true)
             m_media = context.insert(of: JVMessageMedia.self, with: c.media, validOnly: true)
-            
+            m_quoted_message = context.upsert(of: JVMessage.self, with: c.quote)
+
             let updatedReactions = try? PropertyListEncoder().encode(c.reactions)
             if updatedReactions != m_reactions {
                 m_reactions = updatedReactions
@@ -153,11 +170,11 @@ extension JVMessage {
             _adjustHidden()
         }
         else if let c = change as? JVMessageShortChange {
-            if m_id == 0 { m_id = c.ID.jv_toInt64 }
+            if m_id == 0 { m_id = c.ID.jv_toInt64(.standard) }
             
-            m_client_id = c.clientID?.jv_toInt64 ?? 0
+            m_client_id = c.clientID?.jv_toInt64(.standard) ?? 0
             m_client = context.client(for: Int(m_client_id), needsDefault: false)
-            m_chat_id = c.chatID.jv_toInt64
+            m_chat_id = c.chatID.jv_toInt64(.standard)
             m_type = "message"
             m_is_markdown = false
             m_text = c.text.jv_trimmed()
@@ -189,11 +206,11 @@ extension JVMessage {
             }
         }
         else if let c = change as? JVMessageLocalChange {
-            m_id = c.ID.jv_toInt64
-            m_client_id = c.clientID?.jv_toInt64 ?? 0
+            m_id = c.ID.jv_toInt64(.standard)
+            m_client_id = c.clientID?.jv_toInt64(.standard) ?? 0
             m_client = context.client(for: Int(m_client_id), needsDefault: false)
             m_date = m_date_freezed ? m_date : Date(timeIntervalSince1970: TimeInterval(c.creationTS))
-            m_chat_id = c.chatID.jv_toInt64
+            m_chat_id = c.chatID.jv_toInt64(.standard)
             m_text = c.text.jv_trimmed()
             m_type = c.type
             m_is_markdown = c.isMarkdown
@@ -211,17 +228,18 @@ extension JVMessage {
             _adjustHidden()
         }
         else if let c = change as? JVMessageFromClientChange {
-            m_id = c.ID.jv_toInt64
+            m_id = c.ID.jv_toInt64(.standard)
             m_date = m_date_freezed ? m_date : Date()
             m_channel = context.upsert(of: JVChannel.self, with: JVChannelBlankChange(ID: c.channelID))
-            m_client_id = c.clientID.jv_toInt64
+            m_client_id = c.clientID.jv_toInt64(.standard)
             m_client = context.client(for: Int(m_client_id), needsDefault: false)
-            m_chat_id = c.chatID.jv_toInt64
+            m_chat_id = c.chatID.jv_toInt64(.standard)
             m_type = "message"
             m_is_markdown = false
             m_text = c.text.jv_trimmed()
             m_sender_client = context.object(JVClient.self, primaryId: c.clientID)
             m_media = context.insert(of: JVMessageMedia.self, with: c.media, validOnly: true)
+            m_quoted_message = context.upsert(of: JVMessage.self, with: c.quote)
 
             _adjustBotMeta(text: c.text)
             _adjustIncomingState(clientID: nil)
@@ -229,16 +247,17 @@ extension JVMessage {
             _adjustHidden()
         }
         else if let c = change as? JVMessageFromAgentChange {
-            m_id = c.ID.jv_toInt64
-            m_client_id = context.clientID(for: c.chatID)?.jv_toInt64 ?? 0
+            m_id = c.ID.jv_toInt64(.standard)
+            m_client_id = context.clientID(for: c.chatID)?.jv_toInt64(.standard) ?? 0
             m_client = context.client(for: Int(m_client_id), needsDefault: false)
             m_date = m_date_freezed ? m_date : c.date
-            m_chat_id = c.chatID.jv_toInt64
+            m_chat_id = c.chatID.jv_toInt64(.standard)
             m_type = c.type
             m_is_markdown = c.isMarkdown
             m_text = c.text.jv_trimmed()
             m_body = context.insert(of: JVMessageBody.self, with: c.body, validOnly: true)
             m_media = context.insert(of: JVMessageMedia.self, with: c.media, validOnly: true)
+            m_quoted_message = context.upsert(of: JVMessage.self, with: c.quote)
             m_updated_agent = c.updatedBy.flatMap { context.agent(for: $0, provideDefault: false) }
             m_updated_timepoint = c.updatedTs ?? 0
             m_was_deleted = c.isDeleted
@@ -251,16 +270,16 @@ extension JVMessage {
             _adjustHidden()
         }
         else if let c = change as? JVMessageStateChange {
-            m_id = c.globalID.jv_toInt64
+            m_id = c.globalID.jv_toInt64(.standard)
             m_date = m_date_freezed ? m_date : (c.date ?? m_date)
             m_sending_date = 0
             m_sending_failed = false
             _adjustStatus(status: c.status ?? m_status)
         }
         else if let c = change as? JVMessageGeneralSystemChange {
-            m_client_id = c.clientID?.jv_toInt64 ?? 0
+            m_client_id = c.clientID?.jv_toInt64(.standard) ?? 0
             m_client = context.client(for: Int(m_client_id), needsDefault: false)
-            m_chat_id = c.chatID.jv_toInt64
+            m_chat_id = c.chatID.jv_toInt64(.standard)
             m_date = m_date_freezed ? m_date : Date(timeIntervalSince1970: c.creationTS)
             m_ordering_index = 1
             m_text = c.text.jv_trimmed()
@@ -274,13 +293,14 @@ extension JVMessage {
         else if let c = change as? JVMessageOutgoingChange {
             m_local_id = c.localID
             m_date = m_date_freezed ? m_date : c.date
-            m_client_id = c.clientID?.jv_toInt64 ?? 0
+            m_client_id = c.clientID?.jv_toInt64(.standard) ?? 0
             m_client = context.client(for: Int(m_client_id), needsDefault: false)
-            m_chat_id = c.chatID.jv_toInt64
+            m_chat_id = c.chatID.jv_toInt64(.standard)
             m_is_incoming = false
             m_target = try? JSONEncoder().encode(c.target)
             m_is_markdown = false
             m_status = String()
+            m_quoted_message = c.quotingMessageId.flatMap { context.message(for: $0, provideDefault: true) }
             
             switch c.target {
             case .regular:
@@ -421,11 +441,11 @@ extension JVMessage {
             context.environment.performMessageRecalculate(uid: UUID)
         }
         else if let c = change as? JVMessageSdkAgentChange {
-            m_id = c.ID.jv_toInt64
-            m_client_id = context.clientID(for: c.chat.ID)?.jv_toInt64 ?? 0
+            m_id = c.ID.jv_toInt64(.standard)
+            m_client_id = context.clientID(for: c.chat.ID)?.jv_toInt64(.standard) ?? 0
             m_client = context.client(for: Int(m_client_id), needsDefault: false)
             m_date = m_date_freezed ? m_date : c.creationDate
-            m_chat_id = c.chat.ID.jv_toInt64
+            m_chat_id = c.chat.ID.jv_toInt64(.standard)
             m_type = c.type
             m_is_markdown = c.isMarkdown
             m_text = c.text.jv_trimmed()
@@ -442,12 +462,12 @@ extension JVMessage {
             _adjustHidden()
         }
         else if let c = change as? JVMessageSdkClientChange {
-            m_id = c.ID.jv_toInt64
+            m_id = c.ID.jv_toInt64(.standard)
             m_local_id = c.localId
             m_date = m_date_freezed ? m_date : c.date
-            m_client_id = c.clientId.jv_toInt64
+            m_client_id = c.clientId.jv_toInt64(.standard)
             m_client = context.client(for: Int(m_client_id), needsDefault: false)
-            m_chat_id = c.chatId.jv_toInt64
+            m_chat_id = c.chatId.jv_toInt64(.standard)
             m_type = c.type
             m_is_markdown = c.isMarkdown
             m_text = c.text
@@ -459,7 +479,7 @@ extension JVMessage {
             _adjustHidden()
         }
         else if let c = change as? JVSdkMessageStatusChange {
-            m_id = c.id.jv_toInt64
+            m_id = c.id.jv_toInt64(.standard)
             m_status = c.status?.rawValue ?? String()
             
             if let date = c.date {
@@ -471,7 +491,7 @@ extension JVMessage {
                 switch update {
                 case let .id(newValue):
                     if m_id == 0 && m_id != newValue {
-                        m_id = newValue.jv_toInt64
+                        m_id = newValue.jv_toInt64(.standard)
                     }
                     
                     m_is_markdown = true
@@ -511,7 +531,7 @@ extension JVMessage {
                     
                 case let .chatId(newValue):
                     if m_chat_id != newValue {
-                        m_chat_id = newValue.jv_toInt64
+                        m_chat_id = newValue.jv_toInt64(.standard)
                     }
                     
                 case let .media(newValue):
@@ -582,7 +602,7 @@ extension JVMessage {
             }
         }
         else if let c = change as? JVSDKMessageHelloChange {
-            m_chat_id = c.chatId.jv_toInt64
+            m_chat_id = c.chatId.jv_toInt64(.standard)
             m_local_id = c.localId
             m_date = c.date
             m_type = c.type
@@ -592,6 +612,26 @@ extension JVMessage {
                 m_text = text
             }
         }
+        else if let c = change as? JVMessageFlagsChange {
+            m_flags = c.flags.rawValue.jv_toInt16(.standard)
+        }
+    }
+}
+
+final class JVMessageEmptyChange: JVDatabaseModelChange {
+    public let ID: Int
+    
+    init(ID: Int) {
+        self.ID = ID
+        super.init()
+    }
+    
+    override var integerKey: JVDatabaseModelCustomId<Int>? {
+        return JVDatabaseModelCustomId(key: "m_id", value: ID)
+    }
+    
+    required init(json: JsonElement) {
+        fatalError()
     }
 }
 
@@ -599,16 +639,18 @@ class JVMessageBaseGeneralChange: JVDatabaseModelChange, Comparable {
     public let ID: Int
     public let creationTS: TimeInterval
     public let body: JVMessageBodyGeneralChange?
+    let quote: JVMessageQuoteChange?
     public let isOffline: Bool
     
     open override var integerKey: JVDatabaseModelCustomId<Int>? {
         return JVDatabaseModelCustomId(key: "m_id", value: ID)
     }
     
-    init(ID: Int, creationTS: TimeInterval, body: JVMessageBodyGeneralChange?) {
+    init(ID: Int, creationTS: TimeInterval, body: JVMessageBodyGeneralChange?, quote: JVMessageQuoteChange?) {
         self.ID = ID
         self.creationTS = creationTS
         self.body = body
+        self.quote = quote
         self.isOffline = false
         super.init()
     }
@@ -617,6 +659,7 @@ class JVMessageBaseGeneralChange: JVDatabaseModelChange, Comparable {
         ID = json["msg_id"].intValue
         creationTS = json["created_ts"].doubleValue
         body = json["body"].parse()
+        quote = json["replied_message"].parse(model: JVMessageQuoteChange.self)?.copy(nesting: json)
         isOffline = (json["source"]["channel_type"].string == "offline")
         super.init(json: json)
     }
@@ -635,6 +678,7 @@ class JVMessageExtendedGeneralChange: JVMessageBaseGeneralChange {
          ID: Int,
          creationTS: TimeInterval,
          body: JVMessageBodyGeneralChange?,
+         quote: JVMessageQuoteChange?,
          type: String,
          isMarkdown: Bool,
          senderType: String
@@ -646,7 +690,8 @@ class JVMessageExtendedGeneralChange: JVMessageBaseGeneralChange {
         super.init(
             ID: ID,
             creationTS: creationTS,
-            body: body
+            body: body,
+            quote: quote
         )
     }
 
@@ -666,7 +711,7 @@ class JVMessageExtendedGeneralChange: JVMessageBaseGeneralChange {
     }
 }
 
-final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
+class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
     public let clientID: Int
     public let chatID: Int
     public let widgetID: Int?
@@ -696,6 +741,7 @@ final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
          status: String,
          body: JVMessageBodyGeneralChange?,
          media: JVMessageMediaGeneralChange?,
+         quote: JVMessageQuoteChange?,
          updatedBy: Int?,
          updatedTs: TimeInterval?,
          reactions: [JVMessageReaction],
@@ -716,6 +762,7 @@ final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
             ID: ID,
             creationTS: creationTS,
             body: body,
+            quote: quote,
             type: type,
             isMarkdown: isMarkdown,
             senderType: senderType
@@ -764,6 +811,7 @@ final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
             status: status,
             body: body,
             media: media,
+            quote: quote,
             updatedBy: updatedBy,
             updatedTs: updatedTs,
             reactions: reactions,
@@ -785,6 +833,35 @@ final class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
             status: status,
             body: body,
             media: media,
+            quote: quote,
+            updatedBy: updatedBy,
+            updatedTs: updatedTs,
+            reactions: reactions,
+            isDeleted: isDeleted)
+    }
+}
+
+final class JVMessageQuoteChange: JVMessageGeneralChange {
+    override var isValid: Bool {
+        return true
+    }
+    
+    func copy(nesting json: JsonElement) -> JVMessageQuoteChange {
+        return JVMessageQuoteChange(
+            ID: ID,
+            clientID: json["client_id"].intValue,
+            chatID: chatID,
+            widgetID: widgetID,
+            type: JVMessageType.message.rawValue,
+            isMarkdown: isMarkdown,
+            senderID: senderID,
+            senderType: senderType,
+            text: text,
+            creationTS: creationTS,
+            status: status,
+            body: body,
+            media: media,
+            quote: quote,
             updatedBy: updatedBy,
             updatedTs: updatedTs,
             reactions: reactions,
@@ -889,6 +966,7 @@ final class JVMessageLocalChange: JVMessageExtendedGeneralChange {
          creationTS: TimeInterval,
          body: JVMessageBodyGeneralChange?,
          media: JVMessageMediaGeneralChange?,
+         quote: JVMessageQuoteChange?,
          isOffline: Bool,
          updatedBy: Int?,
          updatedTs: TimeInterval?,
@@ -906,6 +984,7 @@ final class JVMessageLocalChange: JVMessageExtendedGeneralChange {
             ID: ID,
             creationTS: creationTS,
             body: body,
+            quote: quote,
             type: type,
             isMarkdown: isMarkdown,
             senderType: senderType
@@ -937,6 +1016,7 @@ final class JVMessageLocalChange: JVMessageExtendedGeneralChange {
             creationTS: creationTS,
             body: body,
             media: media,
+            quote: quote,
             isOffline: isOffline,
             updatedBy: updatedBy,
             updatedTs: updatedTs,
@@ -956,6 +1036,7 @@ final class JVMessageLocalChange: JVMessageExtendedGeneralChange {
             creationTS: creationTS,
             body: body,
             media: media,
+            quote: quote,
             isOffline: isOffline,
             updatedBy: updatedBy,
             updatedTs: updatedTs,
@@ -970,6 +1051,7 @@ final class JVMessageFromClientChange: JVDatabaseModelChange {
     public let chatID: Int
     public let text: String
     public let media: JVMessageMediaGeneralChange?
+    let quote: JVMessageQuoteChange?
 
     override var primaryValue: Int {
         abort()
@@ -979,13 +1061,14 @@ final class JVMessageFromClientChange: JVDatabaseModelChange {
         return JVDatabaseModelCustomId(key: "m_id", value: ID)
     }
     
-    init(ID: Int, channelID: Int, clientID: Int, chatID: Int, text: String, media: JVMessageMediaGeneralChange?) {
+    init(ID: Int, channelID: Int, clientID: Int, chatID: Int, text: String, media: JVMessageMediaGeneralChange?, quote: JVMessageQuoteChange?) {
         self.ID = ID
         self.channelID = channelID
         self.clientID = clientID
         self.chatID = chatID
         self.text = text
         self.media = media
+        self.quote = quote
         super.init()
     }
     
@@ -996,6 +1079,7 @@ final class JVMessageFromClientChange: JVDatabaseModelChange {
         chatID = json["chat_id"].intValue
         text = json["message"].stringValue
         media = json["media"].parse()
+        quote = json["replied_message"].parse(model: JVMessageQuoteChange.self)?.copy(nesting: json)
         super.init(json: json)
     }
     
@@ -1006,7 +1090,8 @@ final class JVMessageFromClientChange: JVDatabaseModelChange {
             clientID: clientID,
             chatID: chatID,
             text: text,
-            media: media
+            media: media,
+            quote: quote
         )
     }
 }
@@ -1038,6 +1123,7 @@ final class JVMessageFromAgentChange: JVMessageExtendedGeneralChange {
          text: String,
          body: JVMessageBodyGeneralChange?,
          media: JVMessageMediaGeneralChange?,
+         quote: JVMessageQuoteChange?,
          updatedBy: Int?,
          updatedTs: TimeInterval?,
          isDeleted: Bool) {
@@ -1055,6 +1141,7 @@ final class JVMessageFromAgentChange: JVMessageExtendedGeneralChange {
             ID: ID,
             creationTS: creationTS,
             body: body,
+            quote: quote,
             type: type,
             isMarkdown: isMarkdown,
             senderType: senderType
@@ -1088,6 +1175,7 @@ final class JVMessageFromAgentChange: JVMessageExtendedGeneralChange {
             text: text,
             body: body,
             media: media,
+            quote: quote,
             updatedBy: updatedBy,
             updatedTs: updatedTs,
             isDeleted: isDeleted)
@@ -1157,7 +1245,7 @@ final class JVMessageGeneralSystemChange: JVMessageBaseGeneralChange {
         self.text = text
         self.interactiveID = interactiveID
         self.iconLink = iconLink
-        super.init(ID: 0, creationTS: date.timeIntervalSince1970, body: nil)
+        super.init(ID: 0, creationTS: date.timeIntervalSince1970, body: nil, quote: nil)
     }
     
     required init(json: JsonElement) {
@@ -1293,7 +1381,8 @@ class JVMessageSdkClientChange: JVMessageExtendedGeneralChange {
          chatId: Int,
          text: String,
          date: Date,
-         media: JVMessageMediaGeneralChange?
+         media: JVMessageMediaGeneralChange?,
+         quote: JVMessageQuoteChange?
     ) {
         self.id = id
         self.localId = localId
@@ -1304,7 +1393,14 @@ class JVMessageSdkClientChange: JVMessageExtendedGeneralChange {
         self.date = date
         self.media = media
         
-        super.init(ID: id, creationTS: date.timeIntervalSince1970, body: nil, type: JVMessageType.message.rawValue, isMarkdown: false, senderType: JVSenderType.client.rawValue)
+        super.init(
+            ID: id,
+            creationTS: date.timeIntervalSince1970,
+            body: nil,
+            quote: quote,
+            type: JVMessageType.message.rawValue,
+            isMarkdown: false,
+            senderType: JVSenderType.client.rawValue)
     }
     
     required init(json: JsonElement) {
@@ -1538,6 +1634,7 @@ final class JVMessageOutgoingChange: JVDatabaseModelChange {
     let contents: JVMessageContent
     let senderType: String
     let senderID: Int
+    let quotingMessageId: Int?
     
     init(localID: String,
          date: Date,
@@ -1546,7 +1643,8 @@ final class JVMessageOutgoingChange: JVDatabaseModelChange {
          target: JVMessageTarget,
          contents: JVMessageContent,
          senderType: String,
-         senderID: Int) {
+         senderID: Int,
+         quotingMessageId: Int?) {
         self.localID = localID
         self.date = date
         self.clientID = clientID
@@ -1555,6 +1653,7 @@ final class JVMessageOutgoingChange: JVDatabaseModelChange {
         self.contents = contents
         self.senderType = senderType
         self.senderID = senderID
+        self.quotingMessageId = quotingMessageId
         super.init()
     }
     
@@ -1583,6 +1682,7 @@ class JVMessageSdkAgentChange: JVMessageExtendedGeneralChange {
          text: String,
          body: JVMessageBodyGeneralChange? = nil,
          media: JVMessageMediaGeneralChange? = nil,
+         quote: JVMessageQuoteChange? = nil,
          type: JVMessageType,
          isMarkdown: Bool = false,
          creationDate: Date?,
@@ -1603,6 +1703,7 @@ class JVMessageSdkAgentChange: JVMessageExtendedGeneralChange {
             ID: id,
             creationTS: creationDate?.timeIntervalSince1970 ?? TimeInterval.zero,
             body: body,
+            quote: quote,
             type: type.rawValue,
             isMarkdown: isMarkdown,
             senderType: JVSenderType.agent.rawValue
@@ -1661,6 +1762,26 @@ class JVSDKMessageHelloChange: JVDatabaseModelChange {
     init(chatId: Int, message: String) {
         self.chatId = chatId
         content = .hello(message: message)
+        
+        super.init()
+    }
+    
+    required init(json: JsonElement) {
+        fatalError("init(json:) has not been implemented")
+    }
+}
+
+final class JVMessageFlagsChange: JVDatabaseModelChange {
+    let ID: Int
+    let flags: JVMessageFlags
+    
+    override var integerKey: JVDatabaseModelCustomId<Int>? {
+        return JVDatabaseModelCustomId(key: "m_id", value: ID)
+    }
+    
+    init(ID: Int, flags: JVMessageFlags) {
+        self.ID = ID
+        self.flags = flags
         
         super.init()
     }

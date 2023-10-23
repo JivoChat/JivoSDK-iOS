@@ -9,13 +9,9 @@
 import JMTimelineKit
 
 struct JMTimelineMessagePlainInfo: JMTimelineInfo {
+    let quotedMessage: JVMessage?
     let text: String
     let style: JMTimelineCompositePlainStyle
-    
-    init(text: String, style: JMTimelineCompositePlainStyle) {
-        self.text = text
-        self.style = style
-    }
 }
 
 typealias JMTimelinePlainStyle = JMTimelineCompositePlainStyle

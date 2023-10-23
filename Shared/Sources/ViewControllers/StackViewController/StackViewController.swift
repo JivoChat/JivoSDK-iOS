@@ -36,7 +36,7 @@ class StackViewController<Satellite: BaseViewControllerSatellite>: KeyboardableV
     private(set) var stackItems = [StackItem]()
     private var defaultMargins = UIEdgeInsets.zero // (top: 20, left: 0, bottom: 20, right: 0)
     private var defaultPaddings = UIEdgeInsets.zero
-    private var defaultInsets = UIEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
+    private(set) var defaultInsets = UIEdgeInsets(top: 20, left: 0, bottom: 20, right: 0)
     private var defaultItemInsets = UIEdgeInsets.zero
     
     init(satellite: Satellite?, layout: StackViewLayout, fitting: StackViewFitting, sideMargin: CGFloat? = nil) {
@@ -49,9 +49,7 @@ class StackViewController<Satellite: BaseViewControllerSatellite>: KeyboardableV
         scrollView.alwaysBounceVertical = true
         scrollView.keyboardDismissMode = .interactive
         
-        if #available(iOS 11.0, *) {
-            scrollView.contentInsetAdjustmentBehavior = .never
-        }
+        scrollView.contentInsetAdjustmentBehavior = .never
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -106,7 +104,6 @@ class StackViewController<Satellite: BaseViewControllerSatellite>: KeyboardableV
             scale: scale ?? 1.0,
             renderable: true)
         stackItems.append(item)
-
         scrollView.addSubview(view)
         self.view.setNeedsLayout()
     }

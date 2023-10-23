@@ -9,6 +9,13 @@
 import Foundation
 import JMCodingKit
 
+enum NetworkingUrlScope {
+    case original
+    case replace(String)
+}
+
+typealias NetworkingUrlBuilder = (URL, String?, NetworkingUrlScope, String?) -> URL?
+
 final class Networking: INetworking {
     private struct RequestMeta {
         let kindID: UUID
@@ -27,7 +34,7 @@ final class Networking: INetworking {
     private let preferencesDriver: IPreferencesDriver
     private let endpointAccessor: IKeychainAccessor
     private let jsonPrivacyTool: JVJsonPrivacyTool
-    private let hostProvider: (URL, String) -> URL?
+    private let urlBuilder: NetworkingUrlBuilder
 
     private var socketEventObserver: JVBroadcastObserver<NetworkingSubSocketEvent>?
     private var restEventObserver: JVBroadcastObserver<NetworkingSubRestEvent>?
@@ -48,7 +55,7 @@ final class Networking: INetworking {
         preferencesDriver: IPreferencesDriver,
         keychainDriver: IKeychainDriver,
         jsonPrivacyTool: JVJsonPrivacyTool,
-        hostProvider: @escaping (URL, String) -> URL?
+        urlBuilder: @escaping NetworkingUrlBuilder
     ) {
         context = NetworkingContext(
             localeProvider: localeProvider
@@ -67,7 +74,7 @@ final class Networking: INetworking {
         self.preferencesDriver = preferencesDriver
         self.endpointAccessor = keychainDriver.retrieveAccessor(forToken: .endpoint)
         self.jsonPrivacyTool = jsonPrivacyTool
-        self.hostProvider = hostProvider
+        self.urlBuilder = urlBuilder
 
         requestMetas = Dictionary()
         
@@ -199,8 +206,8 @@ final class Networking: INetworking {
                     return self
                 }
             case .build(.chatServer, let path):
-                if let sub = endpointAccessor.string, let scopedURL = hostProvider(baseURL, sub) {
-                    resolvedURL = scopedURL.appendingPathComponent(path)
+                if let scopedURL = urlBuilder(baseURL, endpointAccessor.string, .original, path) {
+                    resolvedURL = scopedURL
                 }
                 else {
                     let chain = journal {"Failed constructing the scoped url for chatServer"}
@@ -210,8 +217,8 @@ final class Networking: INetworking {
                     return self
                 }
             case .build(let scope, let path) where scope.kind == .specific:
-                if let scopedURL = hostProvider(baseURL, scope.value) {
-                    resolvedURL = scopedURL.appendingPathComponent(path)
+                if let scopedURL = urlBuilder(baseURL, endpointAccessor.string, .replace(scope.value), path) {
+                    resolvedURL = scopedURL
                 }
                 else {
                     let chain = journal {"Failed constructing the scoped url for \(scope)"}

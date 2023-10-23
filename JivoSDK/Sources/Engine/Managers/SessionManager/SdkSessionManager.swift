@@ -507,7 +507,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     }
     
     override func handleProtoEvent(transaction: [NetworkingEventBundle]) {
-        let meTransaction = transaction.filter { $0.payload.type == ProtoTransactionKind.session(.me) }
+        let meTransaction = transaction.filter { $0.payload.type == .session(.me) }
         handleMeTransaction(meTransaction)
     }
     

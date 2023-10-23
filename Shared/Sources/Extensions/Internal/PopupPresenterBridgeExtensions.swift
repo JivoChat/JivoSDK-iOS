@@ -39,15 +39,12 @@ extension IPopupPresenterBridge {
     
     #if ENV_APP
     func warnFeatureNeedsPro(telemeteryService: ITelemetryService?) {
-        telemeteryService?.track_exp4905_init()
-        
         displayAlert(
             within: .root,
             title: loc["Dialog.FeatureForPro.Description"],
             message: nil,
             items: [
                 .action(loc["Dialog.FeatureForPro.ToSupport"], .icon(.quit), .regular { _ in
-                    telemeteryService?.track_exp4905_support()
                     NotificationCenter.default.post(name: .OpenSupport, object: nil)
                 }),
                 .dismiss(.cancel)

@@ -7,7 +7,7 @@
 //
 
 import Foundation
-@testable import Jivo
+@testable import App
 
 class UUIDProviderMock: IUUIDProvider {
     var currentDeviceID: String {

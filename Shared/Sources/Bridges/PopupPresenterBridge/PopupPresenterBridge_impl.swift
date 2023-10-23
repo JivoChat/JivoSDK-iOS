@@ -72,6 +72,17 @@ final class PopupPresenterBridge: NSObject, IPopupPresenterBridge {
         }
     }
     
+    func displayFlexibleMenu(within container: PopupPresenterDisplayContainer, source: FlexibleMenuTriggerButton?, items: [PopupPresenterFlexibleMenuItem]) {
+        source?.willDisplayMenuHandler?()
+        let viewController = PopupFlexibleMenuViewController()
+        viewController.items = items
+        viewController.modalPresentationStyle = .popover
+        viewController.popoverPresentationController?.delegate = viewController
+        viewController.popoverPresentationController?.sourceView = source
+        viewController.popoverPresentationController?.permittedArrowDirections = []
+        displayAsModal(within: container, viewController: viewController)
+    }
+    
     func informShortly(message: String) {
         informableContainer.display(
             title: message,
@@ -124,6 +135,28 @@ final class PopupPresenterBridge: NSObject, IPopupPresenterBridge {
         configurator.reset(barButtonItem: barButtonItem)
     }
     
+    func attachFlexibleMenu(to button: FlexibleMenuTriggerButton, location: PopupPresenterMenuLocation, items: [PopupPresenterFlexibleMenuItem]) {
+        let gesture = FlexibleContextMenuGesture(
+            target: self,
+            action: #selector(handleFlexibleContextMenuGesture),
+            items: items,
+            button: button
+        )
+        
+        let configurator = PopupPresenterFlexibleMenuConfigurator(items: items)
+        configurator.configure(
+            button: button,
+            fallbackRecognizer: gesture
+        )
+    }
+    
+    func detachFlexibleMenu(from button: UIButton) {
+        if let gesture = button.gestureRecognizers?
+            .first(where: { $0 is FlexibleContextMenuGesture }) {
+            button.removeGestureRecognizer(gesture)
+        }
+    }
+    
     private func constructAlert(title: String?, about: String?) -> UIAlertController {
         let alert = UIAlertController(
             title: title,
@@ -167,6 +200,14 @@ final class PopupPresenterBridge: NSObject, IPopupPresenterBridge {
             message: nil,
             items: [.dismiss(.cancel)] + gesture.items)
     }
+    
+    @objc private func handleFlexibleContextMenuGesture(gesture: FlexibleContextMenuGesture) {
+        displayFlexibleMenu(
+            within: .root,
+            source: gesture.button as? FlexibleMenuTriggerButton,
+            items: gesture.items
+        )
+    }
 }
 
 fileprivate final class ContextMenuGesture: UITapGestureRecognizer {
@@ -175,6 +216,16 @@ fileprivate final class ContextMenuGesture: UITapGestureRecognizer {
     init(target: Any?, action: Selector?, items: [PopupPresenterItem]) {
         self.items = items
         
+        super.init(target: target, action: action)
+    }
+}
+
+fileprivate final class FlexibleContextMenuGesture: UITapGestureRecognizer {
+    let items: [PopupPresenterFlexibleMenuItem]
+    let button: UIButton
+    init(target: Any?, action: Selector?, items: [PopupPresenterFlexibleMenuItem], button: UIButton) {
+        self.items = items
+        self.button = button
         super.init(target: target, action: action)
     }
 }
@@ -192,8 +243,8 @@ fileprivate extension Array where Element == PopupPresenterItem {
             case .bottom:
                 return map { item in
                     switch item {
-                    case .children(let items):
-                        return .children(items: items.reversed())
+                    case .children(let title, let items):
+                        return .children(title: title, items: items.reversed())
                     default:
                         return item
                     }

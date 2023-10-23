@@ -7,12 +7,12 @@
 //
 
 import XCTest
-@testable import JivoSDKDemo
+@testable import App
 
 public final class BroadcastToolUnit: XCTestCase {
     public func test_whenObserverDelinked_thenObserverUnsubscribes() {
-        let observable = BroadcastTool<Bool>()
-        var observer: BroadcastObserver<Bool>?
+        let observable = JVBroadcastTool<Bool>()
+        var observer: JVBroadcastObserver<Bool>?
         
         var counter = 0
         observer = observable.addObserver { _ in counter += 1 }
@@ -30,8 +30,8 @@ public final class BroadcastToolUnit: XCTestCase {
     }
     
     public func test_whenObservableBroadcastsValue_thenObserverCatchesIt() {
-        let observable = BroadcastTool<Int?>()
-        var observer: BroadcastObserver<Int?>?
+        let observable = JVBroadcastTool<Int?>()
+        var observer: JVBroadcastObserver<Int?>?
         
         var lastValue: Int?
         observer = observable.addObserver { value in lastValue = value }

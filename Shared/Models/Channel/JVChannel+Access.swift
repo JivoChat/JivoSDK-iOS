@@ -16,6 +16,8 @@ enum JVChannelJoint: String {
     case tg = "tg"
     case vb = "vb"
     case wa = "wa"
+    case wb = "wb"
+    case tw = "tw"
     case email = "email"
     case sdk = "sdk"
     case ya = "ya"
@@ -35,7 +37,7 @@ enum JVChannelJoint: String {
         case .ok: return loc["Client.Integration.OK"]
         case .tg: return loc["Client.Integration.TG"]
         case .vb: return loc["Client.Integration.VB"]
-        case .wa: return loc["Client.Integration.WA"]
+        case .wa, .wb, .tw: return loc["Client.Integration.WA"]
         case .email: return loc["Client.Integration.Email"]
         case .sdk: return loc["Client.Integration.SDK"]
         case .ya: return loc["Client.Integration.YA"]
@@ -57,7 +59,7 @@ enum JVChannelJoint: String {
         case .ok: return loc["Client.Integration.OK"]
         case .tg: return loc["Client.Integration.TG"]
         case .vb: return loc["Client.Integration.VB"]
-        case .wa: return loc["Client.Integration.WA"]
+        case .wa, .wb, .tw: return loc["Client.Integration.WA"]
         case .email: return loc["Client.Integration.Email"]
         case .sdk: return loc["Client.Integration.SDK"]
         case .ya: return loc["Client.Integration.YA"]
@@ -79,7 +81,7 @@ enum JVChannelJoint: String {
         case .ok: return true
         case .tg: return true
         case .vb: return true
-        case .wa: return true
+        case .wa, .wb, .tw: return true
         case .email: return true
         case .sdk: return true
         case .ya: return false
@@ -101,7 +103,7 @@ enum JVChannelJoint: String {
         case .ok: return true
         case .tg: return true
         case .vb: return true
-        case .wa: return true
+        case .wa, .wb, .tw: return true
         case .email: return true
         case .sdk: return true
         case .ya: return false
@@ -131,11 +133,20 @@ extension JVChannel {
     }
     
     var siteURL: URL? {
-        return m_site_url.flatMap(URL.init)
+        guard let m_site_url = m_site_url else { return nil}
+        if #available(iOS 17.0, *) {
+            return URL(string: m_site_url, encodingInvalidCharacters: false)
+        } else {
+            return URL(string: m_site_url)
+        }
     }
     
     var name: String {
         return siteURL?.absoluteString ?? m_site_url ?? String()
+    }
+    
+    var rawName: String {
+        return m_site_url.jv_orEmpty
     }
     
     var guestsNumber: Int {
@@ -144,6 +155,10 @@ extension JVChannel {
     
     var jointType: JVChannelJoint? {
         return m_joint_type.flatMap(JVChannelJoint.init)
+    }
+    
+    var jointAlias: String {
+        return m_joint_alias.jv_orEmpty
     }
     
     var jointURL: String {
@@ -159,6 +174,14 @@ extension JVChannel {
         default:
             return false
         }
+    }
+    
+    var isWhatsapp: Bool {
+        if jointType == .wa { return true }
+        if jointType == .wb { return true }
+        if jointType == .tw { return true }
+        if jointType == .webhook, jointAlias == "sendpulse" { return true }
+        return false
     }
     
     func hasAttachedAgent(ID agentID: Int) -> Bool {
@@ -187,7 +210,7 @@ extension JVChannel {
             return UIImage(named: "preview_tg")
         case .vb:
             return UIImage(named: "preview_vb")
-        case .wa:
+        case .wa, .wb, .tw:
             return UIImage(named: "preview_wa")
         case .ya:
             return UIImage(named: "preview_ya")

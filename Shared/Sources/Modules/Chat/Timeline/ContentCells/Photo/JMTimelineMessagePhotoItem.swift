@@ -10,23 +10,13 @@ import UIKit
 import JMTimelineKit
 
 struct JMTimelineMessagePhotoInfo: JMTimelineInfo {
+    let quotedMessage: JVMessage?
     let url: URL
     let width: Int
     let height: Int
     let contentMode: UIView.ContentMode
     let allowFullscreen: Bool
-    
-    init(url: URL,
-                width: Int,
-                height: Int,
-                contentMode: UIView.ContentMode,
-                allowFullscreen: Bool) {
-        self.url = url
-        self.width = width
-        self.height = height
-        self.contentMode = contentMode
-        self.allowFullscreen = allowFullscreen
-    }
+    let contentTint: UIColor
 }
 
 struct JMTimelinePhotoStyle: JMTimelineStyle {

@@ -17,10 +17,10 @@ extension JVMessageMedia {
             m_thumb_link = c.thumbLink ?? ""
             m_full_link = c.fullLink
             m_emoji = c.emoji ?? ""
-            m_size = c.size.jv_toInt32
-            m_width = c.width.jv_toInt32
-            m_height = c.height.jv_toInt32
-            m_duration = c.duration.jv_toInt32
+            m_size = c.size.jv_toInt32(.standard)
+            m_width = c.width.jv_toInt32(.standard)
+            m_height = c.height.jv_toInt32(.standard)
+            m_duration = c.duration.jv_toInt32(.standard)
             m_latitude = c.latitude ?? 0
             m_longitude = c.longitude ?? 0
             m_phone = c.phone ?? ""

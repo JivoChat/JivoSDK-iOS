@@ -7,7 +7,7 @@
 //
 
 import Foundation
-@testable import Jivo
+@testable import App
 
 class SchedulingDriverMock: ISchedulingDriver {
     func schedule(for ID: SchedulingActionID, delay: TimeInterval, repeats: Bool, block: @escaping SchedulingActionBlock) {

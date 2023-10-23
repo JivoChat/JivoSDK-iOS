@@ -19,6 +19,8 @@ protocol IPopupPresenterBridge: AnyObject {
     func detachMenu(from button: UIButton)
     func attachMenu(to barButtonItem: UIBarButtonItem, location: PopupPresenterMenuLocation, items: [PopupPresenterItem]) -> UIBarButtonItem
     func detachMenu(from barButtonItem: UIBarButtonItem)
+    func attachFlexibleMenu(to button: FlexibleMenuTriggerButton, location: PopupPresenterMenuLocation, items: [PopupPresenterFlexibleMenuItem])
+    func detachFlexibleMenu(from button: UIButton)
 }
 
 struct PopupPresenterContext {
@@ -29,7 +31,7 @@ enum PopupPresenterItem {
     case action(_ title: String, _ icon: ActionIcon, _ state: ActionState)
     case input(title: String, placeholder: String?)
     case dismiss(_ kind: DismissKind)
-    case children(items: [PopupPresenterItem])
+    case children(title: String?, items: [PopupPresenterItem])
     case settings
     case omit
 }
@@ -62,4 +64,14 @@ extension PopupPresenterItem {
         case understand
         case custom(String)
     }
+}
+
+enum PopupPresenterFlexibleMenuItem {
+    case title(_ title: String)
+    case action(
+        title: String,
+        icon: UIImage?,
+        options: PopupFlexibleMenuItemOptions,
+        handler: (() -> Void)?
+    )
 }

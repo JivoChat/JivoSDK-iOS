@@ -7,8 +7,7 @@
 //
 
 import Foundation
-import JivoFoundation
-@testable import Jivo
+@testable import App
 
 class MentioningProviderMock: IMentioningProvider {
     let agents: [JVAgent]

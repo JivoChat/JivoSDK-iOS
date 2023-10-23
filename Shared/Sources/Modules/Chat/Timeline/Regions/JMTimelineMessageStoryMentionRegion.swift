@@ -41,7 +41,9 @@ final class JMTimelineMessageStoryMentionRegion: JMTimelineMessageCanvasRegion {
                 allowFullscreen: info.allowFullscreen,
                 style: JMTimelineCompositePhotoStyle(
                     ratio: JVDesign.layout.defaultMediaRatio,
-                    contentMode: info.contentMode
+                    contentMode: info.contentMode,
+                    decorationColor: resolveDecorationColor(),
+                    corners: CACornerMask(rawValue: ~0)
                 ),
                 provider: provider,
                 interactor: interactor)

@@ -7,7 +7,7 @@
 //
 
 import Foundation
-@testable import Jivo
+@testable import App
 
 class AgentsRepoMock: IAgentsRepo {
     let agents: [JVAgent]
@@ -22,5 +22,8 @@ class AgentsRepoMock: IAgentsRepo {
     
     func retrieveAll(listing: AgentRepoRetrievalListing) -> [JVAgent] {
         return agents
+    }
+    
+    func updateDraft(id: Int, currentText: String?) {
     }
 }

@@ -107,7 +107,7 @@ final class SdkEngine: ISdkEngine {
         ).build()
         
         let parsingQueue = DispatchQueue(label: "jivosdk.networking.mapper.queue", qos: .userInteractive)
-        let uploadingQueue = DispatchQueue(label: "jivosdk.engine.file-uploader.queue", qos: .userInteractive)
+        let uploadingQueue = DispatchQueue(label: "jivosdk.engine.fileuploader.queue", qos: .userInteractive)
 
         self.namespace = namespace
         self.userDefaults = userDefaults
@@ -191,36 +191,52 @@ final class SdkEngine: ISdkEngine {
             preferencesDriver: drivers.preferencesDriver,
             keychainDriver: drivers.keychainDriver,
             jsonPrivacyTool: jsonPrivacyTool,
-            hostProvider: { baseURL, scope in
+            urlBuilder: { standardURL, endpoint, scope, path -> URL? in
                 switch scope {
-                case RestConnectionTargetBuildScope.api.value:
-                    if let config = sessionContext.endpointConfig {
-                        return URL(string: config.apiHost)
+                case .replace(RestConnectionTargetBuildScope.api.value):
+                    guard let config = sessionContext.endpointConfig,
+                          var components = URLComponents(string: config.apiHost)
+                    else {
+                        return nil
                     }
+
+                    if let path = path {
+                        components.path = path.hasPrefix("/") ? (path) : ("/" + path)
+                    }
+                    
+                    return components.url
+                    
+                default:
+                    guard var components = URLComponents(url: standardURL, resolvingAgainstBaseURL: false),
+                          let standardHost = components.host
+                    else {
+                        return nil
+                    }
+
+                    guard standardHost.split(separator: ".").first == "api"
                     else {
                         return nil
                     }
                     
-                default:
-                    guard var baseComponents = URLComponents(url: baseURL, resolvingAgainstBaseURL: false),
-                          let baseHost = baseComponents.host
-                    else {
-                        return nil
+                    if let endpoint = endpoint {
+                        let endpointOuter = endpoint.split(separator: ":")
+                        let endpointInner = endpointOuter.first?.split(separator: ".") ?? .jv_empty
+
+                        switch scope {
+                        case .original:
+                            components.host = endpointInner.joined(separator: ".")
+                            components.port = sessionContext.endpointConfig?.chatserverPort.jv_valuable
+                        case .replace(let value):
+                            let tail = endpointInner.dropFirst(1).map(String.init)
+                            components.host = ([value] + tail).joined(separator: ".")
+                        }
+                    }
+                    
+                    if let path = path {
+                        components.path = path.hasPrefix("/") ? (path) : ("/" + path)
                     }
 
-                    var hostParts = baseHost.split(separator: ".")
-                    guard hostParts.first == "api"
-                    else {
-                        return nil
-                    }
-
-                    if let subdomain = scope.split(separator: ".").first {
-                        hostParts[0] = subdomain
-                    }
-
-                    baseComponents.host = hostParts.joined(separator: ".")
-                    baseComponents.port = sessionContext.endpointConfig?.chatserverPort.jv_valuable
-                    return baseComponents.url
+                    return components.url
                 }
             }
         )

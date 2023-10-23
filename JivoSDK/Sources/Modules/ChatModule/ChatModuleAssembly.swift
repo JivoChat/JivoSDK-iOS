@@ -77,7 +77,8 @@ func ChatModuleAssembly(engine: RTEConfigTrunk, navigator: IRTNavigator, uiConfi
         displayNameKind: .original,
         outcomingPalette: uiConfig.outcomingPalette,
         keyboardAnchorControl: keyboardAnchorControl,
-        contactFormCache: engine.retrieveCacheBundle(token: engine.clientContext.personalNamespace).contactFormCache
+        contactFormCache: engine.retrieveCacheBundle(token: engine.clientContext.personalNamespace).contactFormCache,
+        historyDelegate: nil
     )
     
     let timelineController = JMTimelineController<ChatTimelineInteractor>(

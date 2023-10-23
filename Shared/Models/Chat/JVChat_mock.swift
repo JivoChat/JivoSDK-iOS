@@ -6,6 +6,7 @@
 //
 
 import Foundation
+@testable import App
 
 final class JVChatMock: JVChat {
     override var m_is_group: Bool {

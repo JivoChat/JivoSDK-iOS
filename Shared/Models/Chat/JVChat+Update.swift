@@ -35,15 +35,16 @@ extension JVChat {
             }
             
             if c.knownArchived {
-                m_is_archived = true
+                m_attendee = nil
                 m_loaded_partial_history = false
             }
-            else if !c.attendees.isEmpty {
-                let attendees = context.insert(of: JVChatAttendee.self, with: c.attendees)
-                e_attendees.setSet(Set(attendees.filter { $0.agent != nil }))
+            
+            if c.attendees.isEmpty {
+                m_attendee = nil
             }
             else {
-                m_is_archived = true
+                let attendees = context.insert(of: JVChatAttendee.self, with: c.attendees)
+                e_attendees.setSet(Set(attendees.filter { $0.agent != nil }))
             }
             
             m_client = context.upsert(of: JVClient.self, with: c.client)
@@ -93,7 +94,7 @@ extension JVChat {
                 m_termination_date = nil
             }
             else {
-                m_attendee = m_is_archived ? nil : m_attendee
+                m_attendee = nil
                 m_unread_number = -1
             }
             
@@ -174,7 +175,7 @@ extension JVChat {
             m_title = c.title
             m_about = c.about ?? m_about
             m_icon = c.icon?.jv_valuable?.jv_convertToEmojis() ?? m_icon
-            m_is_archived = c.isArchived
+            m_attendee = c.isArchived ? nil : m_attendee
         }
         else if let c = change as? JVChatLastMessageChange {
             let wantedMessage: JVMessage?
@@ -303,6 +304,9 @@ extension JVChat {
             m_request_cancelled_by_system = true
             m_request_cancelled_by_agent = nil
             m_transfer_cancelled = false
+        }
+        else if change is JVChatArchiveChange {
+            m_attendee = nil
         }
         else if let c = change as? JVChatRequestCancelledChange {
             let agent = context.agent(for: c.acceptedByID, provideDefault: true)
@@ -465,12 +469,16 @@ final class JVChatGeneralChange: JVDatabaseModelChange {
         receivedMessageID = 0
         unreadNumber = json["count_unread"].int
         
+        let attendeesChanges: [JVChatAttendeeGeneralChange] = (json["attendees"].parseList() ?? Array())
+            .filter {
+                ["invited", "attendee", ""].contains($0.relation.jv_orEmpty)
+            }
+        
         if let _ = client {
-            attendees = json["attendees"].parseList() ?? []
+            attendees = attendeesChanges
         }
         else {
-            let values: [JVChatAttendeeGeneralChange] = json["attendees"].parseList() ?? []
-            attendees = values.map { $0.copy(relation: "") }
+            attendees = attendeesChanges.map { $0.copy(relation: "") }
         }
         
         if let clientID = client?.ID {
@@ -592,10 +600,10 @@ final class JVChatGeneralChange: JVDatabaseModelChange {
             knownArchived: knownArchived ?? self.knownArchived)
     }
     
-    func cachable() -> JVChatGeneralChange {
+    var cachable: JVChatGeneralChange {
         return JVChatGeneralChange(
             ID: ID,
-            attendees: attendees.map { $0.cachable() },
+            attendees: attendees.map(\.cachable),
             client: client,
             agentID: agentID,
             lastMessage: lastMessage,
@@ -972,6 +980,24 @@ final class JVChatTransferCancelChange: JVDatabaseModelChange {
 }
 
 final class JVChatFinishedChange: JVDatabaseModelChange {
+    public let ID: Int
+    
+    override var primaryValue: Int {
+        return ID
+    }
+    
+    required init(json: JsonElement) {
+        self.ID = json["chat_id"].intValue
+        super.init(json: json)
+    }
+    
+    init(ID: Int) {
+        self.ID = ID
+        super.init()
+    }
+}
+
+final class JVChatArchiveChange: JVDatabaseModelChange {
     public let ID: Int
     
     override var primaryValue: Int {

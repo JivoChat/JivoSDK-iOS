@@ -16,15 +16,16 @@ extension JVChannel {
         }
         
         if let c = change as? JVChannelBlankChange {
-            m_id = c.ID.jv_toInt64
+            m_id = c.ID.jv_toInt64(.standard)
         }
         else if let c = change as? JVChannelGeneralChange {
-            m_id = c.ID.jv_toInt64
+            m_id = c.ID.jv_toInt64(.standard)
             m_public_id = c.publicID
-            m_state_id = c.stateID.jv_toInt16
+            m_state_id = c.stateID.jv_toInt16(.standard)
             m_site_url = c.siteURL
-            m_guests_number = c.guestsNumber.jv_toInt16
+            m_guests_number = c.guestsNumber.jv_toInt16(.standard)
             m_joint_type = c.jointType ?? ""
+            m_joint_alias = c.jointAlias.jv_orEmpty
             m_joint_url = c.jointURL ?? ""
             m_agents_ids = "," + c.agentIDs.jv_stringify().joined(separator: ",") + ","
         }
@@ -48,13 +49,14 @@ final class JVChannelBlankChange: JVDatabaseModelChange {
     }
 }
 
-final class JVChannelGeneralChange: JVDatabaseModelChange {
+final class JVChannelGeneralChange: JVDatabaseModelChange, Codable {
     public let ID: Int
     public let publicID: String
     public let stateID: Int
     public let siteURL: String
     public let guestsNumber: Int
     public let jointType: String?
+    public let jointAlias: String?
     public let jointURL: String?
     public let agentIDs: [Int]
     
@@ -70,6 +72,7 @@ final class JVChannelGeneralChange: JVDatabaseModelChange {
         siteURL = info["site_url"].stringValue
         guestsNumber = info["visitors_insight"].intValue
         jointType = info["joint_type"].string
+        jointAlias = info["joint_alias"].string
         jointURL = info["prepared_joint_options"]["url"].stringValue
         agentIDs = json["agents"].intArray ?? []
         super.init(json: json)

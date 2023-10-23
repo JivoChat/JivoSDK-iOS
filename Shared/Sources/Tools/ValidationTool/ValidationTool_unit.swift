@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import Jivo
+@testable import App
 
 class ValidationToolUnit: XCTestCase {
     private let tool = ValidationTool()

@@ -12,7 +12,7 @@ import JMCodingKit
 extension JVMessageTransfer {
     func performApply(context: JVIDatabaseContext, environment: JVIDatabaseEnvironment, change: JVDatabaseModelChange) {
         if let c = change as? JVMessageTransferGeneralChange {
-            m_agent_id = c.agentID.jv_toInt64
+            m_agent_id = c.agentID.jv_toInt64(.standard)
             m_comment = c.comment
         }
     }

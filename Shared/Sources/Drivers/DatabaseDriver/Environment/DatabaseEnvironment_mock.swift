@@ -6,6 +6,7 @@
 //
 
 import Foundation
+@testable import App
 
 class DatabaseEnvironmentMock: JVIDatabaseEnvironment {
     func performMessageRecalculate(uid: String) {

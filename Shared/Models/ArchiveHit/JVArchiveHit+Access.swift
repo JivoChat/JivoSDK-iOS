@@ -38,7 +38,11 @@ extension JVArchiveHit {
         return item?.duration ?? 0
     }
     
-    var latestActivityTime: Date? {
-        return m_latest_activity_time
+    var score: Float {
+        return m_score
+    }
+    
+    var sortingRank: String {
+        return m_sorting_rank.jv_orEmpty
     }
 }

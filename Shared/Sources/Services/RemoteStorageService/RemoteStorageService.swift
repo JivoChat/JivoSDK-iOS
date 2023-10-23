@@ -148,7 +148,9 @@ enum RemoteStorageFileUploadError: Error {
 final class RemoteStorageService: IRemoteStorageService {
     private let userContext: IBaseUserContext
     private let cacheDriver: ICacheDriver
+    private let keychainDriver: IKeychainDriver
     private let centerProvider: (RemoteStorageTarget.Purpose) -> RemoteStorageCenter?
+    private let urlBuilder: NetworkingUrlBuilder
     
     private let subQueue: RemoteStorageSubQueue
     private let filesUp: IRemoteStorageSubEngineUp
@@ -158,10 +160,12 @@ final class RemoteStorageService: IRemoteStorageService {
     
     private let cachingDirectory = "remote-storage"
     
-    init(thread: JVIDispatchThread, userContext: IBaseUserContext, networking: INetworking, networkingHelper: INetworkingHelper, networkEventDispatcher: INetworkingEventDispatcher, cacheDriver: ICacheDriver, centerProvider: @escaping (RemoteStorageTarget.Purpose) -> RemoteStorageCenter?, tokenProvider: @escaping () -> String?) {
+    init(thread: JVIDispatchThread, userContext: IBaseUserContext, networking: INetworking, networkingHelper: INetworkingHelper, networkEventDispatcher: INetworkingEventDispatcher, cacheDriver: ICacheDriver, keychainDriver: IKeychainDriver, centerProvider: @escaping (RemoteStorageTarget.Purpose) -> RemoteStorageCenter?, tokenProvider: @escaping () -> String?, urlBuilder: @escaping NetworkingUrlBuilder) {
         self.userContext = userContext
         self.cacheDriver = cacheDriver
+        self.keychainDriver = keychainDriver
         self.centerProvider = centerProvider
+        self.urlBuilder = urlBuilder
         
         subQueue = RemoteStorageSubQueue(
             userContext: userContext,
@@ -190,9 +194,11 @@ final class RemoteStorageService: IRemoteStorageService {
         
         mediaDown = RemoteStorageSubMediaDown(
             networking: networking,
+            endpointAccessor: keychainDriver.retrieveAccessor(forToken: .endpoint),
             cacheDriver: cacheDriver,
             cachingDirectory: cachingDirectory,
-            tokenProvider: tokenProvider
+            tokenProvider: tokenProvider,
+            urlBuilder: urlBuilder
         )
         
         subQueue.activeItemSignal.attachObserver { [unowned self] item in
@@ -274,7 +280,7 @@ final class RemoteStorageService: IRemoteStorageService {
     }
     
     private func detectMediaEngine(url: URL) -> Bool {
-        if let host = url.host, host.hasPrefix("media"), host.contains(".jivo") {
+        if let host = url.host, host.hasPrefix("media") {
             return true
         }
         else {

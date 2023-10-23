@@ -301,12 +301,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
             return false
         }
         
-        if host.contains(".jivo") {
-            return (host.hasPrefix("media") || host.hasPrefix("files"))
-        }
-        else {
-            return false
-        }
+        return (host.hasPrefix("media") || host.hasPrefix("files"))
     }
     
     private func doesMessageContainMediaMarkdown(_ markdown: String, json: JsonElement) -> Bool {
@@ -341,7 +336,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         }
         
         return ProtoEventBundle(
-            type: ProtoTransactionKind.chat(.message),
+            type: .chat(.message),
             id: privateId,
             subject: MessageTransactionSubject.delivered(
                 messageWithId: messageId,
@@ -359,7 +354,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         }
         
         return ProtoEventBundle(
-            type: ProtoTransactionKind.chat(.message),
+            type: .chat(.message),
             id: messageId,
             subject: MessageTransactionSubject.seen(
                 messageWithId: messageId,
@@ -378,7 +373,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         }
         
         return ProtoEventBundle(
-            type: ProtoTransactionKind.chat(.message),
+            type: .chat(.message),
             id: messageId,
             subject: MessageTransactionSubject.received(
                 messageWithId: messageId,
@@ -405,7 +400,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
             ?? "unnamed_media_file"
         
         return ProtoEventBundle(
-            type: ProtoTransactionKind.chat(.message),
+            type: .chat(.message),
             id: id,
             subject: MessageTransactionSubject.received(
                 messageWithId: messageId,
@@ -447,7 +442,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
                 ?? "unnamed_media_file"
             
             return ProtoEventBundle(
-                type: ProtoTransactionKind.chat(.message),
+                type: .chat(.message),
                 id: id,
                 subject: MessageTransactionSubject.received(
                     messageWithId: messageId,
@@ -501,7 +496,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         }
         
         return ProtoEventBundle(
-            type: ProtoTransactionKind.chat(.user),
+            type: .chat(.user),
             id: id,
             subject: UserTransactionSubject.nameUpdated(
                 to: name,
@@ -518,7 +513,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         }
         
         return ProtoEventBundle(
-            type: ProtoTransactionKind.chat(.user),
+            type: .chat(.user),
             id: id,
             subject: UserTransactionSubject.titleUpdated(
                 to: title,
@@ -535,7 +530,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         }
         
         return ProtoEventBundle(
-            type: ProtoTransactionKind.chat(.user),
+            type: .chat(.user),
             id: id,
             subject: UserTransactionSubject.photoUpdated(
                 to: photoUrl,

@@ -20,13 +20,14 @@ extension JVAgent {
             m_email = c.email.jv_valuable ?? m_email
             m_email_verified = c.emailVerified ?? m_email_verified
             m_phone = c.phone ?? m_phone
-            m_state_id = Int16(c.stateID)
+            m_state_id = c.stateID?.jv_toInt16(.standard) ?? m_state_id
             m_status = context.upsert(of: JVAgentStatus.self, with: c.status)
             m_status_comment = c.statusComment
             m_avatar_link = c.avatarLink.jv_valuable
             m_display_name = c.displayName
             m_is_owner = c.isOwner ?? m_is_owner
             m_is_admin = c.isAdmin
+            m_is_supervisor = c.isSupervisor
             m_is_operator = c.isOperator
             m_calling_destination = (c.callingDestination > -1 ? Int16(c.callingDestination) : m_calling_destination)
             m_calling_options = Int16(c.callingOptions)
@@ -124,7 +125,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
     var email: String
     var emailVerified: Bool?
     var phone: String?
-    var stateID: Int = 0
+    var stateID: Int?
     var status: JVAgentStatusGeneralChange?
     var statusComment: String = ""
     var avatarLink: String
@@ -134,6 +135,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
     var callingOptions = 0
     public let isOwner: Bool?
     public let isAdmin: Bool
+    public let isSupervisor: Bool
     public let isOperator: Bool
     public let isWorking: Bool?
     public let session: JVAgentSessionGeneralChange?
@@ -161,7 +163,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
         email = agentInfo["email"].stringValue
         emailVerified = agentInfo["email_verified"].bool
         phone = agentInfo["agent_phone"].string?.jv_valuable
-        stateID = agentInfo["agent_state_id"].intValue
+        stateID = agentInfo["agent_state_id"].int
         status = agentInfo["agent_status"].parse()
         statusComment = agentInfo["agent_status"]["comment"].stringValue
         avatarLink = agentInfo["avatar_url"].stringValue
@@ -171,6 +173,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
         callingOptions = flags.reduce(0, +)
         isOwner = agentInfo["is_owner"].bool
         isAdmin = agentInfo["is_admin"].bool ?? true
+        isSupervisor = agentInfo["is_supervisor"].bool ?? true
         isOperator = agentInfo["is_operator"].bool ?? true
         isWorking = agentInfo["work_state"].int.flatMap { $0 > 0 }
         session = json.parse()
@@ -195,6 +198,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
         callingOptions = 0
         isOwner = nil
         isAdmin = false
+        isSupervisor = false
         isOperator = false
         isWorking = true
         session = nil
@@ -218,6 +222,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
          callingOptions: Int,
          isOwner: Bool?,
          isAdmin: Bool,
+         isSupervisor: Bool,
          isOperator: Bool,
          isWorking: Bool?,
          session: JVAgentSessionGeneralChange?,
@@ -238,6 +243,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
         self.callingOptions = callingOptions
         self.isOwner = isOwner
         self.isAdmin = isAdmin
+        self.isSupervisor = isSupervisor
         self.isOperator = isOperator
         self.isWorking = isWorking
         self.session = session
@@ -249,7 +255,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
         self.init(json: json, isMe: false)
     }
     
-    func cachable() -> JVAgentGeneralChange {
+    var cachable: JVAgentGeneralChange {
         return JVAgentGeneralChange(
             json: json,
             isMe: isMe,
@@ -267,6 +273,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
             callingOptions: callingOptions,
             isOwner: isOwner,
             isAdmin: isAdmin,
+            isSupervisor: isSupervisor,
             isOperator: isOperator,
             isWorking: isWorking,
             session: session,

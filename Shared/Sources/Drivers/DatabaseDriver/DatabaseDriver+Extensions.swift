@@ -427,10 +427,10 @@ extension JVIDatabaseContext {
     func chatsWithClient(_ client: JVClient, includeArchived: Bool) -> [JVChat] {
         let predicate: NSPredicate
         if includeArchived {
-            predicate = NSPredicate(format: "m_client.m_id == \(client.ID)")
+            predicate = NSPredicate(format: "(m_client.m_id == \(client.ID))")
         }
         else {
-            predicate = NSPredicate(format: "m_client.m_id == \(client.ID) && m_is_archived == false")
+            predicate = NSPredicate(format: "(m_client.m_id == \(client.ID)) AND (m_attendee != nil)")
         }
 
         return objects(
@@ -461,6 +461,10 @@ extension JVIDatabaseContext {
         return objects(JVMessage.self, options: options).last
     }
     
+    func unlinkChat(_ chat: JVChat) {
+        _ = update(of: JVChat.self, with: JVChatArchiveChange(ID: chat.ID))
+    }
+
     func removeChat(_ chat: JVChat, cleanup: Bool) {
         if cleanup, let client = chat.client, client.jv_isValid {
             let messages = objects(

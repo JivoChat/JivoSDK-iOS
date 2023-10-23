@@ -40,16 +40,6 @@ struct ProtoEventBundle {
     let type: ProtoTransactionKind
     let id: AnyHashable?
     let subject: IProtoEventSubject
-    
-    init(
-        type: ProtoTransactionKind,
-        id: AnyHashable?,
-        subject: IProtoEventSubject
-    ) {
-        self.type = type
-        self.id = id
-        self.subject = subject
-    }
 }
 
 struct ProtoTransactionKind: Hashable {

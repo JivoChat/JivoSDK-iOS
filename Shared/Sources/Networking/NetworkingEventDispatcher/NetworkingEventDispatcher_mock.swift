@@ -7,7 +7,7 @@
 //
 
 import Foundation
-@testable import Jivo
+@testable import App
 
 class NetworkingEventDispatcherMock: INetworkingEventDispatcher {
     func attach(to signal: JVBroadcastTool<NetworkingEvent>) {

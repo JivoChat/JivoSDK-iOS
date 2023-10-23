@@ -9,12 +9,12 @@
 import Foundation
 
 enum JVLocaleLang: String {
-    case en
-    case ru
-    case hy
-    case es
-    case pt
-    case tr
+    case en = "en"
+    case ru = "ru"
+    case hy = "hy"
+    case es = "es"
+    case pt = "pt"
+    case tr = "tr"
     
     var isRussian: Bool {
         return (self == .ru)
@@ -39,22 +39,20 @@ struct JVSignupCountry {
 
 final class JVLocaleProvider: JVILocaleProvider {
     private let containingBundle: Bundle
+    public let availableLocales: [Locale]
 
     private(set) public static var activeLocale: Locale!
     
     public static var baseLocaleBundle: Bundle?
 
-    init(containingBundle: Bundle, activeLocale: Locale) {
+    init(containingBundle: Bundle, activeLocale: Locale, availableLangs: [JVLocaleLang]) {
         if let path = Bundle.main.path(forResource: "Base", ofType: "lproj") {
             JVLocaleProvider.baseLocaleBundle = Bundle(path: path)
         }
         
         self.containingBundle = containingBundle
+        self.availableLocales = availableLangs.map(\.rawValue).map(Locale.init)
         self.activeLocale = activeLocale
-    }
-    
-    var availableLocales: [Locale] {
-        return ["en", "ru", "hy", "es", "pt", "tr"].map(Locale.init)
     }
     
     var activeLocale: Locale {

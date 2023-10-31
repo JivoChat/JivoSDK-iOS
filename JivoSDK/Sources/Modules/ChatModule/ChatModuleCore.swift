@@ -507,8 +507,9 @@ final class ChatModuleCore
     }
     
     private func handleMessagesUpserted(messages: [JVMessage]) {
-        let messagesToUpdate = messages.filter { chatHistory.messages.map(\.UUID).contains($0.UUID) }
-        let messagesToPopulate = messages.filter { !chatHistory.messages.map(\.UUID).contains($0.UUID) }
+        let currentUids = chatHistory.messages.map(\.UUID)
+        let messagesToUpdate = messages.filter { currentUids.contains($0.UUID) }
+        let messagesToPopulate = messages.filter { !currentUids.contains($0.UUID) }
         
         if !messagesToPopulate.isEmpty {
             removeActiveMessage()

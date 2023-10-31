@@ -8,4 +8,4 @@ Several API options are available for interacting with the SDK:
 - React Native (partial support)
 - Flutter (partial support)
 
-For more details, please take a look at [Documentation](https://jivochat.github.io/jivosdk-ios/)
+For more details, please take a look at [Documentation](./JivoSDK.doccarchive) (opens in Xcode)

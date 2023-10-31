@@ -3359,26 +3359,29 @@ fileprivate extension JVMessageDelivery {
 
 fileprivate extension JVMessage {
     func jv_logicOptions(supportSizeCaching: Bool, historyDelegate: ChatTimelineFactoryHistoryDelegate?) -> JMTimelineLogicOptions {
-        guard let historyDelegate = historyDelegate
+        let basicOptions = JMTimelineLogicOptions()
+            .union(supportSizeCaching ? .enableSizeCaching : .jv_empty)
+
+        let loadingOptions: JMTimelineLogicOptions
+        if let historyDelegate = historyDelegate {
+            loadingOptions = JMTimelineLogicOptions()
+                .union(
+                    flags.contains(.edgeToHistoryPast)
+                    ? historyDelegate.timelineFactory(isLoadingHistoryPast: UUID) ? .loadingHistoryPast : .missingHistoryPast
+                    : .jv_empty
+                )
+                .union(
+                    flags.contains(.edgeToHistoryFuture)
+                    ? historyDelegate.timelineFactory(isLoadingHistoryFuture: UUID) ? .loadingHistoryFuture : .missingHistoryFuture
+                    : .jv_empty
+                )
+        }
         else {
-            return .jv_empty
+            loadingOptions = .jv_empty
         }
         
-        let loadingOptions = JMTimelineLogicOptions()
-            .union(
-                flags.contains(.edgeToHistoryPast)
-                ? historyDelegate.timelineFactory(isLoadingHistoryPast: UUID) ? .loadingHistoryPast : .missingHistoryPast
-                : .jv_empty
-            )
-            .union(
-                flags.contains(.edgeToHistoryFuture)
-                ? historyDelegate.timelineFactory(isLoadingHistoryFuture: UUID) ? .loadingHistoryFuture : .missingHistoryFuture
-                : .jv_empty
-            )
-        
         if loadingOptions.isEmpty {
-            return loadingOptions
-                .union(supportSizeCaching ? .enableSizeCaching : .jv_empty)
+            return basicOptions
         }
         else {
             return loadingOptions

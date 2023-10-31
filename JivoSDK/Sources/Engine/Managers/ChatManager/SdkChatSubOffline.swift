@@ -137,8 +137,10 @@ class SdkChatSubOffline: ISdkChatSubOffline {
     }
     
     @objc private func performActualAction() {
+        #if JIVOSDK_DEBUG
         assert(Thread.isMainThread)
-        
+        #endif
+
         let contactFormWasShownAt = preferencesDriver.retrieveAccessor(forToken: .contactInfoWasShownAt).date
         let currentNature = detectCurrentNature(after: contactFormWasShownAt)
         let nextNature = detectNextNature(after: contactFormWasShownAt)

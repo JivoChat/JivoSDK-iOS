@@ -116,7 +116,10 @@ class JVDatabaseDriver: JVIDatabaseDriver {
     func readwrite(_ block: (JVIDatabaseContext) -> Void) {
         switch writing {
         case .backgroundThread:
+            #if JIVOSDK_DEBUG
             assert(!Thread.isMainThread, "Please use background thread for modifications")
+            #endif
+            break
         case .anyThread:
             break
         }
@@ -337,9 +340,11 @@ class JVDatabaseDriver: JVIDatabaseDriver {
             }
             
             if let object = readwriteContext {
+                #if JIVOSDK_DEBUG
                 assert(Thread.current === recentThread)
                 assert(RunLoop.current === recentRunLoop)
-                
+                #endif
+
                 return object
             }
             else {

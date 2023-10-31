@@ -109,7 +109,11 @@ final class JVDatabaseContext: JVIDatabaseContext {
         
         do {
             let found = try context.fetch(request)
+            
+            #if JIVOSDK_DEBUG
             assert(found.count <= 1)
+            #endif
+            
             return found.first
         }
         catch {
@@ -125,7 +129,11 @@ final class JVDatabaseContext: JVIDatabaseContext {
         
         do {
             let found: [OT] = try context.fetch(request)
+            
+            #if JIVOSDK_DEBUG
             assert(found.count <= 1)
+            #endif
+
             return found.first
         }
         catch {
@@ -143,7 +151,11 @@ final class JVDatabaseContext: JVIDatabaseContext {
         
         do {
             let found = try context.fetch(request)
+            
+            #if JIVOSDK_DEBUG
             assert(found.count <= 1)
+            #endif
+            
             return found.first
         }
         catch {

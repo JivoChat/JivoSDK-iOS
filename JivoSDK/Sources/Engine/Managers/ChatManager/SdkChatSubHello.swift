@@ -74,7 +74,9 @@ class SdkChatSubHello: ISdkChatSubHello {
     }
     
     @objc private func performActualAction() {
+        #if JIVOSDK_DEBUG
         assert(Thread.isMainThread)
+        #endif
         
         guard let chatId = chatContext.chatRef?.resolved?.ID
         else {

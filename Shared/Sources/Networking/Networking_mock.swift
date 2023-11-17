@@ -7,8 +7,7 @@
 //
 
 import Foundation
-import JivoFoundation
-@testable import Jivo
+@testable import App
 
 class NetworkingMock: INetworking {
     var backsignal: JVBroadcastTool<Any> = JVBroadcastTool()

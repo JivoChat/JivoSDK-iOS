@@ -44,17 +44,17 @@ extension JVArchive {
         case .byTime:
             return hits
                 .sorted { fst, snd in
-                    let fstDate = fst.m_latest_activity_time ?? .distantPast
-                    let sndDate = snd.m_latest_activity_time ?? .distantPast
-                    return (fstDate < sndDate)
+                    let fstRank = fst.sortingRank
+                    let sndRank = snd.sortingRank
+                    return (fstRank > sndRank)
                 }
                 .reversed()
             
         case .byScore:
             return hits
                 .sorted { fst, snd in
-                    let fstScore = fst.m_score
-                    let sndScore = snd.m_score
+                    let fstScore = fst.score
+                    let sndScore = snd.score
                     return (fstScore < sndScore)
                 }
                 .reversed()

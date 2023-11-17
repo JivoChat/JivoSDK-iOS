@@ -32,6 +32,8 @@ protocol ICommonSubStorage: IBaseSubStorage {
     func chatWithID(_ chatID: Int) -> JVChat?
     func chatsWithClientID(_ clientID: Int, evenArchived: Bool) -> [JVChat]
     func chatForMessage(_ message: JVMessage, evenArchived: Bool) -> JVChat?
+    func unlink(chatId: Int)
+    func unlink(chat: JVChat)
     func remove(chatID: Int, cleanup: Bool)
     func remove(chat: JVChat, cleanup: Bool)
     func storeMessage(change: JVDatabaseModelChange) -> JVMessage?
@@ -166,6 +168,21 @@ class CommonSubStorage: BaseSubStorage {
     
     func chatForMessage(_ message: JVMessage, evenArchived: Bool) -> JVChat? {
         return databaseDriver.chatForMessage(message, evenArchived: false)
+    }
+    
+    func unlink(chatId: Int) {
+        databaseDriver.readwrite { context in
+            guard let chat = context.chatWithID(chatId) else { return }
+            context.unlinkChat(chat)
+        }
+    }
+
+    func unlink(chat: JVChat) {
+        guard chat.jv_isValid else { return }
+        
+        databaseDriver.readwrite { context in
+            context.unlinkChat(chat)
+        }
     }
     
     func remove(chatID: Int, cleanup: Bool) {

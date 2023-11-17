@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreData
+@testable import App
 
 class JVDatabaseDriverMock: JVIDatabaseDriver {
     func refresh() -> JVIDatabaseDriver {

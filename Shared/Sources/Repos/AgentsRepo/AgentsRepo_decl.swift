@@ -11,4 +11,5 @@ import Foundation
 protocol IAgentsRepo: AnyObject {
     func retrieve(id: Int, lookup: AgentRepoRetrievalLookup) -> JVAgent?
     func retrieveAll(listing: AgentRepoRetrievalListing) -> [JVAgent]
+    func updateDraft(id: Int, currentText: String?)
 }

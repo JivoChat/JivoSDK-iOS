@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import Jivo
+@testable import App
 
 final class ConditionalFlowUnit: XCTestCase {
     private enum Value {

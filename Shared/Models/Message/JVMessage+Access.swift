@@ -68,9 +68,9 @@ enum JVMessageTarget: Codable {
     
     var supportsFileExchange: Bool {
         switch self {
-        case .regular, .email, .whatsapp:
+        case .regular, .email, .whatsapp, .comment:
             return true
-        case .sms, .comment:
+        case .sms:
             return false
         }
     }
@@ -99,7 +99,7 @@ enum JVMessageContent {
     case contactForm(status: JVMessageBodyContactFormStatus)
     
     public static func makeWith(text: String) -> Self {
-        if let url = URL(string: text), let host = url.host, host.contains(".jivo"), (host.hasPrefix("media") || host.hasPrefix("files")) {
+        if let url = URL(string: text), let host = url.host, (host.hasPrefix("media") || host.hasPrefix("files")) {
             return .file(mime: "text/plain", name: url.lastPathComponent, link: text, size: 0)
         }
         else {
@@ -203,9 +203,20 @@ struct JVMessageUpdateMeta {
     let date: Date
 }
 
+struct JVMessageFlags: OptionSet {
+    let rawValue: Int
+    static let detachedFromHistory = Self.init(rawValue: 1 << 0)
+    static let edgeToHistoryPast = Self.init(rawValue: 1 << 1)
+    static let edgeToHistoryFuture = Self.init(rawValue: 1 << 2)
+}
+
 extension JVMessage {
     var UUID: String {
         return m_uid.jv_orEmpty
+    }
+    
+    var flags: JVMessageFlags {
+        return JVMessageFlags(rawValue: Int(m_flags))
     }
     
     var ID: Int {
@@ -310,6 +321,40 @@ extension JVMessage {
     }
     
     var content: JVMessageContent {
+        if let media = m_media {
+            let link = (media.fullURL ?? media.thumbURL)?.absoluteString ?? ""
+            let name = media.name ?? link
+            
+            if media.type == .photo {
+                return .photo(
+                    mime: media.mime,
+                    name: name,
+                    link: link,
+                    dataSize: media.dataSize,
+                    width: Int(media.originalSize.width),
+                    height: Int(media.originalSize.height)
+                )
+            }
+            else if let conference = media.conference {
+                return .conference(
+                    conference: conference
+                )
+            }
+            else if let story = media.story {
+                return .story(
+                    story: story
+                )
+            }
+            else {
+                return .file(
+                    mime: media.mime,
+                    name: name,
+                    link: link,
+                    size: media.dataSize
+                )
+            }
+        }
+        
         switch type {
         case "proactive":
             return .proactive(
@@ -340,40 +385,7 @@ extension JVMessage {
             }
             
         case "message", "keyboard":
-            if let media = m_media {
-                let link = (media.fullURL ?? media.thumbURL)?.absoluteString ?? ""
-                let name = media.name ?? link
-                
-                if media.type == .photo {
-                    return .photo(
-                        mime: media.mime,
-                        name: name,
-                        link: link,
-                        dataSize: media.dataSize,
-                        width: Int(media.originalSize.width),
-                        height: Int(media.originalSize.height)
-                    )
-                }
-                else if let conference = media.conference {
-                    return .conference(
-                        conference: conference
-                    )
-                }
-                else if let story = media.story {
-                    return .story(
-                        story: story
-                    )
-                }
-                else {
-                    return .file(
-                        mime: media.mime,
-                        name: name,
-                        link: link,
-                        size: media.dataSize
-                    )
-                }
-            }
-            else if let call = m_body?.call {
+            if let call = m_body?.call {
                 return .call(
                     call: call
                 )
@@ -491,6 +503,14 @@ extension JVMessage {
         else {
             return false
         }
+    }
+    
+    var isComment: Bool {
+        return (m_type == "comment")
+    }
+    
+    var quotedMessage: JVMessage? {
+        return m_quoted_message
     }
     
     var sender: JVDisplayable? {

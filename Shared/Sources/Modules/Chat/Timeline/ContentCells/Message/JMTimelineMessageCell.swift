@@ -22,7 +22,12 @@ final class JMTimelineMessageCell: JMTimelineEventCell, ModelTransfer {
         container.configure(item: model)
     }
     
+    func animateContentGlow(delay: Double) {
+        viewWithTag(JMTimelineMessageCanvasRegionViewTag)?.jv_animateGlow(delay: delay)
+    }
+    
     override func prepareForReuse() {
         super.prepareForReuse()
+        jv_discardGlow()
     }
 }

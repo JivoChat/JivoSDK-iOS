@@ -18,8 +18,8 @@ extension JVArchiveHitChatItem {
         if let c = change as? JVArchiveHitChatItemGeneralChange {
             m_id = c.ID
             m_type = c.type
-            m_response_timeout = c.responseTimeout.jv_toInt32
-            m_duration = c.duration.jv_toInt32
+            m_response_timeout = c.responseTimeout.jv_toInt32(.standard)
+            m_duration = c.duration.jv_toInt32(.standard)
             m_events_number = Int16(c.eventsNumber)
             e_agents.setSet(Set(c.agentIDs.compactMap { context.object(JVAgent.self, primaryId: $0) }))
             m_latest_chat_id = Int64(c.latestChatID)

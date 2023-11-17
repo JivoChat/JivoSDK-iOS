@@ -71,3 +71,16 @@ extension CGRect {
         return CGRect(origin: .zero, size: size)
     }
 }
+
+extension Array where Element == CGRect {
+    func jv_summarizeDimension(by keyPath: KeyPath<CGRect, CGFloat>, gap: CGFloat) -> CGFloat {
+        if isEmpty {
+            return 0
+        }
+        else {
+            let contentWidth = map({ $0[keyPath: keyPath] }).reduce(0, +)
+            let gapWidth = gap * CGFloat(count - 1)
+            return contentWidth + gapWidth
+        }
+    }
+}

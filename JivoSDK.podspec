@@ -1,6 +1,6 @@
 Pod::Spec.new do |root|
     root.name = 'JivoSDK'
-    root.version = '4.0.2'
+    root.version = '4.0.4'
     root.homepage = 'https://github.com/JivoChat'
     root.authors = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
     root.summary = 'Jivo business chat Mobile SDK'
@@ -59,7 +59,7 @@ Pod::Spec.new do |root|
         spec.dependency 'JFWebSocket', '2.9.4'
         spec.dependency 'JMCodingKit', '5.0.2'
         spec.dependency 'JMRepicKit', '1.0.5'
-        spec.dependency 'JMTimelineKit', '4.2.4'
+        spec.dependency 'JMTimelineKit', '4.3.2'
         spec.dependency 'JMMarkdownKit', '1.2.2'
         spec.dependency 'JMDesignKit', '1.0.0'
         spec.dependency 'JMOnetimeCalculator', '1.0.0'

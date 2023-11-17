@@ -15,18 +15,11 @@ import JMTimelineKit
 struct JMTimelineMessageMeta {
     let timepoint: String
     let delivery: JMTimelineItemDelivery
+    let icons: [UIImage]
     let status: String
-    
-    init(
-        timepoint: String,
-        delivery: JMTimelineItemDelivery,
-        status: String
-    ) {
-        self.timepoint = timepoint
-        self.delivery = delivery
-        self.status = status
-    }
 }
+
+let JMTimelineMessageCanvasRegionViewTag = 0xF020220714
 
 class JMTimelineMessageCanvasRegion: UIView, JMTimelineStylable {
     let quoteControl = UIView()
@@ -49,6 +42,8 @@ class JMTimelineMessageCanvasRegion: UIView, JMTimelineStylable {
         self.renderMode = renderMode
         
         super.init(frame: .zero)
+        
+        tag = JMTimelineMessageCanvasRegionViewTag
         
         quoteControl.backgroundColor = JVDesign.colors.resolve(usage: .quoteMark)
         quoteControl.layer.masksToBounds = true
@@ -90,7 +85,7 @@ class JMTimelineMessageCanvasRegion: UIView, JMTimelineStylable {
             timeLabel.text = meta.timepoint
             timeLabel.isHidden = false
             
-            deliveryView.configure(delivery: meta.delivery)
+            deliveryView.configure(delivery: meta.delivery, icons: meta.icons)
             deliveryView.isHidden = false
             
             statusLabel.text = meta.status
@@ -104,44 +99,31 @@ class JMTimelineMessageCanvasRegion: UIView, JMTimelineStylable {
     }
     
     func updateDesign() {
+        decorationView.image = resolveDecorationColor().flatMap(generateBackground)
+        
         switch contentKind {
         case .client:
-            decorationView.image = generateBackground(color: renderOptions.outcomingPalette?.backgroundColor ?? JVDesign.colors.resolve(usage: .clientBackground))
             timeLabel.textColor = renderOptions.outcomingPalette?.foregroundColor ?? JVDesign.colors.resolve(usage: .clientTime).jv_withAlpha(0.6)
             deliveryView.tintColor = JVDesign.colors.resolve(usage: .clientCheckmark).withAlphaComponent(0.6)
-            
         case .agent:
-            decorationView.image = generateBackground(color: JVDesign.colors.resolve(usage: .agentBackground))
             timeLabel.textColor = JVDesign.colors.resolve(usage: .agentTime).jv_withAlpha(0.6)
             deliveryView.tintColor = JVDesign.colors.resolve(alias: .greenJivo)
-            
         case .comment:
-            decorationView.image = generateBackground(color: JVDesign.colors.resolve(usage: .commentBackground))
             timeLabel.textColor = JVDesign.colors.resolve(usage: .agentTime).jv_withAlpha(0.6)
             deliveryView.tintColor = JVDesign.colors.resolve(alias: .greenJivo)
-            
         case .bot:
-            decorationView.image = generateBackground(color: JVDesign.colors.resolve(usage: .agentBackground))
             timeLabel.textColor = JVDesign.colors.resolve(usage: .agentTime).jv_withAlpha(0.6)
             deliveryView.tintColor = JVDesign.colors.resolve(alias: .greenJivo)
-            
         case .info:
-            decorationView.image = generateBackground(color: JVDesign.colors.resolve(usage: .agentBackground))
             timeLabel.textColor = JVDesign.colors.resolve(usage: .secondaryForeground)
             deliveryView.tintColor = JVDesign.colors.resolve(alias: .greenJivo)
-            
         case .call:
-            decorationView.image = generateBackground(color: JVDesign.colors.resolve(usage: .primaryBackground))
             timeLabel.textColor = JVDesign.colors.resolve(usage: .secondaryForeground)
             deliveryView.tintColor = JVDesign.colors.resolve(alias: .greenJivo)
-            
         case .story:
-            decorationView.image = generateBackground(color: JVDesign.colors.resolve(usage: .mediaPlaceholderBackground))
             timeLabel.textColor = JVDesign.colors.resolve(usage: .secondaryForeground)
             deliveryView.tintColor = JVDesign.colors.resolve(usage: .clientCheckmark).withAlphaComponent(0.6)
-            
         case .neutral:
-            decorationView.image = nil
             timeLabel.textColor = JVDesign.colors.resolve(usage: .secondaryForeground)
             deliveryView.tintColor = JVDesign.colors.resolve(alias: .grayLight) // greenJivo
         }
@@ -151,20 +133,38 @@ class JMTimelineMessageCanvasRegion: UIView, JMTimelineStylable {
             timeLabel.backgroundColor = JVDesign.colors.resolve(usage: .oppositeBackground).jv_withAlpha(0.35)
             timeLabel.textColor = JVDesign.colors.resolve(usage: .warningForeground)
             timeLabel.textAlignment = .center
-            
         case .content(time: .over):
             timeLabel.backgroundColor = JVDesign.colors.resolve(usage: .oppositeBackground).jv_withAlpha(0.35)
             timeLabel.textColor = JVDesign.colors.resolve(usage: .oppositeForeground).jv_withAlpha(0.85)
             timeLabel.textAlignment = .center
-            
         case .bubble where renderOptions.isFailure, .content where renderOptions.isFailure:
             timeLabel.backgroundColor = UIColor.clear
             timeLabel.textColor = JVDesign.colors.resolve(usage: .warningForeground)
             timeLabel.textAlignment = .right
-            
         case .bubble, .content:
             timeLabel.backgroundColor = UIColor.clear
             timeLabel.textAlignment = .right
+        }
+    }
+    
+    func resolveDecorationColor() -> UIColor? {
+        switch contentKind {
+        case .client:
+            return renderOptions.outcomingPalette?.backgroundColor ?? JVDesign.colors.resolve(usage: .clientBackground)
+        case .agent:
+            return JVDesign.colors.resolve(usage: .agentBackground)
+        case .comment:
+            return JVDesign.colors.resolve(usage: .commentBackground)
+        case .bot:
+            return JVDesign.colors.resolve(usage: .agentBackground)
+        case .info:
+            return JVDesign.colors.resolve(usage: .agentBackground)
+        case .call:
+            return JVDesign.colors.resolve(usage: .primaryBackground)
+        case .story:
+            return JVDesign.colors.resolve(usage: .mediaPlaceholderBackground)
+        case .neutral:
+            return UIColor.clear
         }
     }
     
@@ -229,7 +229,7 @@ class JMTimelineMessageCanvasRegion: UIView, JMTimelineStylable {
         timeLabel.frame = layout.timeLabelFrame
         timeLabel.layer.cornerRadius = layout.timeLabelCornerRadius
         deliveryView.frame = layout.deliveryViewFrame
-        zip(currentBlocks, layout.childrenFrames).forEach { $0.0.frame = $0.1 }
+        zip(currentBlocks.filter(\.jv_isVisible), layout.childrenFrames).forEach { $0.0.frame = $0.1 }
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
@@ -271,7 +271,7 @@ class JMTimelineMessageCanvasRegion: UIView, JMTimelineStylable {
             timeLabel: timeLabel,
             deliveryView: deliveryView,
             statusLabel: statusLabel,
-            blocks: currentBlocks,
+            blocks: currentBlocks.filter(\.jv_isVisible),
             blocksGap: childrenGap,
             renderMode: renderMode,
             renderOptions: renderOptions
@@ -412,6 +412,9 @@ fileprivate struct Layout {
         case .bubble(.compact), .bubble(time: .inline):
             contentInsetsHeight = contentInsets.vertical
             coveringMetaHeight = max(statusSize.height, timeHeight)
+        case .content(time: .over):
+            contentInsetsHeight = contentInsets.vertical
+            coveringMetaHeight = 0
         case .content:
             contentInsetsHeight = 0
             coveringMetaHeight = 0
@@ -446,7 +449,7 @@ fileprivate struct Layout {
         case .bubble(time: .inline):
             return UIEdgeInsets(top: 14, left: 14, bottom: 0, right: 14)
         case .content(time: .over):
-            return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+            return UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
         case .content(time: .near):
             return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         case .content(time: .omit):
@@ -463,7 +466,7 @@ fileprivate struct Layout {
         case .bubble(time: .inline):
             return UIEdgeInsets(top: 0, left: 6, bottom: 8, right: 8)
         case .content(time: .over):
-            return UIEdgeInsets(top: 0, left: 2, bottom: 2, right: 2)
+            return UIEdgeInsets(top: 0, left: 0, bottom: 5, right: 10)
         case .content(time: .near):
             return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         case .content(time: .omit):
@@ -537,6 +540,9 @@ fileprivate struct Layout {
         case .bubble(.compact), .bubble(.inline):
             contentInsetsHeight = s.contentInsets.vertical
             coveringTimeHeight = max(s.statusSize.height, timeHeight)
+        case .content(time: .over):
+            contentInsetsHeight = s.contentInsets.vertical
+            coveringTimeHeight = 0
         case .content:
             contentInsetsHeight = 0
             coveringTimeHeight = 0
@@ -560,7 +566,7 @@ fileprivate struct Layout {
     }
     
     private var deliverySize: CGSize {
-        return CGSize(width: 15, height: 14)
+        return deliveryView.sizeThatFits(.zero)
     }
     
     private var timeSize: CGSize {

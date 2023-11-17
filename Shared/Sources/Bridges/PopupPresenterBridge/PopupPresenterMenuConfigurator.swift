@@ -64,7 +64,8 @@ struct PopupPresenterMenuConfigurator: IPopupPresenterConfigurator {
     
     @available(iOS 13.0, *)
     private func generateMenu() -> UIMenu {
-        let commands = generateCommands(items: [.children(items: items)])
+        let commands = generateCommands(items: [
+            .children(title: nil, items: items)])
         let actions = commands.compactMap { $0.generateAction() }
         return UIMenu(options: .displayInline, children: actions)
     }
@@ -87,8 +88,8 @@ fileprivate func generateCommands(items: [PopupPresenterItem]) -> [ConfiguratorC
             return ConfiguratorSettingsCommand()
         case .dismiss(let kind):
             return ConfiguratorDismissCommand(kind: kind)
-        case .children(let children):
-            return ConfiguratorChildrenCommand(items: children)
+        case .children(let title, let children):
+            return ConfiguratorChildrenCommand(title: title, items: children)
         case .omit:
             return nil
         }
@@ -163,6 +164,7 @@ fileprivate struct ConfiguratorDismissCommand: ConfiguratorCommand {
 
 @available(iOS 13.0, *)
 fileprivate struct ConfiguratorChildrenCommand: ConfiguratorCommand {
+    let title: String?
     let items: [PopupPresenterItem]
     
     func generateAction() -> UIMenuElement? {
@@ -172,6 +174,10 @@ fileprivate struct ConfiguratorChildrenCommand: ConfiguratorCommand {
     private func generateMenu() -> UIMenuElement? {
         let commands = generateCommands(items: items)
         let actions = commands.compactMap { $0.generateAction() }
-        return UIMenu(options: .displayInline, children: actions)
+        return UIMenu(
+            title: title.jv_orEmpty,
+            options: .displayInline,
+            children: actions
+        )
     }
 }

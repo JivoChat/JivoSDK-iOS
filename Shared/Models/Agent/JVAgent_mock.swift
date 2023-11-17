@@ -6,6 +6,7 @@
 //
 
 import Foundation
+@testable import App
 
 final class JVAgentMock: JVAgent {
     override var m_id: Int64 {

@@ -86,28 +86,30 @@ extension JVAgentSession {
         return m_is_working_hidden
     }
     
-    func globalFeatures() -> JVAgentTechConfig {
-        return JVAgentTechConfig(
-            priceListId: (m_global_pricelist_id > 0 ? Int(m_global_pricelist_id) : nil),
-            guestInsightEnabled: m_global_guests_insight_enabled,
-            fileSizeLimit: Int(m_global_file_size_limit),
-            disableArchiveForRegular: m_global_disable_archive_for_regular,
-            iosTelephonyEnabled: m_global_received ? m_global_platform_telephony_enabled : nil,
-            limitedCRM: m_global_limited_crm,
-            assignedAgentEnabled: m_global_assigned_agent_enabled,
-            messageEditingEnabled: m_global_message_editing_enabled,
-            groupsEnabled: m_global_groups_enabled,
-            mentionsEnabled: m_global_mentions_enabled,
-            commentsEnabled: m_global_comments_enabled,
-            reactionsEnabled: m_global_reactions_enabled,
-            businessChatEnabled: m_global_business_chat_enabled,
-            billingUpdateEnabled: m_global_billing_update_enabled,
-            standaloneTasks: m_global_standalone_tasks_enabled,
-            feedbackSdkEnabled: m_global_feedback_sdk_enabled,
-            mediaServiceEnabled: m_global_media_service_enabled,
-            voiceMessagesEnabled: m_global_voice_messages_enabled
-        )
-    }
+//    func globalFeatures() -> JVAgentTechConfig {
+//        return JVAgentTechConfig(
+//            priceListId: (m_global_pricelist_id > 0 ? Int(m_global_pricelist_id) : nil),
+//            guestInsightEnabled: m_global_guests_insight_enabled,
+//            fileSizeLimit: Int(m_global_file_size_limit),
+//            disableArchiveForRegular: m_global_disable_archive_for_regular,
+//            iosTelephonyEnabled: m_global_received ? m_global_platform_telephony_enabled : nil,
+//            limitedCRM: m_global_limited_crm,
+//            assignedAgentEnabled: m_global_assigned_agent_enabled,
+//            messageEditingEnabled: m_global_message_editing_enabled,
+//            groupsEnabled: m_global_groups_enabled,
+//            mentionsEnabled: m_global_mentions_enabled,
+//            commentsEnabled: m_global_comments_enabled,
+//            reactionsEnabled: m_global_reactions_enabled,
+//            businessChatEnabled: m_global_business_chat_enabled,
+//            billingUpdateEnabled: m_global_billing_update_enabled,
+//            standaloneTasks: m_global_standalone_tasks_enabled,
+//            feedbackSdkEnabled: m_global_feedback_sdk_enabled,
+//            mediaServiceEnabled: m_global_media_service_enabled,
+//            voiceMessagesEnabled: m_global_voice_messages_enabled,
+//            aiAssistantEnabled: m_global_ai_assistant_enabled,
+//            aiAssistantChatResumeEnabled: m_global_ai_assistant_chat_resume_enabled
+//        )
+//    }
     
     func jointType(for channelID: Int) -> JVChannelJoint? {
         let channel = channels.first(where: { $0.ID == channelID })

@@ -51,4 +51,8 @@ protocol JVChatTimelineInteractor: JMTimelineInteractor {
     func constructMenuForMessage(uuid: String, container: UIView)
     
     func requestWaveformPoints(for url: URL)
+    func focusMessage(uid: String)
+    
+    func requestHistoryPast(item: JMTimelineItem)
+    func requestHistoryFuture(item: JMTimelineItem)
 }

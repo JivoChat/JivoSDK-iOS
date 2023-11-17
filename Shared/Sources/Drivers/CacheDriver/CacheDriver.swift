@@ -16,7 +16,9 @@ struct CacheDriverItem {
     static let liveCoreData = CacheDriverItem(fileName: "livecd")
     static let typingCache = CacheDriverItem(fileName: "typing_cache.plist")
     static let timezones = CacheDriverItem(fileName: "timezones")
-    
+    static let fullInfo = CacheDriverItem(fileName: "full_info")
+    static let channels = CacheDriverItem(fileName: "channels")
+
     let directoryName: String?
     let fileName: String
     

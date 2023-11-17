@@ -10,8 +10,8 @@ import Foundation
 /**
  Entry Point to communicate with SDK
 
- > Tip: You can find the full documentation here:
- > https://github.com/JivoChat/JivoSDK-iOS
+ > Tip: You can find the full documentation at:  
+ > https://jivochat.github.io/JivoSDK-iOS/
  */
 @objc(Jivo)
 public final class Jivo: NSObject {

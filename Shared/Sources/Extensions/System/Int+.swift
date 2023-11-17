@@ -8,6 +8,11 @@
 
 import Foundation
 
+enum JVIntConversionBehavior {
+    case standard
+    case clamping
+}
+
 extension Int {
     var jv_valuable: Int? {
         return (self == 0 ? nil : self)
@@ -21,15 +26,40 @@ extension Int {
         return "\(self)"
     }
     
-    var jv_toInt16: Int16 {
-        return Int16(self)
+    func jv_toInt16(_ behavior: JVIntConversionBehavior) -> Int16 {
+        switch behavior {
+        case .standard:
+            return Int16(self)
+        case .clamping:
+            return Int16(clamping: self)
+        }
     }
     
-    var jv_toInt32: Int32 {
-        return Int32(self)
+    func jv_toInt32(_ behavior: JVIntConversionBehavior) -> Int32 {
+        switch behavior {
+        case .standard:
+            return Int32(self)
+        case .clamping:
+            return Int32(clamping: self)
+        }
     }
     
-    var jv_toInt64: Int64 {
-        return Int64(self)
+    func jv_toInt64(_ behavior: JVIntConversionBehavior) -> Int64 {
+        switch behavior {
+        case .standard:
+            return Int64(self)
+        case .clamping:
+            return Int64(clamping: self)
+        }
+    }
+    
+    mutating func jv_increment() -> Int {
+        self += 1
+        return self
+    }
+    
+    mutating func jv_decrement() -> Int {
+        self -= 1
+        return self
     }
 }

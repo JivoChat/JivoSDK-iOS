@@ -12,11 +12,12 @@ import JMTimelineKit
 
 
 final class JMTimelineMessagePlainRegion: JMTimelineMessageCanvasRegion {
+    private let quotingBlock = JMTimelineCompositeQuotingBlock(sideOffset: 0)
     private let plainBlock = JMTimelineCompositePlainBlock()
     
     init() {
         super.init(renderMode: .bubble(time: .compact))
-        integrateBlocks([plainBlock], gap: 0)
+        integrateBlocks([quotingBlock, plainBlock], gap: 5)
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -33,6 +34,13 @@ final class JMTimelineMessagePlainRegion: JMTimelineMessageCanvasRegion {
             interactor: interactor)
 
         if let info = info as? JMTimelineMessagePlainInfo {
+            quotingBlock.configure(
+                message: info.quotedMessage,
+                style: JMTimelineCompositeQuotingStyle(
+                    textColor: info.style.textColor
+                ),
+                interactor: interactor)
+            
             plainBlock.configure(
                 content: info.text,
                 style: info.style,

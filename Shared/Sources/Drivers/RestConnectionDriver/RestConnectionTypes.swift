@@ -18,7 +18,7 @@ enum RestRequestMethod: String {
     case head = "HEAD"
 }
 
-enum RestResponseStatus {
+enum RestResponseStatus: Codable {
     case success
     case badRequest
     case unauthorized

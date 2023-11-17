@@ -75,7 +75,7 @@ class JVDatabaseDriver: JVIDatabaseDriver {
                 switch step {
                 case .initial:
                     print("Persistent Store failure for '\(container.name)' with error: \(error)")
-                    fileManager.jv_removeItem(at: info.url)
+                    fileManager.jv_removeItem(at: info.url, strategy: .satellites)
                     setupPersistentContainer(
                         fileManager: fileManager,
                         step: .recovery)
@@ -116,7 +116,10 @@ class JVDatabaseDriver: JVIDatabaseDriver {
     func readwrite(_ block: (JVIDatabaseContext) -> Void) {
         switch writing {
         case .backgroundThread:
+            #if JIVOSDK_DEBUG
             assert(!Thread.isMainThread, "Please use background thread for modifications")
+            #endif
+            break
         case .anyThread:
             break
         }
@@ -251,14 +254,14 @@ class JVDatabaseDriver: JVIDatabaseDriver {
                 return
             }
             
-            let deletedObjects = notification.extractObjects(forKey: NSDeletedObjectsKey)
-            if deletedObjects.map(\.objectID).contains(object.objectID) {
+            let deletedObjectsIds = notification.extractObjects(forKey: NSDeletedObjectsKey).map(\.objectID)
+            if deletedObjectsIds.contains(object.objectID) {
                 feedHandler(nil)
                 return
             }
             
-            let updatedObjects = notification.extractObjects(forKey: NSUpdatedObjectsKey)
-            if updatedObjects.map(\.objectID).contains(object.objectID) {
+            let updatedObjectsIds = notification.extractObjects(forKey: NSUpdatedObjectsKey).map(\.objectID)
+            if updatedObjectsIds.contains(object.objectID) {
                 feedHandler(object)
                 return
             }
@@ -337,9 +340,11 @@ class JVDatabaseDriver: JVIDatabaseDriver {
             }
             
             if let object = readwriteContext {
+                #if JIVOSDK_DEBUG
                 assert(Thread.current === recentThread)
                 assert(RunLoop.current === recentRunLoop)
-                
+                #endif
+
                 return object
             }
             else {

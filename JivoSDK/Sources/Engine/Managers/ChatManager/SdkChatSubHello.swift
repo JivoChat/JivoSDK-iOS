@@ -74,14 +74,16 @@ class SdkChatSubHello: ISdkChatSubHello {
     }
     
     @objc private func performActualAction() {
+        #if JIVOSDK_DEBUG
         assert(Thread.isMainThread)
+        #endif
         
         guard let chatId = chatContext.chatRef?.resolved?.ID
         else {
             return
         }
         
-        let messages = chatSubStorage.history(chatId: chatId, after: nil)
+        let messages = chatSubStorage.history(chatId: chatId, after: nil, limit: 1)
         if messages.isEmpty, Date().timeIntervalSince(socketConnectedAt) > 2 {
             messageTimer?.invalidate()
             messageTimer = Timer.scheduledTimer(

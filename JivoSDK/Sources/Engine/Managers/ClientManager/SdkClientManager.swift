@@ -181,6 +181,8 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         }
         
         if subsystems.contains(.artifacts) {
+            unsubscribeDeviceFromApns(exceptActiveSubscriptions: false)
+            
             withoutKeychainStoring {
                 clientContext.reset()
             }
@@ -236,7 +238,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     }
     
     override func handleProtoEvent(transaction: [NetworkingEventBundle]) {
-        let meTransaction = transaction.filter { $0.payload.type == ProtoTransactionKind.session(.me) }
+        let meTransaction = transaction.filter { $0.payload.type == .session(.me) }
         handleMeTransaction(meTransaction)
     }
     

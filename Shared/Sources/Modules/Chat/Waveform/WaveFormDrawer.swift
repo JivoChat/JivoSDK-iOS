@@ -37,29 +37,29 @@ final class WaveFormDrawer {
     
     private func drawGraph(_ samples: [Float],
                            _ context: CGContext,
-                           _ configuration: WaveformConfiguration) {
-        let rect = CGRect(origin: CGPoint.zero, size: configuration.size)
+                           _ config: WaveformConfiguration) {
+        let rect = CGRect(origin: CGPoint.zero, size: config.size)
         let rectHeight = rect.size.height
         let rectWidth = rect.size.width
         let yCenter = rectHeight / 2.0
         let path = CGMutablePath()
-        context.setLineWidth(configuration.lineWidth)
+        context.setLineWidth(config.lineWidth)
         context.setLineCap(.round)
         
-        let amountOfLines = Int((rectWidth + configuration.space) / (configuration.lineWidth + configuration.space))
+        let amountOfLines = max(samples.count, Int((rectWidth + config.space) / (config.lineWidth + config.space)))
         
         let sampleParts = normalize(samples.chunked(into: samples.count / amountOfLines))
         let localMaxes = sampleParts.compactMap { Double($0.reduce(0, +)) / Double($0.count) }
         let globalMax = localMaxes.max() ?? 0
         
-        let defaultAmplitude = (configuration.pickToPickAmplitude - configuration.lineWidth) / 2
+        let defaultAmplitude = (config.pickToPickAmplitude - config.lineWidth) / 2
         
         for i in 0..<localMaxes.count {
             let ampliduteCoef = CGFloat(min(globalMax, localMaxes[i] / globalMax))
             let drawingAmplitudeUp = yCenter - defaultAmplitude * ampliduteCoef
             let drawingAmplitudeDown = yCenter + defaultAmplitude * ampliduteCoef
             
-            let x = CGFloat(i) * (configuration.space + configuration.lineWidth) + configuration.lineWidth * 0.5
+            let x = CGFloat(i) * (config.space + config.lineWidth) + config.lineWidth * 0.5
             
             path.move(
                 to: CGPoint(
@@ -76,7 +76,7 @@ final class WaveFormDrawer {
         }
 
         context.addPath(path)
-        context.setStrokeColor(configuration.color.cgColor)
+        context.setStrokeColor(config.color.cgColor)
         context.strokePath()
     }
     

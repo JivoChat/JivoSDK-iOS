@@ -16,6 +16,10 @@ extension JVArchiveHit {
         }
         
         if let c = change as? JVArchiveHitGeneralChange {
+            m_id = c.ID
+            m_sorting_rank = c.sortingRank
+            m_score = c.score
+            
             if let chatItem = c.chatItem {
                 m_item = context.upsert(of: JVArchiveHitChatItem.self, with: chatItem)
                 m_item?.b_hit = self
@@ -24,36 +28,34 @@ extension JVArchiveHit {
                 m_item = context.upsert(of: JVArchiveHitCallItem.self, with: callItem)
                 m_item?.b_hit = self
             }
-            
-            m_id = c.ID
-            m_score = c.score
-            m_latest_activity_time = m_item?.chat?.lastMessage?.date
         }
     }
 }
 
 final class JVArchiveHitGeneralChange: JVDatabaseModelChange {
-    public let ID: String
-    public let score: Float
-    public let chatItem: JVArchiveHitChatItemGeneralChange?
-    public let callItem: JVArchiveHitCallItemGeneralChange?
+    static var f_creationOrderCounter = Int.max
+    
+    let ID: String
+    let creationOrder: Int
+    let score: Float
+    let sortingRank: String
+    let chatItem: JVArchiveHitChatItemGeneralChange?
+    let callItem: JVArchiveHitCallItemGeneralChange?
     
     override var stringKey: JVDatabaseModelCustomId<String>? {
         return JVDatabaseModelCustomId(key: "m_id", value: ID)
     }
     
-    override var isValid: Bool {
-        if let item = chatItem, let change = item.chatChange, change.attendees.isEmpty { return true }
-        if let _ = callItem { return true }
-        return false
-    }
-    
     init(ID: String,
+         creationOrder: Int,
          score: Float,
+         sortingRank: String,
          chatItem: JVArchiveHitChatItemGeneralChange?,
          callItem: JVArchiveHitCallItemGeneralChange?) {
         self.ID = ID
+        self.creationOrder = creationOrder
         self.score = score
+        self.sortingRank = sortingRank
         self.chatItem = chatItem
         self.callItem = callItem
         super.init()
@@ -61,17 +63,19 @@ final class JVArchiveHitGeneralChange: JVDatabaseModelChange {
     
     required init(json: JsonElement) {
         ID = json["id"].stringValue
+        creationOrder = Self.f_creationOrderCounter.jv_decrement()
         score = json["score"].floatValue
+        sortingRank = .jv_empty
         
         switch json["type"].stringValue {
         case "chat":
             chatItem = json["item"].parse()
             callItem = nil
-            
+
         case "call":
             chatItem = nil
             callItem = json["item"].parse()
-            
+
         default:
             chatItem = nil
             callItem = nil
@@ -83,7 +87,20 @@ final class JVArchiveHitGeneralChange: JVDatabaseModelChange {
     func copyUnrelative() -> JVArchiveHitGeneralChange {
         return JVArchiveHitGeneralChange(
             ID: ID,
+            creationOrder: creationOrder,
             score: score,
+            sortingRank: sortingRank,
+            chatItem: chatItem?.copyUnrelative(),
+            callItem: callItem?.copyUnrelative()
+        )
+    }
+    
+    func copy(sortingRank: String) -> JVArchiveHitGeneralChange {
+        return JVArchiveHitGeneralChange(
+            ID: ID,
+            creationOrder: creationOrder,
+            score: score,
+            sortingRank: sortingRank,
             chatItem: chatItem?.copyUnrelative(),
             callItem: callItem?.copyUnrelative()
         )

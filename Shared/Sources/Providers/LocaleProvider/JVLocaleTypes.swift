@@ -43,7 +43,7 @@ final class JVLocalizer {
     
     private var langToSearchingPathsCache = [String: [JVLocalizerSearchingRule<Bundle>]]()
     
-    private init() {
+    init() {
     }
     
     public subscript(_ keys: String...) -> String {

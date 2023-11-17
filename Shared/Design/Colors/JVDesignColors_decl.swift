@@ -49,6 +49,7 @@ enum JVDesignColorAlias {
     case orangeRed
     case greenLight
     case greenJivo
+    case greenSber
     case skyBlue
     case brightBlue
     case darkPeriwinkle

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+@testable import App
 
 open class JVDispatchThreadMock: JVIDispatchThread {
     public init() {

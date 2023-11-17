@@ -18,9 +18,9 @@ extension JVMediaUpload {
         if let c = change as? JVMediaUploadChange {
             if m_id == String() { m_id = c.ID }
             m_file_path = c.filePath ?? String()
-            m_chat_id = c.chatID?.jv_toInt64 ?? 0
+            m_chat_id = c.chatID?.jv_toInt64(.standard) ?? 0
             m_recipient_type = c.recipientType
-            m_recipient_id = c.recipientID.jv_toInt64
+            m_recipient_id = c.recipientID.jv_toInt64(.standard)
         }
     }
 }

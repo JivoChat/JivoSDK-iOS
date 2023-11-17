@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import AVFoundation
 import JMCodingKit
 
 extension JVAgentStatus {
@@ -48,76 +47,6 @@ final class JVAgentStatusGeneralChange: JVDatabaseModelChange, Codable {
     }
 }
 
-struct JVAgentTechConfig: Codable {
-    var priceListId: Int? = nil
-    var guestInsightEnabled: Bool = true
-    var fileSizeLimit: Int = 10
-    var disableArchiveForRegular: Bool = false
-    var iosTelephonyEnabled: Bool? = nil
-    var limitedCRM: Bool = true
-    var assignedAgentEnabled: Bool = true
-    var messageEditingEnabled: Bool = true
-    var groupsEnabled: Bool = true
-    var mentionsEnabled: Bool = true
-    var commentsEnabled: Bool = true
-    var reactionsEnabled: Bool = true
-    var businessChatEnabled: Bool = true
-    var billingUpdateEnabled: Bool = true
-    var standaloneTasks: Bool = true
-    var feedbackSdkEnabled: Bool = true
-    var mediaServiceEnabled: Bool = true
-    var voiceMessagesEnabled: Bool = false
-    
-    init() {
-    }
-    
-    init(
-        priceListId: Int?,
-        guestInsightEnabled: Bool,
-        fileSizeLimit: Int,
-        disableArchiveForRegular: Bool,
-        iosTelephonyEnabled: Bool?,
-        limitedCRM: Bool,
-        assignedAgentEnabled: Bool,
-        messageEditingEnabled: Bool,
-        groupsEnabled: Bool,
-        mentionsEnabled: Bool,
-        commentsEnabled: Bool,
-        reactionsEnabled: Bool,
-        businessChatEnabled: Bool,
-        billingUpdateEnabled: Bool,
-        standaloneTasks: Bool,
-        feedbackSdkEnabled: Bool,
-        mediaServiceEnabled: Bool,
-        voiceMessagesEnabled: Bool
-    ) {
-        self.priceListId = priceListId
-        self.guestInsightEnabled = guestInsightEnabled
-        self.fileSizeLimit = fileSizeLimit
-        self.disableArchiveForRegular = disableArchiveForRegular
-        self.iosTelephonyEnabled = iosTelephonyEnabled
-        self.limitedCRM = limitedCRM
-        self.assignedAgentEnabled = assignedAgentEnabled
-        self.messageEditingEnabled = messageEditingEnabled
-        self.groupsEnabled = groupsEnabled
-        self.mentionsEnabled = mentionsEnabled
-        self.commentsEnabled = commentsEnabled
-        self.reactionsEnabled = reactionsEnabled
-        self.businessChatEnabled = businessChatEnabled
-        self.billingUpdateEnabled = billingUpdateEnabled
-        self.standaloneTasks = standaloneTasks
-        self.feedbackSdkEnabled = feedbackSdkEnabled
-        self.mediaServiceEnabled = mediaServiceEnabled
-        self.voiceMessagesEnabled = voiceMessagesEnabled
-    }
-    
-    var canReceiveCalls: Bool? {
-        guard let enabled = iosTelephonyEnabled else { return nil }
-        guard AVAudioSession.sharedInstance().recordPermission != .denied else { return false }
-        return enabled
-    }
-}
-
 enum JVAgentLicensedFeature: Int {
     case blacklist
     case geoip
@@ -128,7 +57,6 @@ enum JVAgentLicensedFeature: Int {
     case typing
     case info
     case files
-    case guests
     
     func resolveBit(within raw: Int) -> Bool {
         return (raw & (1 << rawValue)) > 0
@@ -139,7 +67,9 @@ final class JVAgentSessionGeneralChange: JVDatabaseModelChange, Codable {
     var sessionID: String
     var email: String
     var siteID: Int
+    var isOwner: Bool
     var isAdmin: Bool
+    var isSupervisor: Bool
     var isOperator: Bool
     var voxLogin: String
     var voxPassword: String
@@ -158,7 +88,9 @@ final class JVAgentSessionGeneralChange: JVDatabaseModelChange, Codable {
     required init(json: JsonElement) {
         sessionID = json["agent_info"]["agent_session_id"].string ?? json["jv_sess_id"].stringValue
         email = json["agent_info"]["email"].stringValue
+        isOwner = json["agent_info"]["is_owner"].boolValue
         isAdmin = json["agent_info"]["is_admin"].boolValue
+        isSupervisor = json["agent_info"]["is_supervisor"].bool ?? false
         isOperator = json["agent_info"]["is_operator"].bool ?? true
         siteID = json["agent_info"]["site_id"].intValue
         voxLogin = json["agent_info"]["vox_name"].stringValue
@@ -175,7 +107,6 @@ final class JVAgentSessionContextChange: JVDatabaseModelChange {
     public let agentsJSON: JsonElement?
     public let agents: [JVAgentGeneralChange]?
     public let clients: [JVClientGeneralChange]?
-    public let techConfig: JVAgentTechConfig?
     public let currency: String?
     public let pricelistID: Int?
     public let licenseLimit: Int?
@@ -195,33 +126,11 @@ final class JVAgentSessionContextChange: JVDatabaseModelChange {
             clients = context["clients"].parseList()
             
             if let misc = context.has(key: "misc") {
-                techConfig = JVAgentTechConfig(
-                    priceListId: misc["pricelist_id"].int,
-                    guestInsightEnabled: ((misc["disable_visitors_insight"].int ?? 0) == 0),
-                    fileSizeLimit: misc["max_file_size"].int ?? 10,
-                    disableArchiveForRegular: ((misc["disable_archive_non_admins"].int ?? 0) > 0),
-                    iosTelephonyEnabled: ((misc["enable_ios_telephony"].int ?? 1) > 0),
-                    limitedCRM: ((misc["enable_crm"].int ?? 1) > 0),
-                    assignedAgentEnabled: ((misc["enable_assigned_agent"].int ?? 1) > 0),
-                    messageEditingEnabled: ((misc["enable_message_edit"].int ?? 1) > 0),
-                    groupsEnabled: ((misc["enable_team_chats"].int ?? 1) > 0),
-                    mentionsEnabled: ((misc["enable_mentions"].int ?? 1) > 0),
-                    commentsEnabled: ((misc["enable_comments"].int ?? 1) > 0),
-                    reactionsEnabled: ((misc["enable_reactions"].int ?? 1) > 0),
-                    businessChatEnabled: ((misc["enable_imessage"].int ?? 1) > 0),
-                    billingUpdateEnabled: ((misc["enable_new_billing"].int ?? 0) > 0 && ((context["is_operator_model_enabled"].bool ?? true) == true)),
-                    standaloneTasks: ((misc["enable_reminder_without_open_chat"].int ?? 1) > 0),
-                    feedbackSdkEnabled: ((misc["enable_feedback_sdk"].int ?? 1) > 0 && (misc["disable_feedback_sdk_ios"].int ?? 0) < 1),
-                    mediaServiceEnabled: ((misc["enable_media_service_uploading"].int ?? 1) > 0 && (misc["disable_media_service_uploading"].int ?? 0) < 1),
-                    voiceMessagesEnabled: (misc["enable_voice_messages"].int ?? 0) > 0
-                )
-                
                 currency = misc["currency"].string
                 pricelistID = misc["pricelist_id"].int
                 licenseLimit = misc["license_limit"].int
             }
             else {
-                techConfig = nil
                 currency = nil
                 pricelistID = nil
                 licenseLimit = nil
@@ -233,7 +142,6 @@ final class JVAgentSessionContextChange: JVDatabaseModelChange {
             agentsJSON = JsonElement()
             agents = []
             clients = []
-            techConfig = nil
             currency = nil
             pricelistID = nil
             licenseLimit = nil
@@ -259,26 +167,26 @@ final class JVAgentSessionBoxesChange: JVDatabaseModelChange {
         super.init()
     }
 
-    var clientChats: [JVChatGeneralChange] {
+    func extractClientChats() -> [JVChatGeneralChange] {
         return chats.filter { $0.client != nil }
     }
 
-    var teamChats: [JVChatGeneralChange] {
+    func extractTeamChats() -> [JVChatGeneralChange] {
         return chats.filter { !($0.isGroup == true) && $0.client == nil }
     }
     
-    var groupChats: [JVChatGeneralChange] {
+    func extractGroupChats() -> [JVChatGeneralChange] {
         return chats.filter { ($0.isGroup == true) }
     }
     
-    var chatIDs: [Int] {
+    func extractChatIDs() -> [Int] {
         return chats.map { $0.ID }
     }
     
-    func cachable() -> JVAgentSessionBoxesChange {
+    var cachable: JVAgentSessionBoxesChange {
         return JVAgentSessionBoxesChange(
             source: source,
-            chats: chats.map { $0.cachable() }
+            chats: chats.map(\.cachable)
         )
     }
 }
@@ -383,8 +291,7 @@ func JVAgentSessionParseFeatures(source: JsonElement) -> Int {
         _bit(key: "away", flag: .away),
         _bit(key: "typing_insight", flag: .typing),
         _bit(key: "page_info", flag: .info),
-        _bit(key: "file_transfer", flag: .files),
-        _bit(key: "visitors_insight", flag: .guests)
+        _bit(key: "file_transfer", flag: .files)
     ]
     
     return flags.reduce(0, +)

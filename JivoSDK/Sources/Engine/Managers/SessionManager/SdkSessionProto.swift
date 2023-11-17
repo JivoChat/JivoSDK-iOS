@@ -188,7 +188,7 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
         }
         
         return ProtoEventBundle(
-            type: ProtoTransactionKind.session(.me),
+            type: .session(.me),
             id: nil,
             subject: MeTransactionSubject.meId(id: id)
         )
@@ -201,7 +201,7 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
         }
         
         return ProtoEventBundle(
-            type: ProtoTransactionKind.session(.me),
+            type: .session(.me),
             id: nil,
             subject: MeTransactionSubject.meUrlPath(path: path)
         )
@@ -209,7 +209,7 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
     
     private func decodeAtomMeHistory(_ json: JsonElement) -> ProtoEventBundle? {
         return ProtoEventBundle(
-            type: ProtoTransactionKind.session(.me),
+            type: .session(.me),
             id: nil,
             subject: MeTransactionSubject.meHistory(
                 lastMessageId: json["data"].int

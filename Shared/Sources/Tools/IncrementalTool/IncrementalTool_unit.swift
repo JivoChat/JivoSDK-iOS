@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import Jivo
+@testable import App
 
 final class IncrementalValueToolUnit: XCTestCase {
     func test_whenCallerAsksForNextValues_thenToolProvidesIncrementalValuesStarting1() {

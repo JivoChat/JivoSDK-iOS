@@ -109,7 +109,11 @@ final class JVDatabaseContext: JVIDatabaseContext {
         
         do {
             let found = try context.fetch(request)
+            
+            #if JIVOSDK_DEBUG
             assert(found.count <= 1)
+            #endif
+            
             return found.first
         }
         catch {
@@ -125,7 +129,11 @@ final class JVDatabaseContext: JVIDatabaseContext {
         
         do {
             let found: [OT] = try context.fetch(request)
+            
+            #if JIVOSDK_DEBUG
             assert(found.count <= 1)
+            #endif
+
             return found.first
         }
         catch {
@@ -143,7 +151,11 @@ final class JVDatabaseContext: JVIDatabaseContext {
         
         do {
             let found = try context.fetch(request)
+            
+            #if JIVOSDK_DEBUG
             assert(found.count <= 1)
+            #endif
+            
             return found.first
         }
         catch {
@@ -241,6 +253,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
         
         if let options = options {
             request.predicate = options.filter
+            request.fetchLimit = options.limit
             
             request.sortDescriptors = options.sortBy.map {
                 NSSortDescriptor(key: $0.keyPath, ascending: $0.ascending)
@@ -543,6 +556,18 @@ final class JVDatabaseContext: JVIDatabaseContext {
     
     func chatWithID(_ ID: Int) -> JVChat? {
         return object(JVChat.self, primaryId: ID)
+    }
+    
+    func message(for messageId: Int, provideDefault: Bool) -> JVMessage? {
+        if let value = object(JVMessage.self, primaryId: messageId) {
+            return value
+        }
+        else if provideDefault {
+            return upsert(of: JVMessage.self, with: JVMessageEmptyChange(ID: messageId))
+        }
+        else {
+            return nil
+        }
     }
     
     func messageWithCallID(_ callID: String?) -> JVMessage? {

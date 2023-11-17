@@ -315,7 +315,7 @@ final class ChatModuleCore
             handleSendMessageRequest(message: text)
         case .messageTap(let itemUUID, let interaction):
             handleMessageItemDidTap(itemUUID: itemUUID, tapType: interaction)
-        case .timelineEvent(.latestPointOfHistory(let hasData)):
+        case .timelineEvent(.latestPointOfHistory(let visible, let hasData)):
             timelineFirstItemVisibleHandler(isVisible: hasData)
         case .timelineEvent(.exceptionHappened):
             timelineExceptionHandler()
@@ -507,8 +507,9 @@ final class ChatModuleCore
     }
     
     private func handleMessagesUpserted(messages: [JVMessage]) {
-        let messagesToUpdate = messages.filter { chatHistory.messages.map(\.UUID).contains($0.UUID) }
-        let messagesToPopulate = messages.filter { !chatHistory.messages.map(\.UUID).contains($0.UUID) }
+        let currentUids = chatHistory.messages.map(\.UUID)
+        let messagesToUpdate = messages.filter { currentUids.contains($0.UUID) }
+        let messagesToPopulate = messages.filter { !currentUids.contains($0.UUID) }
         
         if !messagesToPopulate.isEmpty {
             removeActiveMessage()

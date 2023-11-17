@@ -215,7 +215,7 @@ final class ChatModuleJoint
                 .action(uiConfig.attachFile, .icon(.file), .regular { [weak self] _ in
                     self?.presentDocumentPicker()
                 }),
-                .children(items: extraItems)
+                .children(title: nil, items: extraItems)
             ]
         )
     }
@@ -257,11 +257,16 @@ final class ChatModuleJoint
         viewController.view.endEditing(false)
         documentsBridge.presentPicker(within: viewController) { [weak self] event in
             guard case .documents(let urls) = event,
-                  let primaryUrl = urls.first
+                  let primaryUrl = urls.first,
+                  primaryUrl.startAccessingSecurityScopedResource()
             else {
                 return
             }
-                    
+            
+            defer {
+                primaryUrl.stopAccessingSecurityScopedResource()
+            }
+            
             guard let fileSize = primaryUrl.jv_fileSize,
                   fileSize < SdkConfig.uploadingLimit.bytes
             else {
@@ -294,7 +299,7 @@ final class ChatModuleJoint
             title: "Developer Menu",
             message: nil,
             items: [
-                .action("Send logs to Jivo developers", .noicon, .regular { [weak self] _ in
+                .action("Share logs with Jivo", .noicon, .regular { [weak self] _ in
                     self?.pipeline?.notify(input: .requestDeveloperLogs)
                 }),
                 .dismiss(.cancel)

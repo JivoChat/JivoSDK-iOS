@@ -18,18 +18,6 @@ struct JMTimelineMessageSenderStyle: JMTimelineStyle {
     let font: UIFont
     let padding: UIEdgeInsets
     let corner: CGFloat
-    
-    init(backgroundColor: UIColor,
-                foregroundColor: UIColor,
-                font: UIFont,
-                padding: UIEdgeInsets,
-                corner: CGFloat) {
-        self.backgroundColor = backgroundColor
-        self.foregroundColor = foregroundColor
-        self.font = font
-        self.padding = padding
-        self.corner = corner
-    }
 }
 
 struct JMTimelineCompositeStyle: JMTimelineStyle {
@@ -51,44 +39,6 @@ struct JMTimelineCompositeStyle: JMTimelineStyle {
     let deliveryViewTintColor: UIColor
     let reactionStyle: JMTimelineReactionStyle
     let contentStyle: JMTimelineStyle
-    
-    init(senderBackground: UIColor,
-                senderColor: UIColor,
-                senderFont: UIFont,
-                senderPadding: UIEdgeInsets,
-                senderCorner: CGFloat,
-                borderColor: UIColor?,
-                borderWidth: CGFloat?,
-                backgroundColor: UIColor?,
-                foregroundColor: UIColor,
-                statusColor: UIColor,
-                statusFont: UIFont,
-                timeRegularForegroundColor: UIColor,
-                timeOverlayBackgroundColor: UIColor,
-                timeOverlayForegroundColor: UIColor,
-                timeFont: UIFont,
-                deliveryViewTintColor: UIColor,
-                reactionStyle: JMTimelineReactionStyle,
-                contentStyle: JMTimelineStyle) {
-        self.senderBackground = senderBackground
-        self.senderColor = senderColor
-        self.senderFont = senderFont
-        self.senderPadding = senderPadding
-        self.senderCorner = senderCorner
-        self.borderColor = borderColor
-        self.borderWidth = borderWidth
-        self.backgroundColor = backgroundColor
-        self.foregroundColor = foregroundColor
-        self.statusColor = statusColor
-        self.statusFont = statusFont
-        self.timeRegularForegroundColor = timeRegularForegroundColor
-        self.timeOverlayBackgroundColor = timeOverlayBackgroundColor
-        self.timeOverlayForegroundColor = timeOverlayForegroundColor
-        self.timeFont = timeFont
-        self.deliveryViewTintColor = deliveryViewTintColor
-        self.reactionStyle = reactionStyle
-        self.contentStyle = contentStyle
-    }
 }
 
 enum JMTimelineCompositeRenderMode: Equatable {
@@ -138,14 +88,14 @@ struct JMTimelineMessageRegionRenderOptions {
     init(
         position: JMTimelineItemPosition,
         contentKind: ChatTimelineSenderType,
-                outcomingPalette: JMTimelineMessagePalette?,
+        outcomingPalette: JMTimelineMessagePalette?,
         isQuote: Bool,
         entireCanvas: Bool,
         isFailure: Bool
     ) {
         self.position = position
         self.contentKind = contentKind
-        self.outcomingPalette =         outcomingPalette
+        self.outcomingPalette = outcomingPalette
         self.isQuote = isQuote
         self.entireCanvas = entireCanvas
         self.isFailure = isFailure
@@ -157,6 +107,9 @@ class JMTimelineMessageCanvas: JMTimelineCanvas {
     let senderCaption = JMTimelineCompositeSenderLabel()
     let senderMark = JMTimelineCompositeSenderLabel()
     let footer = JMTimelineContainerFooter()
+
+    private var topEdge: JMTimelineMessageLoadingIndicator?
+    private var bottomEdge: JMTimelineMessageLoadingIndicator?
 
     private var kindID = String()
     private var currentRegions = [JMTimelineMessageCanvasRegion]()
@@ -239,6 +192,32 @@ class JMTimelineMessageCanvas: JMTimelineCanvas {
         
         senderMark.font = item.payload.sender.style.font
         
+        if item.logicOptions.contains(.missingHistoryPast) {
+            topEdge = topEdge ?? makeIndicator(selector: #selector(handleTopIndicatorTap))
+            topEdge?.showAsButton()
+        }
+        else if item.logicOptions.contains(.loadingHistoryPast) {
+            topEdge = topEdge ?? makeIndicator(selector: #selector(handleTopIndicatorTap))
+            topEdge?.showAsIndicator()
+        }
+        else {
+            topEdge?.removeFromSuperview()
+            topEdge = nil
+        }
+        
+        if item.logicOptions.contains(.missingHistoryFuture) {
+            bottomEdge = bottomEdge ?? makeIndicator(selector: #selector(handleBottomIndicatorTap))
+            bottomEdge?.showAsButton()
+        }
+        else if item.logicOptions.contains(.loadingHistoryFuture) {
+            bottomEdge = bottomEdge ?? makeIndicator(selector: #selector(handleBottomIndicatorTap))
+            bottomEdge?.showAsIndicator()
+        }
+        else {
+            bottomEdge?.removeFromSuperview()
+            bottomEdge = nil
+        }
+
         footer.configure(
             reactions: item.extraActions.reactions,
             actions: item.extraActions.actions)
@@ -281,6 +260,8 @@ class JMTimelineMessageCanvas: JMTimelineCanvas {
         senderMark.frame = layout.senderMarkFrame
         zip(currentRegions, layout.regionsFrames).forEach { $0.0.frame = $0.1 }
         footer.frame = layout.footerFrame
+        topEdge?.frame = layout.topEdgeFrame
+        bottomEdge?.frame = layout.bottomEdgeFrame
     }
     
     private func getLayout(size: CGSize) -> Layout {
@@ -290,6 +271,7 @@ class JMTimelineMessageCanvas: JMTimelineCanvas {
         
         return Layout(
             bounds: CGRect(origin: .zero, size: size),
+            item: item,
             sender: item.payload.sender,
             senderLabel: senderCaption,
             senderMark: senderMark,
@@ -297,7 +279,10 @@ class JMTimelineMessageCanvas: JMTimelineCanvas {
             regionsGap: 8,
             footer: footer,
             layoutOptions: item.layoutOptions,
-            renderOptions: item.payload.renderOptions
+            renderOptions: item.payload.renderOptions,
+            logicOptions: item.logicOptions,
+            topEdge: topEdge,
+            bottomEdge: bottomEdge
         )
     }
     
@@ -348,6 +333,13 @@ class JMTimelineMessageCanvas: JMTimelineCanvas {
         return .handled
     }
     
+    private func makeIndicator(selector: Selector) -> JMTimelineMessageLoadingIndicator {
+        let control = JMTimelineMessageLoadingIndicator()
+        control.button.addTarget(self, action: selector, for: .touchUpInside)
+        insertSubview(control, at: 0)
+        return control
+    }
+    
     @objc func handleSenderIconTap() {
         guard let item = item as? JMTimelineMessageItem else {
             return
@@ -355,13 +347,29 @@ class JMTimelineMessageCanvas: JMTimelineCanvas {
         
         item.payload.interactor.senderIconTap(item: item)
     }
+    
+    @objc private func handleTopIndicatorTap() {
+        guard let item = item as? JMTimelineMessageItem else {
+            return
+        }
+        
+        item.payload.interactor.requestHistoryPast(item: item)
+    }
+    
+    @objc private func handleBottomIndicatorTap() {
+        guard let item = item as? JMTimelineMessageItem else {
+            return
+        }
+        
+        item.payload.interactor.requestHistoryFuture(item: item)
+    }
 }
 
 fileprivate var cachedRegions = [String: Array<[JMTimelineMessageCanvasRegion]>]()
 
 fileprivate struct Layout {
     let bounds: CGRect
-//    let item: JMTimelineMessageItem!
+    let item: JMTimelineItem
     let sender: JMTimelineItemSender
     let senderLabel: UILabel
     let senderMark: UILabel
@@ -370,6 +378,9 @@ fileprivate struct Layout {
     let footer: JMTimelineContainerFooter
     let layoutOptions: JMTimelineLayoutOptions
     let renderOptions: JMTimelineMessageRenderOptions
+    let logicOptions: JMTimelineLogicOptions
+    let topEdge: JMTimelineMessageLoadingIndicator?
+    let bottomEdge: JMTimelineMessageLoadingIndicator?
 
     private let sameGroupingGapCoef = CGFloat(0.2)
     private let iconSize = CGSize(width: 30, height: 30)
@@ -407,10 +418,10 @@ fileprivate struct Layout {
         switch s.renderOptions.position {
         case .left:
             let leftX = s.iconHorizontalSpace
-            return CGRect(x: leftX, y: 0, width: size.width, height: size.height)
+            return CGRect(x: leftX, y: s.topEdgeFrame.maxY, width: size.width, height: size.height)
         case .right:
             let leftX = s.bounds.width - size.width
-            return CGRect(x: leftX, y: 0, width: size.width, height: size.height)
+            return CGRect(x: leftX, y: s.topEdgeFrame.maxY, width: size.width, height: size.height)
         }
     }
     
@@ -438,7 +449,7 @@ fileprivate struct Layout {
             y: -regionsGap + (
                 senderLabelFrame.height > 0
                 ? senderLabelFrame.maxY + gap
-                : 0
+                : topEdgeFrame.maxY
             ),
             width: 0,
             height: 0
@@ -473,6 +484,32 @@ fileprivate struct Layout {
         }
     }
     
+    var topEdgeFrame: CGRect {
+        if logicOptions.isDisjoint(with: [.missingHistoryPast, .loadingHistoryPast]) {
+            return bounds.divided(atDistance: 0, from: .minYEdge).slice
+        }
+        else if let topEdge = topEdge {
+            let size = topEdge.jv_size(forWidth: bounds.width)
+            return bounds.divided(atDistance: size.height, from: .minYEdge).slice
+        }
+        else {
+            return bounds.divided(atDistance: 0, from: .minYEdge).slice
+        }
+    }
+    
+    var bottomEdgeFrame: CGRect {
+        if logicOptions.isDisjoint(with: [.missingHistoryFuture, .loadingHistoryFuture]) {
+            return bounds.divided(atDistance: 0, from: .maxYEdge).slice
+        }
+        else if let bottomEdge = bottomEdge {
+            let size = bottomEdge.jv_size(forWidth: bounds.width)
+            return bounds.divided(atDistance: size.height, from: .maxYEdge).slice
+        }
+        else {
+            return bounds.divided(atDistance: 0, from: .maxYEdge).slice
+        }
+    }
+    
     var totalSize: CGSize {
         let senderHeight: CGFloat
         if let _ = senderLabel.text {
@@ -493,7 +530,15 @@ fileprivate struct Layout {
             footerHeight = 0
         }
         
-        let height = senderHeight + regionsHeight + regionsGaps + footerHeight
+        let height = (
+            topEdgeFrame.height +
+            senderHeight +
+            regionsHeight +
+            regionsGaps +
+            footerHeight +
+            bottomEdgeFrame.height
+        )
+        
         return CGSize(width: bounds.width, height: height)
     }
     

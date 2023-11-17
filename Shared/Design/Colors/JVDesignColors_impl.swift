@@ -164,7 +164,7 @@ final class JVDesignColors: JVDesignEnvironmental, JVIDesignColors {
         case .agentTime: return dynamicColor(light: .alias(.steel), dark: .alias(.steel))
         case .botButtonBackground: return dynamicColor(light: .hex(0xC0D0E0), dark: .hex(0x505050))
         case .botButtonForeground: return dynamicColor(light: .hex(0x202020), dark: .hex(0xD0D0D0))
-        case .commentInput: return dynamicColor(light: .hex(0xFEFAEB), dark: .hex(0x614800))
+        case .commentInput: return dynamicColor(light: .hex(0xFEFAEB), dark: .hex(0x41403C))
         case .commentBackground: return dynamicColor(light: .hex(0xFEEAAC), dark: .hex(0x614800))
         case .callBorder: return dynamicColor(light: .alias(.grayDark), dark: .alias(.grayDark))
         case .failedBackground: return dynamicColor(light: .alias(.orangeRed), dark: .alias(.orangeRed))
@@ -253,6 +253,7 @@ fileprivate let f_colors: [JVDesignColorBrightness: [JVDesignColorAlias: UIColor
         .orangeRed: UIColor(jv_hex: 0xFF3B30),
         .greenLight: UIColor(jv_hex: 0x4CD964),
         .greenJivo: UIColor(jv_hex: 0x00BC31),
+        .greenSber: UIColor(jv_hex: 0x21A038),
         .skyBlue: UIColor(jv_hex: 0x5AC8FA),
         .brightBlue: UIColor(jv_hex: 0x007AFF),
         .darkPeriwinkle: UIColor(jv_hex: 0x5856D6),
@@ -274,13 +275,13 @@ fileprivate let f_colors: [JVDesignColorBrightness: [JVDesignColorAlias: UIColor
         .accentGraphite: UIColor(jv_hex: 0x445669),
         .orangeRed: UIColor(jv_hex: 0xFF3B30),
         .greenJivo: UIColor(jv_hex: 0x008A0B),
+        .greenSber: UIColor(jv_hex: 0x21A038),
         .sunflowerYellow: UIColor(jv_hex: 0xFFCC00),
         .silverRegular: UIColor(jv_hex: 0xC7C7CC),
         .grayDark: UIColor(jv_hex: 0xE5E5EA),
         .greenLight: UIColor(jv_hex: 0x4CD964),
         .reddishPink: UIColor(jv_hex: 0xFF2D55),
         .steel: UIColor(jv_hex: 0x8E8E93),
-        
         .darkBackground: UIColor(jv_hex: 0x1C1B17),
         .background: UIColor(jv_hex: 0xF7F9FC),
         .stillBackground: UIColor(jv_hex: 0xF7F7F7),

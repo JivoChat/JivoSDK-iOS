@@ -10,12 +10,16 @@ struct TypingCacheRecord: Codable, Equatable {
         case context
         case text
         case mode
+        case lastChatID
+        case aiSummarizeCount
     }
     
     let context: TypingContext
     let text: String?
     let attachments: [ChatPhotoPickerObject]
     let mode: InputMode?
+    let lastChatID: Int
+    let aiSummarizeCount: Int
     
     var isEmpty: Bool {
         guard text.jv_orEmpty.isEmpty else { return false }
@@ -28,12 +32,16 @@ struct TypingCacheRecord: Codable, Equatable {
         context: TypingContext,
         text: String?,
         attachments: [ChatPhotoPickerObject],
-        mode: InputMode?
+        mode: InputMode?,
+        lastChatID: Int,
+        aiSummarizeCount: Int
     ) {
         self.context = context
         self.text = text
         self.attachments = attachments
         self.mode = mode
+        self.lastChatID = lastChatID
+        self.aiSummarizeCount = aiSummarizeCount
     }
     
     init(from decoder: Decoder) throws {
@@ -42,6 +50,8 @@ struct TypingCacheRecord: Codable, Equatable {
         text = try container.decodeIfPresent(String.self, forKey: .text)
         attachments = []
         mode = try container.decode(InputMode.self, forKey: .mode)
+        lastChatID = try container.decode(Int.self, forKey: .lastChatID)
+        aiSummarizeCount = try container.decode(Int.self, forKey: .aiSummarizeCount)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -49,5 +59,7 @@ struct TypingCacheRecord: Codable, Equatable {
         try container.encodeIfPresent(context, forKey: .context)
         try container.encode(text, forKey: .text)
         try container.encode(mode, forKey: .mode)
+        try container.encode(lastChatID, forKey: .lastChatID)
+        try container.encode(aiSummarizeCount, forKey: .aiSummarizeCount)
     }
 }

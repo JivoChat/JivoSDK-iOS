@@ -23,7 +23,7 @@ protocol ISdkChatSubStorage: IBaseChattingSubStorage {
     var eventSignal: JVBroadcastTool<SdkChatSubStorageEvent> { get }
     
     func message(withLocalId localId: String) -> JVMessage?
-    func history(chatId: Int, after anchorDate: Date?) -> [JVMessage]
+    func history(chatId: Int, after anchorDate: Date?, limit: Int) -> [JVMessage]
     func lastMessage(chatId: Int) -> JVMessage?
     func storeOutgoingMessage(localID: String, clientID: Int, chatID: Int, type: JVMessageType, content: JVMessageContent, status: JVMessageStatus?, timing: SdkChatSubStorageMessageTiming) -> JVMessage?
     func retrieveQueuedMessages(chatId: Int) -> [JVMessage]
@@ -99,7 +99,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         return message
     }
     
-    func history(chatId: Int, after anchorDate: Date?) -> [JVMessage] {
+    func history(chatId: Int, after anchorDate: Date?, limit: Int) -> [JVMessage] {
         let filter = NSPredicate(
             format: "(m_chat_id == %lld OR m_chat_id == 0) AND m_is_hidden == false AND m_date > %@",
             argumentArray: [
@@ -112,6 +112,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
             JVMessage.self,
             options: JVDatabaseRequestOptions(
                 filter: filter,
+                limit: limit,
                 sortBy: [
                     JVDatabaseResponseSort(keyPath: "m_date", ascending: false),
                     JVDatabaseResponseSort(keyPath: "m_ordering_index", ascending: false),
@@ -369,24 +370,27 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
     
     @discardableResult
     func markMessagesAsSeen(to messageId: Int, inChatWithId chatId: Int) -> [JVMessage] {
-//        guard messageWithID(messageId)?.sender?.senderType == JVSenderType.client else { return [] }
+        let filter = NSPredicate(
+            format: "(m_chat_id == %lld OR m_chat_id == 0) AND m_is_hidden == false AND m_status != %@",
+            argumentArray: [
+                chatId,
+                JVMessageStatus.seen.rawValue
+            ]
+        )
         
-        let messageHistory = Array(history(chatId: chatId, after: nil).reversed())
-            .filter { $0.status != JVMessageStatus.seen }
-        let nextMessageIndexAfterLastSeen = messageHistory.enumerated().first { (index, message) in
-            return message.ID == messageId
-        }
-        .flatMap { $0.offset + 1} ?? 0
+        let messages = databaseDriver.objects(
+            JVMessage.self,
+            options: JVDatabaseRequestOptions(
+                filter: filter
+            )
+        )
         
-        let messages = messageHistory[0..<nextMessageIndexAfterLastSeen].map { message -> JVMessage in
-            databaseDriver.readwrite { context in
-                if message.m_status != JVMessageStatus.seen.rawValue {
-                    message.m_status = JVMessageStatus.seen.rawValue
-                }
+        databaseDriver.readwrite { context in
+            for message in messages {
+                message.m_status = JVMessageStatus.seen.rawValue
             }
-            return message
         }
-        
+
         return messages
     }
     

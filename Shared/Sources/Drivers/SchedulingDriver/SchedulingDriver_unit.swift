@@ -7,7 +7,7 @@
 //
 
 import XCTest
-@testable import Jivo
+@testable import App
 
 fileprivate let standardActionID = "action_id"
 fileprivate let standardActionDelay = TimeInterval(2)

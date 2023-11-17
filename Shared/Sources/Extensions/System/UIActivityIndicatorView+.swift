@@ -14,6 +14,16 @@ extension UIActivityIndicatorView {
         startAnimating()
         return self
     }
+    
+    func jv_start() {
+        startAnimating()
+        isHidden = false
+    }
+    
+    func jv_stop() {
+        stopAnimating()
+        isHidden = true
+    }
 }
 
 extension UIActivityIndicatorView.Style {

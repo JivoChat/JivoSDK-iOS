@@ -401,7 +401,7 @@ extension JVChat: JVPresentable {
     }
     
     var isArchived: Bool {
-        return m_is_archived
+        return (m_attendee == nil)
     }
 
     var recipient: JVSenderData? {
@@ -453,6 +453,12 @@ extension JVChat: JVPresentable {
         return b_agent
     }
     
+    var isLive: Bool {
+        guard let _ = client else { return false }
+        guard !attendees.isEmpty else { return false }
+        return true
+    }
+    
     var owningAgent: JVAgent? {
         return m_owning_agent
     }
@@ -483,7 +489,7 @@ extension JVChat: JVPresentable {
             title: m_title,
             about: m_about,
             icon: m_icon,
-            isArchived: m_is_archived)
+            isArchived: (m_attendee == nil))
     }
     
     func isAvailable(accepting: Bool, joining: Bool) -> Bool {

@@ -7,8 +7,7 @@
 //
 
 import XCTest
-@testable import JivoFoundation
-@testable import Jivo
+@testable import App
 
 class MentioningServiceUnit: XCTestCase {
     private let sampleTextPlain = "There are @bob and @alice being mentioned @here"

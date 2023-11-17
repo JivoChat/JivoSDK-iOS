@@ -20,14 +20,19 @@ extension Notification.Name {
 struct JMTimelineCompositePhotoStyle: JMTimelineStyle {
     let ratio: CGFloat
     let contentMode: UIView.ContentMode
+    let decorationColor: UIColor?
+    let corners: CACornerMask
 }
 
 final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
+    private let underlayView = UIView()
     private let waitingIndicator = UIActivityIndicatorView(style: .jv_auto)
     
     private var ratio = CGFloat(1.0)
+    private var decorationColor: UIColor?
     
     private var renderer: (UIView & Renderer)?
+    private weak var decoration: UIView?
     private var originalUrl: URL?
     private var resource: RemoteStorageFileResource?
     private var originalSize: CGSize?
@@ -42,16 +47,20 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
         
         super.init()
         
-        layer.borderWidth = 1
-        layer.borderColor = JVDesign.colors.resolve(usage: .secondarySeparator).cgColor
-        layer.cornerRadius = JVDesign.layout.timelineMessageRadius
-        
-        waitingIndicator.hidesWhenStopped = true
-        addSubview(waitingIndicator)
+        layer.cornerRadius = 14
+        clipsToBounds = true
         
         if #available(iOS 11.0, *) {
             accessibilityIgnoresInvertColors = true
         }
+        
+        underlayView.backgroundColor = JVDesign.colors.resolve(usage: .chattingBackground)
+        underlayView.layer.cornerRadius = 13
+        underlayView.clipsToBounds = true
+        addSubview(underlayView)
+        
+        waitingIndicator.hidesWhenStopped = true
+        addSubview(waitingIndicator)
         
         addGestureRecognizer(
             UITapGestureRecognizer(target: self, action: #selector(handleTap))
@@ -71,7 +80,11 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
         
         ratio = style.ratio
         contentMode = style.contentMode
+        layer.maskedCorners = style.corners
         
+        decorationColor = style.decorationColor
+        decoration?.tintColor = decorationColor
+
         linkTo(provider: provider, interactor: interactor)
         
         renderer?.reset()
@@ -169,12 +182,12 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
     
     override func layoutSubviews() {
         super.layoutSubviews()
+        underlayView.frame = bounds.insetBy(dx: 1, dy: 1)
         waitingIndicator.frame = bounds
     }
     
     override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
         super.traitCollectionDidChange(previousTraitCollection)
-        layer.borderColor = JVDesign.colors.resolve(usage: .secondarySeparator).cgColor
     }
     
     override func willMove(toWindow newWindow: UIWindow?) {
@@ -202,6 +215,13 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
         renderer?.frame = bounds
         renderer?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
+//        let decoration = DecorativeBorder()
+//        decoration.frame = bounds
+//        decoration.tintColor = decorationColor
+//        decoration.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+//        renderer?.addSubview(decoration)
+//        self.decoration = decoration
+
         return newElement
     }
     
@@ -216,5 +236,37 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
         case .preview:
             interactor?.requestMedia(url: meta.originUrl, kind: kind, mime: meta.mime) { _ in }
         }
+    }
+}
+
+fileprivate final class DecorativeBorder: UIView {
+    init() {
+        super.init(frame: .zero)
+        
+        isOpaque = false
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
+    
+    override var tintColor: UIColor! {
+        didSet {
+            setNeedsDisplay()
+        }
+    }
+    
+    override func draw(_ rect: CGRect) {
+        let clippingPath = UIBezierPath(
+            roundedRect: rect.insetBy(dx: 2, dy: 2),
+            cornerRadius: JVDesign.layout.timelineMessageRadius - 1
+        )
+        
+        let parentPath = UIBezierPath(rect: rect)
+        parentPath.append(clippingPath)
+        parentPath.usesEvenOddFillRule = true
+        
+        tintColor?.setFill()
+        parentPath.fill()
     }
 }

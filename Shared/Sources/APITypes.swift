@@ -237,6 +237,11 @@ enum APITaskType: String, APISelectableType {
     }
 }
 
+enum ApiChatStatus: String {
+    case opened = "open"
+    case closed = "closed"
+}
+
 struct APIAccount {
     let siteID: Int
     let channelID: Int

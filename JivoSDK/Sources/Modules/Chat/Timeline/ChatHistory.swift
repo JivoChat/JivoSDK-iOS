@@ -125,29 +125,23 @@ final class ChatHistory {
     }
     
     func populate(withMessages insertingMessages: [JVMessage]) {
-        self.messages.append(contentsOf: insertingMessages)
-        self.messages.sort { $0.date < $1.date }
-        
-        let historyItems = insertingMessages.dropLast(1).map { factory.generateItem(for: $0, position: .history) }
-        let recentItems = insertingMessages.suffix(1).map { factory.generateItem(for: $0, position: .recent) }
-        let items = historyItems + recentItems
-        uncachableUUIDs = uncachableUUIDs.union(items.filter(\.uncachable).map(\.uid))
-        
-        if let recentItem = recentItems.last {
-            reloadRecentUncachableItemIfNeeded()
-            storeRecentUncachableItemIfNeeded(item: recentItem)
+        if insertingMessages.jv_hasElements {
+            self.messages.append(contentsOf: insertingMessages)
+            self.messages.sort { $0.date < $1.date }
+            
+            let historyItems = insertingMessages.dropLast(1).map { factory.generateItem(for: $0, position: .history) }
+            let recentItems = insertingMessages.suffix(1).map { factory.generateItem(for: $0, position: .recent) }
+            let items = historyItems + recentItems
+            uncachableUUIDs = uncachableUUIDs.union(items.filter(\.uncachable).map(\.uid))
+            
+            if let recentItem = recentItems.last {
+                reloadRecentUncachableItemIfNeeded()
+                storeRecentUncachableItemIfNeeded(item: recentItem)
+            }
+            
+            timelineHistory.populate(withItems: items)
         }
         
-//        if let recentItem = recentItems.first {
-//            recentUid = recentItem.uid
-//            momentaryUid = recentItem.logicOptions.contains(.enableSizeCaching) ? nil : recentUid
-//        }
-//        else {
-//            recentUid = nil
-//            momentaryUid = nil
-//        }
-
-        timelineHistory.populate(withItems: items)
         informHistoryHandler(true)
 
         if let chat = chatRef?.resolve(), let earliestMessage = self.messages.first {

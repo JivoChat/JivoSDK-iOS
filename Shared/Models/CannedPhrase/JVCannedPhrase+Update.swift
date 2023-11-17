@@ -14,13 +14,13 @@ extension JVCannedPhrase {
         if let change = change as? JVCannedPhraseGeneralChange {
             m_message = change.message
             m_message_hash_id = change.messageHashID
-            m_total_score = Int16(change.totalScore)
-            m_session_score = Int16(change.sessionScore)
+            m_total_score = change.totalScore.jv_toInt32(.standard)
+            m_session_score = change.sessionScore.jv_toInt16(.standard)
             m_timestamp = Double(change.timestamp)
             m_was_deleted = change.isDeleted
         }
         else if let _ = change as? JVCannedPhraseFlushScoreChange {
-            m_total_score += m_session_score
+            m_total_score += Int32(m_session_score)
             m_session_score = 0
         }
     }

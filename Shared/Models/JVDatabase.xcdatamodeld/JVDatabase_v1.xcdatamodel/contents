@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="21754" systemVersion="22A380" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22222" systemVersion="22G74" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="JVAgent" representedClassName=".JVAgent" parentEntity="JVParticipant" syncable="YES" codeGenerationType="category">
         <attribute name="m_avatar_link" optional="YES" attributeType="String"/>
         <attribute name="m_calling_destination" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -33,6 +33,8 @@
     <entity name="JVAgentSession" representedClassName=".JVAgentSession" parentEntity="JVDatabaseModel" syncable="YES" codeGenerationType="category">
         <attribute name="m_allow_mobile_calls" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="m_email" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_global_ai_assistant_chat_resume_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="m_global_ai_assistant_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="m_global_assigned_agent_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="m_global_billing_update_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="m_global_business_chat_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
@@ -142,6 +144,7 @@
         <attribute name="m_agents_ids" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_guests_number" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_joint_alias" optional="YES" attributeType="String"/>
         <attribute name="m_joint_type" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_joint_url" optional="YES" attributeType="String"/>
         <attribute name="m_public_id" optional="YES" attributeType="String" defaultValueString=""/>
@@ -280,6 +283,10 @@
         <attribute name="m_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_name" optional="YES" attributeType="String" defaultValueString=""/>
     </entity>
+    <entity name="JVEula" representedClassName=".JVEula" parentEntity="JVDatabaseModel" syncable="YES" codeGenerationType="category">
+        <attribute name="m_agent_id" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_module" optional="YES" attributeType="String" defaultValueString=""/>
+    </entity>
     <entity name="JVGuest" representedClassName=".JVGuest" parentEntity="JVDatabaseModel" syncable="YES" codeGenerationType="category">
         <attribute name="m_agent_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_channel_id" optional="YES" attributeType="String" defaultValueString=""/>
@@ -297,7 +304,7 @@
         <attribute name="m_page_link" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_page_title" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_phone" optional="YES" attributeType="String" defaultValueString=""/>
-        <attribute name="m_region_code" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_region_code" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_region_name" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_source_ip" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_source_port" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
@@ -455,7 +462,7 @@
         <attribute name="m_display_name_ru" optional="YES" attributeType="String"/>
         <attribute name="m_id" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_identifier" optional="YES" attributeType="String"/>
-        <attribute name="m_sorting_offset" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_sorting_offset" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_sorting_region_en" optional="YES" attributeType="String"/>
         <attribute name="m_sorting_region_ru" optional="YES" attributeType="String"/>
         <relationship name="b_agent_worktimes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="JVAgentWorktime" inverseName="m_timezone" inverseEntity="JVAgentWorktime"/>

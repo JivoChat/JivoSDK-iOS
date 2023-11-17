@@ -14,26 +14,31 @@ fileprivate let JVArchivePrimaryId = 1
 extension JVArchive {
     func performApply(context: JVIDatabaseContext, environment: JVIDatabaseEnvironment, change: JVDatabaseModelChange) {
         defer {
-            m_pk_num = JVArchivePrimaryId.jv_toInt64
+            m_pk_num = JVArchivePrimaryId.jv_toInt64(.standard)
         }
         
         if let c = change as? JVArchiveSliceChange {
-            m_total = Int64(c.total)
-            m_archite_total = Int64(c.archiveTotal)
+            m_total = c.total.jv_toInt64(.standard)
+            m_archite_total = c.archiveTotal.jv_toInt64(.standard)
             m_latest = c.latest ?? m_latest
             m_last_id = c.lastID ?? m_last_id
             
-            let models = c.hits.filter(\.isValid)
+            let models: [JVArchiveHitGeneralChange] = c.hits.map { model in
+                let prefix = String(format: "%032d", c.latest.jv_orZero)
+                let suffix = String(format: "%032d", model.creationOrder)
+                return model.copy(sortingRank: "\(prefix):\(suffix)")
+            }
+            
             if c.fresh {
                 e_hits.setSet(Set(context.upsert(of: JVArchiveHit.self, with: models)))
             }
             else {
                 e_hits.addObjects(from: models.compactMap { model in
-                    if let _ = context.object(JVArchiveHit.self, primaryId: model.ID) {
-                        return context.upsert(of: JVArchiveHit.self, with: model)
+                    if let object = context.object(JVArchiveHit.self, primaryId: model.ID) {
+                        return object
                     }
                     else {
-                        return nil
+                        return context.upsert(of: JVArchiveHit.self, with: model)
                     }
                 })
             }

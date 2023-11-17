@@ -477,17 +477,32 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     private func _requestMessageHistory(fromMessageWithId lastMessageId: Int? = nil, behavior: SdkChatHistoryRequestBehavior) {
+        guard lastMessageId != 0
+        else {
+            return
+        }
+        
         switch (behavior, syncState.activity) {
         case (_, .requested):
             return
         case (.force, _):
             syncState.activity = .requested
             syncState.earliestMessageId = .max
-            proto.requestMessageHistory(fromMessageWithId: lastMessageId)
+            
+            proto
+                .requestMessageHistory(fromMessageWithId: lastMessageId)
         case (.actualize, .synced):
             if let messageId = lastMessageId, messageId <= syncState.earliestMessageId {
                 syncState.activity = .requested
-                proto.requestMessageHistory(fromMessageWithId: max(syncState.earliestMessageId, messageId))
+                
+                if syncState.earliestMessageId == .max {
+                    proto
+                        .requestMessageHistory(fromMessageWithId: messageId)
+                }
+                else {
+                    proto
+                        .requestMessageHistory(fromMessageWithId: max(syncState.earliestMessageId, messageId))
+                }
             }
         case (.actualize, .initial):
             return
@@ -520,7 +535,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     
     private func detectContactInfoStatus() -> SdkChatContactInfoStatus {
         guard let chatId = sessionContext.localChatId,
-              let _ = subStorage.history(chatId: chatId, after: nil).first
+              let _ = subStorage.history(chatId: chatId, after: nil, limit: 1).first
         else {
             return .omit
         }
@@ -659,6 +674,29 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
     }
     
+    func requestRecentActivity() {
+        thread.async { [unowned self] in
+            _requestRecentActivity()
+        }
+    }
+    
+    private func _requestRecentActivity() {
+        guard let accountConfig = sessionContext.accountConfig,
+              accountConfig.siteId > .zero,
+              let clientId = clientContext.clientId,
+              let _ = sessionContext.localChatId
+        else {
+            return
+        }
+        
+        proto
+            .requestRecentActivity(
+                siteId: accountConfig.siteId,
+                channelId: accountConfig.channelId,
+                clientId: clientId)
+            .silent()
+    }
+    
     private func _makeAllAgentsOffline() {
         subStorage.makeAllAgentsOffline()
     }
@@ -686,13 +724,13 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     public override func handleProtoEvent(transaction: [NetworkingEventBundle]) {
-        let userTransaction = transaction.filter { $0.payload.type == ProtoTransactionKind.chat(.user) }
+        let userTransaction = transaction.filter { $0.payload.type == .chat(.user) }
         handleUserTransaction(userTransaction)
         
-        let meTransaction = transaction.filter { $0.payload.type == ProtoTransactionKind.session(.me) }
+        let meTransaction = transaction.filter { $0.payload.type == .session(.me) }
         handleMeTransaction(meTransaction)
         
-        let messageTransaction = transaction.filter { $0.payload.type == ProtoTransactionKind.chat(.message) }
+        let messageTransaction = transaction.filter { $0.payload.type == .chat(.message) }
         handleMessageTransaction(messageTransaction)
     }
     
@@ -763,7 +801,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             }
 //            }
             
-            syncState.earliestMessageId = .min
+            syncState.earliestMessageId = max(.min, syncState.earliestMessageId)
             syncState.activity = .synced
             
             lastKnownMessageId = nil
@@ -920,20 +958,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     private func handleConnectionConfig(meta: ProtoEventSubjectPayload.ConnectionConfig, context: ProtoEventContext?) {
-        guard let accountConfig = sessionContext.accountConfig,
-              accountConfig.siteId > .zero,
-              let clientId = clientContext.clientId,
-              let _ = sessionContext.localChatId
-        else {
-            return
-        }
-        
-        proto
-            .requestRecentActivity(
-                siteId: accountConfig.siteId,
-                channelId: accountConfig.channelId,
-                clientId: clientId)
-            .silent()
+        _requestRecentActivity()
     }
     
     private func handleSocketOpened() {
@@ -1043,11 +1068,18 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         thread.async { [unowned self] in
             if let chat = obtainChat() {
                 let chatID = chat.ID
+                let history = subStorage.history(chatId: chat.ID, after: nil, limit: 25)
                 journal {"Found active chat[\(chatID)]"}
                 
                 chatContext.chatRef = subStorage.reference(to: chat)
-                chatMessages = subStorage.reference(to: subStorage.history(chatId: chat.ID, after: nil))
+                chatMessages = subStorage.reference(to: history)
                 
+                let messagesIds = history.map(\.ID).filter { $0 > .zero }
+                syncState.activity = .synced
+                syncState.earliestMessageId = messagesIds.min() ?? .max
+                syncState.latestMessageId = messagesIds.max() ?? .min
+                syncState.latestMessageDate = history.last?.date ?? .distantPast
+
                 messagingContext.broadcast(event: .historyLoaded(history: chatMessages), onQueue: .main)
                 notifyObservers(event: .chatObtained(subStorage.reference(to: chat)), onQueue: .main)
                 
@@ -1131,6 +1163,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     @objc private func handleApplicationGoingToChangeState() {
+        requestRecentActivity()
+        
         DispatchQueue.main.async { [unowned self] in
             applicationState = UIApplication.shared.applicationState
             print("applicationState = \(applicationState)")

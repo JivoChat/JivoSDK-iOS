@@ -19,7 +19,7 @@ extension JVChatAttendee {
             m_to_assist = c.isAssistant
             m_received_message_id = Int64(c.receivedMessageID ?? 0)
             m_unread_number = Int16(c.unreadNumber ?? 0)
-            m_notifications = c.notifications?.jv_toInt16 ?? m_notifications
+            m_notifications = c.notifications?.jv_toInt16(.standard) ?? m_notifications
         }
         else if let _ = change as? JVChatAttendeeAcceptChange {
             m_relation = "attendee"
@@ -120,7 +120,7 @@ final class JVChatAttendeeGeneralChange: JVDatabaseModelChange, NSCoding {
         )
     }
     
-    func cachable() -> JVChatAttendeeGeneralChange {
+    var cachable: JVChatAttendeeGeneralChange {
         return JVChatAttendeeGeneralChange(
             ID: ID,
             relation: relation,

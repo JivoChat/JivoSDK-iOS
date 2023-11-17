@@ -63,7 +63,7 @@ final class JVBotGeneralChange: JVDatabaseModelChange, Codable {
         super.init()
     }
     
-    func cachable() -> JVBotGeneralChange {
+    var cachable: JVBotGeneralChange {
         return JVBotGeneralChange(
             id: id,
             avatarLink: avatarLink,

@@ -93,7 +93,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
             let message = databaseDriver.object(JVMessage.self, customId: key),
             let _ = jv_validate(message)
         else {
-            journal {"Message under localId[\(localId)] was invalidated"}
+//            journal {"Message under localId[\(localId)] was invalidated"}
             return nil
         }
         return message

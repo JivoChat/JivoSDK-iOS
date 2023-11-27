@@ -145,7 +145,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
                 id: nil,
                 data: lastMessageId.flatMap(String.init)
             ),
-            caching: .disabled)
+            caching: .enabled)
     }
     
     func sendMessage(_ message: JVMessage, mime: String) {

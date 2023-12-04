@@ -24,6 +24,7 @@ protocol ISdkChatSubStorage: IBaseChattingSubStorage {
     
     func message(withLocalId localId: String) -> JVMessage?
     func history(chatId: Int, after anchorDate: Date?, limit: Int) -> [JVMessage]
+    func historyIdsBetween(chatId: Int, firstId: Int, lastId: Int) -> [Int]
     func lastMessage(chatId: Int) -> JVMessage?
     func storeOutgoingMessage(localID: String, clientID: Int, chatID: Int, type: JVMessageType, content: JVMessageContent, status: JVMessageStatus?, timing: SdkChatSubStorageMessageTiming) -> JVMessage?
     func retrieveQueuedMessages(chatId: Int) -> [JVMessage]
@@ -127,6 +128,32 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
 //        }
         
         return messages
+    }
+    
+    func historyIdsBetween(chatId: Int, firstId: Int, lastId: Int) -> [Int] {
+        let filter = NSPredicate(
+            format: "(m_chat_id == %lld OR m_chat_id == 0) AND m_is_hidden == false AND m_id >= %lld AND m_id <= %lld",
+            argumentArray: [
+                chatId,
+                firstId,
+                lastId
+            ]
+        )
+        
+        let messages = databaseDriver.objects(
+            JVMessage.self,
+            options: JVDatabaseRequestOptions(
+                filter: filter,
+                properties: ["m_id"],
+                sortBy: [
+                    JVDatabaseResponseSort(keyPath: "m_date", ascending: false),
+                    JVDatabaseResponseSort(keyPath: "m_ordering_index", ascending: false),
+                    JVDatabaseResponseSort(keyPath: "m_id", ascending: false)
+                ]
+            )
+        )
+        
+        return messages.map(\.ID)
     }
     
     func lastMessage(chatId: Int) -> JVMessage? {

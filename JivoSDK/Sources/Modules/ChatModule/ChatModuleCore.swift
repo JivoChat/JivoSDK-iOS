@@ -189,7 +189,7 @@ final class ChatModuleCore
             else { return }
             
             self.isHistoryPerformingUpdates = true
-            self.chatManager.requestMessageHistory(fromMessageWithId: earliestMessage.ID, behavior: .force)
+            self.chatManager.requestMessageHistory(before: earliestMessage.ID, behavior: .anyway)
             self.setLoaderHiddenState(to: false)
             
             self.messageHistoryRequestTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { [weak self] timer in
@@ -801,8 +801,8 @@ final class ChatModuleCore
         }
         
         chatManager.requestMessageHistory(
-            fromMessageWithId: message.ID,
-            behavior: .actualize)
+            before: message.ID,
+            behavior: .smart)
     }
     
     private func notifyReplyingState() {

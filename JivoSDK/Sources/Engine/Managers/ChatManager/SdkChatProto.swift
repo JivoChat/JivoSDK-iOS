@@ -13,7 +13,7 @@ import SwiftMime
 
 protocol ISdkChatProto {
     func requestRecentActivity(siteId: Int, channelId: String, clientId: String) -> INetworking
-    func requestMessageHistory(fromMessageWithId lastMessageId: Int?)
+    func requestMessageHistory(before anchorMessageId: Int?)
     func sendMessage(_ message: JVMessage, mime: String)
     func sendMessageAck(id: Int, date: Date)
     func sendTyping(text: String)
@@ -137,13 +137,13 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
             caching: .auto)
     }
     
-    func requestMessageHistory(fromMessageWithId lastMessageId: Int? = nil) {
+    func requestMessageHistory(before anchorMessageId: Int?) {
         networking.send(
             output: .atom(
                 type: "atom/me.history",
                 context: nil,
                 id: nil,
-                data: lastMessageId.flatMap(String.init)
+                data: anchorMessageId.flatMap(String.init)
             ),
             caching: .enabled)
     }

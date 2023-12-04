@@ -254,6 +254,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
         if let options = options {
             request.predicate = options.filter
             request.fetchLimit = options.limit
+            request.propertiesToFetch = options.properties
             
             request.sortDescriptors = options.sortBy.map {
                 NSSortDescriptor(key: $0.keyPath, ascending: $0.ascending)

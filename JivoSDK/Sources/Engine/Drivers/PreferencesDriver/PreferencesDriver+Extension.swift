@@ -47,9 +47,6 @@ extension IPreferencesDriver {
                 retrieveAccessor(forToken: .isOnline).key: true,
                 retrieveAccessor(forToken: .vibroEnabled).key: true,
                 
-                // For our back-end can recognize our Mobile apps
-                "UserAgent": "JivoMobile iOS/iPhone/\(UIDevice.current.systemVersion) App/\(Bundle.main.jv_version)",
-                
                 // MOB-2601: populate the external Emoji struct
                 // to get the startup favorite pickable Emoji items
                 "com.levantAJ.EmojiPicker.frequentlyUsed": (try? JSONEncoder().encode([

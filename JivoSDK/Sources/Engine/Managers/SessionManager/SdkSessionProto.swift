@@ -212,7 +212,7 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
             type: .session(.me),
             id: nil,
             subject: MeTransactionSubject.meHistory(
-                lastMessageId: json["data"].int
+                lastMessageId: (json["data"].string?.jv_toInt() ?? json["data"].int)
             )
         )
     }

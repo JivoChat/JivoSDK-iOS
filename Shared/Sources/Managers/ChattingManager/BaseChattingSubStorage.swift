@@ -8,8 +8,10 @@
 
 import Foundation
 
-
 protocol IBaseChattingSubStorage: ICommonSubStorage {
+    func placeHistoryPointer(flag: JVMessageFlags, to newMessage: JVMessage)
+    func moveHistoryPointer(flag: JVMessageFlags, from oldMessage: JVMessage, to newMessage: JVMessage?)
+    func flushQuoteToHistory(message: JVMessage)
 }
 
 class BaseChattingSubStorage: CommonSubStorage, IBaseChattingSubStorage {
@@ -21,5 +23,41 @@ class BaseChattingSubStorage: CommonSubStorage, IBaseChattingSubStorage {
         super.init(
             userContext: userContext,
             databaseDriver: databaseDriver)
+    }
+    
+    func placeHistoryPointer(flag: JVMessageFlags, to newMessage: JVMessage) {
+        databaseDriver.readwrite { context in
+            _ = context.update(of: JVMessage.self, with: JVMessageFlagsChange(
+                ID: newMessage.ID,
+                flags: newMessage.flags.union(flag)
+            ))
+        }
+    }
+    
+    func moveHistoryPointer(flag: JVMessageFlags, from oldMessage: JVMessage, to newMessage: JVMessage?) {
+        databaseDriver.readwrite { context in
+            _ = context.update(of: JVMessage.self, with: JVMessageFlagsChange(
+                ID: oldMessage.ID,
+                flags: oldMessage.flags.subtracting(flag)
+            ))
+            
+            if let newMessage = newMessage {
+                _ = context.update(of: JVMessage.self, with: JVMessageFlagsChange(
+                    ID: newMessage.ID,
+                    flags: newMessage.flags.union(flag)
+                ))
+            }
+        }
+    }
+    
+    func flushQuoteToHistory(message: JVMessage) {
+        databaseDriver.readwrite { context in
+            _ = context.update(of: JVMessage.self, with: JVMessageFlagsChange(
+                ID: message.ID,
+                flags: message.flags
+                    .subtracting(.detachedFromHistory)
+                    .union([.edgeToHistoryPast, .edgeToHistoryFuture])
+            ))
+        }
     }
 }

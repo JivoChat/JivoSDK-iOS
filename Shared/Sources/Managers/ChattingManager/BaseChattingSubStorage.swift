@@ -11,6 +11,7 @@ import Foundation
 protocol IBaseChattingSubStorage: ICommonSubStorage {
     func placeHistoryPointer(flag: JVMessageFlags, to newMessage: JVMessage)
     func moveHistoryPointer(flag: JVMessageFlags, from oldMessage: JVMessage, to newMessage: JVMessage?)
+    func resetHistoryPointers(flag: JVMessageFlags, possibleIds: [Int])
     func flushQuoteToHistory(message: JVMessage)
 }
 
@@ -46,6 +47,30 @@ class BaseChattingSubStorage: CommonSubStorage, IBaseChattingSubStorage {
                     ID: newMessage.ID,
                     flags: newMessage.flags.union(flag)
                 ))
+            }
+        }
+    }
+    
+    func resetHistoryPointers(flag: JVMessageFlags, possibleIds: [Int]) {
+        databaseDriver.readwrite { context in
+            let messages = context.objects(
+                JVMessage.self,
+                options: JVDatabaseRequestOptions(
+                    filter: NSPredicate(
+                        format: "m_id in %@ AND (m_flags & %lld) > 0",
+                        argumentArray: [possibleIds.map(UInt64.init), flag.rawValue]
+                    )
+                )
+            )
+            
+            messages.forEach { message in
+                message.apply(
+                    context: context,
+                    change: JVMessageFlagsChange(
+                        ID: message.ID,
+                        flags: message.flags.subtracting(flag)
+                    )
+                )
             }
         }
     }

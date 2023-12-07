@@ -25,8 +25,8 @@ protocol ISdkChatSubStorage: IBaseChattingSubStorage {
     func message(withLocalId localId: String) -> JVMessage?
     func history(chatId: Int, after anchorDate: Date?, limit: Int) -> [JVMessage]
     func historyIdsBetween(chatId: Int, firstId: Int, lastId: Int) -> [Int]
-    func lastMessage(chatId: Int) -> JVMessage?
-    func storeOutgoingMessage(localID: String, clientID: Int, chatID: Int, type: JVMessageType, content: JVMessageContent, status: JVMessageStatus?, timing: SdkChatSubStorageMessageTiming) -> JVMessage?
+    func lastSyncedMessage(chatId: Int) -> JVMessage?
+    func storeOutgoingMessage(localID: String, clientID: Int, chatID: Int, type: JVMessageType, content: JVMessageContent, status: JVMessageStatus?, timing: SdkChatSubStorageMessageTiming, orderingIndex: Int) -> JVMessage?
     func retrieveQueuedMessages(chatId: Int) -> [JVMessage]
     func resendMessage(_ message: JVMessage)
     func deleteMessage(_ message: JVMessage)
@@ -156,9 +156,9 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         return messages.map(\.ID)
     }
     
-    func lastMessage(chatId: Int) -> JVMessage? {
+    func lastSyncedMessage(chatId: Int) -> JVMessage? {
         let filter = NSPredicate(
-            format: "(m_chat_id == %lld OR m_chat_id == 0) AND m_is_hidden == false AND m_sender != nil",
+            format: "(m_chat_id == %lld OR m_chat_id == 0) AND (m_id > 0) AND (m_is_hidden == false) AND (m_sender != nil)",
             argumentArray: [
                 chatId
             ]
@@ -176,21 +176,17 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
             )
         )
         
-//        let validatedMessages = messages.compactMap { jv_validate($0) }
-//        if !(messages.count == validatedMessages.count) {
-//            journal {"Some messages from database are invalid"}
-//        }
-        
         return messages.first
     }
     
-    func storeOutgoingMessage(localID: String, clientID: Int, chatID: Int, type: JVMessageType, content: JVMessageContent, status: JVMessageStatus?, timing: SdkChatSubStorageMessageTiming) -> JVMessage? {
+    func storeOutgoingMessage(localID: String, clientID: Int, chatID: Int, type: JVMessageType, content: JVMessageContent, status: JVMessageStatus?, timing: SdkChatSubStorageMessageTiming, orderingIndex: Int) -> JVMessage? {
         var updates: [JVMessagePropertyUpdate] = [
             .localId(localID),
             .chatId(chatID),
             .sender(.client(withId: clientID == 0 ? 1 : clientID)),
             .typeInitial(type),
-            .isIncoming(false)
+            .isIncoming(false),
+            .orderingIndex(orderingIndex)
         ]
         
         if let status = status {

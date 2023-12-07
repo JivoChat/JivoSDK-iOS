@@ -23,6 +23,7 @@ final class ChatModuleState {
     let photoRequestReason = UUID()
     let uiConfig: ChatModuleUIConfig
     var authorizationState: SessionAuthorizationState
+    var recentStartupMode: SdkSessionManagerStartupMode
     
     var licenseState = ChatModuleLicenseState.undefined
     var activeAgents = [ChatModuleAgent]()
@@ -31,9 +32,10 @@ final class ChatModuleState {
     var placeholderForInput = String()
     var inputText = String()
     
-    init(uiConfig: ChatModuleUIConfig, authorizationState: SessionAuthorizationState) {
+    init(uiConfig: ChatModuleUIConfig, authorizationState: SessionAuthorizationState, recentStartupMode: SdkSessionManagerStartupMode) {
         self.uiConfig = uiConfig
         self.authorizationState = authorizationState
+        self.recentStartupMode = recentStartupMode
         
         inputText = uiConfig.inputPrefill
     }

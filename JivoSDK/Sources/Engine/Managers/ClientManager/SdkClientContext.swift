@@ -10,8 +10,6 @@ import Foundation
 
 protocol ISdkClientContext: AnyObject, IBaseUserContext {
     var eventSignal: JVBroadcastTool<SdkClientContextEvent> { get }
-    var authorizationState: SessionAuthorizationState { get set }
-    var authorizationStateSignal: JVBroadcastUniqueTool<SessionAuthorizationState> { get }
     var clientId: String? { get set }
     var clientNumber: Int? { get }
     var clientHash: Int { get }
@@ -27,7 +25,7 @@ enum SdkClientContextEvent {
     case licenseStateUpdated(SdkClientLicensing?)
 }
 
-struct SdkClientAccountConfig: Equatable, Codable {
+struct SdkClientAccountConfig: Equatable, Codable, Hashable {
     let siteId: Int
     let channelId: String
 }
@@ -42,13 +40,6 @@ final class SdkClientContext: ISdkClientContext {
     
     private let databaseDriver: JVIDatabaseDriver
     
-    let authorizationStateSignal = JVBroadcastUniqueTool<SessionAuthorizationState>()
-    var authorizationState = SessionAuthorizationState.unknown {
-        didSet {
-            authorizationStateSignal.broadcast(authorizationState, async: .main)
-        }
-    }
-
     var clientId: String? {
         didSet {
             databaseDriver.readwrite { [unowned self] context in
@@ -120,8 +111,6 @@ final class SdkClientContext: ISdkClientContext {
     }
     
     func reset() {
-//        print("[DEBUG] ClientContext -> reset()")
-
         databaseDriver.readwrite { context in
             client.apply(
                 context: context,
@@ -129,7 +118,6 @@ final class SdkClientContext: ISdkClientContext {
             )
         }
         
-        authorizationState = .unknown
         clientId = nil
         personalNamespace = nil
         licensing = nil

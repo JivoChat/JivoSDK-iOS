@@ -501,6 +501,11 @@ extension JVMessage {
                         m_local_id = newValue
                     }
                     
+                case .orderingIndex(let value):
+                    if m_ordering_index != value {
+                        m_ordering_index = value.jv_toInt16(.standard)
+                    }
+                    
                 case let .text(newValue):
                     if m_text != newValue {
                         m_text = newValue
@@ -1453,6 +1458,7 @@ enum JVMessagePropertyUpdate {
     
     case id(Int)
     case localId(String)
+    case orderingIndex(Int)
     case text(String)
     case details(String)
     case date(Date)

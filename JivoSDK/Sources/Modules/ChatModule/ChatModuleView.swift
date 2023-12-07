@@ -36,13 +36,22 @@ final class JVChatModuleNavigationController
     ChatModulePresenterUpdate,
     ChatModuleViewIntent
 > {
-    init(pipeline: RTEModulePipelineViewNotifier<ChatModuleViewIntent>, keyboardAnchorControl: KeyboardAnchorControl, timelineController: JMTimelineController<ChatTimelineInteractor>, timelineInteractor: ChatTimelineInteractor, uiConfig: ChatModuleUIConfig, closeButton: JVDisplayCloseButton) {
+    init(
+        pipeline: RTEModulePipelineViewNotifier<ChatModuleViewIntent>,
+        keyboardAnchorControl: KeyboardAnchorControl,
+        timelineController: JMTimelineController<ChatTimelineInteractor>,
+        timelineInteractor: ChatTimelineInteractor,
+        timelineLoaderItem: JMTimelineItem,
+        uiConfig: ChatModuleUIConfig,
+        closeButton: JVDisplayCloseButton
+    ) {
         super.init(
             primaryView: ChatModuleViewController(
                 pipeline: pipeline,
                 keyboardAnchorControl: keyboardAnchorControl,
                 timelineController: timelineController,
                 timelineInteractor: timelineInteractor,
+                timelineLoaderItem: timelineLoaderItem,
                 uiConfig: uiConfig,
                 closeButton: closeButton
             )
@@ -69,6 +78,7 @@ final class JVChatModuleViewController
     private let keyboardAnchorControl: KeyboardAnchorControl
     private let timelineController: JMTimelineController<ChatTimelineInteractor>
     private let timelineInteractor: ChatTimelineInteractor
+    private let timelineLoaderItem: JMTimelineItem
     private let uiConfig: ChatModuleUIConfig
     
     private let placeholderView = PlaceholderViewController<SdkEngine>(satellite: nil, layout: .center)
@@ -77,10 +87,19 @@ final class JVChatModuleViewController
     
     private let timelineControlTapDelegate = TimelineControlTapDelegate()
 
-    init(pipeline: RTEModulePipelineViewNotifier<ChatModuleViewIntent>, keyboardAnchorControl: KeyboardAnchorControl, timelineController: JMTimelineController<ChatTimelineInteractor>, timelineInteractor: ChatTimelineInteractor, uiConfig: ChatModuleUIConfig, closeButton: JVDisplayCloseButton) {
+    init(
+        pipeline: RTEModulePipelineViewNotifier<ChatModuleViewIntent>,
+        keyboardAnchorControl: KeyboardAnchorControl,
+        timelineController: JMTimelineController<ChatTimelineInteractor>,
+        timelineInteractor: ChatTimelineInteractor,
+        timelineLoaderItem: JMTimelineItem,
+        uiConfig: ChatModuleUIConfig,
+        closeButton: JVDisplayCloseButton
+    ) {
         self.keyboardAnchorControl = keyboardAnchorControl
         self.timelineController = timelineController
         self.timelineInteractor = timelineInteractor
+        self.timelineLoaderItem = timelineLoaderItem
         self.uiConfig = uiConfig
         
         super.init(pipeline: pipeline)
@@ -132,6 +151,10 @@ final class JVChatModuleViewController
             titleControl.titleLabelText = value
         case .headerSubtitle(let value):
             titleControl.subtitleLabelText = value
+        case .startSyncing:
+            _ = timelineController.history.setBottomItem(timelineLoaderItem)
+        case .stopSyncing:
+            _ = timelineController.history.setBottomItem(nil)
         case .inputUpdate(.update(let update)):
             replyControl.feed(update: update)
         case .inputUpdate(.fill(_, let attachments)):
@@ -146,7 +169,8 @@ final class JVChatModuleViewController
             scrollToBottom()
         case .discardAllAttachments:
             replyControl.removeAttachments()
-        case .timelineRecreate:
+        case .timelineFailure:
+            journal {"UI: Timeline update faced an exception"}
             DispatchQueue.main.async { [weak self] in
                 self?.recreateTableView()
             }

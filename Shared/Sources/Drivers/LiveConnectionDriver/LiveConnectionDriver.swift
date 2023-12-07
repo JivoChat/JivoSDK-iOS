@@ -167,7 +167,7 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
             if let packets = outgoingCachedPackets {
                 packets.forEach { json, data in
                     if let json = json {
-                        webSocket.chain?.journal(.full) { [p = jsonPrivacyTool] in "WebSocket: [action=flush] \(p.filter(json: json))"}
+                        webSocket.chain?.journal(.full) { [p = jsonPrivacyTool] in "WebSocket: flush body=\(p.filter(json: json))"}
                     }
                     
                     webSocket.send(data)
@@ -182,7 +182,7 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
         disconnect()
         cacheState = (flushingInterval > 0 ? .waiting : .disabled)
 
-        let chain = journal {"Configure WebSocket for endpoint:\n\(url.absoluteString)"}
+        let chain = journal {"WebSocket: connect to\n\(url.absoluteString)"}
         let ws = WebSocketVerbose()
         ws.chain = chain
         webSocket = ws
@@ -343,7 +343,7 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
             outgoingCachedPackets?.append((json, data))
         }
         else {
-            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: [action=send] \(p.filter(json: json))"}
+            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: send body=\(p.filter(json: json))"}
             webSocket?.send(data)
             reshedulePinging()
         }
@@ -373,7 +373,7 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
             outgoingCachedPackets?.append((payload, data))
         }
         else {
-            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: [action=send] \(p.filter(json: payload))"}
+            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: send body=\(p.filter(json: payload))"}
             webSocket?.send(data)
             reshedulePinging()
         }
@@ -394,7 +394,7 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
     }
     
     func close() {
-        webSocket?.chain?.journal(.full) {"WebSocket: [action=close]"}
+        webSocket?.chain?.journal(.full) {"WebSocket: close"}
         webSocket?.close()
     }
     

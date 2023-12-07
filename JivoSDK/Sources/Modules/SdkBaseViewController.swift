@@ -101,7 +101,7 @@ class SdkBaseViewController: UIViewController, JMSidePanelView, SdkBaseViewContr
     }
 
     override func viewWillAppear(_ animated: Bool) {
-        journal { [brief = String(describing: self)] in "View will appear: \(brief)"}
+        journal { [brief = String(describing: self)] in "UI: screen appear\n\(brief)"}
         
 //        satellite?.telemetryService.trackViewAppear(
 //            details: selfMessage)

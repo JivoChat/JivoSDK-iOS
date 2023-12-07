@@ -176,10 +176,6 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     }
     
     private func _handlePipelineTurnInactiveEvent(subsystems: SdkManagerSubsystem) {
-        if subsystems.contains(.connection) {
-            clientContext.authorizationState = .unknown
-        }
-        
         if subsystems.contains(.artifacts) {
             unsubscribeDeviceFromApns(exceptActiveSubscriptions: false)
             
@@ -230,8 +226,6 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         switch subject as? SessionProtoEventSubject {
         case .connectionConfig(let meta):
             handleConnectionConfig(meta: meta, context: context)
-        case .socketClose(let kind, let error):
-            handleSocketClosedEvent(kind: kind, error: error)
         default:
             break
         }
@@ -252,25 +246,16 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         unsubscribeDeviceFromApns(exceptActiveSubscriptions: true)
     }
     
-    private func handleSocketClosedEvent(kind: APIConnectionCloseCode, error: Error?) {
-        switch kind {
-        case .connectionBreak where clientContext.authorizationState == .unknown:
-            clientContext.authorizationState = .unavailable
-        case .blacklist:
-            clientContext.authorizationState = .unavailable
-        default:
-            break
-        }
-    }
-    
     private func handleMeTransaction(_ transaction: [NetworkingEventBundle]) {
-        if clientContext.authorizationState != .ready {
+        transaction.forEach { bundle in
+            guard case MeTransactionSubject.meHistory(nil) = bundle.payload.subject else {
+                return
+            }
+            
             flushClientInfoIfNeeded()
             flushCustomDataIfNeeded()
             subscribeDeviceToApns()
         }
-        
-        clientContext.authorizationState = .ready
     }
     
     private func clientIdUpdated(to newClientId: String?) {
@@ -306,7 +291,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         }
         
         let deviceId = uuidProvider.currentDeviceID
-        journal {"Subscribe to APNS with deviceId[\(deviceId)]"}
+        journal {"APNS: subscribed\ndeviceId[\(deviceId)]"}
         
         let credentials = SdkClientSubPusherCredentials(
             siteId: accountConfig.siteId,
@@ -334,27 +319,27 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         case let .success(credentials):
             switch action {
             case .subscribing:
-                journal {"Did subscribe to APNS with credentials:\n\(credentials)\n"}
+                journal {"APNS: subscribed with credentials\n\(credentials)\n"}
             case .unsubscribing:
-                journal {"Did unsubscribe from APNS with credentials:\n\(credentials)\n"}
+                journal {"APNS: unsubscribed with credentials\n\(credentials)\n"}
             }
             
         case let .failure(error):
             switch error {
             case let .repositoryInternalError(credentials):
-                journal {"Failed unsubscribing from APNS: repository internal error for credentials:\n\(credentials)\n"}
+                journal {"APNS: failed unsubscribing, repository internal error for credentials\n\(credentials)\n"}
                 
             case let .unregisterRequestFailure(status, credentials):
-                journal {"Failed unsubscribing from APNS: request status[\(status)] for credentials:\n\(credentials)\n"}
+                journal {"APNS: failed unsubscribing, request status[\(status)] for credentials\n\(credentials)\n"}
                 
             case let .registerRequestFailure(status, credentials):
-                journal {"Failed subscribing to APNS: request status[\(status)] for credentials:\n\(credentials)\n"}
+                journal {"APNS: failed subscribing, request status[\(status)] for credentials\n\(credentials)\n"}
                 
             case .subscriptionIsAlreadyExists(credentials: let credentials):
-                journal {"Already subscribed to APNS with credentials:\n\(credentials)\n"}
+                journal {"APNS: already subscribed with credentials\n\(credentials)\n"}
                 
             case .noCredentialsToUnregister:
-                journal {"There is no credentials in unsubscribing queue"}
+                journal {"APNS: no credentials in unsubscribing queue"}
             }
         }
     }

@@ -244,6 +244,11 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
     }
     
     func requestHistoryPast(item: JMTimelineItem) {
+        guard let message = databaseDriver.message(for: item.uid) else { return }
+        
+        chatManager.requestMessageHistory(
+            before: message.ID,
+            behavior: .anyway)
     }
     
     func requestHistoryFuture(item: JMTimelineItem) {

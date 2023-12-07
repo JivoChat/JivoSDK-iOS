@@ -91,7 +91,8 @@ func ChatModuleAssembly(engine: RTEConfigTrunk, navigator: IRTNavigator, uiConfi
         pipeline: ChatModulePipeline(),
         state: ChatModuleState(
             uiConfig: uiConfig,
-            authorizationState: engine.clientContext.authorizationState
+            authorizationState: engine.sessionContext.authorizationState,
+            recentStartupMode: engine.sessionContext.recentStartupMode
         ),
         coreBuilder: { pipeline, state in
             ChatModuleCore(
@@ -135,6 +136,7 @@ func ChatModuleAssembly(engine: RTEConfigTrunk, navigator: IRTNavigator, uiConfi
                 keyboardAnchorControl: keyboardAnchorControl,
                 timelineController: timelineController,
                 timelineInteractor: timelineInteractor,
+                timelineLoaderItem: timelineFactory.generateLoaderItem(),
                 uiConfig: uiConfig,
                 closeButton: closeButton
             )

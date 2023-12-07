@@ -151,7 +151,7 @@ extension JVNotificationsController: SdkEngineAccessing {
     
     private func _setPushToken(data: Data?) {
         if let data = data {
-            journal {"FRONT[notifications] set the push token @data[\(data.jv_toHex())]"}
+            journal {"FRONT[notifications] set the push token\n@data[\(data.jv_toHex())]"}
         }
         else {
             journal {"FRONT[notifications] remove the push token by data"}

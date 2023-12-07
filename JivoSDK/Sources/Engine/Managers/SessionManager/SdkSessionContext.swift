@@ -12,8 +12,13 @@ protocol ISdkSessionContext: AnyObject {
     var networkingState: ReachabilityMode { get set }
     var connectionAllowance: SdkSessionConnectionAllowance { get set }
     var connectionState: SdkSessionConnectionState { get set }
+    var authorizationState: SessionAuthorizationState { get set }
+    var authorizationStateSignal: JVBroadcastUniqueTool<SessionAuthorizationState> { get }
     var accountConfig: SdkClientAccountConfig? { get set }
     var endpointConfig: SdkSessionEndpointConfig? { get set }
+    var recentStartupMode: SdkSessionManagerStartupMode { get set }
+    var recentStartupModeSignal: JVBroadcastUniqueTool<SdkSessionManagerStartupMode> { get }
+    var numberOfResumes: Int { get set }
     var identifyingToken: String? { get set }
     var localChatId: Int? { get }
     var authorizingPath: String? { get set }
@@ -88,6 +93,13 @@ final class SdkSessionContext: ISdkSessionContext {
         }
     }
 
+    let authorizationStateSignal = JVBroadcastUniqueTool<SessionAuthorizationState>()
+    var authorizationState = SessionAuthorizationState.unknown {
+        didSet {
+            authorizationStateSignal.broadcast(authorizationState, async: .main)
+        }
+    }
+
     var accountConfig: SdkClientAccountConfig? {
         didSet {
             accountConfigAccessor.accountConfig = accountConfig
@@ -100,6 +112,15 @@ final class SdkSessionContext: ISdkSessionContext {
             endpointConfigAccessor.endpointConfig = endpointConfig
         }
     }
+    
+    let recentStartupModeSignal = JVBroadcastUniqueTool<SdkSessionManagerStartupMode>()
+    var recentStartupMode = SdkSessionManagerStartupMode.fresh {
+        didSet {
+            recentStartupModeSignal.broadcast(recentStartupMode, async: .main)
+        }
+    }
+    
+    var numberOfResumes = 0
     
     var identifyingToken: String? {
         didSet {
@@ -124,10 +145,11 @@ final class SdkSessionContext: ISdkSessionContext {
     }
     
     func reset() {
-//        print("[DEBUG] SessionContext -> Reset identifyingToken")
+        authorizationState = .unknown
         accountConfig = nil
         identifyingToken = nil
         authorizingPath = nil
+        numberOfResumes = 0
     }
 }
 

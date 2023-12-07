@@ -8,7 +8,6 @@
 
 import Foundation
 import PushKit
-import os
 
 final class UUIDProvider: IUUIDProvider {
     private let bundle: Bundle

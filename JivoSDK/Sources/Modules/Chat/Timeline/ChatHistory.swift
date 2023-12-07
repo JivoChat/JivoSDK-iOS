@@ -103,8 +103,9 @@ final class ChatHistory {
         collectionViewManager.memoryStorage.performUpdates { [weak self] in
             let messages = messages.filter { !$0.isHidden }
             
-            self?.messages = Array(messages.reversed())
-            
+            self?.messages = messages
+            self?.messages.sort { $0.date < $1.date }
+
             if let chat = self?.chatRef?.resolve() {
                 self?.chatCacheService.resetEarliestMessage(for: chat)
             }

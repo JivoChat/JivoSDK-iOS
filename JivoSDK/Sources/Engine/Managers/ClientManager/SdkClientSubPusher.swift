@@ -72,7 +72,7 @@ final class SdkClientSubPusher: ISdkClientSubPusher {
     }
     
     func subscribeToPushes(with credentials: SdkClientSubPusherCredentials, completion: @escaping (Result<SdkClientSubPusherCredentials, SdkClientSubPusherError>) -> Void) {
-        journal {"Subscribing to APNS with credentials:\n\(credentials)\n"}
+        journal {"APNS: subscribing with credentials\n\(credentials)\n"}
         
         pushCredentialsRepository.allItems { [weak self] items in
             let hasAlreadySubscribed = items

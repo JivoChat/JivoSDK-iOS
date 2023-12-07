@@ -70,7 +70,7 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
     
     func requestConfig(channelId: String) -> INetworking {
         let endpoint = "https://sdk.\(networking.primaryDomain)/config/\(channelId)"
-        journal {"Requesting config at: \(endpoint)"}
+        journal {"API: request config at\n\(endpoint)"}
         
         let options = RestRequestOptions(
             behavior: .regular,

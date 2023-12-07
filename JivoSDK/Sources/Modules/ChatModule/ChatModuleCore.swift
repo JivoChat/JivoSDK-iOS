@@ -17,6 +17,7 @@ enum ChatModuleCoreEvent {
     case warnAbout(String)
     case journalReady(url: URL, data: Data)
     case authorizationStateUpdated
+    case historyLoaded
     case licenseUpdate
     case agentsUpdate
     case hasInputUpdates
@@ -26,7 +27,7 @@ enum ChatModuleCoreEvent {
     case messageTapped
     case remoteMediaUnavailable
     case timelineScrollToBottom
-    case timelineRecreate
+    case timelineFailure
 }
 
 enum ChatPickedMeta {
@@ -77,6 +78,7 @@ final class ChatModuleCore
     private let documentPickerDelegateAdapter = DocumentPickerDelegateAdapter()
     
     private var authorizationStateObserver: JVBroadcastObserver<SessionAuthorizationState>?
+    private var recentStartupModeObserver: JVBroadcastObserver<SdkSessionManagerStartupMode>?
     private var chatEventObserver: JVBroadcastObserver<SdkChatEvent>?
     private var messagingEventObserver: JVBroadcastObserver<SdkMessagingEvent>?
     private var sessionContextObserver: JVBroadcastObserver<SdkSessionContextEvent>?
@@ -166,8 +168,16 @@ final class ChatModuleCore
         
         super.init(pipeline: pipeline, state: state)
         
-        authorizationStateObserver = clientContext.authorizationStateSignal.addObserver { [weak self] state in
+        state.authorizationState = sessionContext.authorizationState
+        state.recentStartupMode = sessionContext.recentStartupMode
+        
+        authorizationStateObserver = sessionContext.authorizationStateSignal.addObserver { [weak self] state in
             self?.state.authorizationState = state
+            self?.pipeline?.notify(event: .authorizationStateUpdated)
+        }
+        
+        recentStartupModeObserver = sessionContext.recentStartupModeSignal.addObserver { [weak self] value in
+            self?.state.recentStartupMode = value
             self?.pipeline?.notify(event: .authorizationStateUpdated)
         }
         
@@ -577,7 +587,7 @@ final class ChatModuleCore
         let messages = messages.compactMap(\.resolved)
         chatHistory.messages = Array<JVMessage>(messages.reversed())
         chatHistory.fill(with: messages, partialLoaded: false, unreadPosition: .null)
-//        chatHistory.populate(withMessages: chatHistory.messages)
+        pipeline?.notify(event: .historyLoaded)
     }
     
     private func handleAllHistoryLoadedEvent() {
@@ -792,7 +802,7 @@ final class ChatModuleCore
     }
     
     private func timelineExceptionHandler() {
-        pipeline?.notify(event: .timelineRecreate)
+        pipeline?.notify(event: .timelineFailure)
     }
     
     private func messageGetsVisibleHandler(item: JMTimelineItem) {

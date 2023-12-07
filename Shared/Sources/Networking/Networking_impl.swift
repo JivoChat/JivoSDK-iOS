@@ -288,7 +288,7 @@ final class Networking: INetworking {
     private func handleSocketEvent(event: NetworkingSubSocketEvent) {
         switch event {
         case .open(let id):
-            journal {"{networking} ::handle-socket-event id[\(id)] opened"}
+            journal {"Networking: socked opened\nsocket-id[\(id)]"}
             proceed(subject: .socket(event), context: nil)
         case .payload(.raw), .payload(.legacy), .payload(.atom), .payload(.unknown):
             proceed(subject: .socket(event), context: nil)
@@ -299,7 +299,7 @@ final class Networking: INetworking {
             let context = meta.context as? ProtoEventContext
             proceed(subject: .socket(.payload(.rpcAck(meta.kindID, status, json))), context: context)
         case .close(let id, _, _, _):
-            journal {"{networking} ::handle-socket-event id[\(id)] closed"}
+            journal {"Networking: socked closed\nsocket-id[\(id)]"}
             proceed(subject: .socket(event), context: nil)
         }
     }

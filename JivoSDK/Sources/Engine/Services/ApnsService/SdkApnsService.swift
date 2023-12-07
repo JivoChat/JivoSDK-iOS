@@ -45,7 +45,7 @@ final class SdkApnsService: ISdkApnsService {
     private func performDriverRequest() {
         askingMoment = nil
         
-        journal {"Requesting the APNS access"}
+        journal {"APNS: requesting system authorization"}
         apnsDriver.requestForPermission(allowConfiguring: false) { _ in
         }
     }

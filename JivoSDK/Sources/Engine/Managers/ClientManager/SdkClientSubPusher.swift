@@ -103,10 +103,10 @@ final class SdkClientSubPusher: ISdkClientSubPusher {
     
     func unsubscribeFromPushes(exceptActiveCredentials: Bool, unsubscribingResultHandler: @escaping (Result<SdkClientSubPusherCredentials, SdkClientSubPusherError>) -> Void) {
         if exceptActiveCredentials {
-            journal {"Unsubscribing from APNS except active credentials"}
+            journal {"APNS: going to unsubscribe except active credentials"}
         }
         else {
-            journal {"Unsubscribing from APNS"}
+            journal {"APNS: going to unsubscribe entirely"}
         }
         
         pushCredentialsRepository.allItems { items in

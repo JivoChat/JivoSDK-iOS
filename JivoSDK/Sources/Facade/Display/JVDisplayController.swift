@@ -105,7 +105,7 @@ extension JVDisplayController {
     }
     
     private func _setLocale(_ locale: Locale?) {
-        journal {"FRONT[display] set @locale[\(String(describing: locale))]"}
+        journal {"FACADE[display] set @locale[\(String(describing: locale))]"}
         
         joint.modifyConfig { config in
             config.locale = locale
@@ -113,7 +113,7 @@ extension JVDisplayController {
     }
     
     private func _setExtraItems(menu: JVDisplayMenu, captions: [String], handler: @escaping (Int) -> Void) {
-        journal {"FRONT[display] set extra items for @menu[\(menu)] with @captions[\(captions)]"}
+        journal {"FACADE[display] set extra items for @menu[\(menu)] with @captions[\(captions)]"}
         
         joint.modifyConfig { config in
             config.extraMenuItems[menu] = captions
@@ -122,7 +122,7 @@ extension JVDisplayController {
     }
     
     private func _push(into navigationController: UINavigationController) {
-        journal {"FRONT[display] push into navigationController"}
+        journal {"FACADE[display] push into navigationController"}
         
         joint.push(
             into: navigationController,
@@ -130,7 +130,7 @@ extension JVDisplayController {
     }
     
     private func _place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton) {
-        journal {"FRONT[display] place within navigationController @closeButton[\(closeButton)]"}
+        journal {"FACADE[display] place within navigationController @closeButton[\(closeButton)]"}
         
         joint.place(
             within: navigationController,
@@ -139,7 +139,7 @@ extension JVDisplayController {
     }
     
     private func _present(over viewController: UIViewController) {
-        journal {"FRONT[display] present over viewController"}
+        journal {"FACADE[display] present over viewController"}
         
         joint.present(
             over: viewController,

@@ -291,7 +291,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         }
         
         let deviceId = uuidProvider.currentDeviceID
-        journal {"APNS: subscribed\ndeviceId[\(deviceId)]"}
+        journal {"APNS: going to subscribe\ndeviceId[\(deviceId)]"}
         
         let credentials = SdkClientSubPusherCredentials(
             siteId: accountConfig.siteId,

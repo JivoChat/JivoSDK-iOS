@@ -133,10 +133,10 @@ public final class JVNotificationsController: NSObject {
 extension JVNotificationsController: SdkEngineAccessing {
     private func _delegateHookDidSet() {
         if let _ = delegate {
-            journal {"FRONT[notifications] set the delegate"}
+            journal {"FACADE[notifications] set the delegate"}
         }
         else {
-            journal {"FRONT[notifications] remove the delegate"}
+            journal {"FACADE[notifications] remove the delegate"}
         }
         
         engine.services.apnsService.notificationsDelegate = delegate
@@ -144,17 +144,17 @@ extension JVNotificationsController: SdkEngineAccessing {
     }
     
     private func _setPermissionAsking(at moment: JVNotificationsPermissionAskingMoment) {
-        journal {"FRONT[notifications] ask for permission at @moment[\(moment)]"}
+        journal {"FACADE[notifications] ask for permission at @moment[\(moment)]"}
         
         engine.services.apnsService.setAsking(moment: moment)
     }
     
     private func _setPushToken(data: Data?) {
         if let data = data {
-            journal {"FRONT[notifications] set the push token\n@data[\(data.jv_toHex())]"}
+            journal {"FACADE[notifications] set the push token\n@data[\(data.jv_toHex())]"}
         }
         else {
-            journal {"FRONT[notifications] remove the push token by data"}
+            journal {"FACADE[notifications] remove the push token by data"}
         }
         
         engine.managers.clientManager.apnsDeviceLiveToken = data?.jv_toHex()
@@ -162,10 +162,10 @@ extension JVNotificationsController: SdkEngineAccessing {
     
     private func _setPushToken(hex: String?) {
         if let hex = hex {
-            journal {"FRONT[notifications] set the push token @hex[\(hex)]"}
+            journal {"FACADE[notifications] set the push token @hex[\(hex)]"}
         }
         else {
-            journal {"FRONT[notifications] remove the push token by hex"}
+            journal {"FACADE[notifications] remove the push token by hex"}
         }
 
         engine.managers.clientManager.apnsDeviceLiveToken = hex
@@ -181,7 +181,7 @@ extension JVNotificationsController: SdkEngineAccessing {
     }
     
     private func _handleIncoming(userInfo: [AnyHashable : Any], completionHandler: ((UIBackgroundFetchResult) -> Void)?) -> Bool {
-        journal {"FRONT[notifications] handle the notification @userInfo[\(userInfo)]"}
+        journal {"FACADE[notifications] handle the notification @userInfo[\(userInfo)]"}
         
         if engine.managers.chatManager.handleNotification(userInfo: userInfo) {
             completionHandler?(.noData)
@@ -199,7 +199,7 @@ extension JVNotificationsController: SdkEngineAccessing {
     }
     
     private func _handleUser(response: UNNotificationResponse) -> Bool {
-        journal {"FRONT[notifications] handle the notification @response[\(response)]"}
+        journal {"FACADE[notifications] handle the notification @response[\(response)]"}
         
         return engine.managers.chatManager.handleNotification(response: response)
     }

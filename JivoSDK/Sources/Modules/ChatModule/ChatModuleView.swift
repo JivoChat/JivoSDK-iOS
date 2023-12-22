@@ -72,6 +72,7 @@ final class JVChatModuleViewController
 , NavigationBarConfigurator {
     private lazy var titleControl = JVChatTitleControl()
     private lazy var copyrightControl = JVChatCopyrightControl()
+    private lazy var waitingIndicator = UIView()
     private lazy var replyUnderlay = UIView()
     private lazy var replyControl = SdkChatReplyControl()
     
@@ -152,9 +153,9 @@ final class JVChatModuleViewController
         case .headerSubtitle(let value):
             titleControl.subtitleLabelText = value
         case .startSyncing:
-            _ = timelineController.history.setBottomItem(timelineLoaderItem)
+            waitingIndicator.jv_startShimming()
         case .stopSyncing:
-            _ = timelineController.history.setBottomItem(nil)
+            waitingIndicator.jv_stopShimming()
         case .inputUpdate(.update(let update)):
             replyControl.feed(update: update)
         case .inputUpdate(.fill(_, let attachments)):
@@ -195,6 +196,10 @@ final class JVChatModuleViewController
         titleControl.titleLabelTextColor = uiConfig.titleColor
         titleControl.subtitleLabelText = uiConfig.subtitleCaption
         titleControl.subtitleLabelTextColor = uiConfig.subtitleColor
+        
+        waitingIndicator.backgroundColor = JVDesign.colors.resolve(usage: .primaryForeground).withAlphaComponent(0.4)
+        waitingIndicator.alpha = 0
+        view.addSubview(waitingIndicator)
         
         replyUnderlay.backgroundColor = JVDesign.colors.resolve(usage: .primaryBackground)
         replyUnderlay.accessibilityLabel = "replyUnderlay"
@@ -251,6 +256,7 @@ final class JVChatModuleViewController
         let layout = getLayout(size: view.bounds.size)
         collectionView?.frame = layout.collectionViewFrame
         placeholderView.view.frame = layout.placeholderViewFrame
+        waitingIndicator.frame = layout.waitingIndicatorFrame
         replyUnderlay.frame = layout.replyUnderlayFrame
         replyControl.frame = layout.replyControlBounds
         titleControl.frame = layout.titleBarFrame
@@ -421,6 +427,14 @@ fileprivate struct Layout {
     var collectionViewIndicatorInsets: UIEdgeInsets {
         let replyingHeight = max(safeAreaInsets.bottom, keyboardHeight) + replyControlBounds.height
         return UIEdgeInsets(top: replyingHeight, left: 0, bottom: 0, right: 0)
+    }
+    
+    var waitingIndicatorFrame: CGRect {
+        let height = CGFloat(2)
+        let topY = replyUnderlayFrame.minY - 1 - height
+        let width = bounds.width * 0.5
+        let leftX = (bounds.width - width) * 0.5
+        return CGRect(x: leftX, y: topY, width: width, height: height)
     }
     
     var replyUnderlayFrame: CGRect {

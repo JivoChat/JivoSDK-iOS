@@ -106,13 +106,14 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     private struct HistoryState {
         enum Activity { case initial, requested, synced }
         var activity = Activity.initial
+        var isDetectingMissingMessages = false
         var localEarliestMessageId: Int?
         var localLatestMessageId: Int?
         var localLatestMessageDate: Date?
         var remoteEarliestMessageId: Int?
         var remoteLatestMessageId: Int?
     }
-
+    
     let eventObservable: JVBroadcastTool<SdkChatEvent>
     
     private let sessionContext: ISdkSessionContext
@@ -837,6 +838,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
                 
                 historyState.remoteEarliestMessageId = historyState.localEarliestMessageId
                 historyState.activity = .synced
+                historyState.isDetectingMissingMessages = false
                 
                 messagingContext.broadcast(event: .allHistoryLoaded, onQueue: .main)
             }
@@ -926,12 +928,12 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             existingIds: existingSliceIds,
             range: (firstId ... lastId))
         
+        requestedHistoryPastUids.subtract(upsertedMessages.orderedKeys)
+        
         if let messageId = historyState.localLatestMessageId, let sentAt = historyState.localLatestMessageDate, hasActiveChat {
             proto
                 .sendMessageAck(id: messageId, date: sentAt)
         }
-        
-        requestedHistoryPastUids.subtract(upsertedMessages.orderedKeys)
         
         let messageReferences = subStorage.reference(to: Array(upsertedMessages.orderedValues))
         messagingContext.broadcast(event: .messagesUpserted(messageReferences), onQueue: .main)
@@ -948,7 +950,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
         
         let overBoundInfo = range.upperBound.addingReportingOverflow(1)
-        if let earliestMessage = incomingMessages.first, earliestMessage.ID > overBoundInfo.partialValue, !overBoundInfo.overflow {
+        if let earliestMessage = incomingMessages.first, earliestMessage.ID > overBoundInfo.partialValue, !overBoundInfo.overflow, historyState.isDetectingMissingMessages {
             subStorage.placeHistoryPointer(
                 flag: .edgeToHistoryPast,
                 to: earliestMessage)
@@ -1042,6 +1044,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     private func handleSocketOpened() {
+        historyState.isDetectingMissingMessages = true
+        
         userDataReceivingMode = .channel
         chatContext.channelAgents = [:]
         chatContext.chatAgents = [:]

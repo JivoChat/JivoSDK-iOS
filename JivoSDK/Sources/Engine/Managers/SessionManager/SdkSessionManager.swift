@@ -265,7 +265,21 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             channelId: meta.endpointInfo.channelId
         )
 
-        sessionContext.identifyingToken = clientToken
+        do {
+            let jwt = try decode(jwt: clientToken)
+            let id = jwt.body["id"]
+            
+            if id == nil {
+                inform {"The userToken must contain mandatory 'id' key inside its JWT body"}
+            }
+            
+            sessionContext.identifyingToken = String(describing: id)
+        }
+        catch {
+            inform {"For better integration, the userToken should be JWT"}
+            sessionContext.identifyingToken = clientToken
+        }
+        
         sessionContext.accountConfig = accountConfig
         sessionContext.authorizationState = .unknown
         clientContext.personalNamespace = meta.personalNamespace
@@ -292,7 +306,10 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             return nil
         }
         
-        let personalNamespace = constructPersonalNamespace(endpointInfo.channelId, clientToken)
+        let personalNamespace = constructPersonalNamespace(
+            channelId: endpointInfo.channelId,
+            userToken: clientToken)
+        
         func _construct(behavior: SdkSessionManagerStartUpBehavior) -> _StartUpMeta {
             return _StartUpMeta(endpointInfo: endpointInfo, personalNamespace: personalNamespace, behavior: behavior)
         }
@@ -350,10 +367,20 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         }
     }
     
-    private func constructPersonalNamespace(_ arguments: String?...) -> String {
-        return arguments
-            .jv_flatten()
-            .joined(separator: String(USER_TOKEN_JOIN_SEPARATOR))
+    private func constructPersonalNamespace(channelId: String, userToken: String?) -> String {
+        guard let userToken = userToken else {
+            return channelId + ":"
+        }
+        
+        do {
+            let jwt = try decode(jwt: userToken)
+            let values = [channelId, String(describing: jwt.body["id"])]
+            return values.joined(separator: String(USER_TOKEN_JOIN_SEPARATOR))
+        }
+        catch {
+            let values = [channelId, userToken]
+            return values.joined(separator: String(USER_TOKEN_JOIN_SEPARATOR))
+        }
     }
     
     func requestConfig() {

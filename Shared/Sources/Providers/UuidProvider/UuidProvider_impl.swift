@@ -50,14 +50,15 @@ final class UUIDProvider: IUUIDProvider {
         return launchUUID.uuidString.lowercased()
     }
     
+    @AtomicMut
     private var userAgentBrief_cache = [Bundle: String]()
     var userAgentBrief: String {
-        if let result = userAgentBrief_cache[bundle] {
+        if let result = $userAgentBrief_cache.mutate({ $0[bundle] }) {
             return result
         }
         else {
             let result = UuidSubUserAgentGenerator(bundle: bundle, package: package).generate()
-            userAgentBrief_cache[bundle] = result
+            $userAgentBrief_cache.mutate { $0[bundle] = result }
             return result
         }
     }

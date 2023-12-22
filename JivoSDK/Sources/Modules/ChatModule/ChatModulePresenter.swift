@@ -50,6 +50,8 @@ final class ChatModulePresenter
         case .authorizationStateUpdated where UIApplication.shared.applicationState == .active:
             feedPrimaryLayout()
             feedHistoryLoading()
+        case .authorizationStateUpdated:
+            feedHistoryLoading()
         case .historyLoaded:
             feedHistoryLoading()
         case .inputUpdate(let updates):
@@ -91,14 +93,12 @@ final class ChatModulePresenter
     }
     
     private func feedHistoryLoading() {
-        switch (state.authorizationState, state.recentStartupMode) {
-        case (.unknown, .fresh):
-            pipeline?.notify(update: .stopSyncing)
-        case (.unknown, _):
+        switch state.authorizationState {
+        case .unknown:
             pipeline?.notify(update: .startSyncing)
-        case (.ready, _):
+        case .ready:
             pipeline?.notify(update: .stopSyncing)
-        case (.unavailable, _):
+        case .unavailable:
             pipeline?.notify(update: .stopSyncing)
         }
     }

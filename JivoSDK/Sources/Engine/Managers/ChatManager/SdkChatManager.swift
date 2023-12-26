@@ -874,7 +874,10 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
                         return subStorage.upsertMessage(byPrivateId: id, inChatWithId: chat.ID, with: [subject])
 
                     case let id as Int:
-                        let message = subStorage.upsertMessage(havingId: id, inChatWithId: chat.ID, with: [subject])
+                        let message = subStorage.upsertMessage(
+                            havingId: id,
+                            inChatWithId: chat.ID,
+                            with: [subject])
                         
                         if let lastSeenMessageId = keychainDriver.retrieveAccessor(forToken: .lastSeenMessageId, usingClientToken: true).number,
                            lastSeenMessageId == id {
@@ -899,7 +902,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
                             _ = subStorage.updateMessage(change: try JVSdkMessageAtomChange(
                                 localId: linkedMessage.localID,
                                 updates: [
-                                    .date(message.date)
+                                    .date(message.anchorDate)
                                 ]
                             ))
                         }
@@ -935,7 +938,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
                 .sendMessageAck(id: messageId, date: sentAt)
         }
         
-        let messageReferences = subStorage.reference(to: Array(upsertedMessages.orderedValues))
+        let messageReferences = subStorage.reference(to: Array(upsertedMessages.orderedValues.filter(\.hasBeenChanged)))
         messagingContext.broadcast(event: .messagesUpserted(messageReferences), onQueue: .main)
         
         notifyUnreadCounter()
@@ -991,8 +994,13 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             }
         }
         
-        var resolvedChatAgents: [JVDatabaseModelRef<JVAgent>] { Array(chatContext.chatAgents.values) }
-        storeChatAgents(resolvedChatAgents.compactMap(\.resolved), exclusive: false)
+        let chatAgentsRefs = Array(chatContext.chatAgents.values)
+        let chatAgents = chatAgentsRefs.compactMap(\.resolved)
+        guard chatAgents.filter(\.hasBeenChanged).jv_hasElements else {
+            return
+        }
+        
+        storeChatAgents(chatAgents, exclusive: false)
 
         switch userDataReceivingMode {
         case .channel:
@@ -1005,14 +1013,14 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             }
             
         case .chat:
-            guard jv_not(resolvedChatAgents.isEmpty)
+            guard jv_not(chatAgentsRefs.isEmpty)
             else {
                 break
             }
             
             DispatchQueue.main.async { [weak self] in
                 self?.subStorage.refresh()
-                self?.notifyObservers(event: .chatAgentsUpdated(agents: resolvedChatAgents))
+                self?.notifyObservers(event: .chatAgentsUpdated(agents: chatAgentsRefs))
             }
         }
     }

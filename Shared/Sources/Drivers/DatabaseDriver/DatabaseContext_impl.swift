@@ -407,6 +407,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
             }
             
             obj.apply(context: self, change: change)
+            obj.hasBeenChanged = obj.hasChanges
             
             if obj.managedObjectContext == nil {
                 add([obj])

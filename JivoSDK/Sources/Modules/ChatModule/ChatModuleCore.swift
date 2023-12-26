@@ -92,6 +92,8 @@ final class ChatModuleCore
     private var isHistoryPerformingUpdates = false
     private var allHistoryLoaded = false
     
+    private let agentsTimelineCache = AgentsTimelineCache()
+    
     init(pipeline: ChatModulePipeline,
          state: ChatModuleState,
          workerThread: JVIDispatchThread,
@@ -472,10 +474,14 @@ final class ChatModuleCore
             handleChatObtainedEvent(chat: chat)
 //        case let .sessionInitialized(isFirstSessionInitialization):
 //            handleSessionInitializedEvent(isFirst: isFirstSessionInitialization)
-        case .channelAgentsUpdated(let agents):
-            handleChannelAgentsUpdated(agents: agents.compactMap(\.resolved))
-        case .chatAgentsUpdated(let agents):
-            handleChatAgentsUpdated(agents: agents.compactMap(\.resolved))
+        case .channelAgentsUpdated(let refs):
+            let agents = refs.compactMap(\.resolved)
+            handleChannelAgentsUpdated(agents: agents)
+            agentsTimelineCache.append(agents: agents)
+        case .chatAgentsUpdated(let refs):
+            let agents = refs.compactMap(\.resolved)
+            handleChatAgentsUpdated(agents: agents)
+            agentsTimelineCache.append(agents: agents)
         case .attachmentsStartedToUpload:
             handleAttachmentsStartedToUploadEvent()
         case .attachmentsUploadSucceded:
@@ -526,6 +532,8 @@ final class ChatModuleCore
             setLoaderHiddenState(to: true)
             messageHistoryRequestTimer?.fire()
         }
+        
+        agentsTimelineCache.append(agents: chatHistory.messages.compactMap(\.senderAgent))
         
         messagesToUpdate.forEach { updatingMessage in
             chatHistory.update(message: updatingMessage)
@@ -585,6 +593,9 @@ final class ChatModuleCore
     
     private func handleLocalHistoryLoadedEvent(messages: [JVDatabaseModelRef<JVMessage>]) {
         let messages = messages.compactMap(\.resolved)
+        
+        agentsTimelineCache.append(agents: messages.compactMap(\.senderAgent))
+        
         chatHistory.messages = Array<JVMessage>(messages.reversed())
         chatHistory.fill(with: messages, partialLoaded: false, unreadPosition: .null)
         pipeline?.notify(event: .historyLoaded)
@@ -630,11 +641,18 @@ final class ChatModuleCore
                 )
             }
         
-        self.channelAgents.upsert(channelAgents) { updatedChannelAgents in
-            self.chatHistory.reloadMessages { message in
-                if let senderAgentId = message.senderAgent?.ID {
-                    return updatedChannelAgents.map(\.id).contains(senderAgentId)
-                } else {
+        let agentsCache = agentsTimelineCache.cache
+        self.channelAgents.upsert(channelAgents) { [weak self] updatedChannelAgents in
+            self?.chatHistory.reloadMessages { [weak self] message in
+                guard let senderAgent = message.senderAgent else {
+                    return false
+                }
+                
+                let agentTimelineHash = self?.agentsTimelineCache.find(agent: senderAgent, within: agentsCache)
+                if agentTimelineHash != senderAgent.calculateTimelineHash() {
+                    return true
+                }
+                else {
                     return false
                 }
             }
@@ -962,4 +980,29 @@ final class ChatModuleCore
 //
 //        return message
 //    }
+}
+
+fileprivate final class AgentsTimelineCache {
+    private(set) var cache = [Int: Int]()
+    
+    func reset() {
+        cache = Dictionary()
+    }
+    
+    func append(agents: [JVAgent]) {
+        let agentsMap = Dictionary(grouping: agents, by: \.ID)
+        for (agentId, agents) in agentsMap {
+            cache[agentId] = agents.first?.calculateTimelineHash()
+        }
+    }
+    
+    func find(agent: JVAgent, within customCache: [Int: Int]? = nil) -> Int? {
+        return (customCache ?? cache)[agent.ID]
+    }
+}
+
+fileprivate extension JVAgent {
+    func calculateTimelineHash() -> Int {
+        return displayName(kind: .original).hash ^ repicItem(transparent: false, scale: nil).hashValue
+    }
 }

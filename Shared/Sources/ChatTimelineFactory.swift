@@ -330,7 +330,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
     private func generateSystemItem(for message: JVMessage) -> JMTimelineItem {
         return JMTimelineSystemItem(
             uid: message.UUID,
-            date: message.date,
+            date: message.anchorDate,
             layoutValues: generateSystemLayoutValues(),
             logicOptions: (
                 message.hasIdentity
@@ -650,7 +650,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         
         return JMTimelineMessageItem(
             uid: uid,
-            date: message.date,
+            date: message.anchorDate,
             layoutValues: generateMessageLayoutValues(),
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
@@ -778,7 +778,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         
         return JMTimelineMessageItem(
             uid: uid,
-            date: message.date,
+            date: message.anchorDate,
             layoutValues: generateMessageLayoutValues(),
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
@@ -858,7 +858,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         
         return JMTimelineMessageItem(
             uid: uid,
-            date: message.date,
+            date: message.anchorDate,
             layoutValues: generateMessageLayoutValues(),
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
@@ -947,7 +947,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         
         return JMTimelineMessageItem(
             uid: uid,
-            date: message.date,
+            date: message.anchorDate,
             layoutValues: generateMessageLayoutValues(),
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: false,
@@ -1066,7 +1066,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         let details = JsonCoder().decode(raw: message.rawDetails) ?? .null
         return JMTimelineContactFormItem(
             uid: message.UUID,
-            date: message.date,
+            date: message.anchorDate,
             layoutValues: generateSystemLayoutValues(),
             logicOptions: (
                 message.hasIdentity
@@ -1138,7 +1138,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         
         return JMTimelineMessageItem(
             uid: uid,
-            date: message.date,
+            date: message.anchorDate,
             layoutValues: generateMessageLayoutValues(),
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
@@ -1208,7 +1208,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         
         return JMTimelineMessageItem(
             uid: uid,
-            date: message.date,
+            date: message.anchorDate,
             layoutValues: generateMessageLayoutValues(),
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
@@ -1304,7 +1304,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         
         return JMTimelineMessageItem(
             uid: uid,
-            date: message.date,
+            date: message.anchorDate,
             layoutValues: generateMessageLayoutValues(),
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
@@ -1370,7 +1370,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         
         return JMTimelineMessageItem(
             uid: uid,
-            date: message.date,
+            date: message.anchorDate,
             layoutValues: generateMessageLayoutValues(),
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
@@ -1486,7 +1486,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
             
             return JMTimelineMessageItem(
                 uid: uid,
-                date: message.date,
+                date: message.anchorDate,
                 layoutValues: generateMessageLayoutValues(),
                 logicOptions: message.jv_logicOptions(
                     supportSizeCaching: true,
@@ -1556,7 +1556,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
             
             return JMTimelineMessageItem(
                 uid: uid,
-                date: message.date,
+                date: message.anchorDate,
                 layoutValues: generateMessageLayoutValues(),
                 logicOptions: message.jv_logicOptions(
                     supportSizeCaching: true,
@@ -1634,7 +1634,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         
         return JMTimelineMessageItem(
             uid: uid,
-            date: message.date,
+            date: message.anchorDate,
             layoutValues: generateMessageLayoutValues(),
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
@@ -1737,7 +1737,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         
         return JMTimelineMessageItem(
             uid: uid,
-            date: message.date,
+            date: message.anchorDate,
             layoutValues: generateMessageLayoutValues(),
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
@@ -1807,7 +1807,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         
         return JMTimelineMessageItem(
             uid: uid,
-            date: message.date,
+            date: message.anchorDate,
             layoutValues: generateMessageLayoutValues(),
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
@@ -1874,7 +1874,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         
         return JMTimelineMessageItem(
             uid: uid,
-            date: message.date,
+            date: message.anchorDate,
             layoutValues: generateMessageLayoutValues(),
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
@@ -2026,7 +2026,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
             
             return JMTimelineMessageItem(
                 uid: uid,
-                date: message.date,
+                date: message.anchorDate,
                 layoutValues: generateMessageLayoutValues(),
                 logicOptions: message.jv_logicOptions(
                     supportSizeCaching: true,
@@ -2074,7 +2074,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
             
             return JMTimelineMessageItem(
                 uid: uid,
-                date: message.date,
+                date: message.anchorDate,
                 layoutValues: generateMessageLayoutValues(),
                 logicOptions: message.jv_logicOptions(
                     supportSizeCaching: true,
@@ -2166,7 +2166,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         
         return JMTimelineMessageItem(
             uid: uid,
-            date: message.date,
+            date: message.anchorDate,
             layoutValues: generateMessageLayoutValues(),
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
@@ -2275,7 +2275,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
             
             return JMTimelineMessageItem(
                 uid: uid,
-                date: message.date,
+                date: message.anchorDate,
                 layoutValues: generateMessageLayoutValues(),
                 logicOptions: message.jv_logicOptions(
                     supportSizeCaching: true,
@@ -2323,7 +2323,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
             
             return JMTimelineMessageItem(
                 uid: uid,
-                date: message.date,
+                date: message.anchorDate,
                 layoutValues: generateMessageLayoutValues(),
                 logicOptions: message.jv_logicOptions(
                     supportSizeCaching: true,
@@ -2460,7 +2460,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         let isEmoji = !(emojiInfo.emoji.isEmpty)
         return JMTimelineMessageItem(
             uid: uid,
-            date: message.date,
+            date: message.anchorDate,
             layoutValues: generateMessageLayoutValues(),
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
@@ -2604,7 +2604,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         
         return JMTimelineMessageItem(
             uid: uid,
-            date: message.date,
+            date: message.anchorDate,
             layoutValues: generateMessageLayoutValues(),
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
@@ -2677,7 +2677,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         
         return JMTimelineSystemItem(
             uid: message.UUID,
-            date: message.date,
+            date: message.anchorDate,
             layoutValues: generateMessageLayoutValues(),
             logicOptions: [],
             extraActions: obtainItemExtra(for: message),

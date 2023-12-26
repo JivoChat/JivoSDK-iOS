@@ -231,6 +231,11 @@ extension JVMessage {
         return m_date ?? Date()
     }
     
+    var anchorDate: Date {
+        let virtualDate = date.dateBySet(hour: nil, min: nil, secs: nil, ms: ID % 1000)
+        return virtualDate ?? date
+    }
+    
     var clientID: Int {
         return Int(m_client_id)
     }

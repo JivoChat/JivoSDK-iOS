@@ -249,6 +249,20 @@ final class ChatHistory {
     
     func reloadMessages(selectedBy messageSelection: @escaping (JVMessage) -> Bool) {
         let messageReferences = messages.map { databaseDriver.reference(to: $0) }
+        
+        var identifiedItemsUids = Set<String>()
+        for section in collectionViewManager.memoryStorage.sections {
+            guard !section.isEmpty else {
+                continue
+            }
+            
+            if let sectionItems = (0 ..< section.numberOfItems).compactMap(section.item(at:)) as? [JMTimelineItem] {
+                let leadingItems = sectionItems.filter { $0.hasLayoutOptions(.groupFirstElement) }
+                let trailingItems = sectionItems.filter { $0.hasLayoutOptions(.groupLastElement) }
+                identifiedItemsUids.formUnion((leadingItems + trailingItems).map(\.uid))
+            }
+        }
+        
 //        JVDesign.shared.update() // this call is needed to cache window.traitCollection.horizontalSizeClass value inside JVDesign shared instance before switching to background thread and read horizontalSizeClass value from this thread
         
         workerThread.async { [weak self] in
@@ -257,11 +271,13 @@ final class ChatHistory {
                 return
             }
             
-            let selectedMessages = messageReferences.compactMap(\.resolved).filter(messageSelection)
-            let newItems = selectedMessages.compactMap { message -> JMTimelineItem? in
-                let newItem = self.factory.generateItem(for: message, position: (message.UUID == self.recentUid ? .recent : .history))
-                return newItem
-            }
+            let newItems = messageReferences
+                .compactMap(\.resolved)
+                .filter { identifiedItemsUids.contains($0.UUID) }
+                .filter(messageSelection)
+                .compactMap { message -> JMTimelineItem? in
+                    self.factory.generateItem(for: message, position: (message.UUID == self.recentUid ? .recent : .history))
+                }
             
             DispatchQueue.main.async { [weak self] in
                 self?.collectionViewManager.memoryStorage.performUpdates {

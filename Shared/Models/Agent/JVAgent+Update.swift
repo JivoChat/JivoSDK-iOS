@@ -12,7 +12,9 @@ import JMCodingKit
 extension JVAgent {
     func performApply(context: JVIDatabaseContext, environment: JVIDatabaseEnvironment, change: JVDatabaseModelChange) {
         defer {
-            m_pk_num = m_id
+            if m_pk_num != m_id {
+                m_pk_num = m_id
+            }
         }
         
         if let c = change as? JVAgentGeneralChange {
@@ -81,21 +83,34 @@ extension JVAgent {
             m_draft = c.draft
         }
         else if let c = change as? SDKAgentAtomChange {
-            m_id = Int64(c.id)
+            let m_id_val = Int64(c.id)
+            if m_id != m_id_val {
+                m_id = m_id_val
+            }
             
             c.updates.forEach { update in
                 switch update {
                 case .displayName(let value):
-                    m_display_name = value
+                    if m_display_name != value {
+                        m_display_name = value
+                    }
                     
                 case .title(let value):
-                    m_title = value
+                    if m_title != value {
+                        m_title = value
+                    }
                     
                 case .avatarLink(let value):
-                    m_avatar_link = value?.absoluteString
+                    let m_avatar_link_value = value?.absoluteString
+                    if m_avatar_link != m_avatar_link_value {
+                        m_avatar_link = m_avatar_link_value
+                    }
                     
                 case .status(let value):
-                    m_state_id = Int16(value.rawValue)
+                    let m_state_id_value = Int16(value.rawValue)
+                    if m_state_id != m_state_id_value {
+                        m_state_id = m_state_id_value
+                    }
                 }
             }
         }

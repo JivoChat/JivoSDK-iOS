@@ -12,7 +12,10 @@ import JMCodingKit
 extension JVMessage {
     func performApply(context: JVIDatabaseContext, environment: JVIDatabaseEnvironment, change: JVDatabaseModelChange) {
         defer {
-            m_sender = m_sender_client ?? m_sender_agent ?? m_sender_bot
+            let m_sender_value = m_sender_client ?? m_sender_agent ?? m_sender_bot
+            if m_sender != m_sender_value {
+                m_sender = m_sender_value
+            }
         }
         
         func _adjustSender(type: String, ID: Int, body: JVMessageBodyGeneralChange?) {
@@ -23,18 +26,40 @@ extension JVMessage {
             
             switch type {
             case "client":
-                m_sender_client = context.client(for: ID, needsDefault: false)
+                let m_sender_client_value = context.client(for: ID, needsDefault: false)
+                if m_sender_client != m_sender_client_value {
+                    m_sender_client = m_sender_client_value
+                }
             case "agent":
-                m_sender_agent = context.agent(for: ID, provideDefault: true)
+                let m_sender_agent_value = context.agent(for: ID, provideDefault: true)
+                if m_sender_agent != m_sender_agent_value {
+                    m_sender_agent = m_sender_agent_value
+                }
             case "system" where type == "proactive":
-                m_sender_agent = context.agent(for: ID, provideDefault: true)
+                let m_sender_agent_value = context.agent(for: ID, provideDefault: true)
+                if m_sender_agent != m_sender_agent_value {
+                    m_sender_agent = m_sender_agent_value
+                }
             case "system":
-                m_sender_agent = m_body?.call?.agent.flatMap { context.agent(for: $0.ID, provideDefault: true) }
+                let m_sender_agent_value = m_body?.call?.agent.flatMap { context.agent(for: $0.ID, provideDefault: true) }
+                if m_sender_agent != m_sender_agent_value {
+                    m_sender_agent = m_sender_agent_value
+                }
             case "bot":
-                m_sender_bot_flag = true
-                m_sender_bot = context.bot(for: ID, provideDefault: true)
+                let m_sender_bot_flag_value = true
+                if m_sender_bot_flag != m_sender_bot_flag_value {
+                    m_sender_bot_flag = m_sender_bot_flag_value
+                }
+                
+                let m_sender_bot_value = context.bot(for: ID, provideDefault: true)
+                if m_sender_bot != m_sender_bot_value {
+                    m_sender_bot = m_sender_bot_value
+                }
             case _ where m_client_id > 0:
-                m_sender_client = context.client(for: Int(m_client_id), needsDefault: false)
+                let m_sender_client_value = context.client(for: Int(m_client_id), needsDefault: false)
+                if m_sender_client != m_sender_client_value {
+                    m_sender_client = m_sender_client_value
+                }
             default:
                 assertionFailure()
             }
@@ -61,11 +86,15 @@ extension JVMessage {
         func _adjustIncomingState(clientID: Int?) {
             if let _ = clientID ?? context.clientID(for: Int(m_chat_id)) {
                 let value = (m_sender_client.jv_hasValue || m_sender_agent?.isMe == false)
-                m_is_incoming = value
+                if m_is_incoming != value {
+                    m_is_incoming = value
+                }
             }
             else {
                 let value = (m_sender_agent?.isMe == false)
-                m_is_incoming = value
+                if m_is_incoming != value {
+                    m_is_incoming = value
+                }
             }
         }
         
@@ -75,22 +104,37 @@ extension JVMessage {
             }
             
             if let status = status {
-                m_status = (JVMessageStatus(rawValue: status) ?? .delivered).rawValue
+                let m_status_value = (JVMessageStatus(rawValue: status) ?? .delivered).rawValue
+                if m_status != m_status_value {
+                    m_status = m_status_value
+                }
             }
             else {
-                m_status = JVMessageStatus.delivered.rawValue
+                let m_status_value = JVMessageStatus.delivered.rawValue
+                if m_status != m_status_value {
+                    m_status = m_status_value
+                }
             }
         }
         
         func _adjustHidden() {
             if m_type == "comment", m_was_deleted {
-                m_is_hidden = true
+                let m_is_hidden_value = true
+                if m_is_hidden != m_is_hidden_value {
+                    m_is_hidden = m_is_hidden_value
+                }
             }
             else if JVMessageFlags(rawValue: Int(m_flags)).contains(.detachedFromHistory) {
-                m_is_hidden = true
+                let m_is_hidden_value = true
+                if m_is_hidden != m_is_hidden_value {
+                    m_is_hidden = m_is_hidden_value
+                }
             }
             else {
-                m_is_hidden = false
+                let m_is_hidden_value = false
+                if m_is_hidden != m_is_hidden_value {
+                    m_is_hidden = m_is_hidden_value
+                }
             }
         }
 
@@ -494,7 +538,9 @@ extension JVMessage {
                         m_id = newValue.jv_toInt64(.standard)
                     }
                     
-                    m_is_markdown = true
+                    if !m_is_markdown {
+                        m_is_markdown = true
+                    }
                     
                 case let .localId(newValue):
                     if m_local_id != newValue {
@@ -563,7 +609,10 @@ extension JVMessage {
                             return defaultAgent
                         }()
                         
-                        m_sender_bot_flag = (id < 0)
+                        let m_sender_bot_flag_value = (id < 0)
+                        if m_sender_bot_flag != m_sender_bot_flag_value {
+                            m_sender_bot_flag = m_sender_bot_flag_value
+                        }
                         
                         if m_sender_agent?.objectID != agent?.objectID {
                             m_sender_agent = agent

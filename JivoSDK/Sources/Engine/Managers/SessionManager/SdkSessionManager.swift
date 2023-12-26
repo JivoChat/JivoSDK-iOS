@@ -267,13 +267,13 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
 
         do {
             let jwt = try decode(jwt: clientToken)
-            let id = jwt.body["id"]
             
-            if id == nil {
-                inform {"The userToken must contain mandatory 'id' key inside its JWT body"}
+            if let _ = jwt.body["id"] as? String {
+                sessionContext.identifyingToken = clientToken
             }
-            
-            sessionContext.identifyingToken = String(describing: id)
+            else {
+                inform {"Please use JWT format for userToken, and put mandatory 'id' key with string value"}
+            }
         }
         catch {
             inform {"For better integration, the userToken should be JWT"}

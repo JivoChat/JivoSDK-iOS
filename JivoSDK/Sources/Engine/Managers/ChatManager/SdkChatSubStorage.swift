@@ -24,13 +24,15 @@ protocol ISdkChatSubStorage: IBaseChattingSubStorage {
     
     func message(withLocalId localId: String) -> JVMessage?
     func history(chatId: Int, after anchorDate: Date?, limit: Int) -> [JVMessage]
-    func lastMessage(chatId: Int) -> JVMessage?
-    func storeOutgoingMessage(localID: String, clientID: Int, chatID: Int, type: JVMessageType, content: JVMessageContent, status: JVMessageStatus?, timing: SdkChatSubStorageMessageTiming) -> JVMessage?
+    func historyIdsBetween(chatId: Int, firstId: Int, lastId: Int) -> [Int]
+    func lastSyncedMessage(chatId: Int) -> JVMessage?
+    func storeOutgoingMessage(localID: String, clientID: Int, chatID: Int, type: JVMessageType, content: JVMessageContent, status: JVMessageStatus?, timing: SdkChatSubStorageMessageTiming, orderingIndex: Int) -> JVMessage?
     func retrieveQueuedMessages(chatId: Int) -> [JVMessage]
     func resendMessage(_ message: JVMessage)
     func deleteMessage(_ message: JVMessage)
     func createChat(withChatID chatId: Int) -> JVChat?
     func turnContactForm(message: JVMessage, status: JVMessageBodyContactFormStatus, details: JsonElement?)
+    func turnRateForm(message: JVMessage, details: String)
     func agents() -> [JVAgent]
     func markMessagesAsSeen(to messageId: Int, inChatWithId chatId: Int) -> [JVMessage]
     func markSendingStart(message: JVMessage)
@@ -93,7 +95,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
             let message = databaseDriver.object(JVMessage.self, customId: key),
             let _ = jv_validate(message)
         else {
-            journal {"Message under localId[\(localId)] was invalidated"}
+//            journal {"Message under localId[\(localId)] was invalidated"}
             return nil
         }
         return message
@@ -129,9 +131,35 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         return messages
     }
     
-    func lastMessage(chatId: Int) -> JVMessage? {
+    func historyIdsBetween(chatId: Int, firstId: Int, lastId: Int) -> [Int] {
         let filter = NSPredicate(
-            format: "(m_chat_id == %lld OR m_chat_id == 0) AND m_is_hidden == false AND m_sender != nil",
+            format: "(m_chat_id == %lld OR m_chat_id == 0) AND m_is_hidden == false AND m_id >= %lld AND m_id <= %lld",
+            argumentArray: [
+                chatId,
+                firstId,
+                lastId
+            ]
+        )
+        
+        let messages = databaseDriver.objects(
+            JVMessage.self,
+            options: JVDatabaseRequestOptions(
+                filter: filter,
+                properties: ["m_id"],
+                sortBy: [
+                    JVDatabaseResponseSort(keyPath: "m_date", ascending: false),
+                    JVDatabaseResponseSort(keyPath: "m_ordering_index", ascending: false),
+                    JVDatabaseResponseSort(keyPath: "m_id", ascending: false)
+                ]
+            )
+        )
+        
+        return messages.map(\.ID)
+    }
+    
+    func lastSyncedMessage(chatId: Int) -> JVMessage? {
+        let filter = NSPredicate(
+            format: "(m_chat_id == %lld OR m_chat_id == 0) AND (m_id > 0) AND (m_is_hidden == false) AND (m_sender != nil)",
             argumentArray: [
                 chatId
             ]
@@ -149,21 +177,17 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
             )
         )
         
-//        let validatedMessages = messages.compactMap { jv_validate($0) }
-//        if !(messages.count == validatedMessages.count) {
-//            journal {"Some messages from database are invalid"}
-//        }
-        
         return messages.first
     }
     
-    func storeOutgoingMessage(localID: String, clientID: Int, chatID: Int, type: JVMessageType, content: JVMessageContent, status: JVMessageStatus?, timing: SdkChatSubStorageMessageTiming) -> JVMessage? {
+    func storeOutgoingMessage(localID: String, clientID: Int, chatID: Int, type: JVMessageType, content: JVMessageContent, status: JVMessageStatus?, timing: SdkChatSubStorageMessageTiming, orderingIndex: Int) -> JVMessage? {
         var updates: [JVMessagePropertyUpdate] = [
             .localId(localID),
             .chatId(chatID),
             .sender(.client(withId: clientID == 0 ? 1 : clientID)),
             .typeInitial(type),
-            .isIncoming(false)
+            .isIncoming(false),
+            .orderingIndex(orderingIndex)
         ]
         
         if let status = status {
@@ -207,7 +231,8 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
             
         case let .contactForm(status):
             updates.append(.text(status.rawValue))
-            
+        case let .rateForm(status):
+            break
         default:
             break
         }
@@ -362,6 +387,24 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         }
         catch {
         }
+    }
+    
+    func turnRateForm(message: JVMessage, details: String) {
+        do {
+            let change = try JVSdkMessageAtomChange(
+                localId: message.localID,
+                updates: [
+                    .details(details)
+                ]
+            )
+            
+            databaseDriver.readwrite { context in
+                message.performApply(
+                    context: context,
+                    environment: context.environment,
+                    change: change)
+            }
+        } catch { }
     }
     
     func agents() -> [JVAgent] {
@@ -568,6 +611,8 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
 //                if message.text.isEmpty {
 //                    accumulatingUpdates += [.isHidden(true)]
 //                }
+            case .rate:
+                break
             }
             
             return accumulatingUpdates

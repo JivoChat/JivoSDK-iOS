@@ -169,7 +169,8 @@ final class SdkEngine: ISdkEngine {
         
         let sessionContext = SdkSessionContext(
             accountConfigAccessor: drivers.preferencesDriver.retrieveAccessor(forToken: .accountConfig),
-            endpointConfigAccessor: drivers.preferencesDriver.retrieveAccessor(forToken: .endpointConfig)
+            endpointConfigAccessor: drivers.preferencesDriver.retrieveAccessor(forToken: .endpointConfig),
+            rateConfigAccessor: drivers.preferencesDriver.retrieveAccessor(forToken: .rateConfig)
         )
         self.sessionContext = sessionContext
         

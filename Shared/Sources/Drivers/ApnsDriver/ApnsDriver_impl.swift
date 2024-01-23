@@ -50,7 +50,7 @@ final class ApnsDriver: NSObject, IApnsDriver, UNUserNotificationCenterDelegate,
         }
 
         UNUserNotificationCenter.current().requestAuthorization(options: options) { status, error in
-            journal {"Received the APNS authorization @status[\(status)] @error[\(String(describing: error))]"}
+            journal {"APNS: received system authorization\n@status[\(status)] @error[\(String(describing: error))]"}
             
             if status {
                 DispatchQueue.main.async(

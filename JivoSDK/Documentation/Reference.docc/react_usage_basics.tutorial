@@ -24,10 +24,11 @@
             }
             
             @Step {
-                As mandatory, you have to start the Jivo session for user
+                As mandatory, you have to start Jivo session for user
                 
-                > Note: You can also pass `null` as userToken
-                > to start an incognito chat session 
+                You may also pass `null` as userToken to start incognito session
+                
+                > Important: Please take a look at <doc:common_user_token> page to learn more about what is userToken
                 
                 @Code(name: "UserManager.js", file: react.user_manager_01.js.sample)
             }

@@ -35,10 +35,22 @@ extension Optional: JVOptionalType {
     }
 }
 
-/*
-extension Optional where Wrapped: Object {
-    func jv_ifValid() -> Wrapped? {
-        return self?.jv_ifValid()
+extension Optional where Wrapped: Comparable {
+    mutating func jv_replaceWithGreater(_ another: Wrapped) {
+        if let value = self {
+            self = max(value, another)
+        }
+        else {
+            self = another
+        }
+    }
+    
+    mutating func jv_replaceWithLesser(_ another: Wrapped) {
+        if let value = self {
+            self = min(value, another)
+        }
+        else {
+            self = another
+        }
     }
 }
-*/

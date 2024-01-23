@@ -97,7 +97,7 @@ class WebSocketDriver: ILiveConnectionDriver {
             let outgoingPackages = outgoingPackagesAccumulator.release()
             outgoingPackages.forEach { json, data in
                 if let json = json {
-                    webSocket?.chain?.journal(.full) { [p = jsonPrivacyTool] in "WebSocket: [action=flush] \(p.filter(json: json))"}
+                    webSocket?.chain?.journal(.full) { [p = jsonPrivacyTool] in "WebSocket: flush body=\(p.filter(json: json))"}
                 }
                 
                 webSocket?.send(data)
@@ -124,7 +124,7 @@ class WebSocketDriver: ILiveConnectionDriver {
             outgoingPackagesAccumulator.accumulate((json, data))
         }
         else {
-            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: [action=send] \(p.filter(json: json))"}
+            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: send body=\(p.filter(json: json))"}
             webSocket?.send(data)
             schedulePingTimer()
         }
@@ -140,7 +140,7 @@ class WebSocketDriver: ILiveConnectionDriver {
             outgoingPackagesAccumulator.accumulate((payload, data))
         }
         else {
-            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: [action=send] \(p.filter(json: payload))"}
+            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: send body=\(p.filter(json: payload))"}
             webSocket?.send(data)
             schedulePingTimer()
         }
@@ -165,7 +165,7 @@ class WebSocketDriver: ILiveConnectionDriver {
             outgoingPackagesAccumulator.accumulate((payload, data))
         }
         else {
-            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: [action=send] \(p.filter(json: payload))"}
+            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: send body=\(p.filter(json: payload))"}
             webSocket?.send(data)
             schedulePingTimer()
         }
@@ -186,7 +186,7 @@ class WebSocketDriver: ILiveConnectionDriver {
     }
     
     func close() {
-        webSocket?.chain?.journal(.full) {"WebSocket: [action=close]"}
+        webSocket?.chain?.journal(.full) {"WebSocket: close"}
         webSocket?.close()
         invalidateTimers()
     }
@@ -248,7 +248,7 @@ class WebSocketDriver: ILiveConnectionDriver {
     }
     
     private func setupWebSocket(url: URL) {
-        let chain = journal {"Configure WebSocket for endpoint:\n\(url.absoluteString)"}
+        let chain = journal {"WebSocket: connect to\n\(url.absoluteString)"}
         
         webSocket = WebSocketVerbose()
         webSocket?.chain = chain

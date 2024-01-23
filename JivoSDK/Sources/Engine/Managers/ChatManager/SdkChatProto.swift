@@ -13,8 +13,9 @@ import SwiftMime
 
 protocol ISdkChatProto {
     func requestRecentActivity(siteId: Int, channelId: String, clientId: String) -> INetworking
-    func requestMessageHistory(fromMessageWithId lastMessageId: Int?)
+    func requestMessageHistory(before anchorMessageId: Int?)
     func sendMessage(_ message: JVMessage, mime: String)
+    func sendRateInfo(chatID: String, rate: String, comment: String?)
     func sendMessageAck(id: Int, date: Date)
     func sendTyping(text: String)
 }
@@ -46,6 +47,7 @@ enum MessageTransactionSubject: IProtoEventSubject {
     case delivered(messageWithId: Int, andPrivateId: String, at: Date)
     case received(messageWithId: Int, data: String?, andMedia: AtomMessageMedia? = nil, fromUserWithId: String, sentAt: Date)
     case seen(messageWithId: Int, andDate: Date)
+    case rate
 }
 
 struct AtomMessageMedia {
@@ -137,15 +139,15 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
             caching: .auto)
     }
     
-    func requestMessageHistory(fromMessageWithId lastMessageId: Int? = nil) {
+    func requestMessageHistory(before anchorMessageId: Int?) {
         networking.send(
             output: .atom(
                 type: "atom/me.history",
                 context: nil,
                 id: nil,
-                data: lastMessageId.flatMap(String.init)
+                data: anchorMessageId.flatMap(String.init)
             ),
-            caching: .disabled)
+            caching: .enabled)
     }
     
     func sendMessage(_ message: JVMessage, mime: String) {
@@ -183,6 +185,22 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
                 data: text
             ),
             caching: .disabled)
+    }
+    
+    func sendRateInfo(chatID: String, rate: String, comment: String?) {
+        let array: [String: String] = ["rate": rate, "comment": comment.jv_orEmpty]
+        
+        guard let payload = try? JSONEncoder().encode(array) else { return }
+        
+        _ = networking.send(
+            output: .atom(
+                type: "atom/chat.rate",
+                context: nil,
+                id: chatID,
+                data: String(data: payload, encoding: .utf8).jv_orEmpty
+            ),
+            caching: .auto
+        )
     }
     
 //    func requestUploading(provider: String, file: HTTPFileConfig, callback: @escaping (HTTPUploadAck) -> Void) {
@@ -270,6 +288,8 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
             return decodeMessageId(model)
         case let NetworkingSubject.socket(.payload(.atom("atom/message.ack", model))):
             return decodeMessageAck(model)
+        case let NetworkingSubject.socket(.payload(.atom("atom/chat.rate", model))):
+            return decodeChatRate(model)
         case NetworkingSubject.socket(.payload(.atom(let type, let model))) where doesMessageContainMediaLink(model["data"].stringValue):
             return decodeMessageAsMediaLink(model, type: type)
         case NetworkingSubject.socket(.payload(.atom(let type, let model))) where doesMessageContainMediaMarkdown(model["data"].stringValue, json: model):
@@ -360,6 +380,14 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
                 messageWithId: messageId,
                 andDate: messageDate
             )
+        )
+    }
+    
+    private func decodeChatRate(_ json: JsonElement) -> ProtoEventBundle? {
+        return ProtoEventBundle(
+            type: .chat(.message),
+            id: json["id"].stringValue,
+            subject: MessageTransactionSubject.rate
         )
     }
     

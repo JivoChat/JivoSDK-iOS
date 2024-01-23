@@ -174,6 +174,10 @@ extension JVAgent: JVDisplayable {
         return m_title.jv_orEmpty
     }
     
+    var channels: String {
+        return m_channels.jv_orEmpty
+    }
+    
     var isOwner: Bool {
         return m_is_owner
     }

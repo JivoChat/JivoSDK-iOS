@@ -70,7 +70,7 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
     
     func requestConfig(channelId: String) -> INetworking {
         let endpoint = "https://sdk.\(networking.primaryDomain)/config/\(channelId)"
-        journal {"Requesting config at: \(endpoint)"}
+        journal {"API: request config at\n\(endpoint)"}
         
         let options = RestRequestOptions(
             behavior: .regular,
@@ -154,7 +154,8 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
                 chatserverHost: response.body["chatserver_host"].stringValue,
                 apiHost: response.body["api_host"].stringValue,
                 filesHost: response.body["files_host"].stringValue,
-                isLicensed: response.body["license"].bool
+                isLicensed: response.body["license"].bool,
+                rateConfig: .init(json: response.body["rate_settings"])
             )
         )
         
@@ -212,13 +213,14 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
             type: .session(.me),
             id: nil,
             subject: MeTransactionSubject.meHistory(
-                lastMessageId: json["data"].int
+                lastMessageId: (json["data"].string?.jv_toInt() ?? json["data"].int)
             )
         )
     }
 }
 
 extension ProtoEventSubjectPayload {
+    
     struct ConnectionConfig: IProtoEventSubjectPayloadModel {
         struct Body {
             let siteId: Int
@@ -226,6 +228,7 @@ extension ProtoEventSubjectPayload {
             let apiHost: String
             let filesHost: String
             let isLicensed: Bool?
+            let rateConfig: JMTimelineRateConfig?
         }
         
         static let kindId = UUID()

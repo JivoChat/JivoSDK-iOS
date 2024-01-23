@@ -235,12 +235,18 @@ final class TooltipControl: UIControl {
     }
     
     func show(forView view: UIView, withinParent superview: UIView) {
-        let initialAlpha = 0.0
-
         presentingView = view
         arrange(withinSuperview: superview)
         
-        alpha = initialAlpha
+        superview.subviews.forEach { currentView in
+            if currentView.accessibilityIdentifier == String(view.hash) {
+                currentView.removeFromSuperview()
+            }
+        }
+        
+        accessibilityIdentifier = String(view.hash)
+        
+        alpha = 0.0
         
         superview.addSubview(self)
         

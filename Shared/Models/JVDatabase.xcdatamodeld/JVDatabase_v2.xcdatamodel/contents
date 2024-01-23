@@ -33,8 +33,8 @@
     <entity name="JVAgentSession" representedClassName=".JVAgentSession" parentEntity="JVDatabaseModel" syncable="YES" codeGenerationType="category">
         <attribute name="m_allow_mobile_calls" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="m_email" optional="YES" attributeType="String" defaultValueString=""/>
-        <attribute name="m_global_ai_assistant_chat_resume_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
-        <attribute name="m_global_ai_assistant_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="m_global_ai_assistant_chat_resume_enabled" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_global_ai_assistant_enabled" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="m_global_assigned_agent_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="m_global_billing_update_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="m_global_business_chat_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>

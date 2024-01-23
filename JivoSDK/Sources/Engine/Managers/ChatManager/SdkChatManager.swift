@@ -19,8 +19,14 @@ extension Notification.Name {
 }
 
 enum SdkChatHistoryRequestBehavior {
-    case force
-    case actualize
+    case anyway
+    case smart
+}
+
+enum SdkChatManagerRateFormAction {
+    case change(choice: Int, comment: String)
+    case submit(scale: ChatTimelineRateScale, choice: Int, comment: String)
+    case dismiss
 }
 
 enum SdkChatEvent {
@@ -30,13 +36,13 @@ enum SdkChatEvent {
     case channelAgentsUpdated(agents: [JVDatabaseModelRef<JVAgent>])
     case attachmentsStartedToUpload
     case attachmentsUploadSucceded
-    case mediaUploadFailure(withError: MediaUploadError)
+    case mediaUploadFailure(withError: SdkMediaUploadError)
     case exception(payload: IProtoEventSubjectPayloadAny)
     case enableReplying
     case disableReplying(reason: String)
 }
 
-protocol ISdkChatManager: ISdkManager {
+protocol ISdkChatManager: ISdkManager, ChatTimelineFactoryHistoryDelegate {
     var sessionDelegate: JVSessionDelegate? { get set }
     var notificationsDelegate: JVNotificationsDelegate? { get set }
     var eventObservable: JVBroadcastTool<SdkChatEvent> { get }
@@ -46,6 +52,7 @@ protocol ISdkChatManager: ISdkManager {
     var hasActiveChat: Bool { get set }
     var hasMessagesInQueue: Bool { get }
     var inactivityPlaceholder: String? { get }
+    var globalRateConfig: JMTimelineRateConfig?  { get set }
     func restoreChat()
     func makeAllAgentsOffline()
     func sendTyping(text: String)
@@ -53,10 +60,13 @@ protocol ISdkChatManager: ISdkManager {
     func copy(message: JVMessage)
     func resendMessage(uuid: String)
     func deleteMessage(uuid: String)
-    func requestMessageHistory(fromMessageWithId lastMessageId: Int?, behavior: SdkChatHistoryRequestBehavior)
+    func requestMessageHistory(before anchorMessageId: Int?, behavior: SdkChatHistoryRequestBehavior)
     func markSeen(message: JVMessage)
     func informContactInfoStatus()
     func toggleContactForm(message: JVMessage)
+    
+    func toggleRateForm(message: JVMessage, action: SdkChatManagerRateFormAction)
+    
     func handleNotification(userInfo: [AnyHashable : Any]) -> Bool
     func prepareToPresentNotification(_ notification: UNNotification, completionHandler: @escaping JVNotificationsOptionsOutput, resolver: @escaping JVNotificationsOptionsResolver)
     func handleNotification(response: UNNotificationResponse) -> Bool
@@ -78,12 +88,10 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     var notificationsDelegate: JVNotificationsDelegate?
     let contactInfoStatusObservable = JVBroadcastTool<SdkChatContactInfoStatus>()
     
-    private struct SyncState {
-        enum Activity { case initial, requested, synced }
-        var activity = Activity.initial
-        var earliestMessageId = Int.max
-        var latestMessageId = Int.min
-        var latestMessageDate = Date.distantPast
+    private enum HistoryLoadingStrategy {
+        case keep
+        case mostRecent
+        case before(messageId: Int)
     }
     
     // MARK: - Constants
@@ -92,7 +100,10 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     
     let subOffline: ISdkChatSubOffline
     let subHello: ISdkChatSubHello
-
+    
+    var currentRateFormId: String?
+    var globalRateConfig: JMTimelineRateConfig?
+    
     // MARK: - Private properties
     
     private var chatMessages: [JVDatabaseModelRef<JVMessage>] = []
@@ -103,7 +114,18 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             subOffline.userDataReceivingMode = userDataReceivingMode
         }
     }
-    private var syncState = SyncState()
+    
+    private var historyState = HistoryState()
+    private struct HistoryState {
+        enum Activity { case initial, requested, synced }
+        var activity = Activity.initial
+        var isDetectingMissingMessages = false
+        var localEarliestMessageId: Int?
+        var localLatestMessageId: Int?
+        var localLatestMessageDate: Date?
+        var remoteEarliestMessageId: Int?
+        var remoteLatestMessageId: Int?
+    }
     
     let eventObservable: JVBroadcastTool<SdkChatEvent>
     
@@ -123,8 +145,11 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     
     private var applicationState = UIApplication.shared.applicationState
     private var foregroundNotificationOptions = UNNotificationPresentationOptions()
-    private var lastKnownMessageId: Int?
+//    private var historyLoadingStrategy = HistoryLoadingStrategy.mostRecent
     private var unreadNumber: Int?
+    
+    private var outgoingPairedMessagesIds = [String: Array<String>]()
+    private var requestedHistoryPastUids = Set<String>()
     
     // MARK: - Init
     
@@ -188,13 +213,13 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(handleApplicationGoingToChangeState),
+            selector: #selector(handleApplicationWentBackground),
             name: UIApplication.didEnterBackgroundNotification,
             object: nil)
         
         NotificationCenter.default.addObserver(
             self,
-            selector: #selector(handleApplicationGoingToChangeState),
+            selector: #selector(handleApplicationWentForeground),
             name: UIApplication.willEnterForegroundNotification,
             object: nil)
         
@@ -222,9 +247,13 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     
     var hasActiveChat: Bool = false {
         didSet {
-            if hasActiveChat, syncState.latestMessageId > Int.min {
+            guard hasActiveChat else {
+                return
+            }
+            
+            if let messageId = historyState.localLatestMessageId, let date = historyState.localLatestMessageDate {
                 proto
-                    .sendMessageAck(id: syncState.latestMessageId, date: syncState.latestMessageDate)
+                    .sendMessageAck(id: messageId, date: date)
             }
         }
     }
@@ -264,6 +293,28 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         subTyping.sendTyping(
             clientHash: clientContext.clientHash,
             text: text)
+    }
+    
+    func sendRateForm(id: String, chat: JVChat?) {
+        guard let chat = chat else { return }
+        
+        currentRateFormId = id
+        
+        let message = subStorage.storeOutgoingMessage(
+            localID: UUID().uuidString.lowercased(),
+            clientID: userContext.clientHash,
+            chatID: chat.ID,
+            type: .chatRate,
+            content: .rateForm(status: .initial),
+            status: nil,
+            timing: .regular,
+            orderingIndex: 1
+        )
+        
+        if let message = message {
+            let messageRef = subStorage.reference(to: message)
+            messagingContext.broadcast(event: .messagesUpserted([messageRef]), onQueue: .main)
+        }
     }
     
     func sendMessage(text: String, attachments: [ChatPhotoPickerObject]) {
@@ -306,7 +357,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             type: .message,
             content: .makeWith(text: text),
             status: (formBehavior == .blocking ? .queued : nil),
-            timing: (formBehavior == .blocking ? .frozen : .regular))
+            timing: (formBehavior == .blocking ? .frozen : .regular),
+            orderingIndex: 0)
         
         if let message = message {
             let messageRef = subStorage.reference(to: message)
@@ -317,14 +369,14 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             case .omit:
                 break
             case .regular:
-                _sendMessage_appendRegularForm(chat: chat)
+                _sendMessage_appendRegularForm(chat: chat, pairedMessage: message)
             case .blocking:
-                _sendMessage_appendBlockingForm(chat: chat)
+                _sendMessage_appendBlockingForm(chat: chat, pairedMessage: message)
             }
         }
     }
     
-    private func _sendMessage_appendRegularForm(chat: JVChat) {
+    private func _sendMessage_appendRegularForm(chat: JVChat, pairedMessage: JVMessage) {
         let systemMessage = subStorage.storeOutgoingMessage(
             localID: UUID().uuidString.lowercased(),
             clientID: userContext.clientHash,
@@ -332,8 +384,9 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             type: .system,
             content: .makeWith(text: loc["chat.system.contact_form.introduce_in_chat"]),
             status: .historic,
-            timing: .regular)
-        
+            timing: .regular,
+            orderingIndex: 1)
+
         if let message = systemMessage {
             let messageRef = subStorage.reference(to: message)
             messagingContext.broadcast(event: .messagesUpserted([messageRef]), onQueue: .main)
@@ -346,17 +399,23 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             type: .contactForm,
             content: .contactForm(status: .inactive),
             status: nil,
-            timing: .regular)
-        
+            timing: .regular,
+            orderingIndex: 1)
+
         if let message = formMessage {
             preferencesDriver.retrieveAccessor(forToken: .contactInfoWasShownAt).date = Date()
             
             let messageRef = subStorage.reference(to: message)
             messagingContext.broadcast(event: .messagesUpserted([messageRef]), onQueue: .main)
         }
+        
+        outgoingPairedMessagesIds[pairedMessage.UUID] = [
+            systemMessage?.UUID,
+            formMessage?.UUID
+        ].jv_flatten()
     }
     
-    private func _sendMessage_appendBlockingForm(chat: JVChat) {
+    private func _sendMessage_appendBlockingForm(chat: JVChat, pairedMessage: JVMessage) {
         let systemMessage = subStorage.storeOutgoingMessage(
             localID: UUID().uuidString.lowercased(),
             clientID: userContext.clientHash,
@@ -364,8 +423,9 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             type: .system,
             content: .makeWith(text: loc["chat.system.contact_form.must_fill"]),
             status: .historic,
-            timing: .regular)
-        
+            timing: .regular,
+            orderingIndex: 1)
+
         if let message = systemMessage {
             let messageRef = subStorage.reference(to: message)
             messagingContext.broadcast(event: .messagesUpserted([messageRef]), onQueue: .main)
@@ -378,8 +438,9 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             type: .contactForm,
             content: .contactForm(status: .inactive),
             status: nil,
-            timing: .regular)
-        
+            timing: .regular,
+            orderingIndex: 1)
+
         if let message = formMessage {
             preferencesDriver.retrieveAccessor(forToken: .contactInfoWasShownAt).date = Date()
             
@@ -387,6 +448,11 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             messagingContext.broadcast(event: .messagesUpserted([messageRef]), onQueue: .main)
             notifyObservers(event: .disableReplying(reason: loc["chat_input.status.contact_info"]), onQueue: .main)
         }
+        
+        outgoingPairedMessagesIds[pairedMessage.UUID] = [
+            systemMessage?.UUID,
+            formMessage?.UUID
+        ].jv_flatten()
     }
     
     private func _sendMessage_process(attachments: [ChatPhotoPickerObject]) {
@@ -470,44 +536,46 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         messagingContext.broadcast(event: .messagesRemoved([messageRef]), onQueue: .main)
     }
     
-    func requestMessageHistory(fromMessageWithId lastMessageId: Int? = nil, behavior: SdkChatHistoryRequestBehavior) {
+    func requestMessageHistory(before anchorMessageId: Int?, behavior: SdkChatHistoryRequestBehavior) {
         thread.async { [unowned self] in
-            _requestMessageHistory(fromMessageWithId: lastMessageId, behavior: behavior)
+            _requestMessageHistory(before: anchorMessageId, behavior: behavior)
         }
     }
     
-    private func _requestMessageHistory(fromMessageWithId lastMessageId: Int? = nil, behavior: SdkChatHistoryRequestBehavior) {
-        guard lastMessageId != 0
-        else {
+    private func _requestMessageHistory(before anchorMessageId: Int?, behavior: SdkChatHistoryRequestBehavior) {
+        switch (behavior, historyState.activity, anchorMessageId) {
+        case (_, _, 0):
+            return
+        case (.anyway, _, _):
+            break
+        case (_, .requested, _):
+            return
+        case (.smart, .synced, .some(historyState.remoteEarliestMessageId)):
+            return
+        case (.smart, .synced, .some(historyState.localEarliestMessageId)):
+            break
+        case (.smart, .synced, _):
+            return
+        case (.smart, .initial, _):
+            return
+        default:
             return
         }
         
-        switch (behavior, syncState.activity) {
-        case (_, .requested):
-            return
-        case (.force, _):
-            syncState.activity = .requested
-            syncState.earliestMessageId = .max
-            
-            proto
-                .requestMessageHistory(fromMessageWithId: lastMessageId)
-        case (.actualize, .synced):
-            if let messageId = lastMessageId, messageId <= syncState.earliestMessageId {
-                syncState.activity = .requested
+        historyState.activity = .requested
+        
+        switch anchorMessageId {
+        case .none:
+            proto.requestMessageHistory(before: nil)
+        case .some(let messageId):
+            if let message = subStorage.messageWithID(messageId), message.flags.contains(.edgeToHistoryPast) {
+                requestedHistoryPastUids.insert(message.UUID)
                 
-                if syncState.earliestMessageId == .max {
-                    proto
-                        .requestMessageHistory(fromMessageWithId: messageId)
-                }
-                else {
-                    proto
-                        .requestMessageHistory(fromMessageWithId: max(syncState.earliestMessageId, messageId))
-                }
+                let messageRef = subStorage.reference(to: message)
+                messagingContext.broadcast(event: .messagesUpserted([messageRef]), onQueue: .main)
             }
-        case (.actualize, .initial):
-            return
-        default:
-            break
+            
+            proto.requestMessageHistory(before: messageId + 1)
         }
     }
     
@@ -562,6 +630,90 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
     }
     
+    private func checkRateformStatusChanged(message: JVMessage, newState: JVMessageBodyRateFormStatus) -> Bool {
+        let details = message.rawDetails
+        let oldState = JsonCoder().decode(raw: details)?.ordictValue["status"]?.stringValue
+        
+        if oldState == newState.rawValue { return false }
+        
+        return true
+    }
+    
+    func toggleRateForm(message: JVMessage, action: SdkChatManagerRateFormAction) {
+        let messageRef = subStorage.reference(to: message)
+        guard let message = messageRef.resolved else { return }
+        
+        _toggleRateForm(message: message, action: action)
+    }
+    
+    func _toggleRateForm(message: JVMessage, action: SdkChatManagerRateFormAction) {
+        let ref = subStorage.reference(to: message)
+        
+        thread.async { [unowned self] in
+            
+            switch action {
+            case .change(let rate, let comment):
+                let details = JsonCoder().encodeToRaw([
+                    "status": JVMessageBodyRateFormStatus.rated.rawValue,
+                    "last_rate": String(rate),
+                    "last_comment": comment
+                ]).jv_orEmpty
+                
+                
+                if checkRateformStatusChanged(message: message, newState: JVMessageBodyRateFormStatus.rated) {
+                    subStorage.turnRateForm(
+                        message: message,
+                        details: details
+                    )
+                    DispatchQueue.main.async { [unowned self] in
+                        messagingContext.broadcast(event: .messagesUpserted([ref]))
+                    }
+                } else {
+                    subStorage.turnRateForm(
+                        message: message,
+                        details: details
+                    )
+                }
+            case .submit(let scale, let choice, let comment):
+                let details = JsonCoder().encodeToRaw([
+                    "status": JVMessageBodyRateFormStatus.sent.rawValue,
+                    "last_rate": String(choice),
+                    "last_comment": comment
+                ]).jv_orEmpty
+                
+                subStorage.turnRateForm(
+                    message: message,
+                    details: details
+                )
+                
+                DispatchQueue.main.async { [unowned self] in
+                    messagingContext.broadcast(event: .messagesUpserted([ref]))
+                }
+                
+                guard let currentRateFormId = currentRateFormId else { return }
+                
+                proto.sendRateInfo(
+                    chatID: currentRateFormId,
+                    rate: scale.aliases[choice],
+                    comment: comment
+                )
+            case .dismiss:
+                let details = JsonCoder().encodeToRaw([
+                    "status": JVMessageBodyRateFormStatus.dismissed.rawValue
+                ]).jv_orEmpty
+                
+                subStorage.turnRateForm(
+                    message: message,
+                    details: details
+                )
+                
+                DispatchQueue.main.async { [unowned self] in
+                    messagingContext.broadcast(event: .messagesUpserted([ref]))
+                }
+            }
+        }
+    }
+    
     func toggleContactForm(message: JVMessage) {
         let messageRef = subStorage.reference(to: message)
         thread.async { [unowned self] in
@@ -588,6 +740,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     func handleNotification(userInfo: [AnyHashable : Any]) -> Bool {
         switch parseRemoteNotification(containingUserInfo: userInfo) {
         case let .success(notification):
+            historyState.remoteLatestMessageId = hasActiveChat ? nil : .max
             notificationDidTap(notification)
             return true
         case .failure:
@@ -761,12 +914,14 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             chatContext.chatAgents = [:]
             chatContext.channelAgents = [:]
             chatMessages = []
-            syncState = SyncState()
+            historyState = HistoryState()
             messagingContext.broadcast(event: .historyErased, onQueue: .main)
             notifyObservers(event: .chatAgentsUpdated(agents: []), onQueue: .main)
             typingCacheService.resetInput(context: TypingContext(kind: .chat, ID: chatContext.chatRef?.resolved?.ID ?? 0))
             chatContext.chatRef = nil
             subStorage.deleteAllMessages()
+            outgoingPairedMessagesIds.removeAll()
+            requestedHistoryPastUids.removeAll()
             preferencesDriver.retrieveAccessor(forToken: .contactInfoWasShownAt).erase()
             preferencesDriver.retrieveAccessor(forToken: .contactInfoWasEverSent).erase()
 
@@ -781,102 +936,157 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     
     private func handleMeTransaction(_ transaction: [NetworkingEventBundle]) {
         transaction.forEach { bundle in
-            guard case let MeTransactionSubject.meHistory(data) = bundle.payload.subject else { return }
-            
-            guard data == nil
-            else {
+            guard case MeTransactionSubject.meHistory(let data) = bundle.payload.subject else {
                 return
             }
             
-//            if !hasProceedToHistory {
-//                hasProceedToHistory = true
-//                manageContactFormAndQueuedMessage()
-            informContactInfoStatus()
-            
-            switch detectContactInfoStatus() {
-            case .askRequired:
-                break
-            case .omit, .askDesired, .sent:
-                flushQueuedMessages()
+            if let messageId = data {
+                historyState.remoteLatestMessageId = messageId
+                
+                notifyUnreadCounter()
             }
-//            }
-            
-            syncState.earliestMessageId = max(.min, syncState.earliestMessageId)
-            syncState.activity = .synced
-            
-            lastKnownMessageId = nil
-            messagingContext.broadcast(event: .allHistoryLoaded, onQueue: .main)
-            notifyUnreadCounter()
-            
-            return
+            else {
+                informContactInfoStatus()
+                
+                switch detectContactInfoStatus() {
+                case .askRequired:
+                    break
+                case .omit, .askDesired, .sent:
+                    flushQueuedMessages()
+                }
+                
+                historyState.remoteEarliestMessageId = historyState.localEarliestMessageId
+                historyState.activity = .synced
+                historyState.isDetectingMissingMessages = false
+                
+                messagingContext.broadcast(event: .allHistoryLoaded, onQueue: .main)
+            }
         }
     }
     
     private func handleMessageTransaction(_ transaction: [NetworkingEventBundle]) {
         guard let chat = self.chatContext.chatRef?.resolved else { return }
         
-        syncState.activity = .synced
+        historyState.activity = .synced
         
-        var upsertedMessages: OrderedMap<String, JVMessage> = [:]
+        let firstId = historyState.localEarliestMessageId ?? .min
+        let lastId = historyState.localLatestMessageId ?? .max
+        let existingSliceIds = Set(subStorage.historyIdsBetween(chatId: chat.ID, firstId: firstId, lastId: lastId))
+        
+        var upsertedMessages = OrderedMap<String, JVMessage>()
         transaction.forEach { bundle in
-            guard let subject = bundle.payload.subject as? MessageTransactionSubject else { return }
+            guard let subject = bundle.payload.subject as? MessageTransactionSubject else {
+                return
+            }
             
             switch subject {
-            case .delivered(let messageId, _, _), .received(let messageId, _, _, _, _):
-                syncState.earliestMessageId = min(syncState.earliestMessageId, messageId)
-                
+            case .delivered(let messageId, _, let messageDate), .received(let messageId, _, _, _, let messageDate):
+                defer {
+                    historyState.localEarliestMessageId.jv_replaceWithLesser(messageId)
+                    historyState.localLatestMessageId.jv_replaceWithGreater(messageId)
+                    historyState.localLatestMessageDate.jv_replaceWithGreater(messageDate)
+                }
+
                 guard let message: JVMessage = {
                     switch bundle.payload.id {
                     case let id as String:
                         return subStorage.upsertMessage(byPrivateId: id, inChatWithId: chat.ID, with: [subject])
 
                     case let id as Int:
-                        let message =  subStorage.upsertMessage(havingId: id, inChatWithId: chat.ID, with: [subject])
+                        let message = subStorage.upsertMessage(
+                            havingId: id,
+                            inChatWithId: chat.ID,
+                            with: [subject])
                         
                         if let lastSeenMessageId = keychainDriver.retrieveAccessor(forToken: .lastSeenMessageId, usingClientToken: true).number,
                            lastSeenMessageId == id {
                             let seenMessages = markMessagesAsSeen(to: id)
-                            seenMessages.forEach { upsertedMessages[$0.UUID] = $0 }
+                            seenMessages.forEach {
+                                upsertedMessages[$0.UUID] = $0
+                            }
                         }
 
                         return message
 
-                    default: return nil
+                    default:
+                        return nil
                     }
                 }() else { return }
                 
                 upsertedMessages[message.UUID] = message
                 
+                if let linkedMessageIds = outgoingPairedMessagesIds.removeValue(forKey: message.UUID) {
+                    do {
+                        for linkedMessage in linkedMessageIds.compactMap(subStorage.messageWithUUID) {
+                            _ = subStorage.updateMessage(change: try JVSdkMessageAtomChange(
+                                localId: linkedMessage.localID,
+                                updates: [
+                                    .date(message.anchorDate)
+                                ]
+                            ))
+                        }
+                    }
+                    catch {
+                    }
+                }
+                
             case let .seen(id, _): // second associated value is date
                 let seenMessages = markMessagesAsSeen(to: id)
                 seenMessages.forEach { upsertedMessages[$0.UUID] = $0 }
+            case .rate:
+                guard let rateFormID = bundle.payload.id as? String else {
+                    assertionFailure()
+                    return
+                }
+                sendRateForm(id: rateFormID, chat: self.chatContext.chatRef?.resolved)
             }
             
             switch subject {
-            case .received(let messageId, _, _, _, let sentAt) where hasActiveChat:
-                if messageId > syncState.latestMessageId {
-                    syncState.latestMessageId = messageId
-                    syncState.latestMessageDate = sentAt
-                    
-                    proto
-                        .sendMessageAck(id: messageId, date: sentAt)
-                }
-            case .received(let messageId, _, _, _, let sentAt):
-                if messageId > syncState.latestMessageId {
-                    syncState.latestMessageId = messageId
-                    syncState.latestMessageDate = sentAt
-                }
+            case .received(let messageId, _, _, _, let sentAt) where messageId > historyState.localLatestMessageId.jv_orZero:
+                historyState.localLatestMessageId = messageId
+                historyState.localLatestMessageDate = sentAt
+
             default:
                 break
             }
         }
         
-        let messageReferences = subStorage.reference(to: Array(upsertedMessages.orderedValues))
+        handleMessageTransaction_detectUnknownSpaces(
+            incomingMessages: upsertedMessages.map(\.value).sorted { $0.date < $1.date },
+            existingIds: existingSliceIds,
+            range: (firstId ... lastId))
+        
+        requestedHistoryPastUids.subtract(upsertedMessages.orderedKeys)
+        
+        if let messageId = historyState.localLatestMessageId, let sentAt = historyState.localLatestMessageDate, hasActiveChat {
+            proto
+                .sendMessageAck(id: messageId, date: sentAt)
+        }
+        
+        let messageReferences = subStorage.reference(to: Array(upsertedMessages.orderedValues.filter(\.hasBeenChanged)))
         messagingContext.broadcast(event: .messagesUpserted(messageReferences), onQueue: .main)
+        
+        notifyUnreadCounter()
+    }
+    
+    private func handleMessageTransaction_detectUnknownSpaces(incomingMessages: [JVMessage], existingIds: Set<Int>, range: ClosedRange<Int>) {
+        if !incomingMessages.isEmpty {
+            let trustedIds = incomingMessages.dropFirst().map(\.ID)
+            subStorage.resetHistoryPointers(
+                flag: .edgeToHistoryPast,
+                possibleIds: trustedIds)
+        }
+        
+        let overBoundInfo = range.upperBound.addingReportingOverflow(1)
+        if let earliestMessage = incomingMessages.first, earliestMessage.ID > overBoundInfo.partialValue, !overBoundInfo.overflow, historyState.isDetectingMissingMessages {
+            subStorage.placeHistoryPointer(
+                flag: .edgeToHistoryPast,
+                to: earliestMessage)
+        }
     }
     
     private func markMessagesAsSeen(to messageId: Int) -> [JVMessage] {
-        keychainDriver.retrieveAccessor(forToken: .lastSeenMessageId, usingClientToken: true).number = messageId
+        keychainDriver.retrieveAccessor(forToken: .lastSeenMessageId, usingClientToken: true).number = Int(messageId)
         
         guard let chatId = self.chatContext.chatRef?.resolved?.ID else { return [] }
         let seenClientMessages = subStorage
@@ -909,8 +1119,13 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             }
         }
         
-        var resolvedChatAgents: [JVDatabaseModelRef<JVAgent>] { Array(chatContext.chatAgents.values) }
-        storeChatAgents(resolvedChatAgents.compactMap(\.resolved), exclusive: false)
+        let chatAgentsRefs = Array(chatContext.chatAgents.values)
+        let chatAgents = chatAgentsRefs.compactMap(\.resolved)
+        guard chatAgents.filter(\.hasBeenChanged).jv_hasElements else {
+            return
+        }
+        
+        storeChatAgents(chatAgents, exclusive: false)
 
         switch userDataReceivingMode {
         case .channel:
@@ -923,14 +1138,14 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             }
             
         case .chat:
-            guard jv_not(resolvedChatAgents.isEmpty)
+            guard jv_not(chatAgentsRefs.isEmpty)
             else {
                 break
             }
             
             DispatchQueue.main.async { [weak self] in
                 self?.subStorage.refresh()
-                self?.notifyObservers(event: .chatAgentsUpdated(agents: resolvedChatAgents))
+                self?.notifyObservers(event: .chatAgentsUpdated(agents: chatAgentsRefs))
             }
         }
     }
@@ -958,16 +1173,19 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     private func handleConnectionConfig(meta: ProtoEventSubjectPayload.ConnectionConfig, context: ProtoEventContext?) {
+        globalRateConfig = meta.body.rateConfig
         _requestRecentActivity()
     }
     
     private func handleSocketOpened() {
+        historyState.isDetectingMissingMessages = true
+        
         userDataReceivingMode = .channel
         chatContext.channelAgents = [:]
         chatContext.chatAgents = [:]
         storeChatAgents([], exclusive: true)
         
-        requestMessageHistory(behavior: .force)
+        _requestMessageHistory(before: nil, behavior: .anyway)
         
         notifyObservers(event: .sessionInitialized(isFirst: isFirstSessionInitialization.getAndDisable()), onQueue: .main)
         notifyObservers(event: .channelAgentsUpdated(agents: []), onQueue: .main)
@@ -987,7 +1205,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     private func handleRecentMessages(meta: ProtoEventSubjectPayload.RecentActivity) {
-        lastKnownMessageId = meta.body.latestMessageId
+        historyState.remoteLatestMessageId = meta.body.latestMessageId
         notifyUnreadCounter()
     }
     
@@ -1018,8 +1236,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
                     type: .message,
                     content: attachment,
                     status: nil,
-                    timing: .regular
-                )
+                    timing: .regular,
+                    orderingIndex: 0)
             else {
                 journal {"Failed sending the message with media"}
                 return notifyObservers(event: .mediaUploadFailure(withError: .cannotHandleUploadResult), onQueue: .main)
@@ -1068,17 +1286,17 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         thread.async { [unowned self] in
             if let chat = obtainChat() {
                 let chatID = chat.ID
-                let history = subStorage.history(chatId: chat.ID, after: nil, limit: 25)
-                journal {"Found active chat[\(chatID)]"}
+                let history = subStorage.history(chatId: chat.ID, after: nil, limit: 30)
+                journal {"Chat: found and activate\nchat-id[\(chatID)]"}
                 
                 chatContext.chatRef = subStorage.reference(to: chat)
                 chatMessages = subStorage.reference(to: history)
                 
                 let messagesIds = history.map(\.ID).filter { $0 > .zero }
-                syncState.activity = .synced
-                syncState.earliestMessageId = messagesIds.min() ?? .max
-                syncState.latestMessageId = messagesIds.max() ?? .min
-                syncState.latestMessageDate = history.last?.date ?? .distantPast
+                historyState.activity = .synced
+                historyState.localEarliestMessageId = messagesIds.min()
+                historyState.localLatestMessageId = messagesIds.max()
+                historyState.localLatestMessageDate = history.last?.date
 
                 messagingContext.broadcast(event: .historyLoaded(history: chatMessages), onQueue: .main)
                 notifyObservers(event: .chatObtained(subStorage.reference(to: chat)), onQueue: .main)
@@ -1155,19 +1373,22 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         switch sender {
         case .message where jv_not(Jivo.display.isOnscreen):
             Jivo.display.delegate?.jivoDisplay(asksToAppear: .shared)
-        case .message:
-            break
         default:
             break
         }
     }
     
-    @objc private func handleApplicationGoingToChangeState() {
+    @objc private func handleApplicationWentBackground() {
+        DispatchQueue.main.async { [unowned self] in
+            applicationState = UIApplication.shared.applicationState
+        }
+    }
+    
+    @objc private func handleApplicationWentForeground() {
         requestRecentActivity()
         
         DispatchQueue.main.async { [unowned self] in
             applicationState = UIApplication.shared.applicationState
-            print("applicationState = \(applicationState)")
         }
     }
     
@@ -1235,8 +1456,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
                     type: .system,
                     content: .text(message: loc["chat.system.contact_form.status_sent"]),
                     status: nil,
-                    timing: .regular
-                ))
+                    timing: .regular,
+                    orderingIndex: 0))
             
             DispatchQueue.main.async { [unowned self] in
                 subStorage.refresh()
@@ -1286,20 +1507,24 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             return
         }
         
-        let lastLocalMessage = subStorage.lastMessage(chatId: chatId)
-        
-        if lastKnownMessageId == nil {
+        switch (subStorage.lastSyncedMessage(chatId: chatId)?.ID, historyState.remoteLatestMessageId) {
+        case (.none, .none):
             _notify(number: 0)
-        }
-        else if let knownId = lastKnownMessageId, let localId = lastLocalMessage?.ID, localId >= knownId {
-            _notify(number: 0)
-        }
-        else if let _ = lastLocalMessage?.senderClient {
-            _notify(number: 0)
-        }
-        else {
+        case (.none, .some):
             _notify(number: 1)
+        case (.some, .none):
+            _notify(number: 0)
+        case (.some(let localId), .some(let knownId)):
+            _notify(number: localId < knownId ? 1 : 0)
         }
+    }
+    
+    func timelineFactory(isLoadingHistoryPast messageUid: String) -> Bool {
+        return requestedHistoryPastUids.contains(messageUid)
+    }
+    
+    func timelineFactory(isLoadingHistoryFuture messageUid: String) -> Bool {
+        return false
     }
 }
 

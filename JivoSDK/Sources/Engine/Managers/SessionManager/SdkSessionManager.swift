@@ -21,6 +21,7 @@ protocol ISdkSessionManager: ISdkManager {
 enum SdkSessionManagerStartupMode {
     case fresh
     case resume
+    case reconnect
 }
 
 enum SdkSessionManagerStartUpBehavior {
@@ -48,7 +49,7 @@ fileprivate struct SdkSessionConnectionContext {
     let channelId: String
     let preferredStartupMode: SdkSessionManagerStartupMode
 }
-
+ 
 class SdkSessionManager: SdkManager, ISdkSessionManager {
     private var startUpDeferred: StartUpDeferred?
     private struct StartUpDeferred {
@@ -162,14 +163,14 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             
             switch mode {
             case .cell, .wifi:
-                journal {"Currently reachable via: \(mode.rawValue)"}
+                journal {"Network: \(mode.rawValue)"}
                 
                 if Jivo.display.isOnscreen {
                     requestConfig()
                 }
                 
             case .none:
-                break
+                journal {"Network: none"}
             }
         }
         
@@ -215,33 +216,29 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     }
     
     private func _startUp(channelPath: String, clientToken: String, preferredMode: SdkSessionManagerStartupMode) {
-//        print("[DEBUG] SessionManager -> will start up with identifying token '\(clientToken)' in '\(preferredMode)' mode")
-        
         guard let meta = detectStartUpMeta(
             channelPath: channelPath,
             clientToken: clientToken,
             preferredMode: preferredMode)
         else {
-//            print("[DEBUG] SessionManager -> abort with no meta")
             return
         }
-        
-//        print("[DEBUG] SessionManager -> starting up with behavior \(meta.behavior)")
         
         switch meta.behavior {
         case .alreadyConnecting:
             journal {"Connection to socket: already establishing"}
             return
         case .newContext:
+            sessionContext.recentStartupMode = .fresh
             keychainDriver.retrieveAccessor(forToken: .siteID).erase()
             keychainDriver.retrieveAccessor(forToken: .previousPersonalNamespace).string = meta.personalNamespace
             preferencesDriver.retrieveAccessor(forToken: .contactInfoWasShownAt).erase()
             preferencesDriver.retrieveAccessor(forToken: .contactInfoWasEverSent).erase()
             notifyPipeline(event: .turnInactive(.artifacts))
-//            _startUp(channelPath: channelPath, clientToken: clientToken, preferredMode: .fresh)
-//            return
+        case .previousContext where sessionContext.numberOfResumes == 0:
+            sessionContext.recentStartupMode = .fresh
         case .previousContext:
-            break
+            sessionContext.recentStartupMode = (preferredMode == .reconnect ? .reconnect : .resume)
         case .hasAnotherActiveContext:
             sessionContext.connectionAllowance = .disallowed
             notifyPipeline(event: .turnInactive(.connection + .artifacts))
@@ -268,8 +265,23 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             channelId: meta.endpointInfo.channelId
         )
 
-        sessionContext.identifyingToken = clientToken
+        do {
+            let jwt = try decode(jwt: clientToken)
+            
+            if let _ = jwt.body["id"] as? String {
+                sessionContext.identifyingToken = clientToken
+            }
+            else {
+                inform {"Please use JWT format for userToken, and put mandatory 'id' key with string value"}
+            }
+        }
+        catch {
+            inform {"For better integration, the userToken should be JWT"}
+            sessionContext.identifyingToken = clientToken
+        }
+        
         sessionContext.accountConfig = accountConfig
+        sessionContext.authorizationState = .unknown
         clientContext.personalNamespace = meta.personalNamespace
         
         if let _ = sessionContext.authorizingPath {
@@ -294,7 +306,10 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             return nil
         }
         
-        let personalNamespace = constructPersonalNamespace(endpointInfo.channelId, clientToken)
+        let personalNamespace = constructPersonalNamespace(
+            channelId: endpointInfo.channelId,
+            userToken: clientToken)
+        
         func _construct(behavior: SdkSessionManagerStartUpBehavior) -> _StartUpMeta {
             return _StartUpMeta(endpointInfo: endpointInfo, personalNamespace: personalNamespace, behavior: behavior)
         }
@@ -352,10 +367,20 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         }
     }
     
-    private func constructPersonalNamespace(_ arguments: String?...) -> String {
-        return arguments
-            .jv_flatten()
-            .joined(separator: String(USER_TOKEN_JOIN_SEPARATOR))
+    private func constructPersonalNamespace(channelId: String, userToken: String?) -> String {
+        guard let userToken = userToken else {
+            return channelId + ":"
+        }
+        
+        do {
+            let jwt = try decode(jwt: userToken)
+            let values = [channelId, String(describing: jwt.body["id"])]
+            return values.joined(separator: String(USER_TOKEN_JOIN_SEPARATOR))
+        }
+        catch {
+            let values = [channelId, userToken]
+            return values.joined(separator: String(USER_TOKEN_JOIN_SEPARATOR))
+        }
     }
     
     func requestConfig() {
@@ -441,13 +466,18 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         sessionContext.connectionState = .connecting
         
         switch preferredStartupMode {
-        case .resume where _tryResume():
-            journal {"Wanted to resume, and performing the Resume"}
-        case .resume:
-            journal {"Wanted to resume, but performing the Start"}
-            _tryFresh()
         case .fresh:
-            journal {"Wanted to start, and performing the Start"}
+            journal {"Session: wanted to start, performing Start"}
+            _tryFresh()
+        case .resume where _tryResume():
+            journal {"Session: wanted to resume, performing Resume"}
+        case .resume:
+            journal {"Session: wanted to resume, performing Start"}
+            _tryFresh()
+        case .reconnect where _tryResume():
+            journal {"Session: wanted to reconnect, performing Resume"}
+        case .reconnect:
+            journal {"Session: wanted to reconnect, performing Start"}
             _tryFresh()
         }
     }
@@ -468,6 +498,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         
         if subsystems.contains(.connection) {
             networking.disconnect()
+            sessionContext.authorizationState = .unknown
             sessionContext.connectionState = .disconnected
         }
         
@@ -518,7 +549,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             return
         }
         
-        journal {"Received the connection config with @response[\(meta.body)]"}
+        journal {"API: received config\n@response[\(meta.body)]"}
         let parts = meta.body.chatserverHost.split(separator: ":")
         let host = parts.first
         let port = parts.last.flatMap(String.init).flatMap(Int.init) ?? .zero
@@ -580,16 +611,27 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     // MARK: Proto event handling
     
     private func handleSocketOpenEvent() {
-        journal {"Socket opened"}
         sessionContext.connectionState = .connected
+        sessionContext.numberOfResumes += 1
     }
     
     private func handleSocketClosedEvent(kind: APIConnectionCloseCode, error: Error?) {
         journal {"Socket closed of kind[\(kind)] with error[\(error?.localizedDescription ?? "")]"}
         sessionContext.connectionState = .disconnected
+        
+        switch (kind, sessionContext.authorizationState) {
+        case (.connectionBreak, .unknown):
+            sessionContext.authorizationState = .unavailable
+        case (.blacklist, _):
+            sessionContext.authorizationState = .unavailable
+        default:
+            break
+        }
     }
     
     private func handleMeTransaction(_ transaction: [NetworkingEventBundle]) {
+        sessionContext.authorizationState = .ready
+        
         transaction.forEach { bundle in
             switch bundle.payload.subject as? MeTransactionSubject {
             case .meUrlPath(let path):
@@ -610,7 +652,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
                 _startUp(
                     channelPath: deferred.channelPath,
                     clientToken: deferred.clientToken,
-                    preferredMode: .resume)
+                    preferredMode: .reconnect)
             }
         }
     }

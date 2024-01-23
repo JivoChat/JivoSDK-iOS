@@ -36,13 +36,22 @@ final class JVChatModuleNavigationController
     ChatModulePresenterUpdate,
     ChatModuleViewIntent
 > {
-    init(pipeline: RTEModulePipelineViewNotifier<ChatModuleViewIntent>, keyboardAnchorControl: KeyboardAnchorControl, timelineController: JMTimelineController<ChatTimelineInteractor>, timelineInteractor: ChatTimelineInteractor, uiConfig: ChatModuleUIConfig, closeButton: JVDisplayCloseButton) {
+    init(
+        pipeline: RTEModulePipelineViewNotifier<ChatModuleViewIntent>,
+        keyboardAnchorControl: KeyboardAnchorControl,
+        timelineController: JMTimelineController<ChatTimelineInteractor>,
+        timelineInteractor: ChatTimelineInteractor,
+        timelineLoaderItem: JMTimelineItem,
+        uiConfig: SdkChatModuleVisualConfig,
+        closeButton: JVDisplayCloseButton
+    ) {
         super.init(
             primaryView: ChatModuleViewController(
                 pipeline: pipeline,
                 keyboardAnchorControl: keyboardAnchorControl,
                 timelineController: timelineController,
                 timelineInteractor: timelineInteractor,
+                timelineLoaderItem: timelineLoaderItem,
                 uiConfig: uiConfig,
                 closeButton: closeButton
             )
@@ -63,13 +72,15 @@ final class JVChatModuleViewController
 , NavigationBarConfigurator {
     private lazy var titleControl = JVChatTitleControl()
     private lazy var copyrightControl = JVChatCopyrightControl()
+    private lazy var waitingIndicator = UIView()
     private lazy var replyUnderlay = UIView()
     private lazy var replyControl = SdkChatReplyControl()
     
     private let keyboardAnchorControl: KeyboardAnchorControl
     private let timelineController: JMTimelineController<ChatTimelineInteractor>
     private let timelineInteractor: ChatTimelineInteractor
-    private let uiConfig: ChatModuleUIConfig
+    private let timelineLoaderItem: JMTimelineItem
+    private let uiConfig: SdkChatModuleVisualConfig
     
     private let placeholderView = PlaceholderViewController<SdkEngine>(satellite: nil, layout: .center)
     private(set) var collectionView: UICollectionView?
@@ -77,10 +88,19 @@ final class JVChatModuleViewController
     
     private let timelineControlTapDelegate = TimelineControlTapDelegate()
 
-    init(pipeline: RTEModulePipelineViewNotifier<ChatModuleViewIntent>, keyboardAnchorControl: KeyboardAnchorControl, timelineController: JMTimelineController<ChatTimelineInteractor>, timelineInteractor: ChatTimelineInteractor, uiConfig: ChatModuleUIConfig, closeButton: JVDisplayCloseButton) {
+    init(
+        pipeline: RTEModulePipelineViewNotifier<ChatModuleViewIntent>,
+        keyboardAnchorControl: KeyboardAnchorControl,
+        timelineController: JMTimelineController<ChatTimelineInteractor>,
+        timelineInteractor: ChatTimelineInteractor,
+        timelineLoaderItem: JMTimelineItem,
+        uiConfig: SdkChatModuleVisualConfig,
+        closeButton: JVDisplayCloseButton
+    ) {
         self.keyboardAnchorControl = keyboardAnchorControl
         self.timelineController = timelineController
         self.timelineInteractor = timelineInteractor
+        self.timelineLoaderItem = timelineLoaderItem
         self.uiConfig = uiConfig
         
         super.init(pipeline: pipeline)
@@ -132,6 +152,10 @@ final class JVChatModuleViewController
             titleControl.titleLabelText = value
         case .headerSubtitle(let value):
             titleControl.subtitleLabelText = value
+        case .startSyncing:
+            waitingIndicator.jv_startShimming()
+        case .stopSyncing:
+            waitingIndicator.jv_stopShimming()
         case .inputUpdate(.update(let update)):
             replyControl.feed(update: update)
         case .inputUpdate(.fill(_, let attachments)):
@@ -146,7 +170,8 @@ final class JVChatModuleViewController
             scrollToBottom()
         case .discardAllAttachments:
             replyControl.removeAttachments()
-        case .timelineRecreate:
+        case .timelineFailure:
+            journal {"UI: Timeline update faced an exception"}
             DispatchQueue.main.async { [weak self] in
                 self?.recreateTableView()
             }
@@ -172,11 +197,15 @@ final class JVChatModuleViewController
         titleControl.subtitleLabelText = uiConfig.subtitleCaption
         titleControl.subtitleLabelTextColor = uiConfig.subtitleColor
         
+        waitingIndicator.backgroundColor = JVDesign.colors.resolve(usage: .primaryForeground).withAlphaComponent(0.4)
+        waitingIndicator.alpha = 0
+        view.addSubview(waitingIndicator)
+        
         replyUnderlay.backgroundColor = JVDesign.colors.resolve(usage: .primaryBackground)
         replyUnderlay.accessibilityLabel = "replyUnderlay"
         view.addSubview(replyUnderlay)
         
-        replyControl.tintColor = uiConfig.outcomingPalette?.inputTintColor
+        replyControl.tintColor = uiConfig.replyCursorColor
         replyControl.inputAccessoryView = keyboardAnchorControl
         replyUnderlay.addSubview(replyControl)
         
@@ -227,6 +256,7 @@ final class JVChatModuleViewController
         let layout = getLayout(size: view.bounds.size)
         collectionView?.frame = layout.collectionViewFrame
         placeholderView.view.frame = layout.placeholderViewFrame
+        waitingIndicator.frame = layout.waitingIndicatorFrame
         replyUnderlay.frame = layout.replyUnderlayFrame
         replyControl.frame = layout.replyControlBounds
         titleControl.frame = layout.titleBarFrame
@@ -397,6 +427,14 @@ fileprivate struct Layout {
     var collectionViewIndicatorInsets: UIEdgeInsets {
         let replyingHeight = max(safeAreaInsets.bottom, keyboardHeight) + replyControlBounds.height
         return UIEdgeInsets(top: replyingHeight, left: 0, bottom: 0, right: 0)
+    }
+    
+    var waitingIndicatorFrame: CGRect {
+        let height = CGFloat(2)
+        let topY = replyUnderlayFrame.minY - 1 - height
+        let width = bounds.width * 0.5
+        let leftX = (bounds.width - width) * 0.5
+        return CGRect(x: leftX, y: topY, width: width, height: height)
     }
     
     var replyUnderlayFrame: CGRect {

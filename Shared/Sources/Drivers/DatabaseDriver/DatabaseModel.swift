@@ -15,6 +15,8 @@ class JVDatabaseModel: NSManagedObject {
     @NSManaged var m_pk_num: Int64
     @NSManaged var m_pk_str: String?
     private var cache = [String: Any]()
+    
+    open var hasBeenChanged = false
 
     open override func awakeFromInsert() {
         super.awakeFromInsert()

@@ -55,4 +55,20 @@ public enum JVDisplayElement: Int {
     /// Caption for "Pick a Document" action in Attach Menu,
     /// customizable: text
     case attachFile
+    
+    /// Title for Rate Form
+    /// customizable: text
+    case rateFormPreSubmitTitle
+    
+    /// Caption for Finish Button within Rate Form
+    /// customizable: text
+    case rateFormPostSubmitTitle
+    
+    /// Placeholder for Comment Field within Rate Form
+    /// customizable: text
+    case rateFormCommentPlaceholder
+
+    /// Caption for Submit Button within Rate Form
+    /// customizable: text
+    case rateFormSubmitCaption
 }

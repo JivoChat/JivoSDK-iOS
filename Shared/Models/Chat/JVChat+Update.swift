@@ -145,6 +145,8 @@ extension JVChat {
             
             m_has_active_call = c.hasActiveCall
             m_department = c.department
+            
+            m_topic = c.topicId.flatMap { context.upsert(of: JVTopic.self, with: JVTopicEmptyChange(id: $0)) }
         }
         else if let c = change as? JVChatShortChange {
             m_id = Int64(c.ID)
@@ -342,6 +344,9 @@ extension JVChat {
                 e_agents.union(Set(agents))
             }
         }
+        else if let c = change as? JVChatTopicAssignChange {
+            m_topic = c.topicId.flatMap { context.upsert(of: JVTopic.self, with: JVTopicEmptyChange(id: $0)) }
+        }
         else {
             assertionFailure()
         }
@@ -386,24 +391,25 @@ extension JVChat {
 }
 
 final class JVChatGeneralChange: JVDatabaseModelChange {
-    public let ID: Int
-    public let attendees: [JVChatAttendeeGeneralChange]
-    public let client: JVClientShortChange?
-    public let agentID: Int?
-    public let lastMessage: JVMessageLocalChange?
-    public let activeRing: JVMessageLocalChange?
-    public let relation: String?
-    public let isGroup: Bool?
-    public let isMain: Bool?
-    public let title: String?
-    public let about: String?
-    public let icon: String?
-    public let receivedMessageID: Int
-    public let unreadNumber: Int?
-    public let lastActivityTimestamp: TimeInterval?
-    public let hasActiveCall: Bool
-    public let department: String?
-    public let knownArchived: Bool
+    let ID: Int
+    let attendees: [JVChatAttendeeGeneralChange]
+    let client: JVClientShortChange?
+    let agentID: Int?
+    let lastMessage: JVMessageLocalChange?
+    let activeRing: JVMessageLocalChange?
+    let relation: String?
+    let isGroup: Bool?
+    let isMain: Bool?
+    let title: String?
+    let about: String?
+    let icon: String?
+    let receivedMessageID: Int
+    let unreadNumber: Int?
+    let lastActivityTimestamp: TimeInterval?
+    let hasActiveCall: Bool
+    let department: String?
+    let topicId: Int?
+    let knownArchived: Bool
 
     override var primaryValue: Int {
         return ID
@@ -431,6 +437,7 @@ final class JVChatGeneralChange: JVDatabaseModelChange {
          lastActivityTimestamp: TimeInterval?,
          hasActiveCall: Bool,
          department: String?,
+         topicId: Int?,
          knownArchived: Bool) {
         self.ID = ID
         self.attendees = attendees
@@ -449,6 +456,7 @@ final class JVChatGeneralChange: JVDatabaseModelChange {
         self.lastActivityTimestamp = lastActivityTimestamp
         self.hasActiveCall = hasActiveCall
         self.department = department
+        self.topicId = topicId
         self.knownArchived = knownArchived
         super.init()
     }
@@ -493,6 +501,7 @@ final class JVChatGeneralChange: JVDatabaseModelChange {
         lastActivityTimestamp = json["latest_activity_date"].double
         hasActiveCall = (json.has(key: "active_call") != nil)
         department = json["department"]["display_name"].string
+        topicId = json["topic_id"].int
         knownArchived = false
 
         super.init(json: json)
@@ -547,6 +556,7 @@ final class JVChatGeneralChange: JVDatabaseModelChange {
                 lastActivityTimestamp: lastActivityTimestamp,
                 hasActiveCall: hasActiveCall,
                 department: department,
+                topicId: topicId,
                 knownArchived: knownArchived)
         }
         else {
@@ -575,6 +585,7 @@ final class JVChatGeneralChange: JVDatabaseModelChange {
             lastActivityTimestamp: lastActivityTimestamp,
             hasActiveCall: hasActiveCall,
             department: department,
+            topicId: topicId,
             knownArchived: knownArchived)
     }
     
@@ -597,6 +608,7 @@ final class JVChatGeneralChange: JVDatabaseModelChange {
             lastActivityTimestamp: lastActivityTimestamp,
             hasActiveCall: hasActiveCall,
             department: department,
+            topicId: topicId,
             knownArchived: knownArchived ?? self.knownArchived)
     }
     
@@ -619,6 +631,7 @@ final class JVChatGeneralChange: JVDatabaseModelChange {
             lastActivityTimestamp: lastActivityTimestamp,
             hasActiveCall: hasActiveCall,
             department: department,
+            topicId: topicId,
             knownArchived: knownArchived)
     }
     
@@ -1121,6 +1134,25 @@ final class JVChatDraftChange: JVDatabaseModelChange {
     init(ID: Int, draft: String?) {
         self.ID = ID
         self.draft = draft
+        super.init()
+    }
+    
+    required init(json: JsonElement) {
+        fatalError("init(json:) has not been implemented")
+    }
+}
+
+final class JVChatTopicAssignChange: JVDatabaseModelChange {
+    public let ID: Int
+    public let topicId: Int?
+    
+    override var primaryValue: Int {
+        return ID
+    }
+    
+    init(ID: Int, topicId: Int?) {
+        self.ID = ID
+        self.topicId = topicId
         super.init()
     }
     

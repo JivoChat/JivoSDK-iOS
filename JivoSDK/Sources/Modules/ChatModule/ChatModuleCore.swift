@@ -17,16 +17,17 @@ enum ChatModuleCoreEvent {
     case warnAbout(String)
     case journalReady(url: URL, data: Data)
     case authorizationStateUpdated
+    case historyLoaded
     case licenseUpdate
     case agentsUpdate
     case hasInputUpdates
     case inputUpdate(ChatModuleInputUpdate)
-    case mediaUploadFailure(error: MediaUploadError)
+    case mediaUploadFailure(error: SdkMediaUploadError)
     case messageSent
     case messageTapped
     case remoteMediaUnavailable
     case timelineScrollToBottom
-    case timelineRecreate
+    case timelineFailure
 }
 
 enum ChatPickedMeta {
@@ -65,7 +66,7 @@ final class ChatModuleCore
     private let timelineController: JMTimelineController<ChatTimelineInteractor>
     private let timelineInteractor: ChatTimelineInteractor
     private let timelineCache: JMTimelineCache
-    private let uiConfig: ChatModuleUIConfig
+    private let uiConfig: SdkChatModuleVisualConfig
     private let maxImageDiskCacheSize: UInt
     
     private var chat: JVChat?
@@ -77,6 +78,7 @@ final class ChatModuleCore
     private let documentPickerDelegateAdapter = DocumentPickerDelegateAdapter()
     
     private var authorizationStateObserver: JVBroadcastObserver<SessionAuthorizationState>?
+    private var recentStartupModeObserver: JVBroadcastObserver<SdkSessionManagerStartupMode>?
     private var chatEventObserver: JVBroadcastObserver<SdkChatEvent>?
     private var messagingEventObserver: JVBroadcastObserver<SdkMessagingEvent>?
     private var sessionContextObserver: JVBroadcastObserver<SdkSessionContextEvent>?
@@ -89,6 +91,8 @@ final class ChatModuleCore
     private var selectedMessage: JVMessage?
     private var isHistoryPerformingUpdates = false
     private var allHistoryLoaded = false
+    
+    private let agentsTimelineCache = AgentsTimelineCache()
     
     init(pipeline: ChatModulePipeline,
          state: ChatModuleState,
@@ -114,7 +118,7 @@ final class ChatModuleCore
          timelineController: JMTimelineController<ChatTimelineInteractor>,
          timelineInteractor: ChatTimelineInteractor,
          timelineCache: JMTimelineCache,
-         uiConfig: ChatModuleUIConfig,
+         uiConfig: SdkChatModuleVisualConfig,
          maxImageDiskCacheSize: UInt
     ) {
         self.workerThread = workerThread
@@ -166,8 +170,16 @@ final class ChatModuleCore
         
         super.init(pipeline: pipeline, state: state)
         
-        authorizationStateObserver = clientContext.authorizationStateSignal.addObserver { [weak self] state in
+        state.authorizationState = sessionContext.authorizationState
+        state.recentStartupMode = sessionContext.recentStartupMode
+        
+        authorizationStateObserver = sessionContext.authorizationStateSignal.addObserver { [weak self] state in
             self?.state.authorizationState = state
+            self?.pipeline?.notify(event: .authorizationStateUpdated)
+        }
+        
+        recentStartupModeObserver = sessionContext.recentStartupModeSignal.addObserver { [weak self] value in
+            self?.state.recentStartupMode = value
             self?.pipeline?.notify(event: .authorizationStateUpdated)
         }
         
@@ -189,7 +201,7 @@ final class ChatModuleCore
             else { return }
             
             self.isHistoryPerformingUpdates = true
-            self.chatManager.requestMessageHistory(fromMessageWithId: earliestMessage.ID, behavior: .force)
+            self.chatManager.requestMessageHistory(before: earliestMessage.ID, behavior: .anyway)
             self.setLoaderHiddenState(to: false)
             
             self.messageHistoryRequestTimer = Timer.scheduledTimer(withTimeInterval: 3, repeats: false) { [weak self] timer in
@@ -462,10 +474,14 @@ final class ChatModuleCore
             handleChatObtainedEvent(chat: chat)
 //        case let .sessionInitialized(isFirstSessionInitialization):
 //            handleSessionInitializedEvent(isFirst: isFirstSessionInitialization)
-        case .channelAgentsUpdated(let agents):
-            handleChannelAgentsUpdated(agents: agents.compactMap(\.resolved))
-        case .chatAgentsUpdated(let agents):
-            handleChatAgentsUpdated(agents: agents.compactMap(\.resolved))
+        case .channelAgentsUpdated(let refs):
+            let agents = refs.compactMap(\.resolved)
+            handleChannelAgentsUpdated(agents: agents)
+            agentsTimelineCache.append(agents: agents)
+        case .chatAgentsUpdated(let refs):
+            let agents = refs.compactMap(\.resolved)
+            handleChatAgentsUpdated(agents: agents)
+            agentsTimelineCache.append(agents: agents)
         case .attachmentsStartedToUpload:
             handleAttachmentsStartedToUploadEvent()
         case .attachmentsUploadSucceded:
@@ -516,6 +532,8 @@ final class ChatModuleCore
             setLoaderHiddenState(to: true)
             messageHistoryRequestTimer?.fire()
         }
+        
+        agentsTimelineCache.append(agents: chatHistory.messages.compactMap(\.senderAgent))
         
         messagesToUpdate.forEach { updatingMessage in
             chatHistory.update(message: updatingMessage)
@@ -575,9 +593,12 @@ final class ChatModuleCore
     
     private func handleLocalHistoryLoadedEvent(messages: [JVDatabaseModelRef<JVMessage>]) {
         let messages = messages.compactMap(\.resolved)
+        
+        agentsTimelineCache.append(agents: messages.compactMap(\.senderAgent))
+        
         chatHistory.messages = Array<JVMessage>(messages.reversed())
         chatHistory.fill(with: messages, partialLoaded: false, unreadPosition: .null)
-//        chatHistory.populate(withMessages: chatHistory.messages)
+        pipeline?.notify(event: .historyLoaded)
     }
     
     private func handleAllHistoryLoadedEvent() {
@@ -602,7 +623,7 @@ final class ChatModuleCore
         chatHistory.setBottomItem(nil)
     }
     
-    private func handleMediaUploadFailure(withError error: MediaUploadError) {
+    private func handleMediaUploadFailure(withError error: SdkMediaUploadError) {
         chatHistory.setBottomItem(nil)
         typingCacheService.resetInput(context: TypingContext(kind: .chat, ID: chat?.ID ?? 0))
         pipeline?.notify(event: .mediaUploadFailure(error: error))
@@ -620,11 +641,18 @@ final class ChatModuleCore
                 )
             }
         
-        self.channelAgents.upsert(channelAgents) { updatedChannelAgents in
-            self.chatHistory.reloadMessages { message in
-                if let senderAgentId = message.senderAgent?.ID {
-                    return updatedChannelAgents.map(\.id).contains(senderAgentId)
-                } else {
+        let agentsCache = agentsTimelineCache.cache
+        self.channelAgents.upsert(channelAgents) { [weak self] updatedChannelAgents in
+            self?.chatHistory.reloadMessages { [weak self] message in
+                guard let senderAgent = message.senderAgent else {
+                    return false
+                }
+                
+                let agentTimelineHash = self?.agentsTimelineCache.find(agent: senderAgent, within: agentsCache)
+                if agentTimelineHash != senderAgent.calculateTimelineHash() {
+                    return true
+                }
+                else {
                     return false
                 }
             }
@@ -792,7 +820,7 @@ final class ChatModuleCore
     }
     
     private func timelineExceptionHandler() {
-        pipeline?.notify(event: .timelineRecreate)
+        pipeline?.notify(event: .timelineFailure)
     }
     
     private func messageGetsVisibleHandler(item: JMTimelineItem) {
@@ -801,8 +829,8 @@ final class ChatModuleCore
         }
         
         chatManager.requestMessageHistory(
-            fromMessageWithId: message.ID,
-            behavior: .actualize)
+            before: message.ID,
+            behavior: .smart)
     }
     
     private func notifyReplyingState() {
@@ -952,4 +980,29 @@ final class ChatModuleCore
 //
 //        return message
 //    }
+}
+
+fileprivate final class AgentsTimelineCache {
+    private(set) var cache = [Int: Int]()
+    
+    func reset() {
+        cache = Dictionary()
+    }
+    
+    func append(agents: [JVAgent]) {
+        let agentsMap = Dictionary(grouping: agents, by: \.ID)
+        for (agentId, agents) in agentsMap {
+            cache[agentId] = agents.first?.calculateTimelineHash()
+        }
+    }
+    
+    func find(agent: JVAgent, within customCache: [Int: Int]? = nil) -> Int? {
+        return (customCache ?? cache)[agent.ID]
+    }
+}
+
+fileprivate extension JVAgent {
+    func calculateTimelineHash() -> Int {
+        return displayName(kind: .original).hash ^ repicItem(transparent: false, scale: nil).hashValue
+    }
 }

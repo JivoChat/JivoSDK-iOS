@@ -27,8 +27,9 @@
             @Step {
                 As mandatory, you have to start Jivo session for user
                 
-                > Note: You can also pass `nil` as userToken
-                > to start an incognito session 
+                You may also pass `null` as userToken to start incognito session
+                
+                > Important: Please take a look at <doc:common_user_token> page to learn more about what is userToken
                 
                 @Code(name: "UserManager.swift", file: native.user_manager_01.swift.sample)
             }
@@ -84,36 +85,14 @@
         
         @Steps {
             @Step {
-                Create the class that conforms to ``JVDisplayDelegate``
+                Please take a look at ``JVDisplayElement`` and call corresponding "define(...)" methods for those you need
                 
-                @Code(name: "SdkDisplayingDelegate.swift", file: native.sdk_displaying_delegate_00.swift.sample)
-            }
-            
-            @Step {
-                For UI customization, you will need additional "define" methods
-                
-                @Code(name: "SdkDisplayingDelegate.swift", file: native.sdk_displaying_delegate_01.swift.sample)
-            }
-            
-            @Step {
-                Implement these additional methods so they return proper values for elements you need
-                
-                > Note: In this example, we configure the header
-                > to be a purple caption "Friendly Support" with no icon (empty) to the left
-                
-                @Code(name: "SdkDisplayingDelegate.swift", file: native.sdk_displaying_delegate_02.swift.sample)
-            }
-            
-            @Step {
-                Keep the strong reference to your instance,
-                and assign it to ``Jivo``.``Jivo/display``.``JVDisplayController/delegate``
-                
-                @Code(name: "SdkDisplayingDelegate.swift", file: native.sdk_displaying_delegate_03.swift.sample)
+                @Code(name: "SdkDisplayCustomization.swift", file: native.sdk_display_customization_00.swift.sample)
             }
         }
     }
     
-   @Section(title: "How to handle Push Notifications") {
+    @Section(title: "How to handle Push Notifications") {
         @ContentAndMedia {
             Let's assume you have an AppDelegate class
             that manages your app lifecycle

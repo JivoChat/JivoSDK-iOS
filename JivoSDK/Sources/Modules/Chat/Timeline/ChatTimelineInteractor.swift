@@ -24,15 +24,17 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
     private let remoteStorageService: IRemoteStorageService
     private let popupPresenterBridge: IPopupPresenterBridge
     private let databaseDriver: JVIDatabaseDriver
+    private let preferencesDriver: IPreferencesDriver
     
     private var interactedItemUUID: String?
     
-    init(clientManager: ISdkClientManager, chatManager: ISdkChatManager, remoteStorageService: IRemoteStorageService, popupPresenterBridge: IPopupPresenterBridge, databaseDriver: JVIDatabaseDriver) {
+    init(clientManager: ISdkClientManager, chatManager: ISdkChatManager, remoteStorageService: IRemoteStorageService, popupPresenterBridge: IPopupPresenterBridge, databaseDriver: JVIDatabaseDriver, preferencesDriver: IPreferencesDriver) {
         self.clientManager = clientManager
         self.chatManager = chatManager
         self.remoteStorageService = remoteStorageService
         self.popupPresenterBridge = popupPresenterBridge
         self.databaseDriver = databaseDriver
+        self.preferencesDriver = preferencesDriver
     }
     
     func playCall(item: URL) {
@@ -162,13 +164,39 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
     func systemButtonTap(buttonID: String) {
     }
     
-    func toggleContactForm(item: JMTimelineItem) {
-        guard let message = databaseDriver.message(for: item.uid) else {
+    func toggleRateFormChange(item: JMTimelineItem, choice: Int, comment: String) {
+        guard let message = databaseDriver.message(for: item.uid), jv_not(message.wasDeleted) else {
             return
         }
         
-        guard jv_not(message.wasDeleted)
-        else {
+        chatManager.toggleRateForm(message: message, action: .change(choice: choice, comment: comment))
+    }
+    
+    func toggleRateFormSubmit(item: JMTimelineItem, scale: ChatTimelineRateScale, choice: Int, comment: String) {
+        guard let message = databaseDriver.message(for: item.uid), jv_not(message.wasDeleted) else {
+            return
+        }
+        
+        chatManager.toggleRateForm(
+            message: message,
+            action: .submit(
+                scale: scale,
+                choice: choice,
+                comment: comment
+            )
+        )
+    }
+    
+    func toggleRateFormClose(item: JMTimelineItem) {
+        guard let message = databaseDriver.message(for: item.uid), jv_not(message.wasDeleted) else {
+            return
+        }
+        
+        chatManager.toggleRateForm(message: message, action: .dismiss)
+    }
+    
+    func toggleContactForm(item: JMTimelineItem) {
+        guard let message = databaseDriver.message(for: item.uid), jv_not(message.wasDeleted) else {
             return
         }
         
@@ -244,6 +272,11 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
     }
     
     func requestHistoryPast(item: JMTimelineItem) {
+        guard let message = databaseDriver.message(for: item.uid) else { return }
+        
+        chatManager.requestMessageHistory(
+            before: message.ID,
+            behavior: .anyway)
     }
     
     func requestHistoryFuture(item: JMTimelineItem) {

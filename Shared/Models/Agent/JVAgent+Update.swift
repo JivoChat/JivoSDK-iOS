@@ -12,7 +12,9 @@ import JMCodingKit
 extension JVAgent {
     func performApply(context: JVIDatabaseContext, environment: JVIDatabaseEnvironment, change: JVDatabaseModelChange) {
         defer {
-            m_pk_num = m_id
+            if m_pk_num != m_id {
+                m_pk_num = m_id
+            }
         }
         
         if let c = change as? JVAgentGeneralChange {
@@ -25,6 +27,7 @@ extension JVAgent {
             m_status_comment = c.statusComment
             m_avatar_link = c.avatarLink.jv_valuable
             m_display_name = c.displayName
+            m_channels = c.channels
             m_is_owner = c.isOwner ?? m_is_owner
             m_is_admin = c.isAdmin
             m_is_supervisor = c.isSupervisor
@@ -81,21 +84,34 @@ extension JVAgent {
             m_draft = c.draft
         }
         else if let c = change as? SDKAgentAtomChange {
-            m_id = Int64(c.id)
+            let m_id_val = Int64(c.id)
+            if m_id != m_id_val {
+                m_id = m_id_val
+            }
             
             c.updates.forEach { update in
                 switch update {
                 case .displayName(let value):
-                    m_display_name = value
+                    if m_display_name != value {
+                        m_display_name = value
+                    }
                     
                 case .title(let value):
-                    m_title = value
+                    if m_title != value {
+                        m_title = value
+                    }
                     
                 case .avatarLink(let value):
-                    m_avatar_link = value?.absoluteString
+                    let m_avatar_link_value = value?.absoluteString
+                    if m_avatar_link != m_avatar_link_value {
+                        m_avatar_link = m_avatar_link_value
+                    }
                     
                 case .status(let value):
-                    m_state_id = Int16(value.rawValue)
+                    let m_state_id_value = Int16(value.rawValue)
+                    if m_state_id != m_state_id_value {
+                        m_state_id = m_state_id_value
+                    }
                 }
             }
         }
@@ -133,6 +149,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
     var title: String = ""
     var callingDestination: Int
     var callingOptions = 0
+    public var channels: String = ""
     public let isOwner: Bool?
     public let isAdmin: Bool
     public let isSupervisor: Bool
@@ -171,6 +188,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
         title = agentInfo["title"].stringValue
         callingDestination = agentInfo["web_call_dest"].int ?? -1
         callingOptions = flags.reduce(0, +)
+        channels = agentInfo["channels"].array?.description ?? ""
         isOwner = agentInfo["is_owner"].bool
         isAdmin = agentInfo["is_admin"].bool ?? true
         isSupervisor = agentInfo["is_supervisor"].bool ?? true
@@ -196,6 +214,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
         title = ""
         callingDestination = -1
         callingOptions = 0
+        channels = ""
         isOwner = nil
         isAdmin = false
         isSupervisor = false
@@ -220,6 +239,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
          title: String,
          callingDestination: Int,
          callingOptions: Int,
+         channels: String,
          isOwner: Bool?,
          isAdmin: Bool,
          isSupervisor: Bool,
@@ -241,6 +261,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
         self.title = title
         self.callingDestination = callingDestination
         self.callingOptions = callingOptions
+        self.channels = channels
         self.isOwner = isOwner
         self.isAdmin = isAdmin
         self.isSupervisor = isSupervisor
@@ -271,6 +292,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
             title: title,
             callingDestination: callingDestination,
             callingOptions: callingOptions,
+            channels: channels,
             isOwner: isOwner,
             isAdmin: isAdmin,
             isSupervisor: isSupervisor,

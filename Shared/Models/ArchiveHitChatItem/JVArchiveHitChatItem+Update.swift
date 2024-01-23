@@ -64,17 +64,4 @@ final class JVArchiveHitChatItemGeneralChange: JVArchiveHitItemGeneralChange {
         type = json["chat_type"].stringValue
         super.init(json: json)
     }
-    
-    func copyUnrelative() -> JVArchiveHitChatItemGeneralChange {
-        return JVArchiveHitChatItemGeneralChange(
-            ID: ID,
-            responseTimeout: responseTimeout,
-            duration: duration,
-            eventsNumber: eventsNumber,
-            agentIDs: agentIDs,
-            latestChatID: latestChatID,
-            chatChange: chatChange?.copy(relation: "", everybody: true),
-            type: type
-        )
-    }
 }

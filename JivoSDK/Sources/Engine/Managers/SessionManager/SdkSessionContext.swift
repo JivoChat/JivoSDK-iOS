@@ -12,8 +12,14 @@ protocol ISdkSessionContext: AnyObject {
     var networkingState: ReachabilityMode { get set }
     var connectionAllowance: SdkSessionConnectionAllowance { get set }
     var connectionState: SdkSessionConnectionState { get set }
+    var authorizationState: SessionAuthorizationState { get set }
+    var authorizationStateSignal: JVBroadcastUniqueTool<SessionAuthorizationState> { get }
     var accountConfig: SdkClientAccountConfig? { get set }
     var endpointConfig: SdkSessionEndpointConfig? { get set }
+    var rateConfig: JMTimelineRateConfig? { get set }
+    var recentStartupMode: SdkSessionManagerStartupMode { get set }
+    var recentStartupModeSignal: JVBroadcastUniqueTool<SdkSessionManagerStartupMode> { get }
+    var numberOfResumes: Int { get set }
     var identifyingToken: String? { get set }
     var localChatId: Int? { get }
     var authorizingPath: String? { get set }
@@ -23,6 +29,7 @@ protocol ISdkSessionContext: AnyObject {
 extension PreferencesToken {
     static let accountConfig = PreferencesToken(key: "accountConfig", hint: SdkClientAccountConfig.self)
     static let endpointConfig = PreferencesToken(key: "endpointConfig", hint: SdkSessionEndpointConfig.self)
+    static let rateConfig = PreferencesToken(key: "rateConfig", hint: JMTimelineRateConfig.self)
 }
 
 enum SdkSessionContextEvent {
@@ -58,13 +65,16 @@ final class SdkSessionContext: ISdkSessionContext {
     
     private let accountConfigAccessor: IPreferencesAccessor
     private let endpointConfigAccessor: IPreferencesAccessor
+    private let rateConfigAccessor: IPreferencesAccessor
     
-    init(accountConfigAccessor: IPreferencesAccessor, endpointConfigAccessor: IPreferencesAccessor) {
+    init(accountConfigAccessor: IPreferencesAccessor, endpointConfigAccessor: IPreferencesAccessor, rateConfigAccessor: IPreferencesAccessor) {
         self.accountConfigAccessor = accountConfigAccessor
         self.endpointConfigAccessor = endpointConfigAccessor
-        
+        self.rateConfigAccessor = rateConfigAccessor
+         
         accountConfig = accountConfigAccessor.accountConfig
         endpointConfig = endpointConfigAccessor.endpointConfig
+        rateConfig = rateConfigAccessor.rateConfig
     }
     
     var networkingState = ReachabilityMode.none {
@@ -88,6 +98,13 @@ final class SdkSessionContext: ISdkSessionContext {
         }
     }
 
+    let authorizationStateSignal = JVBroadcastUniqueTool<SessionAuthorizationState>()
+    var authorizationState = SessionAuthorizationState.unknown {
+        didSet {
+            authorizationStateSignal.broadcast(authorizationState, async: .main)
+        }
+    }
+
     var accountConfig: SdkClientAccountConfig? {
         didSet {
             accountConfigAccessor.accountConfig = accountConfig
@@ -100,6 +117,21 @@ final class SdkSessionContext: ISdkSessionContext {
             endpointConfigAccessor.endpointConfig = endpointConfig
         }
     }
+    
+    var rateConfig: JMTimelineRateConfig? {
+        didSet {
+            rateConfigAccessor.rateConfig = rateConfig
+        }
+    }
+    
+    let recentStartupModeSignal = JVBroadcastUniqueTool<SdkSessionManagerStartupMode>()
+    var recentStartupMode = SdkSessionManagerStartupMode.fresh {
+        didSet {
+            recentStartupModeSignal.broadcast(recentStartupMode, async: .main)
+        }
+    }
+    
+    var numberOfResumes = 0
     
     var identifyingToken: String? {
         didSet {
@@ -124,10 +156,11 @@ final class SdkSessionContext: ISdkSessionContext {
     }
     
     func reset() {
-//        print("[DEBUG] SessionContext -> Reset identifyingToken")
+        authorizationState = .unknown
         accountConfig = nil
         identifyingToken = nil
         authorizingPath = nil
+        numberOfResumes = 0
     }
 }
 
@@ -144,6 +177,15 @@ extension IPreferencesAccessor {
     var endpointConfig: SdkSessionEndpointConfig? {
         get {
             data.flatMap { try? JSONDecoder().decode(SdkSessionEndpointConfig.self, from: $0) }
+        }
+        set {
+            data = try? JSONEncoder().encode(newValue)
+        }
+    }
+    
+    var rateConfig: JMTimelineRateConfig? {
+        get {
+            data.flatMap { try? JSONDecoder().decode(JMTimelineRateConfig.self, from: $0) }
         }
         set {
             data = try? JSONEncoder().encode(newValue)

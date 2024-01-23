@@ -254,6 +254,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
         if let options = options {
             request.predicate = options.filter
             request.fetchLimit = options.limit
+            request.propertiesToFetch = options.properties
             
             request.sortDescriptors = options.sortBy.map {
                 NSSortDescriptor(key: $0.keyPath, ascending: $0.ascending)
@@ -406,6 +407,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
             }
             
             obj.apply(context: self, change: change)
+            obj.hasBeenChanged = obj.hasChanges
             
             if obj.managedObjectContext == nil {
                 add([obj])
@@ -576,6 +578,18 @@ final class JVDatabaseContext: JVIDatabaseContext {
         let filter = NSPredicate(format: "m_body.m_call_id == %@", callID)
         let options = JVDatabaseRequestOptions(filter: filter)
         return objects(JVMessage.self, options: options).last
+    }
+    
+    func topic(for topicId: Int, needsDefault: Bool) -> JVTopic? {
+        if let value = object(JVTopic.self, primaryId: topicId) {
+            return value
+        }
+        else if needsDefault {
+            return upsert(of: JVTopic.self, with: JVTopicEmptyChange(id: topicId))
+        }
+        else {
+            return nil
+        }
     }
     
     private func handleException(error: Error) {

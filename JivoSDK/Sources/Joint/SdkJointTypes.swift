@@ -1,5 +1,5 @@
 //
-//  SDKJointTypes.swift
+//  SdkJointTypes.swift
 //  JivoSDK
 //
 //  Created by Anton Karpushko on 16.02.2022.
@@ -8,7 +8,7 @@
 
 import UIKit
 
-enum MediaUploadError: Error {
+enum SdkMediaUploadError: Error {
     case extractionFailed
     case fileSizeExceeded(megabytes: Int)
     case networkClientError
@@ -18,7 +18,7 @@ enum MediaUploadError: Error {
     case unknown(errorDescription: String? = nil)
 }
 
-struct ChatModuleUIConfig {
+struct SdkChatModuleVisualConfig {
     let icon: UIImage
     let titleCaption: String
     let titleColor: UIColor
@@ -31,13 +31,7 @@ struct ChatModuleUIConfig {
     let attachCamera: String
     let attachLibrary: String
     let attachFile: String
-    let outcomingPalette: ChatTimelinePalette?
     let replyMenuExtraItems: [String]
     let replyMenuCustomHandler: (Int) -> Void
-}
-
-enum ChatModuleLicenseState {
-    case undefined // when we haven't received the license data yet
-    case unlicensed
-    case licensed // demo- or pro-license
+    let replyCursorColor: UIColor
 }

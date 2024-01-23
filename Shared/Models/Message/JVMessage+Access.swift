@@ -57,6 +57,7 @@ enum JVMessageType: String {
     case message = "message"
     case system = "system"
     case contactForm = "contact_form"
+    case chatRate = "chat_rate"
 }
 
 enum JVMessageTarget: Codable {
@@ -97,6 +98,7 @@ enum JVMessageContent {
     case story(story: JVMessageBodyStory)
     case line
     case contactForm(status: JVMessageBodyContactFormStatus)
+    case rateForm(status: JVMessageBodyRateFormStatus)
     
     public static func makeWith(text: String) -> Self {
         if let url = URL(string: text), let host = url.host, (host.hasPrefix("media") || host.hasPrefix("files")) {
@@ -149,6 +151,8 @@ enum JVMessageContent {
             return false
         case .contactForm:
             return false
+        case .rateForm:
+            return false
         }
     }
     
@@ -194,6 +198,8 @@ enum JVMessageContent {
             return false
         case .contactForm:
             return false
+        case .rateForm:
+            return false
         }
     }
 }
@@ -229,6 +235,11 @@ extension JVMessage {
     
     var date: Date {
         return m_date ?? Date()
+    }
+    
+    var anchorDate: Date {
+        let virtualDate = date.dateBySet(hour: nil, min: nil, secs: nil, ms: ID % 1000)
+        return virtualDate ?? date
     }
     
     var clientID: Int {
@@ -485,10 +496,13 @@ extension JVMessage {
         case "contact_form":
             let status = JVMessageBodyContactFormStatus(rawValue: rawText) ?? .inactive
             return .contactForm(status: status)
-
+            
+        case "chat_rate":
+            let status = JVMessageBodyRateFormStatus(rawValue: rawDetails) ?? .initial
+            return .rateForm(status: status)
+            
         default:
             break
-//            assertionFailure()
         }
         
         return .text(
@@ -638,7 +652,8 @@ extension JVMessage {
              .line,
              .bot,
              .order,
-             .contactForm:
+             .contactForm,
+             .rateForm:
             return nil
             
         case .story:

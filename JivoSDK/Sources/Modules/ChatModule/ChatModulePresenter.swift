@@ -20,8 +20,10 @@ enum ChatModulePresenterUpdate {
     case headerTitle(String)
     case headerSubtitle(String)
     case inputUpdate(ChatModuleInputUpdate)
+    case startSyncing
+    case stopSyncing
     case timelineScrollToBottom
-    case timelineRecreate
+    case timelineFailure
     case discardAllAttachments
 }
 
@@ -45,14 +47,18 @@ final class ChatModulePresenter
         switch event {
         case .hasUpdates:
             break
-        case .authorizationStateUpdated:
+        case .authorizationStateUpdated where UIApplication.shared.applicationState == .active:
             feedPrimaryLayout()
+            feedHistoryLoading()
+        case .authorizationStateUpdated:
+            feedHistoryLoading()
+        case .historyLoaded:
+            feedHistoryLoading()
         case .inputUpdate(let updates):
             pipeline?.notify(update: .inputUpdate(updates))
         case .agentsUpdate:
             feedTitleBarContent()
         case .hasInputUpdates:
-//            feedReplyControlState()
             break
         case .messageSent:
             pipeline?.notify(update: .discardAllAttachments)
@@ -74,13 +80,26 @@ final class ChatModulePresenter
     }
     
     private func feedPrimaryLayout() {
+        switch (state.authorizationState, state.recentStartupMode) {
+        case (.unknown, .fresh):
+            pipeline?.notify(update: .primaryLayout(.loading))
+        case (.unknown, _):
+            pipeline?.notify(update: .primaryLayout(.chatting))
+        case (.ready, _):
+            pipeline?.notify(update: .primaryLayout(.chatting))
+        case (.unavailable, _):
+            pipeline?.notify(update: .primaryLayout(.unavailable))
+        }
+    }
+    
+    private func feedHistoryLoading() {
         switch state.authorizationState {
         case .unknown:
-            pipeline?.notify(update: .primaryLayout(.loading))
+            pipeline?.notify(update: .startSyncing)
         case .ready:
-            pipeline?.notify(update: .primaryLayout(.chatting))
+            pipeline?.notify(update: .stopSyncing)
         case .unavailable:
-            pipeline?.notify(update: .primaryLayout(.unavailable))
+            pipeline?.notify(update: .stopSyncing)
         }
     }
     

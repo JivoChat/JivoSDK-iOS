@@ -1,6 +1,6 @@
-# User token
+# User Token and JWT
 
-Useful for keeping chat history alive
+Required for keeping chat history alive
 
 ## Overview
 
@@ -36,7 +36,8 @@ Minimal JWT payload must contain "id" field which acts like a client identifier,
 }
 ```
 
-Finally, you should feed your JWT into ``Jivo``.``Jivo/session``.``JVSessionController/startUp(channelID:userToken:)``.
+Finally, you should feed your JWT as userToken parameter into:  
+``Jivo``.``Jivo/session``.``JVSessionController/startUp(channelID:userToken:)``
 
 > Important: For security reasons, you'd better generate JWT tokens on your back-end,  
 > rather than doing it directly in the mobile app (because your `secret` might be stolen)

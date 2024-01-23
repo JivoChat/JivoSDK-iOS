@@ -90,8 +90,8 @@ final class JVArchiveHitGeneralChange: JVDatabaseModelChange {
             creationOrder: creationOrder,
             score: score,
             sortingRank: sortingRank,
-            chatItem: chatItem?.copyUnrelative(),
-            callItem: callItem?.copyUnrelative()
+            chatItem: chatItem,
+            callItem: callItem
         )
     }
     
@@ -101,8 +101,8 @@ final class JVArchiveHitGeneralChange: JVDatabaseModelChange {
             creationOrder: creationOrder,
             score: score,
             sortingRank: sortingRank,
-            chatItem: chatItem?.copyUnrelative(),
-            callItem: callItem?.copyUnrelative()
+            chatItem: chatItem,
+            callItem: callItem
         )
     }
 }

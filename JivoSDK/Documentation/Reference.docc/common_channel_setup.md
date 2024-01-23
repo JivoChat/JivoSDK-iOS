@@ -1,4 +1,4 @@
-# Create channel
+# Create a Channel
 
 Mobile SDK
 

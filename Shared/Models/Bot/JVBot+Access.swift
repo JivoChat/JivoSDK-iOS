@@ -9,7 +9,23 @@
 import Foundation
 import JMRepicKit
 
-extension JVBot: JVPresentable {
+extension JVBot: JVDisplayable {
+    var channel: JVChannel? {
+        return nil
+    }
+    
+    var integration: JVChannelJoint? {
+        nil
+    }
+    
+    var isMe: Bool {
+        false
+    }
+    
+    var isAvailable: Bool {
+        return true
+    }
+    
     var senderType: JVSenderType {
         return .bot
     }

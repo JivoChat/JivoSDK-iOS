@@ -141,7 +141,7 @@ class SDKRestConnectionDriver: IRestConnectionDriver {
             task.resume()
         }
         
-        journal {"Requesting the REST path[\(request.url?.lastPathComponent ?? String())]"}
+        journal {"API: performing request to\n\((request.url?.absoluteString).jv_orEmpty)"}
         
         activeMutex.lock()
         activeRequests[url] = operation

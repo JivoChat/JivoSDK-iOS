@@ -181,4 +181,58 @@ extension UIView {
     func jv_discardGlow() {
         layer.mask = nil
     }
+    
+    func jv_startShimming() {
+        let gradient = CAGradientLayer()
+        gradient.frame = CGRect(x: 0, y: 0, width: bounds.width, height: bounds.height)
+        gradient.startPoint = CGPoint(x: 0, y: 0.5)
+        gradient.endPoint = CGPoint(x: 1.0, y: 0.5)
+
+        func _generateLocations(delta: CGFloat) -> [NSNumber] {
+            return [0, 0.2, 0.45, 0.55, 0.8, 1].map { NSNumber(value: $0 + delta) }
+        }
+        
+        let solid = UIColor.white.withAlphaComponent(0).cgColor
+        let clear = UIColor.white.cgColor
+        gradient.colors = [ solid, solid, clear, clear, solid, solid ]
+        gradient.locations = _generateLocations(delta: 0)
+        layer.mask = gradient
+
+        let shimmingAnimation = CABasicAnimation(keyPath: "locations")
+        shimmingAnimation.duration = 1
+        shimmingAnimation.repeatCount = 1
+        shimmingAnimation.fromValue = _generateLocations(delta: -1.0)
+        shimmingAnimation.toValue = _generateLocations(delta: +1.0)
+        shimmingAnimation.fillMode = .forwards
+        
+        let shimmingGroup = CAAnimationGroup()
+        shimmingGroup.animations = [shimmingAnimation]
+        shimmingGroup.duration = shimmingAnimation.duration + 0.5
+        shimmingGroup.repeatCount = .greatestFiniteMagnitude
+        shimmingGroup.isRemovedOnCompletion = false
+        gradient.add(shimmingGroup, forKey: "animateShimming")
+        
+        let opacityAnimation = CABasicAnimation(keyPath: "opacity")
+        opacityAnimation.duration = 0.25
+        opacityAnimation.fromValue = (layer.presentation() ?? layer).opacity
+        opacityAnimation.toValue = 1.0
+        opacityAnimation.fillMode = .forwards
+        opacityAnimation.isRemovedOnCompletion = false
+        layer.add(opacityAnimation, forKey: "opacityAnimation")
+    }
+    
+    func jv_stopShimming() {
+        let opacityAnimation = CABasicAnimation(keyPath: "opacity")
+        opacityAnimation.duration = 0.25
+        opacityAnimation.fromValue = (layer.presentation() ?? layer).opacity
+        opacityAnimation.toValue = 0
+        opacityAnimation.fillMode = .forwards
+        opacityAnimation.isRemovedOnCompletion = false
+        layer.add(opacityAnimation, forKey: "opacityAnimation")
+    }
+    
+    func jv_addSubviews(children: UIView...) {
+        children.forEach({ addSubview($0) })
+    }
+
 }

@@ -57,6 +57,7 @@ protocol JVIDatabaseContext: AnyObject {
     func chatWithID(_ ID: Int) -> JVChat?
     func message(for messageId: Int, provideDefault: Bool) -> JVMessage?
     func messageWithCallID(_ callID: String?) -> JVMessage?
+    func topic(for topicId: Int, needsDefault: Bool) -> JVTopic?
 }
 
 typealias JVDatabaseDriverSubscriberToken = UUID
@@ -74,12 +75,20 @@ struct JVDatabaseModelCustomId<VT: Hashable>: Hashable {
 struct JVDatabaseRequestOptions {
     let filter: NSPredicate?
     let limit: Int
+    let properties: [String]
     let sortBy: [JVDatabaseResponseSort]
     let notificationName: Notification.Name?
     
-    init(filter: NSPredicate? = nil, limit: Int = 0, sortBy: [JVDatabaseResponseSort] = [], notificationName: Notification.Name? = nil) {
+    init(
+        filter: NSPredicate? = nil,
+        limit: Int = 0,
+        properties: [String] = .jv_empty,
+        sortBy: [JVDatabaseResponseSort] = .jv_empty,
+        notificationName: Notification.Name? = nil
+    ) {
         self.filter = filter
         self.limit = limit
+        self.properties = properties
         self.sortBy = sortBy
         self.notificationName = notificationName
     }

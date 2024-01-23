@@ -10,4 +10,5 @@ import Foundation
 
 extension CGAffineTransform {
     static let rotateClockwise = Self.init(rotationAngle: 90.0 * .pi / 180.0)
+    static let upsideDown = Self.init(scaleX: 1, y: -1)
 }

@@ -1,8 +1,9 @@
 class User {
     String email;
+    String supportJwt;
     String? fullName;
     String? phoneNumber;
-    User(this.email, this.fullName, this.phoneNumber);
+    User(this.email, this.supportJwt, this.fullName, this.phoneNumber);
 }
 
 class UserManager {

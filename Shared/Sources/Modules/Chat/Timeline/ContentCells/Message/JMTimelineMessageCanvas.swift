@@ -62,16 +62,10 @@ struct JMTimelineMessageRenderOptions {
     }
 }
 
-struct JMTimelineMessagePalette {
-    let backgroundColor: UIColor
-    let foregroundColor: UIColor
-    let buttonsTintColor: UIColor
-}
-
 struct JMTimelineMessageRegionRenderOptions {
     let position: JMTimelineItemPosition
     let contentKind: ChatTimelineSenderType
-    let outcomingPalette: JMTimelineMessagePalette?
+    let outcomingPalette: ChatTimelineVisualConfig.Palette?
     let isQuote: Bool
     let entireCanvas: Bool
     let isFailure: Bool
@@ -88,7 +82,7 @@ struct JMTimelineMessageRegionRenderOptions {
     init(
         position: JMTimelineItemPosition,
         contentKind: ChatTimelineSenderType,
-        outcomingPalette: JMTimelineMessagePalette?,
+        outcomingPalette: ChatTimelineVisualConfig.Palette?,
         isQuote: Bool,
         entireCanvas: Bool,
         isFailure: Bool

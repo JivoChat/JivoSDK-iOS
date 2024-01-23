@@ -42,8 +42,8 @@ public final class JVSessionController: NSObject {
      and it determines whether it is necessary to create a new session with a new dialog,
      or restore an existing one and load the history of the initiated dialog (should be a JWT token)
      
-     > Important: Please take a look at "User Token" section of SDK Documentation
-     > to know more about how to use JWT here
+     > Important: Please take a look at "User Token and JWT" section of SDK Documentation
+     > to learn more about how to use JWT here
      
      > Warning: Please avoid calling this method while SDK is displayed onscreen
      */
@@ -83,10 +83,10 @@ public final class JVSessionController: NSObject {
 extension JVSessionController: SdkEngineAccessing {
     private func _delegateHookDidSet() {
         if let _ = delegate {
-            journal {"FRONT[session] set the delegate"}
+            journal {"FACADE[session] set the delegate"}
         }
         else {
-            journal {"FRONT[session] remove the delegate"}
+            journal {"FACADE[session] remove the delegate"}
         }
         
         engine.managers.sessionManager.delegate = delegate
@@ -94,7 +94,7 @@ extension JVSessionController: SdkEngineAccessing {
     }
     
     private func _setPreferredServer(_ server: JVSessionServer) {
-        journal {"FRONT[session] set the preferred server @server[\(server.rawValue)]"}
+        journal {"FACADE[session] set the preferred server @server[\(server.rawValue)]"}
         
         engine.managers.sessionManager.setPreferredServer(server)
     }
@@ -106,7 +106,7 @@ extension JVSessionController: SdkEngineAccessing {
             return
         }
         
-        journal {"FRONT[session] start up with @channelID[\(channelPath)] @userToken[\(userToken)]"}
+        journal {"FACADE[session] start up with @channelID[\(channelPath)] @userToken[\(userToken)]"}
         
         engine.managers.sessionManager.startUp(
             channelPath: channelPath,
@@ -115,10 +115,10 @@ extension JVSessionController: SdkEngineAccessing {
     
     private func _setContactInfo(_ info: JVSessionContactInfo?) {
         if let info = info {
-            journal {"FRONT[session] set the contact info @info[\(info)]"}
+            journal {"FACADE[session] set the contact info @info[\(info)]"}
         }
         else {
-            journal {"FRONT[session] remove the contact info"}
+            journal {"FACADE[session] remove the contact info"}
         }
         
         engine.managers.clientManager.setContactInfo(
@@ -127,13 +127,13 @@ extension JVSessionController: SdkEngineAccessing {
     }
     
     private func _setCustomData(fields: [JVSessionCustomDataField]) {
-        journal {"FRONT[session] set the custom data @fields[#\(fields.count)]"}
+        journal {"FACADE[session] set the custom data @fields[#\(fields.count)]"}
 
         engine.managers.clientManager.setCustomData(fields: fields)
     }
     
     private func _shutDown() {
-        journal {"FRONT[session] shut down"}
+        journal {"FACADE[session] shut down"}
         
         engine.managers.notify(event: .turnInactive(.all))
     }

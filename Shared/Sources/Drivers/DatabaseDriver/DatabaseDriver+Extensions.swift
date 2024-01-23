@@ -170,6 +170,22 @@ extension JVIDatabaseDriver {
         
         return message
     }
+    
+    func topic(for topicId: Int, needsDefault: Bool) -> JVTopic? {
+        var topic: JVTopic?
+
+        read { context in
+            topic = context.topic(for: topicId, needsDefault: false)
+        }
+        
+        if topic == nil, needsDefault {
+            readwrite { context in
+                topic = context.topic(for: topicId, needsDefault: true)
+            }
+        }
+
+        return topic
+    }
 }
 
 extension JVIDatabaseContext {

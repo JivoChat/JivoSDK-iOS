@@ -72,7 +72,7 @@ final class SdkClientSubPusher: ISdkClientSubPusher {
     }
     
     func subscribeToPushes(with credentials: SdkClientSubPusherCredentials, completion: @escaping (Result<SdkClientSubPusherCredentials, SdkClientSubPusherError>) -> Void) {
-        journal {"Subscribing to APNS with credentials:\n\(credentials)\n"}
+        journal {"APNS: subscribing with credentials\n\(credentials)\n"}
         
         pushCredentialsRepository.allItems { [weak self] items in
             let hasAlreadySubscribed = items
@@ -103,10 +103,10 @@ final class SdkClientSubPusher: ISdkClientSubPusher {
     
     func unsubscribeFromPushes(exceptActiveCredentials: Bool, unsubscribingResultHandler: @escaping (Result<SdkClientSubPusherCredentials, SdkClientSubPusherError>) -> Void) {
         if exceptActiveCredentials {
-            journal {"Unsubscribing from APNS except active credentials"}
+            journal {"APNS: going to unsubscribe except active credentials"}
         }
         else {
-            journal {"Unsubscribing from APNS"}
+            journal {"APNS: going to unsubscribe entirely"}
         }
         
         pushCredentialsRepository.allItems { items in

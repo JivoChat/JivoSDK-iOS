@@ -230,4 +230,9 @@ extension UIView {
         opacityAnimation.isRemovedOnCompletion = false
         layer.add(opacityAnimation, forKey: "opacityAnimation")
     }
+    
+    func jv_addSubviews(children: UIView...) {
+        children.forEach({ addSubview($0) })
+    }
+
 }

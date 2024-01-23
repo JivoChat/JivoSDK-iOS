@@ -12,7 +12,7 @@ class UserManager {
 
     _configureJivoSession() {
         if (this.user) {
-            Jivo.startUp("YOUR_CHANNEL_ID", this.user.email)
+            Jivo.startUp("YOUR_CHANNEL_ID", this.user.supportJwt)
         }
         else {
             Jivo.shutDown()

@@ -24,6 +24,9 @@ protocol ICommonSubStorage: IBaseSubStorage {
     @discardableResult
     func storeBots(changes: [JVDatabaseModelChange], exclusive: Bool) -> [JVBot]
     
+    @discardableResult
+    func storeTopics(changes: [JVDatabaseModelChange], exclusive: Bool) -> [JVTopic]
+    
     func storeClients(changes: [JVDatabaseModelChange])
     func updateClient(change: JVDatabaseModelChange)
     func storeChat(change: JVDatabaseModelChange) -> JVChat?
@@ -32,6 +35,7 @@ protocol ICommonSubStorage: IBaseSubStorage {
     func chatWithID(_ chatID: Int) -> JVChat?
     func chatsWithClientID(_ clientID: Int, evenArchived: Bool) -> [JVChat]
     func chatForMessage(_ message: JVMessage, evenArchived: Bool) -> JVChat?
+    func topicWithID(_ topicID: Int) -> JVTopic?
     func unlink(chatId: Int)
     func unlink(chat: JVChat)
     func remove(chatID: Int, cleanup: Bool)
@@ -130,6 +134,26 @@ class CommonSubStorage: BaseSubStorage {
         
         return bots
     }
+    
+    func storeTopics(changes: [JVDatabaseModelChange], exclusive: Bool) -> [JVTopic] {
+        var topics = [JVTopic]()
+        
+        databaseDriver.readwrite { context in
+            topics = context.upsert(of: JVTopic.self, with: changes)
+            
+            if exclusive {
+                let keepTopicsIds = changes.map(\.primaryValue)
+                let removalObjects = context.objects(JVTopic.self, options: nil).filter { bot in
+                    guard !(keepTopicsIds.contains(bot.id)) else { return false }
+                    return true
+                }
+                
+                context.customRemove(objects: removalObjects, recursive: true)
+            }
+        }
+
+        return topics
+    }
 
     func storeClients(changes: [JVDatabaseModelChange]) {
         _ = databaseDriver.upsert(of: JVClient.self, with: changes)
@@ -168,6 +192,10 @@ class CommonSubStorage: BaseSubStorage {
     
     func chatForMessage(_ message: JVMessage, evenArchived: Bool) -> JVChat? {
         return databaseDriver.chatForMessage(message, evenArchived: false)
+    }
+    
+    func topicWithID(_ topicID: Int) -> JVTopic? {
+        return databaseDriver.topic(for: topicID, needsDefault: false)
     }
     
     func unlink(chatId: Int) {

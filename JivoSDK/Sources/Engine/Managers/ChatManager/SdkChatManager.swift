@@ -23,6 +23,12 @@ enum SdkChatHistoryRequestBehavior {
     case smart
 }
 
+enum SdkChatManagerRateFormAction {
+    case change(choice: Int, comment: String)
+    case submit(scale: ChatTimelineRateScale, choice: Int, comment: String)
+    case dismiss
+}
+
 enum SdkChatEvent {
     case sessionInitialized(isFirst: Bool)
     case chatObtained(_ chat: JVDatabaseModelRef<JVChat>)
@@ -30,7 +36,7 @@ enum SdkChatEvent {
     case channelAgentsUpdated(agents: [JVDatabaseModelRef<JVAgent>])
     case attachmentsStartedToUpload
     case attachmentsUploadSucceded
-    case mediaUploadFailure(withError: MediaUploadError)
+    case mediaUploadFailure(withError: SdkMediaUploadError)
     case exception(payload: IProtoEventSubjectPayloadAny)
     case enableReplying
     case disableReplying(reason: String)
@@ -46,6 +52,7 @@ protocol ISdkChatManager: ISdkManager, ChatTimelineFactoryHistoryDelegate {
     var hasActiveChat: Bool { get set }
     var hasMessagesInQueue: Bool { get }
     var inactivityPlaceholder: String? { get }
+    var globalRateConfig: JMTimelineRateConfig?  { get set }
     func restoreChat()
     func makeAllAgentsOffline()
     func sendTyping(text: String)
@@ -57,6 +64,9 @@ protocol ISdkChatManager: ISdkManager, ChatTimelineFactoryHistoryDelegate {
     func markSeen(message: JVMessage)
     func informContactInfoStatus()
     func toggleContactForm(message: JVMessage)
+    
+    func toggleRateForm(message: JVMessage, action: SdkChatManagerRateFormAction)
+    
     func handleNotification(userInfo: [AnyHashable : Any]) -> Bool
     func prepareToPresentNotification(_ notification: UNNotification, completionHandler: @escaping JVNotificationsOptionsOutput, resolver: @escaping JVNotificationsOptionsResolver)
     func handleNotification(response: UNNotificationResponse) -> Bool
@@ -90,7 +100,10 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     
     let subOffline: ISdkChatSubOffline
     let subHello: ISdkChatSubHello
-
+    
+    var currentRateFormId: String?
+    var globalRateConfig: JMTimelineRateConfig?
+    
     // MARK: - Private properties
     
     private var chatMessages: [JVDatabaseModelRef<JVMessage>] = []
@@ -280,6 +293,28 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         subTyping.sendTyping(
             clientHash: clientContext.clientHash,
             text: text)
+    }
+    
+    func sendRateForm(id: String, chat: JVChat?) {
+        guard let chat = chat else { return }
+        
+        currentRateFormId = id
+        
+        let message = subStorage.storeOutgoingMessage(
+            localID: UUID().uuidString.lowercased(),
+            clientID: userContext.clientHash,
+            chatID: chat.ID,
+            type: .chatRate,
+            content: .rateForm(status: .initial),
+            status: nil,
+            timing: .regular,
+            orderingIndex: 1
+        )
+        
+        if let message = message {
+            let messageRef = subStorage.reference(to: message)
+            messagingContext.broadcast(event: .messagesUpserted([messageRef]), onQueue: .main)
+        }
     }
     
     func sendMessage(text: String, attachments: [ChatPhotoPickerObject]) {
@@ -592,6 +627,90 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             return .askRequired
         case .chat:
             return .askDesired
+        }
+    }
+    
+    private func checkRateformStatusChanged(message: JVMessage, newState: JVMessageBodyRateFormStatus) -> Bool {
+        let details = message.rawDetails
+        let oldState = JsonCoder().decode(raw: details)?.ordictValue["status"]?.stringValue
+        
+        if oldState == newState.rawValue { return false }
+        
+        return true
+    }
+    
+    func toggleRateForm(message: JVMessage, action: SdkChatManagerRateFormAction) {
+        let messageRef = subStorage.reference(to: message)
+        guard let message = messageRef.resolved else { return }
+        
+        _toggleRateForm(message: message, action: action)
+    }
+    
+    func _toggleRateForm(message: JVMessage, action: SdkChatManagerRateFormAction) {
+        let ref = subStorage.reference(to: message)
+        
+        thread.async { [unowned self] in
+            
+            switch action {
+            case .change(let rate, let comment):
+                let details = JsonCoder().encodeToRaw([
+                    "status": JVMessageBodyRateFormStatus.rated.rawValue,
+                    "last_rate": String(rate),
+                    "last_comment": comment
+                ]).jv_orEmpty
+                
+                
+                if checkRateformStatusChanged(message: message, newState: JVMessageBodyRateFormStatus.rated) {
+                    subStorage.turnRateForm(
+                        message: message,
+                        details: details
+                    )
+                    DispatchQueue.main.async { [unowned self] in
+                        messagingContext.broadcast(event: .messagesUpserted([ref]))
+                    }
+                } else {
+                    subStorage.turnRateForm(
+                        message: message,
+                        details: details
+                    )
+                }
+            case .submit(let scale, let choice, let comment):
+                let details = JsonCoder().encodeToRaw([
+                    "status": JVMessageBodyRateFormStatus.sent.rawValue,
+                    "last_rate": String(choice),
+                    "last_comment": comment
+                ]).jv_orEmpty
+                
+                subStorage.turnRateForm(
+                    message: message,
+                    details: details
+                )
+                
+                DispatchQueue.main.async { [unowned self] in
+                    messagingContext.broadcast(event: .messagesUpserted([ref]))
+                }
+                
+                guard let currentRateFormId = currentRateFormId else { return }
+                
+                proto.sendRateInfo(
+                    chatID: currentRateFormId,
+                    rate: scale.aliases[choice],
+                    comment: comment
+                )
+            case .dismiss:
+                let details = JsonCoder().encodeToRaw([
+                    "status": JVMessageBodyRateFormStatus.dismissed.rawValue
+                ]).jv_orEmpty
+                
+                subStorage.turnRateForm(
+                    message: message,
+                    details: details
+                )
+                
+                DispatchQueue.main.async { [unowned self] in
+                    messagingContext.broadcast(event: .messagesUpserted([ref]))
+                }
+            }
         }
     }
     
@@ -914,6 +1033,12 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             case let .seen(id, _): // second associated value is date
                 let seenMessages = markMessagesAsSeen(to: id)
                 seenMessages.forEach { upsertedMessages[$0.UUID] = $0 }
+            case .rate:
+                guard let rateFormID = bundle.payload.id as? String else {
+                    assertionFailure()
+                    return
+                }
+                sendRateForm(id: rateFormID, chat: self.chatContext.chatRef?.resolved)
             }
             
             switch subject {
@@ -1048,6 +1173,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     private func handleConnectionConfig(meta: ProtoEventSubjectPayload.ConnectionConfig, context: ProtoEventContext?) {
+        globalRateConfig = meta.body.rateConfig
         _requestRecentActivity()
     }
     

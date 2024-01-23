@@ -52,6 +52,7 @@ public protocol JVDisplayDelegate {
      - Parameter forElement:
      Element for which you provide your custom setting, or nil to use the default one
      */
+    @available(*, deprecated, message: "Please use Jivo.display.define(text:forElement:) instead")
     @objc(jivoDisplayDefineText:forElement:)
     optional func jivoDisplay(defineText sdk: Jivo, forElement element: JVDisplayElement) -> String?
     
@@ -63,6 +64,7 @@ public protocol JVDisplayDelegate {
      - Parameter forElement:
      Element for which you provide your custom setting, or nil to use the default one
      */
+    @available(*, deprecated, message: "Please use Jivo.display.define(color:forElement:) instead")
     @objc(jivoDisplayDefineColor:forElement:)
     optional func jivoDisplay(defineColor sdk: Jivo, forElement element: JVDisplayElement) -> UIColor?
     
@@ -74,6 +76,7 @@ public protocol JVDisplayDelegate {
      - Parameter forElement:
      Element for which you provide your custom setting, or nil to use the default one
      */
+    @available(*, deprecated, message: "Please use Jivo.display.define(image:forElement:) instead")
     @objc(jivoDisplayDefineImage:forElement:)
     optional func jivoDisplay(defineImage sdk: Jivo, forElement element: JVDisplayElement) -> UIImage?
 }

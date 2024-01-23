@@ -33,7 +33,7 @@ final class ChatModuleJoint
     ChatModuleViewIntent,
     ChatModuleState
 > {
-    private let uiConfig: ChatModuleUIConfig
+    private let uiConfig: SdkChatModuleVisualConfig
     private let typingCacheService: ITypingCacheService
     private let popupPresenterBridge: IPopupPresenterBridge
     private let photoPickingBridge: IPhotoPickingBridge
@@ -48,7 +48,7 @@ final class ChatModuleJoint
     private var mailComposeModule: MailComposeModule?
     private var browserPresentingViewController: UIViewController?
     
-    init(pipeline: ChatModulePipeline, state: ChatModuleState, view: UIViewController, navigator: IRTNavigator, uiConfig: ChatModuleUIConfig, typingCacheService: ITypingCacheService, popupPresenterBridge: IPopupPresenterBridge, photoPickingBridge: IPhotoPickingBridge, documentsBridge: IDocumentsBridge, webBrowsingBridge: IWebBrowsingBridge, emailComposingBridge: IEmailComposingBridge, photoLibraryDriver: IPhotoLibraryDriver, cameraDriver: ICameraDriver) {
+    init(pipeline: ChatModulePipeline, state: ChatModuleState, view: UIViewController, navigator: IRTNavigator, uiConfig: SdkChatModuleVisualConfig, typingCacheService: ITypingCacheService, popupPresenterBridge: IPopupPresenterBridge, photoPickingBridge: IPhotoPickingBridge, documentsBridge: IDocumentsBridge, webBrowsingBridge: IWebBrowsingBridge, emailComposingBridge: IEmailComposingBridge, photoLibraryDriver: IPhotoLibraryDriver, cameraDriver: ICameraDriver) {
         self.uiConfig = uiConfig
         self.typingCacheService = typingCacheService
         self.popupPresenterBridge = popupPresenterBridge
@@ -144,7 +144,7 @@ final class ChatModuleJoint
         }
     }
     
-    private func presentMediaUploadFailure(error: MediaUploadError) {
+    private func presentMediaUploadFailure(error: SdkMediaUploadError) {
         let message: String = {
             switch error {
             case .extractionFailed:

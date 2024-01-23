@@ -27,6 +27,7 @@ extension JVAgent {
             m_status_comment = c.statusComment
             m_avatar_link = c.avatarLink.jv_valuable
             m_display_name = c.displayName
+            m_channels = c.channels
             m_is_owner = c.isOwner ?? m_is_owner
             m_is_admin = c.isAdmin
             m_is_supervisor = c.isSupervisor
@@ -148,6 +149,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
     var title: String = ""
     var callingDestination: Int
     var callingOptions = 0
+    public var channels: String = ""
     public let isOwner: Bool?
     public let isAdmin: Bool
     public let isSupervisor: Bool
@@ -186,6 +188,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
         title = agentInfo["title"].stringValue
         callingDestination = agentInfo["web_call_dest"].int ?? -1
         callingOptions = flags.reduce(0, +)
+        channels = agentInfo["channels"].array?.description ?? ""
         isOwner = agentInfo["is_owner"].bool
         isAdmin = agentInfo["is_admin"].bool ?? true
         isSupervisor = agentInfo["is_supervisor"].bool ?? true
@@ -211,6 +214,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
         title = ""
         callingDestination = -1
         callingOptions = 0
+        channels = ""
         isOwner = nil
         isAdmin = false
         isSupervisor = false
@@ -235,6 +239,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
          title: String,
          callingDestination: Int,
          callingOptions: Int,
+         channels: String,
          isOwner: Bool?,
          isAdmin: Bool,
          isSupervisor: Bool,
@@ -256,6 +261,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
         self.title = title
         self.callingDestination = callingDestination
         self.callingOptions = callingOptions
+        self.channels = channels
         self.isOwner = isOwner
         self.isAdmin = isAdmin
         self.isSupervisor = isSupervisor
@@ -286,6 +292,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
             title: title,
             callingDestination: callingDestination,
             callingOptions: callingOptions,
+            channels: channels,
             isOwner: isOwner,
             isAdmin: isAdmin,
             isSupervisor: isSupervisor,

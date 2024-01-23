@@ -2,6 +2,7 @@ import Foundation
 
 struct User {
     let email: String
+    let supportJwt: String
     let fullName: String?
     let phoneNumber: String?
 }

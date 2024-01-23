@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22222" systemVersion="22G74" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22225" systemVersion="22G74" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="JVAgent" representedClassName=".JVAgent" parentEntity="JVParticipant" syncable="YES" codeGenerationType="category">
         <attribute name="m_avatar_link" optional="YES" attributeType="String"/>
         <attribute name="m_calling_destination" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_calling_options" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_channels" optional="YES" attributeType="String"/>
         <attribute name="m_display_name" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_draft" optional="YES" attributeType="String"/>
         <attribute name="m_email" optional="YES" attributeType="String" defaultValueString=""/>
@@ -34,27 +35,8 @@
     <entity name="JVAgentSession" representedClassName=".JVAgentSession" parentEntity="JVDatabaseModel" syncable="YES" codeGenerationType="category">
         <attribute name="m_allow_mobile_calls" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="m_email" optional="YES" attributeType="String" defaultValueString=""/>
-        <attribute name="m_global_ai_assistant_chat_resume_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
-        <attribute name="m_global_ai_assistant_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
-        <attribute name="m_global_assigned_agent_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
-        <attribute name="m_global_billing_update_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
-        <attribute name="m_global_business_chat_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
-        <attribute name="m_global_comments_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
-        <attribute name="m_global_disable_archive_for_regular" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
-        <attribute name="m_global_feedback_sdk_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="m_global_file_size_limit" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="m_global_groups_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
-        <attribute name="m_global_guests_insight_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
-        <attribute name="m_global_limited_crm" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
-        <attribute name="m_global_media_service_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
-        <attribute name="m_global_mentions_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
-        <attribute name="m_global_message_editing_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
-        <attribute name="m_global_platform_telephony_enabled" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="m_global_pricelist_id" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
-        <attribute name="m_global_reactions_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
-        <attribute name="m_global_received" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
-        <attribute name="m_global_standalone_tasks_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
-        <attribute name="m_global_voice_messages_enabled" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="m_id" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_is_active" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="m_is_admin" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
@@ -189,6 +171,7 @@
         <relationship name="m_owning_agent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVAgent"/>
         <relationship name="m_preview_message" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVMessage"/>
         <relationship name="m_request_cancelled_by_agent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVAgent"/>
+        <relationship name="m_topic" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVTopic"/>
         <relationship name="m_transfer_to_agent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVAgent"/>
         <relationship name="m_transfer_to_department" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVDepartment"/>
     </entity>
@@ -471,5 +454,11 @@
         <attribute name="m_sorting_region_en" optional="YES" attributeType="String"/>
         <attribute name="m_sorting_region_ru" optional="YES" attributeType="String"/>
         <relationship name="b_agent_worktimes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="JVAgentWorktime" inverseName="m_timezone" inverseEntity="JVAgentWorktime"/>
+    </entity>
+    <entity name="JVTopic" representedClassName=".JVTopic" parentEntity="JVDatabaseModel" syncable="YES" codeGenerationType="category">
+        <attribute name="m_created_at" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="m_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_title" optional="YES" attributeType="String"/>
+        <relationship name="m_parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVTopic"/>
     </entity>
 </model>

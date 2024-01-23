@@ -45,6 +45,30 @@ public final class JVDisplayController: NSObject {
     }
     
     /**
+     Here you can customize captions and texts for some elements
+     */
+    @objc(defineText:forElement:)
+    public func define(text: String?, forElement element: JVDisplayElement) {
+        _define(text: text, forElement: element)
+    }
+
+    /**
+     Here you can customize colors for some elements
+     */
+    @objc(defineColor:forElement:)
+    public func define(color: UIColor?, forElement element: JVDisplayElement) {
+        _define(color: color, forElement: element)
+    }
+
+    /**
+     Here you can customize icons for some elements
+     */
+    @objc(defineImage:forElement:)
+    public func define(image: UIImage?, forElement element: JVDisplayElement) {
+        _define(image: image, forElement: element)
+    }
+
+    /**
      Sets your own extra items to display within menu
      
      - Parameter menu:
@@ -109,6 +133,24 @@ extension JVDisplayController {
         
         joint.modifyConfig { config in
             config.locale = locale
+        }
+    }
+    
+    private func _define(text: String?, forElement element: JVDisplayElement) {
+        joint.modifyConfig { config in
+            config.customizationTextMapping[element] = text
+        }
+    }
+
+    private func _define(color: UIColor?, forElement element: JVDisplayElement) {
+        joint.modifyConfig { config in
+            config.customizationColorMapping[element] = color
+        }
+    }
+
+    private func _define(image: UIImage?, forElement element: JVDisplayElement) {
+        joint.modifyConfig { config in
+            config.customizationImageMapping[element] = image
         }
     }
     

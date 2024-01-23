@@ -18,7 +18,7 @@ class UserManager {
                 'phone': this.user.phone_number
             }
             
-            Jivo.startUp("YOUR_CHANNEL_ID", this.user.email)
+            Jivo.startUp("YOUR_CHANNEL_ID", this.user.supportJwt)
             Jivo.setContactInfo(info)
         }
         else {

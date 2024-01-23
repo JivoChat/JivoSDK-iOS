@@ -45,6 +45,10 @@ protocol JVChatTimelineInteractor: JMTimelineInteractor {
     func senderIconLongPress(item: JMTimelineItem)
     func systemButtonTap(buttonID: String)
     
+    func toggleRateFormChange(item: JMTimelineItem, choice: Int, comment: String)
+    func toggleRateFormSubmit(item: JMTimelineItem, scale: ChatTimelineRateScale, choice: Int, comment: String)
+    func toggleRateFormClose(item: JMTimelineItem)
+    
     func toggleContactForm(item: JMTimelineItem)
     func submitContactForm(values: TimelineContactFormControl.Values)
 

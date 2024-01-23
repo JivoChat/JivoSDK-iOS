@@ -42,8 +42,8 @@ public final class JVSessionController: NSObject {
      and it determines whether it is necessary to create a new session with a new dialog,
      or restore an existing one and load the history of the initiated dialog (should be a JWT token)
      
-     > Important: Please take a look at "User Token" section of SDK Documentation
-     > to know more about how to use JWT here
+     > Important: Please take a look at "User Token and JWT" section of SDK Documentation
+     > to learn more about how to use JWT here
      
      > Warning: Please avoid calling this method while SDK is displayed onscreen
      */

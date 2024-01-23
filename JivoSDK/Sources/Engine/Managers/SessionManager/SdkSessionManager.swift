@@ -49,7 +49,7 @@ fileprivate struct SdkSessionConnectionContext {
     let channelId: String
     let preferredStartupMode: SdkSessionManagerStartupMode
 }
-
+ 
 class SdkSessionManager: SdkManager, ISdkSessionManager {
     private var startUpDeferred: StartUpDeferred?
     private struct StartUpDeferred {

@@ -19,20 +19,26 @@ enum ChatModuleInputUpdate {
 //    case validationStatus(Bool)
 }
 
+enum SdkChatModuleLicenseState {
+    case undefined // when we haven't received the license data yet
+    case unlicensed
+    case licensed // demo- or pro-license
+}
+
 final class ChatModuleState {
     let photoRequestReason = UUID()
-    let uiConfig: ChatModuleUIConfig
+    let uiConfig: SdkChatModuleVisualConfig
     var authorizationState: SessionAuthorizationState
     var recentStartupMode: SdkSessionManagerStartupMode
     
-    var licenseState = ChatModuleLicenseState.undefined
+    var licenseState = SdkChatModuleLicenseState.undefined
     var activeAgents = [ChatModuleAgent]()
     var selectedMessageMeta: (sender: JVSenderType, deliveryStatus: JVMessageDelivery)?
     
     var placeholderForInput = String()
     var inputText = String()
     
-    init(uiConfig: ChatModuleUIConfig, authorizationState: SessionAuthorizationState, recentStartupMode: SdkSessionManagerStartupMode) {
+    init(uiConfig: SdkChatModuleVisualConfig, authorizationState: SessionAuthorizationState, recentStartupMode: SdkSessionManagerStartupMode) {
         self.uiConfig = uiConfig
         self.authorizationState = authorizationState
         self.recentStartupMode = recentStartupMode

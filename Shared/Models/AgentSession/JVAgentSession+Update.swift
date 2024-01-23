@@ -30,7 +30,6 @@ extension JVAgentSession {
             m_is_working = c.workingState
         }
         else if let c = change as? JVAgentSessionContextChange {
-            m_global_received = true
             m_global_pricelist_id = Int16(c.pricelistID ?? 0)
         }
         else if let c = change as? JVAgentSessionMobileCallsChange {

@@ -1,0 +1,5 @@
+import JivoSDK
+
+Jivo.display.define(text: "Friendly Support", forElement: .headerTitle)
+Jivo.display.define(color: .purple, forElement: .headerTitle)
+Jivo.display.define(image: UIImage(), forElement: .headerIcon)

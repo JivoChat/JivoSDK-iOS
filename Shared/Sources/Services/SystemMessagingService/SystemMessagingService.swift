@@ -758,6 +758,8 @@ final class SystemMessagingService: ISystemMessagingService {
             
         case .contactForm:
             return .init(exact: .jv_empty)
+        case .rateForm:
+            return .init(exact: .jv_empty)
         }
     }
     

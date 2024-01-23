@@ -90,6 +90,10 @@ extension JVChat: JVPresentable {
         return m_about?.jv_valuable
     }
     
+    var topic: JVTopic? {
+        return m_topic
+    }
+    
     var attendees: [JVChatAttendee] {
         if let allObjects = m_attendees?.allObjects as? [JVChatAttendee] {
             return allObjects

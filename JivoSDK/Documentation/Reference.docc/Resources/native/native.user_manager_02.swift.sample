@@ -3,6 +3,7 @@ import JivoSDK
 
 struct User {
     let email: String
+    let supportJwt: String
     let fullName: String?
     let phoneNumber: String?
 }
@@ -23,7 +24,7 @@ final class UserManager {
                 phone: user.phoneNumber
             )
             
-            Jivo.session.startUp(channelID: "YOUR_CHANNEL_ID", userToken: user.email)
+            Jivo.session.startUp(channelID: "YOUR_CHANNEL_ID", userToken: user.supportJwt)
             Jivo.session.setContactInfo(info)
         }
         else {

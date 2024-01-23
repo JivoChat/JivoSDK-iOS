@@ -42,7 +42,7 @@ final class JVChatModuleNavigationController
         timelineController: JMTimelineController<ChatTimelineInteractor>,
         timelineInteractor: ChatTimelineInteractor,
         timelineLoaderItem: JMTimelineItem,
-        uiConfig: ChatModuleUIConfig,
+        uiConfig: SdkChatModuleVisualConfig,
         closeButton: JVDisplayCloseButton
     ) {
         super.init(
@@ -80,7 +80,7 @@ final class JVChatModuleViewController
     private let timelineController: JMTimelineController<ChatTimelineInteractor>
     private let timelineInteractor: ChatTimelineInteractor
     private let timelineLoaderItem: JMTimelineItem
-    private let uiConfig: ChatModuleUIConfig
+    private let uiConfig: SdkChatModuleVisualConfig
     
     private let placeholderView = PlaceholderViewController<SdkEngine>(satellite: nil, layout: .center)
     private(set) var collectionView: UICollectionView?
@@ -94,7 +94,7 @@ final class JVChatModuleViewController
         timelineController: JMTimelineController<ChatTimelineInteractor>,
         timelineInteractor: ChatTimelineInteractor,
         timelineLoaderItem: JMTimelineItem,
-        uiConfig: ChatModuleUIConfig,
+        uiConfig: SdkChatModuleVisualConfig,
         closeButton: JVDisplayCloseButton
     ) {
         self.keyboardAnchorControl = keyboardAnchorControl
@@ -205,7 +205,7 @@ final class JVChatModuleViewController
         replyUnderlay.accessibilityLabel = "replyUnderlay"
         view.addSubview(replyUnderlay)
         
-        replyControl.tintColor = uiConfig.outcomingPalette?.inputTintColor
+        replyControl.tintColor = uiConfig.replyCursorColor
         replyControl.inputAccessoryView = keyboardAnchorControl
         replyUnderlay.addSubview(replyControl)
         

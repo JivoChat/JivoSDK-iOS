@@ -130,6 +130,7 @@ enum JVDesignColorUsage {
     case triggerSecondaryButtonBackground
     case triggerSecondaryButtonForeground
     case actionButtonBackground
+    case actionButtonCloud
     case actionActiveButtonForeground
     case actionInactiveButtonForeground
     case actionNeutralButtonForeground

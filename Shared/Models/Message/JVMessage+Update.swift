@@ -416,6 +416,9 @@ extension JVMessage {
                 
             case .contactForm(let status):
                 m_text = status.rawValue
+                
+            case .rateForm(let status):
+                m_text = status.rawValue
             }
             
             _adjustSender(type: c.senderType, ID: c.senderID, body: nil)

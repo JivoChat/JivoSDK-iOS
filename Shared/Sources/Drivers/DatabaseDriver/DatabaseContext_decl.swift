@@ -57,6 +57,7 @@ protocol JVIDatabaseContext: AnyObject {
     func chatWithID(_ ID: Int) -> JVChat?
     func message(for messageId: Int, provideDefault: Bool) -> JVMessage?
     func messageWithCallID(_ callID: String?) -> JVMessage?
+    func topic(for topicId: Int, needsDefault: Bool) -> JVTopic?
 }
 
 typealias JVDatabaseDriverSubscriberToken = UUID

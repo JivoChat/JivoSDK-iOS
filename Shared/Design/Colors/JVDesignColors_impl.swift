@@ -112,6 +112,7 @@ final class JVDesignColors: JVDesignEnvironmental, JVIDesignColors {
         case .triggerSecondaryButtonBackground: return dynamicColor(light: .hex(0xE1E1E2), dark: .alias(.white))
         case .triggerSecondaryButtonForeground: return dynamicColor(light: .hex(0x191919), dark: .hex(0x191919))
         case .actionButtonBackground: return dynamicColor(light: .alias(.white), dark: .alias(.black))
+        case .actionButtonCloud: return dynamicColor(light: .hex(0xE6F0FF), dark: .hex(0x46505F))
         case .actionActiveButtonForeground: return dynamicColor(light: .alias(.brightBlue), dark: .hex(0x0080FF))
         case .actionInactiveButtonForeground: return dynamicColor(light: .alias(.steel), dark: .alias(.steel))
         case .actionNeutralButtonForeground: return dynamicColor(light: .alias(.black), dark: .alias(.white))

@@ -24,12 +24,18 @@ typealias ChatModule = RTEModule<
 >
 
 final class ChatModuleBuilder: RTNavigatorDestination<ChatModule> {
-    init(uiConfig: ChatModuleUIConfig, closeButton: JVDisplayCloseButton, reducer: @escaping Reducer<ChatModuleJointOutput>) {
+    init(
+        uiConfig: SdkChatModuleVisualConfig,
+        timelineConfig: ChatTimelineVisualConfig,
+        closeButton: JVDisplayCloseButton,
+        reducer: @escaping Reducer<ChatModuleJointOutput>
+    ) {
         super.init { engine, navigator, callback in
             let module = ChatModuleAssembly(
                 engine: engine,
                 navigator: navigator,
                 uiConfig: uiConfig,
+                timelineConfig: timelineConfig,
                 closeButton: closeButton
             )
             
@@ -47,7 +53,13 @@ enum ChatModuleWrappingKind {
     case navigationController
 }
 
-func ChatModuleAssembly(engine: RTEConfigTrunk, navigator: IRTNavigator, uiConfig: ChatModuleUIConfig, closeButton: JVDisplayCloseButton) -> ChatModule {
+func ChatModuleAssembly(
+    engine: RTEConfigTrunk,
+    navigator: IRTNavigator,
+    uiConfig: SdkChatModuleVisualConfig,
+    timelineConfig: ChatTimelineVisualConfig,
+    closeButton: JVDisplayCloseButton
+) -> ChatModule {
     let keyboardAnchorControl = KeyboardAnchorControl()
     
     let timelineProvider = ChatTimelineProvider(
@@ -62,7 +74,8 @@ func ChatModuleAssembly(engine: RTEConfigTrunk, navigator: IRTNavigator, uiConfi
         chatManager: engine.managers.chatManager,
         remoteStorageService: engine.services.remoteStorageService,
         popupPresenterBridge: engine.bridges.popupPresenterBridge,
-        databaseDriver: engine.drivers.databaseDriver
+        databaseDriver: engine.drivers.databaseDriver,
+        preferencesDriver: engine.drivers.preferencesDriver
     )
     
     let timelineFactory = ChatTimelineFactory(
@@ -75,7 +88,8 @@ func ChatModuleAssembly(engine: RTEConfigTrunk, navigator: IRTNavigator, uiConfi
         disablingOptions: [.clientUserpic],
         botStyle: .outer,
         displayNameKind: .original,
-        outcomingPalette: uiConfig.outcomingPalette,
+        uiConfig: timelineConfig,
+        rateConfig: engine.managers.chatManager.globalRateConfig,
         keyboardAnchorControl: keyboardAnchorControl,
         contactFormCache: engine.retrieveCacheBundle(token: engine.clientContext.personalNamespace).contactFormCache,
         historyDelegate: engine.managers.chatManager

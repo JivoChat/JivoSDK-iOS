@@ -154,7 +154,8 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
                 chatserverHost: response.body["chatserver_host"].stringValue,
                 apiHost: response.body["api_host"].stringValue,
                 filesHost: response.body["files_host"].stringValue,
-                isLicensed: response.body["license"].bool
+                isLicensed: response.body["license"].bool,
+                rateConfig: .init(json: response.body["rate_settings"])
             )
         )
         
@@ -219,6 +220,7 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
 }
 
 extension ProtoEventSubjectPayload {
+    
     struct ConnectionConfig: IProtoEventSubjectPayloadModel {
         struct Body {
             let siteId: Int
@@ -226,6 +228,7 @@ extension ProtoEventSubjectPayload {
             let apiHost: String
             let filesHost: String
             let isLicensed: Bool?
+            let rateConfig: JMTimelineRateConfig?
         }
         
         static let kindId = UUID()

@@ -32,6 +32,7 @@ protocol ISdkChatSubStorage: IBaseChattingSubStorage {
     func deleteMessage(_ message: JVMessage)
     func createChat(withChatID chatId: Int) -> JVChat?
     func turnContactForm(message: JVMessage, status: JVMessageBodyContactFormStatus, details: JsonElement?)
+    func turnRateForm(message: JVMessage, details: String)
     func agents() -> [JVAgent]
     func markMessagesAsSeen(to messageId: Int, inChatWithId chatId: Int) -> [JVMessage]
     func markSendingStart(message: JVMessage)
@@ -230,7 +231,8 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
             
         case let .contactForm(status):
             updates.append(.text(status.rawValue))
-            
+        case let .rateForm(status):
+            break
         default:
             break
         }
@@ -385,6 +387,24 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         }
         catch {
         }
+    }
+    
+    func turnRateForm(message: JVMessage, details: String) {
+        do {
+            let change = try JVSdkMessageAtomChange(
+                localId: message.localID,
+                updates: [
+                    .details(details)
+                ]
+            )
+            
+            databaseDriver.readwrite { context in
+                message.performApply(
+                    context: context,
+                    environment: context.environment,
+                    change: change)
+            }
+        } catch { }
     }
     
     func agents() -> [JVAgent] {
@@ -591,6 +611,8 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
 //                if message.text.isEmpty {
 //                    accumulatingUpdates += [.isHidden(true)]
 //                }
+            case .rate:
+                break
             }
             
             return accumulatingUpdates

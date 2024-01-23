@@ -22,7 +22,7 @@ enum ChatModuleCoreEvent {
     case agentsUpdate
     case hasInputUpdates
     case inputUpdate(ChatModuleInputUpdate)
-    case mediaUploadFailure(error: MediaUploadError)
+    case mediaUploadFailure(error: SdkMediaUploadError)
     case messageSent
     case messageTapped
     case remoteMediaUnavailable
@@ -66,7 +66,7 @@ final class ChatModuleCore
     private let timelineController: JMTimelineController<ChatTimelineInteractor>
     private let timelineInteractor: ChatTimelineInteractor
     private let timelineCache: JMTimelineCache
-    private let uiConfig: ChatModuleUIConfig
+    private let uiConfig: SdkChatModuleVisualConfig
     private let maxImageDiskCacheSize: UInt
     
     private var chat: JVChat?
@@ -118,7 +118,7 @@ final class ChatModuleCore
          timelineController: JMTimelineController<ChatTimelineInteractor>,
          timelineInteractor: ChatTimelineInteractor,
          timelineCache: JMTimelineCache,
-         uiConfig: ChatModuleUIConfig,
+         uiConfig: SdkChatModuleVisualConfig,
          maxImageDiskCacheSize: UInt
     ) {
         self.workerThread = workerThread
@@ -623,7 +623,7 @@ final class ChatModuleCore
         chatHistory.setBottomItem(nil)
     }
     
-    private func handleMediaUploadFailure(withError error: MediaUploadError) {
+    private func handleMediaUploadFailure(withError error: SdkMediaUploadError) {
         chatHistory.setBottomItem(nil)
         typingCacheService.resetInput(context: TypingContext(kind: .chat, ID: chat?.ID ?? 0))
         pipeline?.notify(event: .mediaUploadFailure(error: error))

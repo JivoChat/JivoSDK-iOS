@@ -19,6 +19,9 @@ protocol ISdkJoint {
 
 struct SdkInputConfig {
     var locale: Locale?
+    var customizationTextMapping = [JVDisplayElement: String]()
+    var customizationColorMapping = [JVDisplayElement: UIColor]()
+    var customizationImageMapping = [JVDisplayElement: UIImage]()
     var extraMenuItems = [JVDisplayMenu: [String]]()
     var extraMenuHandlers = [JVDisplayMenu: (Int) -> Void]()
 }
@@ -28,7 +31,8 @@ class SdkJoint: ISdkJoint {
     
     private let navigator: IRTNavigator
     private var config = SdkInputConfig()
-    private lazy var uiConfig = buildChatModuleUIConfig(from: SdkInputConfig(), displayDelegate: nil)
+    private lazy var uiConfig = buildChatModuleVisualConfig(from: SdkInputConfig(), displayDelegate: nil)
+    private lazy var timelineConfig = buildChatTimelineUIConfig(from: SdkInputConfig(), displayDelegate: nil)
     private weak var rootViewController: UIViewController?
     private weak var chatModuleJoint: ChatModuleJoint?
     private var navigationBarSnapshot: UINavigationController.BarSnapshot?
@@ -54,6 +58,7 @@ class SdkJoint: ISdkJoint {
         let module = navigator.push(into: .native(navigationController), animate: true) {
             ChatModuleBuilder(
                 uiConfig: uiConfig,
+                timelineConfig: timelineConfig,
                 closeButton: .back,
                 reducer: generateReducer(displayDelegate: displayDelegate) { [weak self] in
                     if let snapshot = self?.navigationBarSnapshot {
@@ -86,6 +91,7 @@ class SdkJoint: ISdkJoint {
         let module = navigator.replace(inside: .native(navigationController)) {
             ChatModuleBuilder(
                 uiConfig: uiConfig,
+                timelineConfig: timelineConfig,
                 closeButton: closeButton,
                 reducer: generateReducer(displayDelegate: displayDelegate, dismissalHandler: nil)
             )
@@ -115,6 +121,7 @@ class SdkJoint: ISdkJoint {
         let built = navigator.build {
             ChatModuleBuilder(
                 uiConfig: uiConfig,
+                timelineConfig: timelineConfig,
                 closeButton: .dismiss,
                 reducer: generateReducer(displayDelegate: displayDelegate, dismissalHandler: nil)
             )
@@ -139,65 +146,84 @@ class SdkJoint: ISdkJoint {
     
     private func adjustUI(displayDelegate: JVDisplayDelegate?) {
         engine.providers.localeProvider.activeLocale = config.locale ?? .autoupdatingCurrent
-        uiConfig = buildChatModuleUIConfig(from: config, displayDelegate: displayDelegate)
+        uiConfig = buildChatModuleVisualConfig(from: config, displayDelegate: displayDelegate)
         engine.managers.chatManager.subOffline.customText = uiConfig.offlineMessage.jv_valuable
         engine.managers.chatManager.subHello.customText = uiConfig.helloMessage.jv_valuable
     }
     
-    private func buildChatModuleUIConfig(from config: SdkInputConfig, displayDelegate: JVDisplayDelegate?) -> ChatModuleUIConfig {
-        return ChatModuleUIConfig(
+    private func buildChatModuleVisualConfig(from config: SdkInputConfig, displayDelegate: JVDisplayDelegate?) -> SdkChatModuleVisualConfig {
+        return SdkChatModuleVisualConfig(
             icon: displayDelegate.jv_defineImage(
                 forElement: .headerIcon,
-                fallback: JVDesign.icons.find(asset: .agentAvatarIcon, rendering: .original).jv_orEmpty),
+                fallback: config.customizationImageMapping[.headerIcon] ?? JVDesign.icons.find(asset: .agentAvatarIcon, rendering: .original).jv_orEmpty),
             titleCaption: displayDelegate.jv_defineText(
                 forElement: .headerTitle,
-                fallback: loc["chat_title_placeholder"]),
+                fallback: config.customizationTextMapping[.headerTitle] ?? loc["chat_title_placeholder"]),
             titleColor: displayDelegate.jv_defineColor(
                 forElement: .headerTitle,
-                fallback: .dynamicTitle),
+                fallback: config.customizationColorMapping[.headerTitle] ?? .dynamicTitle),
             subtitleCaption: displayDelegate.jv_defineText(
                 forElement: .headerSubtitle,
-                fallback: loc["chat_subtitle_placeholder"]),
+                fallback: config.customizationTextMapping[.headerSubtitle] ?? loc["chat_subtitle_placeholder"]),
             subtitleColor: displayDelegate.jv_defineColor(
                 forElement: .headerSubtitle,
-                fallback: .dynamicSubtitle),
+                fallback: config.customizationColorMapping[.headerSubtitle] ?? .dynamicSubtitle),
             inputPlaceholder: displayDelegate.jv_defineText(
                 forElement: .replyPlaceholder,
-                fallback: loc["input_message_placeholder"]),
+                fallback: config.customizationTextMapping[.replyPlaceholder] ?? loc["input_message_placeholder"]),
             inputPrefill: displayDelegate.jv_defineText(
                 forElement: .replyPrefill,
-                fallback: String()),
+                fallback: config.customizationTextMapping[.replyPrefill] ?? String()),
             helloMessage: displayDelegate.jv_defineText(
                 forElement: .messageHello,
-                fallback: String()),
+                fallback: config.customizationTextMapping[.messageHello] ?? String()),
             offlineMessage: displayDelegate.jv_defineText(
                 forElement: .messageOffline,
-                fallback: loc["offline_message_placeholder"]),
+                fallback: config.customizationTextMapping[.messageOffline] ?? loc["offline_message_placeholder"]),
             attachCamera: displayDelegate.jv_defineText(
                 forElement: .attachCamera,
-                fallback: loc["Media.Picker.Camera"]),
+                fallback: config.customizationTextMapping[.attachCamera] ?? loc["Media.Picker.Camera"]),
             attachLibrary: displayDelegate.jv_defineText(
                 forElement: .attachLibrary,
-                fallback: loc["media_upload_attachment_type_selecting_photo"]),
+                fallback: config.customizationTextMapping[.attachLibrary] ?? loc["media_upload_attachment_type_selecting_photo"]),
             attachFile: displayDelegate.jv_defineText(
                 forElement: .attachFile,
-                fallback: loc["media_upload_attachment_type_selecting_document"]),
-            outcomingPalette: ChatTimelinePalette(
-                backgroundColor: displayDelegate.jv_defineColor(
-                    forElement: .outgoingElements,
-                    fallback: JVDesign.colors.resolve(usage: .accentGreen)),
-                foregroundColor: .white,
-                buttonsTintColor: displayDelegate.jv_defineColor(
-                    forElement: .outgoingElements,
-                    fallback: JVDesign.colors.resolve(usage: .accentGreen)),
-                inputTintColor: displayDelegate.jv_defineColor(
-                    forElement: .outgoingElements,
-                    fallback: JVDesign.colors.resolve(usage: .accentGreen))
-            ),
+                fallback: config.customizationTextMapping[.attachFile] ?? loc["media_upload_attachment_type_selecting_document"]),
             replyMenuExtraItems: config.extraMenuItems[.attach, default: Array()],
             replyMenuCustomHandler: { index in
                 config.extraMenuHandlers[.attach]?(index)
-            }
+            },
+            replyCursorColor: displayDelegate.jv_defineColor(
+                forElement: .outgoingElements,
+                fallback: config.customizationColorMapping[.outgoingElements] ?? JVDesign.colors.resolve(usage: .accentGreen))
+        )
+    }
+    
+    private func buildChatTimelineUIConfig(from config: SdkInputConfig, displayDelegate: JVDisplayDelegate?) -> ChatTimelineVisualConfig {
+        return ChatTimelineVisualConfig(
+            outcomingPalette: .init(
+                backgroundColor: displayDelegate.jv_defineColor(
+                    forElement: .outgoingElements,
+                    fallback: config.customizationColorMapping[.outgoingElements] ?? JVDesign.colors.resolve(usage: .accentGreen)),
+                foregroundColor: .white,
+                buttonsTintColor: displayDelegate.jv_defineColor(
+                    forElement: .outgoingElements,
+                    fallback: config.customizationColorMapping[.outgoingElements] ?? JVDesign.colors.resolve(usage: .accentGreen))
+            ),
+            rateForm: .init(
+                preSubmitTitle: displayDelegate.jv_defineText(
+                    forElement: .rateFormPreSubmitTitle,
+                    fallback: config.customizationTextMapping[.rateFormPreSubmitTitle] ?? loc["rate_form.title"]),
+                postSubmitTitle: displayDelegate.jv_defineText(
+                    forElement: .rateFormPostSubmitTitle,
+                    fallback: config.customizationTextMapping[.rateFormPostSubmitTitle] ?? loc["rate_form.finish_title"]),
+                commentPlaceholder: displayDelegate.jv_defineText(
+                    forElement: .rateFormCommentPlaceholder,
+                    fallback: config.customizationTextMapping[.rateFormCommentPlaceholder] ?? loc["rate_form.comment_title"]),
+                submitCaption: displayDelegate.jv_defineText(
+                    forElement: .rateFormSubmitCaption,
+                    fallback: config.customizationTextMapping[.rateFormSubmitCaption] ?? loc["rate_form.send"])
+            )
         )
     }
     

@@ -16,6 +16,7 @@ protocol ISdkSessionContext: AnyObject {
     var authorizationStateSignal: JVBroadcastUniqueTool<SessionAuthorizationState> { get }
     var accountConfig: SdkClientAccountConfig? { get set }
     var endpointConfig: SdkSessionEndpointConfig? { get set }
+    var rateConfig: JMTimelineRateConfig? { get set }
     var recentStartupMode: SdkSessionManagerStartupMode { get set }
     var recentStartupModeSignal: JVBroadcastUniqueTool<SdkSessionManagerStartupMode> { get }
     var numberOfResumes: Int { get set }
@@ -28,6 +29,7 @@ protocol ISdkSessionContext: AnyObject {
 extension PreferencesToken {
     static let accountConfig = PreferencesToken(key: "accountConfig", hint: SdkClientAccountConfig.self)
     static let endpointConfig = PreferencesToken(key: "endpointConfig", hint: SdkSessionEndpointConfig.self)
+    static let rateConfig = PreferencesToken(key: "rateConfig", hint: JMTimelineRateConfig.self)
 }
 
 enum SdkSessionContextEvent {
@@ -63,13 +65,16 @@ final class SdkSessionContext: ISdkSessionContext {
     
     private let accountConfigAccessor: IPreferencesAccessor
     private let endpointConfigAccessor: IPreferencesAccessor
+    private let rateConfigAccessor: IPreferencesAccessor
     
-    init(accountConfigAccessor: IPreferencesAccessor, endpointConfigAccessor: IPreferencesAccessor) {
+    init(accountConfigAccessor: IPreferencesAccessor, endpointConfigAccessor: IPreferencesAccessor, rateConfigAccessor: IPreferencesAccessor) {
         self.accountConfigAccessor = accountConfigAccessor
         self.endpointConfigAccessor = endpointConfigAccessor
-        
+        self.rateConfigAccessor = rateConfigAccessor
+         
         accountConfig = accountConfigAccessor.accountConfig
         endpointConfig = endpointConfigAccessor.endpointConfig
+        rateConfig = rateConfigAccessor.rateConfig
     }
     
     var networkingState = ReachabilityMode.none {
@@ -110,6 +115,12 @@ final class SdkSessionContext: ISdkSessionContext {
     var endpointConfig: SdkSessionEndpointConfig? {
         didSet {
             endpointConfigAccessor.endpointConfig = endpointConfig
+        }
+    }
+    
+    var rateConfig: JMTimelineRateConfig? {
+        didSet {
+            rateConfigAccessor.rateConfig = rateConfig
         }
     }
     
@@ -166,6 +177,15 @@ extension IPreferencesAccessor {
     var endpointConfig: SdkSessionEndpointConfig? {
         get {
             data.flatMap { try? JSONDecoder().decode(SdkSessionEndpointConfig.self, from: $0) }
+        }
+        set {
+            data = try? JSONEncoder().encode(newValue)
+        }
+    }
+    
+    var rateConfig: JMTimelineRateConfig? {
+        get {
+            data.flatMap { try? JSONDecoder().decode(JMTimelineRateConfig.self, from: $0) }
         }
         set {
             data = try? JSONEncoder().encode(newValue)

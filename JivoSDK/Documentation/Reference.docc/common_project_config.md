@@ -1,4 +1,4 @@
-# Project setup
+# Setup your Project
 
 Permissions and Push Notifications
 

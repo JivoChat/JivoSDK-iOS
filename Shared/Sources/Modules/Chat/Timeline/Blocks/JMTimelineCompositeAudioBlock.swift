@@ -14,7 +14,7 @@ import AVFoundation
 enum JMTimelineCompositeAudioType {
     case audio
     case voice
-    case inputVoice
+    case voicePreview
 }
 
 struct JMTimelineCompositeAudioStyle: JMTimelineStyle {
@@ -29,6 +29,7 @@ struct JMTimelineCompositeAudioStyleExtended: JMTimelineStyle {
     let minimumTrackColor: UIColor
     let maximumTrackColor: UIColor
     let durationLabelColor: UIColor
+    let waveformColor: UIColor
 }
 
 final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
@@ -55,16 +56,6 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
         clipsToBounds = false
         
         addSubview(backView)
-        
-        switch type {
-        case .audio:
-            break
-        case .voice:
-            waveFormView.tintColor = JVDesign.colors.resolve(usage: .waveformColor)
-        case .inputVoice:
-            waveFormView.tintColor = JVDesign.colors.resolve(alias: .white)
-        }
-        
         addSubview(waveFormView)
 
         let resumeIcon = UIImage(named: "player_resume", in: Bundle(for: JVDesign.self), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
@@ -84,12 +75,9 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
         addSubview(pauseButton)
         
         switch type {
-        case .audio:
-            sliderControl.inset = -0.5
-        case .voice:
-            sliderControl.inset = -25.0
-        case .inputVoice:
-            sliderControl.inset = -10.0
+        case .audio: sliderControl.inset = -0.5
+        case .voice: sliderControl.inset = -25.0
+        case .voicePreview: sliderControl.inset = -10.0
         }
         
         sliderControl.minimumValue = 0
@@ -171,20 +159,6 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
     func updateDesignWithExtendedStyle() {
         super.updateDesign()
         
-//        let sliderImage = generateThumbImage(
-//            size: JVDesign.fonts.scaled(CGSize(width: 15, height: 15), category: .title1),
-//            category: .title1,
-//            color: sliderColor.darkenBy(value: 0.3)
-//        )
-//
-//        backView.backgroundColor = sliderColor.darkenBy(value: 0.15)
-//        playButton.tintColor = JVDesign.colors.resolve(alias: .white)
-//        pauseButton.tintColor = JVDesign.colors.resolve(alias: .white)
-//        sliderControl.minimumTrackTintColor = sliderColor.darkenBy(value: 0.3)
-//        sliderControl.maximumTrackTintColor = sliderColor.darkenBy(value: 0.15)
-//        sliderControl.setThumbImage(sliderImage, for: .normal)
-//        durationLabel.textColor = sliderColor.darkenBy(value: 0.3)
-
         guard let style = extendedStyle else { return }
         
         backView.backgroundColor = style.backViewColor
@@ -208,7 +182,7 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
         durationLabel.textColor =  style.durationLabelColor
         
         sliderControl.setThumbImage(UIImage(), for: .normal)
-        durationLabel.font = obtainDurationFont()
+        durationLabel.font = JVDesign.fonts.resolve(.medium(14), scaling: .caption1)
     }
     
     override func handleLongPressGesture(recognizer: UILongPressGestureRecognizer) -> Bool {
@@ -230,7 +204,7 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
         
         let layout = getLayout(size: bounds.size, type: type)
         backView.frame = layout.backFrame
-        backView.layer.cornerRadius = type == .inputVoice ? layout.backCornerRadius : 0
+        backView.layer.cornerRadius = type == .voicePreview ? layout.backCornerRadius : 0
         playButton.frame = layout.buttonFrame
         playButton.layer.cornerRadius = layout.buttonCornerRadius
         pauseButton.frame = layout.buttonFrame
@@ -250,6 +224,12 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
         else {
             unsubscribe()
         }
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        drawWaveformIfNeeded()
+        updateDesignWithExtendedStyle()
     }
     
     private func getLayout(size: CGSize, type: JMTimelineCompositeAudioType) -> Layout {
@@ -358,6 +338,7 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
     
     private func drawWaveformIfNeeded() {
         guard let item = item else { return }
+        guard let style = extendedStyle else { return }
         
         switch type {
         case .audio:
@@ -381,7 +362,7 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
                             
                             let configuration = WaveformConfiguration(
                                 size: self.waveFormView.bounds.size,
-                                color: JVDesign.colors.resolve(usage: .waveformColor),
+                                color: style.waveformColor,
                                 backgroundColor: UIColor.clear,
                                 lineWidth: 4,
                                 space: 2,
@@ -400,7 +381,7 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
                     break
                 }
             })
-        case .inputVoice:
+        case .voicePreview:
             let asset = AVAsset(url: item)
             let audioTracks: [AVAssetTrack] = asset.tracks(withMediaType: AVMediaType.audio)
             if let track: AVAssetTrack = audioTracks.first {
@@ -497,7 +478,7 @@ fileprivate struct Layout {
                               height: height
                 )
             }
-        case .inputVoice:
+        case .voicePreview:
             let width = durationLabelFrame.minX - backFrame.maxX - horizontalPadding
             return CGRect(x: backFrame.maxX,
                           y: bounds.origin.y,
@@ -524,7 +505,7 @@ fileprivate struct Layout {
             else {
                 return CGRect(x: bounds.width, y: topY, width: 0, height: 0)
             }
-        case .inputVoice:
+        case .voicePreview:
             let label = UILabel()
             label.text = "0:00/0:00"
             label.font = label.font
@@ -572,38 +553,4 @@ fileprivate final class PlaybackSlider: ChatTimelineObservableSlider {
     override func trackRect(forBounds bounds: CGRect) -> CGRect {
         return super.trackRect(forBounds: bounds).insetBy(dx: -3.0, dy: inset)
     }
-}
-
-//fileprivate func generateThumbImage(size: CGSize, category: UIFont.TextStyle, color: UIColor) -> UIImage? {
-//    let basicCanvasSize = CGSize(width: 15, height: 15)
-//    let scaledCanvasSize = basicCanvasSize.scaled(category: category)
-//    let scaledCanvasBounds = CGRect(origin: .zero, size: scaledCanvasSize)
-//    let thumbInsets = UIEdgeInsets(top: 1, left: 1, bottom: 1, right: 1)
-//    let thumbFrame = scaledCanvasBounds.jv_reduceBy(insets: thumbInsets)
-//
-//    let thumbLayer = CALayer()
-//    thumbLayer.frame = thumbFrame
-//    thumbLayer.backgroundColor = color.cgColor
-//    thumbLayer.cornerRadius = thumbFrame.width * 0.5
-//    thumbLayer.allowsEdgeAntialiasing = true
-//
-//    let parentLayer = CALayer()
-//    parentLayer.frame = scaledCanvasBounds
-//    parentLayer.allowsEdgeAntialiasing = true
-//    parentLayer.addSublayer(thumbLayer)
-//
-//    UIGraphicsBeginImageContextWithOptions(scaledCanvasSize, false, 0)
-//    defer { UIGraphicsEndImageContext() }
-//
-//    if let context = UIGraphicsGetCurrentContext() {
-//        parentLayer.render(in: context)
-//        return UIGraphicsGetImageFromCurrentImageContext()
-//    }
-//    else {
-//        return nil
-//    }
-//}
-
-fileprivate func obtainDurationFont() -> UIFont {
-    return JVDesign.fonts.resolve(.medium(14), scaling: .caption1)
 }

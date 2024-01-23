@@ -580,6 +580,18 @@ final class JVDatabaseContext: JVIDatabaseContext {
         return objects(JVMessage.self, options: options).last
     }
     
+    func topic(for topicId: Int, needsDefault: Bool) -> JVTopic? {
+        if let value = object(JVTopic.self, primaryId: topicId) {
+            return value
+        }
+        else if needsDefault {
+            return upsert(of: JVTopic.self, with: JVTopicEmptyChange(id: topicId))
+        }
+        else {
+            return nil
+        }
+    }
+    
     private func handleException(error: Error) {
         if (error as NSError).code == 522 {
             removeAll()

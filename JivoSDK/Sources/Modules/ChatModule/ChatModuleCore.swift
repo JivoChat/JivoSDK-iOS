@@ -719,22 +719,29 @@ final class ChatModuleCore
     }
     
     private func handleSendMessageRequest(message: String) {
+        journal {"DBG[MOB-4931]: ----"}
+        journal {"DBG[MOB-4931]: Client wants to send a message ...\(message.suffix(10))"}
+        
         guard message.count <= SdkConfig.replyLengthLimit
         else {
+            journal {"DBG[MOB-4931]: Message length is over limit"}
             return
         }
         
         guard sessionContext.networkingState.hasNetwork
         else {
+            journal {"DBG[MOB-4931]: No active network available"}
             return
         }
         
         let attachments = typingCacheService.currentInput.attachments
         guard validateSendingMessageContent(text: message, attachments: attachments) else {
+            journal {"DBG[MOB-4931]: Message is not valid"}
             journal {"Failed validating the message content"}
             return
         }
         
+        journal {"DBG[MOB-4931]: Message is valid, starting main scenario"}
         chatManager.sendMessage(text: message, attachments: attachments)
         reconnectIfNeeded()
         

@@ -318,6 +318,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     func sendMessage(text: String, attachments: [ChatPhotoPickerObject]) {
+        journal {"DBG[MOB-4931]: Main scenario"}
+
         journal {"Sending the message"}
         apnsService.requestForPermission(at: .onSend)
         
@@ -329,15 +331,18 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     private func _sendMessage(text: String, attachments: [ChatPhotoPickerObject]) {
         guard let chat = chatContext.chatRef?.resolved
         else {
+            journal {"DBG[MOB-4931]: Missing chat"}
             journal {"Cannot send message: ChatManager.chat doesn't exist"}
             return
         }
         
         guard subStorage.retrieveQueuedMessages(chatId: chat.ID).isEmpty
         else {
+            journal {"DBG[MOB-4931]: Missing outgoing messages"}
             return
         }
         
+        journal {"DBG[MOB-4931]: Continue scenario"}
         _sendMessage_process(chat: chat, text: text.jv_trimmed())
         _sendMessage_process(attachments: attachments)
     }
@@ -345,6 +350,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     private func _sendMessage_process(chat: JVChat, text: String) {
         guard !text.isEmpty
         else {
+            journal {"DBG[MOB-4931]: Message is empty"}
             journal {"Cannot send message because its text is empty"}
             return
         }
@@ -361,6 +367,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             orderingIndex: 0)
         
         if let message = message {
+            journal {"DBG[MOB-4931]: Object was created"}
+            
             let messageRef = subStorage.reference(to: message)
             messagingContext.broadcast(event: .messageSending(messageRef), onQueue: .main)
             messagingContext.broadcast(event: .messagesUpserted([messageRef]), onQueue: .main)
@@ -373,6 +381,9 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             case .blocking:
                 _sendMessage_appendBlockingForm(chat: chat, pairedMessage: message)
             }
+        }
+        else {
+            journal {"DBG[MOB-4931]: Object was not created"}
         }
     }
     

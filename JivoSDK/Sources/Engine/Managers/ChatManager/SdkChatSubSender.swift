@@ -86,14 +86,19 @@ final class SdkChatSubSender: ISdkChatSubSender {
     }
     
     private func handleMessagesToSend(_ outmessages: [JVMessage]) {
+        journal {"DBG[MOB-4931]: Found \(outmessages.count) messages for sending"}
+        
         for outmessage in outmessages {
             guard let _ = databaseDriver.object(JVChat.self, primaryId: outmessage.chatID)
             else {
+                journal {"DBG[MOB-4931]: Missing chat"}
+                
                 let chatID = outmessage.chatID
                 journal {"Missing chat[\(chatID)] for outgoing message"}
                 continue
             }
             
+            journal {"DBG[MOB-4931]: Send with proto"}
             switch outmessage.content {
             case .photo(let mime, _, _, _, _, _):
                 proto

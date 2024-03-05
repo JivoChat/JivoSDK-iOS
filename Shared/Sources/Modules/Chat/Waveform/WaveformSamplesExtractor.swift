@@ -11,7 +11,6 @@ import AVFoundation
 import Accelerate
 
 final class WaveformSamplesExtractor {
-    
     static let shared = WaveformSamplesExtractor()
     
     private var outputSettings: [String : Any] = [
@@ -42,7 +41,7 @@ final class WaveformSamplesExtractor {
                     asset: assetReader.asset,
                     track: audioTrack,
                     downsampledTo: desiredNumberOfSamples,
-                    onSuccess: {samples, sampleMax in
+                    onSuccess: { samples, sampleMax in
                         switch assetReader.status {
                         case .completed:
                             onSuccess(self.normalize(samples), sampleMax, identifiedBy)
@@ -51,19 +50,21 @@ final class WaveformSamplesExtractor {
                         }
                     }, onFailure: {
                         onFailure()
-                    })
+                    }
+                )
             } catch {
                 onFailure()
             }
         }
-
-    private func extract(samplesFrom reader: AVAssetReader,
-                                      asset: AVAsset,
-                                      track:AVAssetTrack,
-                                      downsampledTo desiredNumberOfSamples: Int,
-                                      onSuccess: @escaping (_ samples: [Float], _ sampleMax: Float) -> (),
-                                      onFailure: @escaping () -> ()) {
-        
+    
+    private func extract(
+        samplesFrom reader: AVAssetReader,
+        asset: AVAsset,
+        track:AVAssetTrack,
+        downsampledTo desiredNumberOfSamples: Int,
+        onSuccess: @escaping (_ samples: [Float], _ sampleMax: Float) -> (),
+        onFailure: @escaping () -> ()
+    ) {
         asset.loadValuesAsynchronously(forKeys: ["duration"]) {
             var error: NSError?
             let status = asset.statusOfValue(forKey: "duration", error: &error)
@@ -119,13 +120,15 @@ final class WaveformSamplesExtractor {
                     
                     guard samplesToProcess > 0 else { continue }
                     
-                    self.processSamples(fromData: &sampleBuffer,
-                                         sampleMax: &sampleMax,
-                                         outputSamples: &outputSamples,
-                                         samplesToProcess: samplesToProcess,
-                                         downSampledLength: downSampledLength,
-                                         samplesPerPixel: samplesPerPixel,
-                                         filter: filter)
+                    self.processSamples(
+                        fromData: &sampleBuffer,
+                        sampleMax: &sampleMax,
+                        outputSamples: &outputSamples,
+                        samplesToProcess: samplesToProcess,
+                        downSampledLength: downSampledLength,
+                        samplesPerPixel: samplesPerPixel,
+                        filter: filter
+                    )
                 }
                 
                 let samplesToProcess = sampleBuffer.count / MemoryLayout<Int16>.size
@@ -142,7 +145,8 @@ final class WaveformSamplesExtractor {
                         samplesToProcess: samplesToProcess,
                         downSampledLength: downSampledLength,
                         samplesPerPixel: samplesPerPixel,
-                        filter: filter)
+                        filter: filter
+                    )
                 }
                 DispatchQueue.main.async {
                     onSuccess(outputSamples, sampleMax)

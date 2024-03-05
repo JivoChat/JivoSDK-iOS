@@ -25,15 +25,6 @@ extension UIView {
         return !isHidden
     }
     
-    var jv_safeInsets: UIEdgeInsets {
-        if #available(iOS 11.0, *) {
-            return safeAreaInsets
-        }
-        else {
-            return .zero
-        }
-    }
-    
     var jv_maximumCornerRadius: CGFloat {
         return min(bounds.width, bounds.height) * 0.5
     }
@@ -142,7 +133,7 @@ extension UIView {
         
         func _perform(alpha: CGFloat, completion: @escaping () -> Void) {
             UIView.animate(
-                withDuration: 0.15,
+                withDuration: 0.25,
                 animations: { flasher.alpha = alpha },
                 completion: { _ in completion() })
         }
@@ -199,7 +190,7 @@ extension UIView {
         layer.mask = gradient
 
         let shimmingAnimation = CABasicAnimation(keyPath: "locations")
-        shimmingAnimation.duration = 1
+        shimmingAnimation.duration = 1.5
         shimmingAnimation.repeatCount = 1
         shimmingAnimation.fromValue = _generateLocations(delta: -1.0)
         shimmingAnimation.toValue = _generateLocations(delta: +1.0)

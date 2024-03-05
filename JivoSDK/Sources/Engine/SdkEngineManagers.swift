@@ -20,6 +20,8 @@ struct SdkEngineManagers {
 }
 
 struct SdkEngineManagersFactory {
+    let apnsEnvironment: UIApplication.ApnsEnvironment
+    
     let workerThread: JVIDispatchThread
     let uploadingQueue: DispatchQueue
     let sessionContext: ISdkSessionContext
@@ -112,6 +114,7 @@ struct SdkEngineManagersFactory {
         )
         
         let subPusher = SdkClientSubPusher(
+            apnsEnvironment: apnsEnvironment,
             pushCredentialsRepository: pushCredentialsRepository,
             proto: clientProto,
             throttlingQueue: ThrottlingQueue(queue: .main, delay: 2)

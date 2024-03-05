@@ -15,6 +15,7 @@ enum PopupPresenterBehavior {
 }
 
 enum PopupPresenterDisplayContainer {
+    case auto
     case root
     case specific(UIViewController?)
 }
@@ -122,7 +123,7 @@ final class PopupPresenterBridge: NSObject, IPopupPresenterBridge {
         let configurator = PopupPresenterMenuConfigurator(items: items.jv_sort(accordingTo: location))
         return configurator.configure(barButtonItem: barButtonItem) { [unowned self] in
             displayMenu(
-                within: .root,
+                within: .auto,
                 anchor: nil,
                 title: nil,
                 message: nil,
@@ -184,8 +185,11 @@ final class PopupPresenterBridge: NSObject, IPopupPresenterBridge {
     
     private func displayAsModal(within container: PopupPresenterDisplayContainer, viewController: UIViewController) {
         switch container {
-        case .root, .specific(nil):
+        case .auto, .specific(nil):
             let parent = (window?.rootViewController?.presentedViewController) ?? (window?.rootViewController)
+            parent?.present(viewController, animated: true)
+        case .root:
+            let parent = window?.rootViewController
             parent?.present(viewController, animated: true)
         case .specific(.some(let parent)):
             parent.present(viewController, animated: true)
@@ -194,7 +198,7 @@ final class PopupPresenterBridge: NSObject, IPopupPresenterBridge {
 
     @objc private func handleContextMenuGesture(gesture: ContextMenuGesture) {
         displayMenu(
-            within: .root,
+            within: .auto,
             anchor: nil,
             title: nil,
             message: nil,
@@ -203,7 +207,7 @@ final class PopupPresenterBridge: NSObject, IPopupPresenterBridge {
     
     @objc private func handleFlexibleContextMenuGesture(gesture: FlexibleContextMenuGesture) {
         displayFlexibleMenu(
-            within: .root,
+            within: .auto,
             source: gesture.button as? FlexibleMenuTriggerButton,
             items: gesture.items
         )

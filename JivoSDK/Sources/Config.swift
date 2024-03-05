@@ -62,19 +62,8 @@ enum ConfigRule {
             return (since.lessOrEqual(then: version))
             
         case .sinceApp(let since):
-            let version = Bundle.main.jv_version
+            let version = Bundle.main.jv_formatVersion(.marketingShort)
             return since.lessOrEqual(then: version)
-        }
-    }
-}
-
-extension UIViewController {
-    func conf_preferFullScreen() {
-        if #available(iOS 15.0, *) {
-            isModalInPresentation = false
-        }
-        else if #available(iOS 13.0, *) {
-            isModalInPresentation = true
         }
     }
 }

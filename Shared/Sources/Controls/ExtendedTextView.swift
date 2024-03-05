@@ -83,6 +83,8 @@ final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
         }
         set {
             textView.text = newValue
+            adjustTextColor()
+            
             placeholderLabel.isHidden = textView.hasText
         }
     }
@@ -134,26 +136,26 @@ final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
         let foundRange = (content as NSString).range(of: symbol, options: .backwards, range: searchingRange, locale: nil)
         
         guard foundRange.location != NSNotFound else {
-            textView.replace(range, withText: symbol + replacement)
+            replace(range, withText: symbol + replacement)
             return
         }
         
         guard let startPosition = textView.position(from: textView.beginningOfDocument, offset: foundRange.upperBound) else {
-            textView.replace(range, withText: symbol + replacement)
+            replace(range, withText: symbol + replacement)
             return
         }
         
         guard let replacingRange = textView.textRange(from: startPosition, to: range.end) else {
-            textView.replace(range, withText: symbol + replacement)
+            replace(range, withText: symbol + replacement)
             return
         }
         
         if let tail = textView.text(in: replacingRange), tail.jv_containsSymbols(from: .mentioningGap) {
-            textView.replace(range, withText: symbol + replacement)
+            replace(range, withText: symbol + replacement)
             return
         }
             
-        textView.replace(replacingRange, withText: replacement)
+        replace(replacingRange, withText: replacement)
     }
     
     override var isFirstResponder: Bool {
@@ -179,12 +181,7 @@ final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
     
     func insertText(_ text: String) {
         textView.insertText(text)
-        if isOverLimit {
-            textView.textColor = JVDesign.colors.resolve(usage: .warningForeground)
-        }
-        else {
-            textView.textColor = JVDesign.colors.resolve(usage: .primaryForeground)
-        }
+        adjustTextColor()
     }
     
     func register(_ responder: UIResponder, for actions: [Selector]) {
@@ -224,27 +221,31 @@ final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
     }
     
     func textViewDidBeginEditing(_ textView: UITextView) {
-        startEditingHandler?(textView.text ?? String())
+        startEditingHandler?(textView.text.jv_orEmpty)
     }
     
     func textViewDidChange(_ textView: UITextView) {
-        if isOverLimit {
-            textView.textColor = JVDesign.colors.resolve(usage: .warningForeground)
-        }
-        else {
-            textView.textColor = JVDesign.colors.resolve(usage: .primaryForeground)
-        }
-        
         placeholderLabel.isHidden = textView.hasText
         
-        textChangeHandler?(textView.text ?? String())
+        textChangeHandler?(textView.text.jv_orEmpty)
         
         if textView.jv_calculateSize(for: bounds.width, numberOfLines: nil).height != textView.bounds.height {
             heightUpdateHandler?()
         }
+        
+        adjustTextColor()
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
-        finishEditingHandler?(textView.text ?? String())
+        finishEditingHandler?(textView.text.jv_orEmpty)
+    }
+    
+    private func replace(_ range: UITextRange, withText: String) {
+        textView.replace(range, withText: withText)
+        adjustTextColor()
+    }
+    
+    private func adjustTextColor() {
+        textView.textColor = JVDesign.colors.resolve(usage: isOverLimit ? .warningForeground : .primaryForeground)
     }
 }

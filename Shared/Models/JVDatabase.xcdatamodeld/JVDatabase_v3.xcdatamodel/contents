@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22225" systemVersion="22G74" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22522" systemVersion="23C71" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="JVAgent" representedClassName=".JVAgent" parentEntity="JVParticipant" syncable="YES" codeGenerationType="category">
         <attribute name="m_avatar_link" optional="YES" attributeType="String"/>
         <attribute name="m_calling_destination" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -312,6 +312,7 @@
         <attribute name="m_recipient_type" optional="YES" attributeType="String" defaultValueString=""/>
     </entity>
     <entity name="JVMessage" representedClassName=".JVMessage" parentEntity="JVDatabaseModel" syncable="YES" codeGenerationType="category">
+        <attribute name="m_can_be_sent" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="m_chat_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_client_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
@@ -327,6 +328,7 @@
         <attribute name="m_is_markdown" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="m_is_offline" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="m_local_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_must_be_sent" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="m_ordering_index" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_reactions" optional="YES" attributeType="Binary"/>
         <attribute name="m_sender_bot_flag" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>

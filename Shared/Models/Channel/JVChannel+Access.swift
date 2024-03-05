@@ -15,9 +15,9 @@ enum JVChannelJoint: String {
     case ok = "ok"
     case tg = "tg"
     case vb = "vb"
-    case wa = "wa"
-    case wb = "wb"
-    case tw = "tw"
+    case wa = "wa" // WhatsApp
+    case wb = "wb" // WhatsApp
+    case tw = "tw" // WhatsApp Twilio
     case email = "email"
     case sdk = "sdk"
     case ya = "ya"

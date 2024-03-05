@@ -67,7 +67,7 @@ final class TooltipControl: UIControl {
     
     public init(
         title: String,
-        subtitle: String,
+        subtitle: String?,
         configuration: Configuration = TooltipControl.globalConfiguration,
         delegate: TooltipControlDelegate
     ) {
@@ -81,19 +81,22 @@ final class TooltipControl: UIControl {
             attributes: titleStringAttrs
         )
         
-        let subtitleStringAttrs = [
-            NSAttributedString.Key.foregroundColor: JVDesign.colors.resolve(alias: .white),
-            NSAttributedString.Key.font: JVDesign.fonts.resolve(.regular(14), scaling: .body)
-        ]
-        let subtitleString = NSAttributedString(
-            string: subtitle,
-            attributes: subtitleStringAttrs
-        )
-        
         let resultedString = NSMutableAttributedString()
         resultedString.append(titleString)
-        resultedString.append(NSMutableAttributedString(string: "\n"))
-        resultedString.append(subtitleString)
+        
+        if let subtitle = subtitle {
+            let subtitleStringAttrs = [
+                NSAttributedString.Key.foregroundColor: JVDesign.colors.resolve(alias: .white),
+                NSAttributedString.Key.font: JVDesign.fonts.resolve(.regular(14), scaling: .body)
+            ]
+            let subtitleString = NSAttributedString(
+                string: subtitle,
+                attributes: subtitleStringAttrs
+            )
+            
+            resultedString.append(NSMutableAttributedString(string: "\n"))
+            resultedString.append(subtitleString)
+        }
         
         self.text = resultedString
         self.configuration = configuration

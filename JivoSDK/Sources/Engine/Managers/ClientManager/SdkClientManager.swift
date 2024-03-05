@@ -223,7 +223,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     }
     
     override func handleProtoEvent(subject: IProtoEventSubject, context: ProtoEventContext?) {
-        switch subject as? SessionProtoEventSubject {
+        switch subject as? SdkSessionProtoEventSubject {
         case .connectionConfig(let meta):
             handleConnectionConfig(meta: meta, context: context)
         default:
@@ -248,7 +248,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     
     private func handleMeTransaction(_ transaction: [NetworkingEventBundle]) {
         transaction.forEach { bundle in
-            guard case MeTransactionSubject.meHistory(nil) = bundle.payload.subject else {
+            guard case SdkSessionProtoMeSubject.history(nil) = bundle.payload.subject else {
                 return
             }
             

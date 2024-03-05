@@ -241,7 +241,7 @@ final class ChatModuleJoint
                 
             case .failure:
                 self?.popupPresenterBridge.displayAlert(
-                    within: .root,
+                    within: .auto,
                     title: loc["common_unknown_error"],
                     message: loc["media_uploading_extraction_error"],
                     items: [
@@ -271,7 +271,7 @@ final class ChatModuleJoint
                   fileSize < SdkConfig.uploadingLimit.bytes
             else {
                 self?.popupPresenterBridge.displayAlert(
-                    within: .root,
+                    within: .auto,
                     title: loc["media_uploading_extraction_error"],
                     message: loc[format: "media_uploading_too_large", SdkConfig.uploadingLimit.megabytes],
                     items: [

@@ -49,11 +49,8 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
         
         layer.cornerRadius = 14
         clipsToBounds = true
-        
-        if #available(iOS 11.0, *) {
-            accessibilityIgnoresInvertColors = true
-        }
-        
+        accessibilityIgnoresInvertColors = true
+
         underlayView.backgroundColor = JVDesign.colors.resolve(usage: .chattingBackground)
         underlayView.layer.cornerRadius = 13
         underlayView.clipsToBounds = true

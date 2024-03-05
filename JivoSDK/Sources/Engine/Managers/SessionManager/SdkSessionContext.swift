@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import JWTDecode
 
 protocol ISdkSessionContext: AnyObject {
     var eventSignal: JVBroadcastTool<SdkSessionContextEvent> { get }
@@ -20,9 +21,10 @@ protocol ISdkSessionContext: AnyObject {
     var recentStartupMode: SdkSessionManagerStartupMode { get set }
     var recentStartupModeSignal: JVBroadcastUniqueTool<SdkSessionManagerStartupMode> { get }
     var numberOfResumes: Int { get set }
-    var identifyingToken: String? { get set }
+    var identifyingToken: String? { get }
     var localChatId: Int? { get }
     var authorizingPath: String? { get set }
+    func updateIdentity(token: String?)
     func reset()
 }
 
@@ -133,26 +135,40 @@ final class SdkSessionContext: ISdkSessionContext {
     
     var numberOfResumes = 0
     
-    var identifyingToken: String? {
+    private(set) var identifyingToken: String? {
         didSet {
             eventSignal.broadcast(.identifyingTokenChanged(identifyingToken))
         }
     }
     
-    var localChatId: Int? {
-        guard let identifyingToken = identifyingToken else {
-            journal {"Failed obtaining a chat because clientToken doesn't exists"}
-            return nil
-        }
-        
-        let chatId = max(1, CRC32.encrypt(identifyingToken))
-        return chatId
-    }
+    private(set) var localChatId: Int?
     
     var authorizingPath: String? {
         didSet {
             eventSignal.broadcast(.authorizingPathChanged(authorizingPath))
         }
+    }
+    
+    func updateIdentity(token: String?) {
+        if let token = token {
+            do {
+                let jwt = try decode(jwt: token)
+                
+                if let id = jwt.body["id"] as? String {
+                    localChatId = max(1, CRC32.encrypt(id))
+                }
+                else {
+                    inform {"Please put mandatory 'id' key inside JWT"}
+                    localChatId = max(1, CRC32.encrypt(token))
+                }
+            }
+            catch {
+                inform {"For better integration, please use JWT format for userToken"}
+                localChatId = max(1, CRC32.encrypt(token))
+            }
+        }
+        
+        identifyingToken = token
     }
     
     func reset() {

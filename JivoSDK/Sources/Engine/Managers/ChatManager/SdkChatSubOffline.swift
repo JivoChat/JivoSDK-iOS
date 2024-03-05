@@ -109,7 +109,7 @@ class SdkChatSubOffline: ISdkChatSubOffline {
         switch event {
         case .messagesUpserted(let messagesRefs):
             let messages = messagesRefs.compactMap(\.resolved)
-            guard !messages.filter(\.jv_isValid).map(\.type).contains("offline") else { break }
+            guard !messages.filter(\.jv_isValid).map(\.logicalType).contains(.offline) else { break }
             let messagesUids = messages.map(\.UUID)
             guard !Set(alreadyHandledUids).isSuperset(of: messagesUids) else { break }
             alreadyHandledUids = (alreadyHandledUids + messagesUids).suffix(10)
@@ -178,7 +178,7 @@ class SdkChatSubOffline: ISdkChatSubOffline {
         if lastMessage.direction == .outgoing {
             return .outgoing
         }
-        else if lastMessage.type == "offline" {
+        else if lastMessage.renderingType == .offline {
             return .offline
         }
         else {
@@ -211,7 +211,7 @@ class SdkChatSubOffline: ISdkChatSubOffline {
             break
         }
         
-        if lastMessage.type == "offline" {
+        if lastMessage.renderingType == .offline {
             return .offline
         }
         
@@ -236,7 +236,7 @@ class SdkChatSubOffline: ISdkChatSubOffline {
         }
         
         for message in messages {
-            if message.type != "system" && _isDelivered(message: message) {
+            if message.renderingType != .system, _isDelivered(message: message) {
                 switch message.sender?.senderType {
                 case .client:
                     return .delay

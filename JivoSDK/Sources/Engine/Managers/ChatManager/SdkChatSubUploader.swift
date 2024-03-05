@@ -235,7 +235,9 @@ class SdkChatSubUploader: ISdkChatSubUploader {
                 link: url.absoluteString,
                 dataSize: dataSize,
                 width: 0,
-                height: 0
+                height: 0,
+                title: nil,
+                text: nil
             )
             
         case .file:

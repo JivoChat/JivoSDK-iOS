@@ -23,6 +23,7 @@
 //
 
 import Foundation
+import UniformTypeIdentifiers
 
 #if os(iOS) || os(watchOS) || os(tvOS)
 import MobileCoreServices
@@ -931,8 +932,13 @@ class MultipartFormData {
     // MARK: - Private - Mime Type
 
     private func mimeType(forPathExtension pathExtension: String) -> String {
-        if
-            let id = UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, pathExtension as CFString, nil)?.takeRetainedValue(),
+        if #available(iOS 15.0, *) {
+            if let contentType = UTType(filenameExtension: pathExtension)?.preferredMIMEType {
+                return contentType
+            }
+        }
+        else if
+            let id =  UTTypeCreatePreferredIdentifierForTag(kUTTagClassFilenameExtension, pathExtension as CFString, nil)?.takeRetainedValue(),
             let contentType = UTTypeCopyPreferredTagWithClass(id, kUTTagClassMIMEType)?.takeRetainedValue() {
             return contentType as String
         }

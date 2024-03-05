@@ -108,9 +108,7 @@ fileprivate final class InternalControl: UIImageView {
         playIcon.contentMode = .center
         dimView.addSubview(playIcon)
         
-        if #available(iOS 11.0, *) {
-            accessibilityIgnoresInvertColors = true
-        }
+        accessibilityIgnoresInvertColors = true
     }
     
     required init?(coder aDecoder: NSCoder) {

@@ -41,6 +41,15 @@ final class JVLocalizer {
         return [JVLocalizerSearchingRule(location: Bundle.main.bundlePath, namespace: .jv_empty)]
     }
     
+    private let regexpStrToObj: NSRegularExpression? = {
+        do {
+            return try NSRegularExpression(pattern: "%(\\d+\\$)?s", options: .jv_empty)
+        }
+        catch {
+            return nil
+        }
+    }()
+    
     private var langToSearchingPathsCache = [String: [JVLocalizerSearchingRule<Bundle>]]()
     
     init() {
@@ -86,14 +95,29 @@ final class JVLocalizer {
     }
     
     public subscript(key key: String) -> String {
-        return self[key]
-            .replacingOccurrences(of: "%s", with: "%@")
-            .replacingOccurrences(of: "$s", with: "$@")
+        let original = self[key]
+        
+        if original.contains("%"), let regexp = regexpStrToObj {
+            let range = NSMakeRange(0, original.utf16.count)
+            return regexp.stringByReplacingMatches(in: original, range: range, withTemplate: "%$1@")
+        }
+        else {
+            return original
+        }
     }
     
     public subscript(format key: String, _ arguments: CVarArg...) -> String {
         let locale = JVLocaleProvider.activeLocale
-        return String(format: self[key: key], locale: locale, arguments: arguments)
+        let format = self[key: key]
+        
+        if format.hasPrefix("%#@"), format.hasSuffix("@"), let value = arguments.first {
+            return String.localizedStringWithFormat(
+                NSLocalizedString(key, comment: .jv_empty),
+                value)
+        }
+        else {
+            return String(format: format, locale: locale, arguments: arguments)
+        }
     }
 }
 

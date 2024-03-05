@@ -216,7 +216,7 @@ class BaseButton: UIButton {
     }
     
     private func apply() {
-        showsTouchWhenHighlighted = config.decoration?.indicatesTouch ?? false
+        jv_showsTouchWhenHighlighted = config.decoration?.indicatesTouch ?? false
         isEnabled = (isEnabled && config.enabled)
         
         if let _ = config.regularFillColor {
@@ -238,7 +238,7 @@ class BaseButton: UIButton {
         titleLabel?.numberOfLines = config.multiline ? 0 : 1
         
         contentHorizontalAlignment = config.contentAlignment
-        adjustsImageWhenHighlighted = (config.pressedFillColor == nil)
+        jv_adjustsImageWhenHighlighted = (config.pressedFillColor == nil)
         
         if let spinner = config.spinner {
             awaitingIndicator.style = spinner.style

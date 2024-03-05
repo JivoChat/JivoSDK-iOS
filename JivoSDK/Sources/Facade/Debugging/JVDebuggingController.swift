@@ -33,6 +33,19 @@ public final class JVDebuggingController: NSObject {
     }
     
     /**
+     Performs copying of local log entries
+     and returns a link to the created copy
+     via completion block with status
+     
+     - Parameter handler:
+     The block that would be called when copying is finished
+     */
+    @objc(copyLogsWithCompletionHandler:)
+    public func copyLogs(completion handler: @escaping (URL?, JVDebuggingArchiveStatus) -> Void) {
+        _copyLogs(completion: handler)
+    }
+
+    /**
      Performs archiving of local log entries
      and returns a link to the created archive
      via completion block with status
@@ -66,6 +79,29 @@ extension JVDebuggingController: SdkEngineAccessing {
             setJournalLevel(.silent)
         case .full:
             setJournalLevel(.full)
+        }
+    }
+    
+    private func _copyLogs(completion handler: @escaping (URL?, JVDebuggingArchiveStatus) -> Void) {
+        let drivers = engine.drivers
+        
+        guard let tmpFile = drivers.cacheDriver.url(item: .accumulatedLogs) else {
+            return handler(nil, .failedAccessing)
+        }
+        
+        let originalQueue = OperationQueue.current ?? .main
+        DispatchQueue.global(qos: .userInitiated).async {
+            let status = drivers.journalDriver.copy(to: tmpFile)
+            originalQueue.addOperation {
+                switch status {
+                case .success:
+                    handler(tmpFile, .success)
+                case .failedCutting:
+                    handler(nil, .failedPreparing)
+                case .failedCompressing:
+                    handler(nil, .failedPreparing)
+                }
+            }
         }
     }
     

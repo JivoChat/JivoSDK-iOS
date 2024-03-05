@@ -52,6 +52,7 @@ enum JVDesignColorAlias {
     case greenSber
     case skyBlue
     case brightBlue
+    case blueVk
     case darkPeriwinkle
     case seashell
     case alto

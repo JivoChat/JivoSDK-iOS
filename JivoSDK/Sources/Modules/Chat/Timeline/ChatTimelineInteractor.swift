@@ -228,7 +228,7 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
         }
         
         popupPresenterBridge.displayMenu(
-            within: .root,
+            within: .auto,
             anchor: container,
             title: nil,
             message: nil,

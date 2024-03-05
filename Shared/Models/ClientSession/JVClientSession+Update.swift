@@ -72,7 +72,7 @@ final class JVClientSessionGeneralChange: JVDatabaseModelChange {
         history = json["prechat_navigates"].parseList()
         geo = json.has(key: "geoip")?.parse() ?? json.has(key: "social")?.parse() ?? nil
         chatStartPage = json["chat_start_page"].parse()
-        currentPage = json["current_page"].parse()
+        currentPage = json["prechat_navigates"].array?.first?.parse()
         super.init(json: json)
     }
 }

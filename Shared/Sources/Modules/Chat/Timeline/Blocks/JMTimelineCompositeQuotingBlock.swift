@@ -69,7 +69,7 @@ final class JMTimelineCompositeQuotingBlock: UIView, JMTimelineBlockCallable {
             
             let preview: String
             switch message.content {
-            case .photo(mime: _, name: _, let link, dataSize: _, width: _, height: _):
+            case .photo(mime: _, name: _, let link, dataSize: _, width: _, height: _, title: _, text: _):
                 preview = loc["Message.Preview.Photo"]
                 
                 if let url = URL(string: link) {

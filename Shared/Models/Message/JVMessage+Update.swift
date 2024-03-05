@@ -16,6 +16,11 @@ extension JVMessage {
             if m_sender != m_sender_value {
                 m_sender = m_sender_value
             }
+            
+            let m_can_be_sent_value = (m_must_be_sent == true && m_id == 0 && m_sending_date == 0)
+            if m_can_be_sent != m_can_be_sent_value {
+                m_can_be_sent = m_can_be_sent_value
+            }
         }
         
         func _adjustSender(type: String, ID: Int, body: JVMessageBodyGeneralChange?) {
@@ -35,7 +40,7 @@ extension JVMessage {
                 if m_sender_agent != m_sender_agent_value {
                     m_sender_agent = m_sender_agent_value
                 }
-            case "system" where type == "proactive":
+            case "system" where JVMessageType.by(name: type) == .proactive:
                 let m_sender_agent_value = context.agent(for: ID, provideDefault: true)
                 if m_sender_agent != m_sender_agent_value {
                     m_sender_agent = m_sender_agent_value
@@ -118,7 +123,7 @@ extension JVMessage {
         }
         
         func _adjustHidden() {
-            if m_type == "comment", m_was_deleted {
+            if logicalType == .comment, m_was_deleted {
                 let m_is_hidden_value = true
                 if m_is_hidden != m_is_hidden_value {
                     m_is_hidden = m_is_hidden_value
@@ -219,7 +224,7 @@ extension JVMessage {
             m_client_id = c.clientID?.jv_toInt64(.standard) ?? 0
             m_client = context.client(for: Int(m_client_id), needsDefault: false)
             m_chat_id = c.chatID.jv_toInt64(.standard)
-            m_type = "message"
+            m_type = JVMessageType.message.exportableName()
             m_is_markdown = false
             m_text = c.text.jv_trimmed()
             m_media = context.insert(of: JVMessageMedia.self, with: c.media, validOnly: true)
@@ -278,7 +283,7 @@ extension JVMessage {
             m_client_id = c.clientID.jv_toInt64(.standard)
             m_client = context.client(for: Int(m_client_id), needsDefault: false)
             m_chat_id = c.chatID.jv_toInt64(.standard)
-            m_type = "message"
+            m_type = JVMessageType.message.exportableName()
             m_is_markdown = false
             m_text = c.text.jv_trimmed()
             m_sender_client = context.object(JVClient.self, primaryId: c.clientID)
@@ -327,7 +332,7 @@ extension JVMessage {
             m_date = m_date_freezed ? m_date : Date(timeIntervalSince1970: c.creationTS)
             m_ordering_index = 1
             m_text = c.text.jv_trimmed()
-            m_type = "system"
+            m_type = JVMessageType.system.exportableName()
             m_is_markdown = false
             m_interactive_id = c.interactiveID
             m_icon_link = c.iconLink
@@ -345,18 +350,19 @@ extension JVMessage {
             m_is_markdown = false
             m_status = String()
             m_quoted_message = c.quotingMessageId.flatMap { context.message(for: $0, provideDefault: true) }
+            m_must_be_sent = true
             
             switch c.target {
             case .regular:
-                m_type = "message"
+                m_type = JVMessageType.message.exportableName()
             case .email:
-                m_type = "email"
+                m_type = JVMessageType.email.exportableName()
             case .sms:
-                m_type = "message"
+                m_type = JVMessageType.message.exportableName()
             case .whatsapp:
-                m_type = "message"
+                m_type = JVMessageType.message.exportableName()
             case .comment:
-                m_type = "comment"
+                m_type = JVMessageType.comment.exportableName()
             }
 
             switch c.contents {
@@ -379,7 +385,7 @@ extension JVMessage {
             case .email:
                 abort()
                 
-            case .photo(let mime, let name, let link, let dataSize, let width, let height):
+            case .photo(let mime, let name, let link, let dataSize, let width, let height, _, _):
                 m_text = "🖼 " + name.jv_trimmed()
                 
                 m_media = context.insert(
@@ -528,6 +534,7 @@ extension JVMessage {
         else if let c = change as? JVSdkMessageStatusChange {
             m_id = c.id.jv_toInt64(.standard)
             m_status = c.status?.rawValue ?? String()
+            m_sending_date = c.sendingDate?.timeIntervalSince1970 ?? 0
             
             if let date = c.date {
                 m_date = m_date_freezed ? m_date : date
@@ -623,13 +630,14 @@ extension JVMessage {
                     }
                     
                 case let .type(newValue):
-                    if m_type != newValue.rawValue {
-                        m_type = newValue.rawValue
+                    let m_type_value = newValue.exportableName()
+                    if m_type != m_type_value {
+                        m_type = m_type_value
                     }
                 
                 case let .typeInitial(newValue):
                     if m_type?.jv_valuable == nil {
-                        m_type = newValue.rawValue
+                        m_type = newValue.exportableName()
                     }
                     
                 case let .isHidden(newValue):
@@ -645,6 +653,11 @@ extension JVMessage {
                 case let .isSendingFailed(newValue):
                     if m_sending_failed != newValue {
                         m_sending_failed = newValue
+                    }
+                    
+                case .mustBeSent:
+                    if m_must_be_sent != true {
+                        m_must_be_sent = true
                     }
                 }
             }
@@ -760,7 +773,7 @@ class JVMessageExtendedGeneralChange: JVMessageBaseGeneralChange {
     }
     
     open override var isValid: Bool {
-        if type == "call", !(body?.isValidCall == true) {
+        if JVMessageType.by(name: type) == .call, !(body?.isValidCall == true) {
             return false
         }
         
@@ -842,7 +855,7 @@ class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
     }
     
     override var isValid: Bool {
-        if type == "message", media?.type == "conference", senderType == "agent" {
+        if JVMessageType.by(name: type) == .message, media?.type == "conference", senderType == "agent" {
             return false
         }
         
@@ -909,7 +922,7 @@ final class JVMessageQuoteChange: JVMessageGeneralChange {
             clientID: json["client_id"].intValue,
             chatID: chatID,
             widgetID: widgetID,
-            type: JVMessageType.message.rawValue,
+            type: JVMessageType.message.exportableName(),
             isMarkdown: isMarkdown,
             senderID: senderID,
             senderType: senderType,
@@ -1455,7 +1468,7 @@ class JVMessageSdkClientChange: JVMessageExtendedGeneralChange {
             creationTS: date.timeIntervalSince1970,
             body: nil,
             quote: quote,
-            type: JVMessageType.message.rawValue,
+            type: JVMessageType.message.exportableName(),
             isMarkdown: false,
             senderType: JVSenderType.client.rawValue)
     }
@@ -1469,6 +1482,7 @@ class JVSdkMessageStatusChange: JVDatabaseModelChange {
     public let id: Int
     public let localId: String
     public let status: JVMessageStatus?
+    public let sendingDate: Date?
     public let date: Date?
     
     open override var integerKey: JVDatabaseModelCustomId<Int>? {
@@ -1483,10 +1497,11 @@ class JVSdkMessageStatusChange: JVDatabaseModelChange {
             : nil
     }
     
-    init(id: Int = 0, localId: String = "", status: JVMessageStatus?, date: Date? = nil) {
+    init(id: Int, localId: String, status: JVMessageStatus?, sendingDate: Date?, date: Date?) {
         self.id = id
         self.localId = localId
         self.status = status
+        self.sendingDate = sendingDate
         self.date = date
         
         super.init()
@@ -1524,6 +1539,7 @@ enum JVMessagePropertyUpdate {
     case isHidden(Bool)
     case isIncoming(Bool)
     case isSendingFailed(Bool)
+    case mustBeSent
 }
 
 enum JVSdkMessageAtomChangeInitError: LocalizedError {
@@ -1592,17 +1608,14 @@ class JVSdkMessageAtomChange: JVDatabaseModelChange {
 }
 
 fileprivate func validateMessage(senderType: String, type: String) -> Bool {
-    let commonSupported = ["proactive", "email", "message", "transfer", "system", "call", "line", "reminder", "comment", "keyboard", "order"]
-    if commonSupported.contains(type) {
+    switch JVMessageType.by(name: type) {
+    case .some(.join), .some(.left):
+        return (senderType == "agent")
+    case .some:
         return true
+    case .none:
+        return false
     }
-    
-    let agentSupported = ["join", "left"]
-    if senderType == "agent", agentSupported.contains(type) {
-        return true
-    }
-
-    return false
 }
 
 fileprivate func parseReactions(_ root: JsonElement) -> [JVMessageReaction] {
@@ -1659,15 +1672,6 @@ func >(lhs: JVMessageBaseGeneralChange, rhs: JVMessageBaseGeneralChange) -> Bool
     }
     else {
         return (lhs.creationTS > rhs.creationTS)
-    }
-}
-
-fileprivate func standartizedMessageType(_ type: String) -> String {
-    if type == "clientMessage" {
-        return "message"
-    }
-    else {
-        return type
     }
 }
 
@@ -1762,7 +1766,7 @@ class JVMessageSdkAgentChange: JVMessageExtendedGeneralChange {
             creationTS: creationDate?.timeIntervalSince1970 ?? TimeInterval.zero,
             body: body,
             quote: quote,
-            type: type.rawValue,
+            type: type.exportableName(),
             isMarkdown: isMarkdown,
             senderType: JVSenderType.agent.rawValue
         )
@@ -1778,7 +1782,7 @@ class JVSDKMessageOfflineChange: JVDatabaseModelChange {
     
     let localId = JVSDKMessageOfflineChange.id
     let date = Date()
-    let type = "offline"
+    let type = JVMessageType.offline.exportableName()
     let content: JVMessageContent
     
     override var primaryValue: Int {
@@ -1806,7 +1810,7 @@ class JVSDKMessageHelloChange: JVDatabaseModelChange {
     let chatId: Int
     let localId = JVSDKMessageHelloChange.id
     let date = Date()
-    let type = "hello"
+    let type = JVMessageType.hello.exportableName()
     let content: JVMessageContent
     
     override var primaryValue: Int {

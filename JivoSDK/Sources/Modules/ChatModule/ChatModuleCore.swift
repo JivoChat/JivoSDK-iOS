@@ -327,7 +327,7 @@ final class ChatModuleCore
             handleSendMessageRequest(message: text)
         case .messageTap(let itemUUID, let interaction):
             handleMessageItemDidTap(itemUUID: itemUUID, tapType: interaction)
-        case .timelineEvent(.latestPointOfHistory(let visible, let hasData)):
+        case .timelineEvent(.latestPointOfHistory(_, let hasData)):
             timelineFirstItemVisibleHandler(isVisible: hasData)
         case .timelineEvent(.exceptionHappened):
             timelineExceptionHandler()
@@ -776,7 +776,7 @@ final class ChatModuleCore
         switch content {
         case let .text(message):
             UIPasteboard.general.string = message
-        case let .photo(_, _, link, _, _, _):
+        case let .photo(_, _, link, _, _, _, _, _):
             UIPasteboard.general.string = link
         case let .file(_, _, link, _):
             UIPasteboard.general.string = link

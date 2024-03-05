@@ -57,15 +57,18 @@ enum SdkClientSubPusherNotificationIntent {
 }
 
 final class SdkClientSubPusher: ISdkClientSubPusher {
+    private let apnsEnvironment: UIApplication.ApnsEnvironment
     private let pushCredentialsRepository: PushCredentialsRepository
     private let proto: ISdkClientProto
     private let throttlingQueue: ThrottlingQueue
     
     init(
+        apnsEnvironment: UIApplication.ApnsEnvironment,
         pushCredentialsRepository: PushCredentialsRepository,
         proto: ISdkClientProto,
         throttlingQueue: ThrottlingQueue
     ) {
+        self.apnsEnvironment = apnsEnvironment
         self.pushCredentialsRepository = pushCredentialsRepository
         self.proto = proto
         self.throttlingQueue = throttlingQueue
@@ -153,7 +156,7 @@ final class SdkClientSubPusher: ISdkClientSubPusher {
     }
     
     func handleProtoEvent(subject: IProtoEventSubject, context: ProtoEventContext?) {
-        switch subject as? SessionProtoEventSubject {
+        switch subject as? SdkSessionProtoEventSubject {
         case .pushRegistration(let meta):
             handlePushRegistration(meta: meta, context: context)
         default:
@@ -210,6 +213,7 @@ final class SdkClientSubPusher: ISdkClientSubPusher {
                 .registerDevice(
                     deviceId: credentials.deviceId,
                     deviceLiveToken: credentials.deviceLiveToken,
+                    shouldUseSandbox: apnsEnvironment.shouldUseSandbox,
                     siteId: credentials.siteId,
                     channelId: credentials.channelId,
                     clientId: credentials.clientId
@@ -228,6 +232,7 @@ final class SdkClientSubPusher: ISdkClientSubPusher {
                 .registerDevice(
                     deviceId: credentials.deviceId,
                     deviceLiveToken: .jv_empty,
+                    shouldUseSandbox: apnsEnvironment.shouldUseSandbox,
                     siteId: credentials.siteId,
                     channelId: credentials.channelId,
                     clientId: credentials.clientId

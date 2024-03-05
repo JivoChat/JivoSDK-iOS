@@ -106,7 +106,7 @@ final class JVChatModuleViewController
         super.init(pipeline: pipeline)
         
         navigationItem.titleView = titleControl
-        navigationItem.jv_largeDisplayMode = .never
+        navigationItem.largeTitleDisplayMode = .never
         
         edgesForExtendedLayout = []
         

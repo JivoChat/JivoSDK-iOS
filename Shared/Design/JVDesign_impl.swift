@@ -20,25 +20,6 @@ final class JVDesign: JVIDesign {
     public static func attachTo(application: UIApplication, window: UIWindow) {
         environment.grabFrom(application: application, window: window)
     }
-    
-//    func addObserver(block: @escaping (DesignBrightness) -> Void) -> JVBroadcastObserver<DesignBrightness> {
-//        return styleObservable.addObserver(block)
-//    }
-//
-//    func removeObserver(observer: JVBroadcastObserver<DesignBrightness>) {
-//        styleObservable.removeObserver(observer)
-//    }
-//
-//    func update() {
-//        if #available(iOS 12.0, *) {
-//            guard window.traitCollection.userInterfaceStyle != lastWindowTraits.userInterfaceStyle else { return }
-//
-//            let style = window.traitCollection.toDesignStyle
-//            styleObservable.broadcast(style)
-//        }
-//
-//        lastWindowTraits = window.traitCollection
-//    }
 }
 
 class JVDesignEnvironmental {

@@ -100,6 +100,7 @@ struct HTTPResponseStatus {
         case temporaryUnavailable
         case mfaRequired
         case unknown
+        case badRequest
     }
 
     enum Warning: Error {
@@ -276,6 +277,7 @@ fileprivate func parseResponseError(json: JsonElement) -> HTTPResponseStatus.Fai
     case "technical_error": return .technicalError
     case "temporarily_unavailable": return .temporaryUnavailable
     case "mfa_required": return .mfaRequired
+    case "bad_request": return .badRequest
     default: return .unknown
     }
 }

@@ -180,53 +180,53 @@ extension JVChat {
             m_attendee = c.isArchived ? nil : m_attendee
         }
         else if let c = change as? JVChatLastMessageChange {
-            let wantedMessage: JVMessage?
+            let desiredMessage: JVMessage?
             if let key = c.messageGlobalKey {
                 let customId = JVDatabaseModelCustomId(key: key.key, value: key.value)
-                wantedMessage = context.object(JVMessage.self, customId: customId)
+                desiredMessage = context.object(JVMessage.self, customId: customId)
             }
             else if let key = c.messageLocalKey {
                 let customId = JVDatabaseModelCustomId(key: key.key, value: key.value)
-                wantedMessage = context.object(JVMessage.self, customId: customId)
+                desiredMessage = context.object(JVMessage.self, customId: customId)
             }
             else {
-                wantedMessage = nil
+                desiredMessage = nil
             }
             
-            if let cm = m_last_message, let wm = wantedMessage, cm.jv_isValid, wm.date < cm.date {
+            if let cm = m_last_message, let dm = desiredMessage, cm.jv_isValid, dm.date < cm.date {
                 // do nothing
             }
-            else if let wm = wantedMessage {
-                m_last_message = wantedMessage
-                m_last_activity_timestamp = max(m_last_activity_timestamp, wm.date.timeIntervalSince1970)
+            else if let dm = desiredMessage {
+                m_last_message = dm
+                m_last_activity_timestamp = max(m_last_activity_timestamp, dm.date.timeIntervalSince1970)
             }
             else {
                 m_last_message = nil
             }
         }
         else if let c = change as? JVChatPreviewMessageChange {
-            let wantedMessage: JVMessage?
+            let desiredMessage: JVMessage?
             if let key = c.messageGlobalKey {
                 let customId = JVDatabaseModelCustomId(key: key.key, value: key.value)
-                wantedMessage = context.object(JVMessage.self, customId: customId)
+                desiredMessage = context.object(JVMessage.self, customId: customId)
             }
             else if let key = c.messageLocalKey {
                 let customId = JVDatabaseModelCustomId(key: key.key, value: key.value)
-                wantedMessage = context.object(JVMessage.self, customId: customId)
+                desiredMessage = context.object(JVMessage.self, customId: customId)
             }
             else {
-                wantedMessage = nil
+                desiredMessage = nil
             }
 
-            if let cm = m_preview_message, let wm = wantedMessage, wm.date < cm.date {
+            if let cm = m_preview_message, let dm = desiredMessage, dm.date < cm.date {
                 // do nothing
             }
-            else if let wm = wantedMessage {
-                if wm.type == "comment" {
+            else if let dm = desiredMessage {
+                if dm.logicalType == .comment {
                     // skip, don't set
                 }
                 else {
-                    m_preview_message = wantedMessage
+                    m_preview_message = desiredMessage
                 }
             }
             else {
@@ -462,8 +462,8 @@ final class JVChatGeneralChange: JVDatabaseModelChange {
     }
     
     required init(json: JsonElement) {
-        let parsedLastMessage: JVMessageLocalChange? = json["last_message"].parse()
-        let parsedActiveRing: JVMessageLocalChange? = json["active_ring"].parse()
+        let parsedLastMessage = json["last_message"].parse(model: JVMessageLocalChange.self)
+        let parsedActiveRing = json["active_ring"].parse(model: JVMessageLocalChange.self)
         
         ID = json["chat_id"].intValue
         client = json["client"].parse()

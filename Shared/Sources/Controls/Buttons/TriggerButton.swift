@@ -15,10 +15,12 @@ enum TriggerButtonStyle {
 }
 
 final class TriggerButton: BaseButton {
+    private let size: Int
     private let weight: JVDesignFontWeight
     
-    init(style: TriggerButtonStyle, weight: JVDesignFontWeight) {
+    init(style: TriggerButtonStyle, size: Int = 14, weight: JVDesignFontWeight) {
         self.style = style
+        self.size = size
         self.weight = weight
         
         super.init(
@@ -39,7 +41,7 @@ final class TriggerButton: BaseButton {
             return content?.text ?? String()
         }
         set {
-            let font = obtainFont(weight: weight, fontLimit: fontLimit)
+            let font = obtainFont(weight: weight, fontBase: size, fontLimit: fontLimit)
             content = ButtonContent.plain(newValue, font, nil, nil)
         }
     }
@@ -83,13 +85,13 @@ fileprivate func generateConfig(style: TriggerButtonStyle) -> ButtonConfig {
     )
 }
 
-fileprivate func obtainFont(weight: JVDesignFontWeight, fontLimit: Int?) -> UIFont {
+fileprivate func obtainFont(weight: JVDesignFontWeight, fontBase: Int, fontLimit: Int?) -> UIFont {
     if let  limit = fontLimit {
-        let meta = JVDesignFontMeta(weight: weight, sizing: 14...limit)
+        let meta = JVDesignFontMeta(weight: weight, sizing: fontBase...limit)
         return JVDesign.fonts.resolve(meta, scaling: .subheadline)
     }
     else {
-        let meta = JVDesignFontMeta(weight: weight, sizing: 14)
+        let meta = JVDesignFontMeta(weight: weight, sizing: fontBase)
         return JVDesign.fonts.resolve(meta, scaling: .subheadline)
     }
 }

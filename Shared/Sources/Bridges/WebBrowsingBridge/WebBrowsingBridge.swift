@@ -27,7 +27,7 @@ final class WebBrowsingBridge: NSObject, IWebBrowsingBridge, WKNavigationDelegat
         
         let viewController = WebBrowsingViewController()
         viewController.configureNavigationBar(button: .dismiss, target: navigationController, backButtonTapAction: #selector(WebBrowsingNavigationController.handleDismiss))
-        viewController.navigationItem.jv_largeDisplayMode = .never
+        viewController.navigationItem.largeTitleDisplayMode = .never
         viewController.edgesForExtendedLayout = []
         viewController.view.backgroundColor = .white
         navigationController.viewControllers = [viewController]

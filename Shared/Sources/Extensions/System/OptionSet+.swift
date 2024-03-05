@@ -11,6 +11,10 @@ extension OptionSet where RawValue: BinaryInteger {
     public static var jv_empty: Self {
         return .init(rawValue: 0)
     }
+    
+    public static var jv_all: Self {
+        return .init(rawValue: ~0)
+    }
 }
 
 func +<Options: OptionSet>(lhs: Options, rhs: Options) -> Options {

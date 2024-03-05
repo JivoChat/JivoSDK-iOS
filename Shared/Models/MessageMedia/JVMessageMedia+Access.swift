@@ -148,6 +148,17 @@ extension JVMessageMedia {
         return m_text?.jv_valuable
     }
     
+    var caption: String? {
+        let firstLine = (m_title == m_name ? nil : m_title)
+        let secondLine = m_text
+        
+        return [firstLine, secondLine]
+            .jv_flatten()
+            .compactMap(\.jv_valuable)
+            .joined(separator: .jv_newline)
+            .jv_valuable
+    }
+    
     var originalSize: CGSize {
         let width = CGFloat(m_width)
         let height = CGFloat(m_height)

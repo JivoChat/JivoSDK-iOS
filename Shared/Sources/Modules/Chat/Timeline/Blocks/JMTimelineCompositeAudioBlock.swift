@@ -11,10 +11,14 @@ import JMDesignKit
 import JMTimelineKit
 import AVFoundation
 
-enum JMTimelineCompositeAudioType {
+enum JMTimelineCompositePlayableItem: Equatable {
     case audio
-    case voice
-    case voicePreview
+    case voice(JMTimelineCompositeVoiceStyle)
+}
+
+enum JMTimelineCompositeVoiceStyle: Equatable {
+    case standard
+    case preview
 }
 
 struct JMTimelineCompositeAudioStyle: JMTimelineStyle {
@@ -45,9 +49,17 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
     private var extendedStyle: JMTimelineCompositeAudioStyleExtended?
     private var waveFormView = UIImageView()
     
-    private var type: JMTimelineCompositeAudioType
+    private var firstVoiceImageRequestTime: Date?
     
-    init(type: JMTimelineCompositeAudioType) {
+    private var type: JMTimelineCompositePlayableItem
+    
+    private let loadingQueue: DispatchQueue
+    
+    private let loadingSecLimit: UInt64 = 3
+    
+    init(type: JMTimelineCompositePlayableItem) {
+        
+        self.loadingQueue = DispatchQueue(label: "rmo.waveform-drawer.queue", qos: .userInteractive, attributes: .concurrent)
         
         self.type = type
         
@@ -75,9 +87,12 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
         addSubview(pauseButton)
         
         switch type {
-        case .audio: sliderControl.inset = -0.5
-        case .voice: sliderControl.inset = -25.0
-        case .voicePreview: sliderControl.inset = -10.0
+        case .audio:
+            sliderControl.inset = -0.5
+        case .voice(let type) where type == .preview:
+            sliderControl.inset = -10.0
+        case .voice:
+            sliderControl.inset = -25.0
         }
         
         sliderControl.minimumValue = 0
@@ -204,7 +219,17 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
         
         let layout = getLayout(size: bounds.size, type: type)
         backView.frame = layout.backFrame
-        backView.layer.cornerRadius = type == .voicePreview ? layout.backCornerRadius : 0
+        
+        switch type {
+        case .audio:
+            backView.layer.cornerRadius = 0
+            waveFormView.isHidden = true
+        case .voice(.preview):
+            backView.layer.cornerRadius = layout.backCornerRadius
+        case .voice(.standard):
+            backView.layer.cornerRadius = 0
+        }
+        
         playButton.frame = layout.buttonFrame
         playButton.layer.cornerRadius = layout.buttonCornerRadius
         pauseButton.frame = layout.buttonFrame
@@ -212,7 +237,6 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
         sliderControl.frame = layout.sliderControlFrame
         durationLabel.frame = layout.durationLabelFrame
         waveFormView.frame = layout.waveformFrame
-        waveFormView.isHidden = type == .audio
     }
     
     override func didMoveToWindow() {
@@ -232,7 +256,7 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
         updateDesignWithExtendedStyle()
     }
     
-    private func getLayout(size: CGSize, type: JMTimelineCompositeAudioType) -> Layout {
+    private func getLayout(size: CGSize, type: JMTimelineCompositePlayableItem) -> Layout {
         return Layout(
             bounds: CGRect(origin: .zero, size: size),
             durationLabel: durationLabel,
@@ -247,7 +271,6 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
             name: Notification.Name.JMMediaPlayerState,
             object: nil
         )
-        drawWaveformIfNeeded()
     }
     
     private func unsubscribe() {
@@ -255,33 +278,6 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
         
         if let item = item {
             interactor?.stopMedia(item: item)
-        }
-    }
-    
-    private func extractWaveformAndDraw() {
-        guard let item = item else { return }
-        let asset = AVAsset(url: item)
-        let audioTracks: [AVAssetTrack] = asset.tracks(withMediaType: AVMediaType.audio)
-        if let track: AVAssetTrack = audioTracks.first {
-            let width = Int(getLayout(size: bounds.size, type: .voice).sliderControlFrame.width)
-            WaveformSamplesExtractor.shared.samples(
-                audioTrack: track,
-                desiredNumberOfSamples: width,
-                onSuccess: { samples, _, _ in
-                    let configuration = WaveformConfiguration(
-                        size: self.waveFormView.bounds.size,
-                        color: UIColor.white,
-                        backgroundColor: UIColor.clear,
-                        lineWidth: 4,
-                        space: 2,
-                        pickToPickAmplitude: 20.0
-                    )
-                    
-                    self.waveFormView.image = WaveFormDrawer.shared.image(
-                        samples: samples,
-                        configuration: configuration)
-                }, onFailure: { }
-            )
         }
     }
     
@@ -296,7 +292,7 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
         }
         
         switch status {
-        case .none:
+        case .none, .failed:
             playButton.isHidden = false
             pauseButton.isHidden = true
             sliderControl.value = 0
@@ -305,12 +301,6 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
         case .loading:
             playButton.isHidden = true
             pauseButton.isHidden = false
-            sliderControl.value = 0
-            durationLabel.text = duration.flatMap { generateProgressCaption(current: 0, duration: $0) }
-            
-        case .failed:
-            playButton.isHidden = false
-            pauseButton.isHidden = true
             sliderControl.value = 0
             durationLabel.text = duration.flatMap { generateProgressCaption(current: 0, duration: $0) }
             
@@ -337,74 +327,101 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
     }
     
     private func drawWaveformIfNeeded() {
-        guard let item = item else { return }
-        guard let style = extendedStyle else { return }
+        guard let item = item,
+              waveFormView.image == nil
+        else {
+            return
+        }
         
         switch type {
         case .audio:
             break
-        case .voice:
-            provider?.requestWaveformPoints(from: item, completion: { [weak self] result in
-                guard let `self` = self else { return }
-                guard let result else { return }
-                guard item == self.item else { return }
-                
-                switch result {
-                case .value(let meta, let kind):
-                    switch kind {
-                    case .binary:
-                        var bytes = [UInt8]()
-                        if let data = NSData(contentsOf: meta.localUrl) {
-                            var buffer = [UInt8](repeating: 0, count: data.length)
-                            data.getBytes(&buffer, length: data.length)
-                            bytes = buffer
-                            let floatBytes = bytes.map { Float($0) }
-                            
-                            let configuration = WaveformConfiguration(
-                                size: self.waveFormView.bounds.size,
-                                color: style.waveformColor,
-                                backgroundColor: UIColor.clear,
-                                lineWidth: 4,
-                                space: 2,
-                                pickToPickAmplitude: 20.0
-                            )
-                            
-                            self.waveFormView.image = WaveFormDrawer.shared.image(
-                                samples: floatBytes,
-                                configuration: configuration
-                            )
-                        }
-                    default:
-                        break
+        case .voice(let value):
+            switch value {
+            case .standard:
+                let workItem = DispatchWorkItem(flags: .jv_empty) { [weak self] in
+                    guard let `self` = self else { return }
+                    if self.waveFormView.image == nil {
+                        let samples = item.absoluteString.jv_sha512().map({ return Float($0) })
+                        self.drawWavefromImage(for: samples)
                     }
-                default:
-                    break
                 }
-            })
-        case .voicePreview:
-            let asset = AVAsset(url: item)
-            let audioTracks: [AVAssetTrack] = asset.tracks(withMediaType: AVMediaType.audio)
-            if let track: AVAssetTrack = audioTracks.first {
-                let width = Int(getLayout(size: bounds.size, type: .voice).sliderControlFrame.width)
-                WaveformSamplesExtractor.shared.samples(
-                    audioTrack: track,
-                    desiredNumberOfSamples: width,
-                    onSuccess: { samples, _, _ in
-                        let configuration = WaveformConfiguration(
-                            size: self.waveFormView.bounds.size,
-                            color: UIColor.white,
-                            backgroundColor: UIColor.clear,
-                            lineWidth: 4,
-                            space: 2,
-                            pickToPickAmplitude: 20.0
-                        )
+                
+                DispatchQueue.main.asyncAfter(deadline: DispatchTime(uptimeNanoseconds: loadingSecLimit * 1000 * 1000 * 1000), execute: workItem)
+                
+                provider?.requestWaveformPoints(from: item, completion: { [weak self] result in
+                    guard let `self` = self, let result, item == self.item, waveFormView.image == nil else { return }
+                    
+                    switch result {
+                    case .value(let meta, let kind):
+                        switch kind {
+                        case .binary:
+                            let data = NSData(contentsOf: meta.localUrl) ?? NSData()
+                            loadingQueue.async { [weak self] in
+                                let bytes = [UInt8](data)
+                                let samples = bytes.map { Float($0) }
+                                
+                                DispatchQueue.main.async {
+                                    self?.drawWavefromImage(for: samples)
+                                    workItem.cancel()
+                                }
+                            }
+                        default: break
+                        }
                         
-                        self.waveFormView.image = WaveFormDrawer.shared.image(
-                            samples: samples,
-                            configuration: configuration)
-                    }, onFailure: { }
-                )
+                    case .waiting, .failure: break
+                    }
+                })
+            case .preview:
+                let asset = AVAsset(url: item)
+                let audioTracks: [AVAssetTrack] = asset.tracks(withMediaType: AVMediaType.audio)
+                if let track: AVAssetTrack = audioTracks.first {
+                    let width = Int(getLayout(size: bounds.size, type: .voice(.preview)).sliderControlFrame.width)
+                    WaveformSamplesExtractor.shared.samples(
+                        audioTrack: track,
+                        desiredNumberOfSamples: width,
+                        onSuccess: { samples, _, _ in
+                            self.drawWavefromImage(for: samples)
+                        }, onFailure: {
+                            assertionFailure()
+                        }
+                    )
+                }
             }
+        }
+    }
+    
+    private func drawWavefromImage(for samples: [Float]) {
+        switch type {
+        case .voice(.preview):
+            let configuration = WaveformConfiguration(
+                size: self.waveFormView.bounds.size,
+                color: UIColor.white,
+                backgroundColor: UIColor.clear,
+                lineWidth: 4,
+                space: 2,
+                pickToPickAmplitude: 20.0
+            )
+            self.waveFormView.image = WaveFormDrawer.shared.image(
+                samples: samples,
+                configuration: configuration
+            )
+        case .voice(.standard):
+            let configuration = WaveformConfiguration(
+                size:  self.waveFormView.bounds.size,
+                color: extendedStyle?.waveformColor ?? UIColor.white,
+                backgroundColor: UIColor.clear,
+                lineWidth: 4,
+                space: 2,
+                pickToPickAmplitude: 20.0
+            )
+            self.waveFormView.image = WaveFormDrawer.shared.image(
+                samples: samples,
+                configuration: configuration
+            )
+        case .audio:
+            assertionFailure()
+            break
         }
     }
     
@@ -435,7 +452,7 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
 fileprivate struct Layout {
     let bounds: CGRect
     let durationLabel: UILabel
-    let type: JMTimelineCompositeAudioType
+    let type: JMTimelineCompositePlayableItem
     
     var backFrame: CGRect {
         return CGRect(x: 5, y: 0, width: buttonSize.width, height: buttonSize.height)
@@ -458,7 +475,7 @@ fileprivate struct Layout {
         let leftX = backFrame.maxX + horizontalPadding
         
         switch type {
-        case .audio, .voice:
+        case .audio, .voice(type: .standard):
             if durationLabel.jv_hasText {
                 let width = bounds.width - leftX
                 let height = CGFloat(15)
@@ -478,7 +495,7 @@ fileprivate struct Layout {
                               height: height
                 )
             }
-        case .voicePreview:
+        case .voice:
             let width = durationLabelFrame.minX - backFrame.maxX - horizontalPadding
             return CGRect(x: backFrame.maxX,
                           y: bounds.origin.y,
@@ -490,7 +507,7 @@ fileprivate struct Layout {
     
     var durationLabelFrame: CGRect {
         switch type {
-        case .audio, .voice:
+        case .audio, .voice(.standard):
             let size = durationLabel.sizeThatFits(.zero)
             let topY = sliderControlFrame.maxY + 15
             
@@ -505,7 +522,7 @@ fileprivate struct Layout {
             else {
                 return CGRect(x: bounds.width, y: topY, width: 0, height: 0)
             }
-        case .voicePreview:
+        case .voice(.preview):
             let label = UILabel()
             label.text = "0:00/0:00"
             label.font = label.font
@@ -534,7 +551,7 @@ fileprivate struct Layout {
     var waveformFrame: CGRect {
         return CGRect(
             x: sliderControlFrame.minX,
-            y: type == .voice ? -10.0 : 0.0,
+            y: type == .voice(.standard) ? -10.0 : 0.0,
             width: sliderControlFrame.width,
             height: bounds.height
         )

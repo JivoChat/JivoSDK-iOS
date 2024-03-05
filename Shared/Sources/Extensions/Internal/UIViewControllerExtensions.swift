@@ -9,8 +9,6 @@
 import Foundation
 import UIKit
 
-private var kIsAnimatingKey = "is_animating"
-
 enum RootTransitionMode {
     case replace
     case present
@@ -25,14 +23,7 @@ fileprivate struct RootTransitionContext {
 
 extension UIViewController {
     var safeAreaInsets: UIEdgeInsets {
-        if #available(iOS 11.0, *) {
-            return view.safeAreaInsets
-        }
-        else {
-            let top = topLayoutGuide.length
-            let bottom = bottomLayoutGuide.length
-            return UIEdgeInsets(top: top, left: 0, bottom: bottom, right: 0)
-        }
+        return view.safeAreaInsets
     }
     
     var readableAreaInsets: UIEdgeInsets {
@@ -51,9 +42,10 @@ extension UIViewController {
         return (viewIfLoaded?.window != nil)
     }
 
+    @StaticAddressWrapper private static var kIsAnimatingKey
     var isAnimating: Bool {
         get {
-            if let object = objc_getAssociatedObject(self, &kIsAnimatingKey) as? NSNumber {
+            if let object = objc_getAssociatedObject(self, Self.kIsAnimatingKey) as? NSNumber {
                 return object.boolValue
             }
             else {
@@ -63,7 +55,7 @@ extension UIViewController {
         set {
             objc_setAssociatedObject(
                 self,
-                &kIsAnimatingKey,
+                Self.kIsAnimatingKey,
                 NSNumber(booleanLiteral: newValue),
                 .OBJC_ASSOCIATION_RETAIN_NONATOMIC
             )
@@ -148,4 +140,19 @@ extension UIViewController {
         let offset = context.container.bounds.height
         context.oldView?.frame = context.container.bounds.offsetBy(dx: 0, dy: offset)
     }
+}
+
+extension UIViewController: Deprecations {
+    var jv_topLayoutGuide: UILayoutSupport {
+        get { (self as Deprecations).topLayoutGuide }
+    }
+
+    var jv_bottomLayoutGuide: UILayoutSupport {
+        get { (self as Deprecations).bottomLayoutGuide }
+    }
+}
+
+fileprivate protocol Deprecations: AnyObject {
+    var topLayoutGuide: UILayoutSupport { get }
+    var bottomLayoutGuide: UILayoutSupport { get }
 }

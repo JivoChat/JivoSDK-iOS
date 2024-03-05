@@ -6,14 +6,15 @@
 import Foundation
 import UIKit
 
-fileprivate var observingContext = UUID()
-
 fileprivate enum ObservablePaths: String, CaseIterable {
     case frame = "frame"
     case center = "center"
 }
 
 final class KeyboardAnchorControl: UIView {
+    @StaticAddressWrapper private static var kFrameObservingContext
+    @StaticAddressWrapper private static var kCenterObservingContext
+
     private var observerInstalled = false
     
     var keyboardFrameChangedBlock: (_ keyboardVisible: Bool, _ keyboardFrame: CGRect) -> Void = { _, _ in }
@@ -21,8 +22,8 @@ final class KeyboardAnchorControl: UIView {
     
     deinit {
         if observerInstalled {
-            superview?.removeObserver(self, forKeyPath: ObservablePaths.frame.rawValue, context: &observingContext)
-            superview?.removeObserver(self, forKeyPath: ObservablePaths.center.rawValue, context: &observingContext)
+            superview?.removeObserver(self, forKeyPath: ObservablePaths.frame.rawValue, context: Self.kFrameObservingContext)
+            superview?.removeObserver(self, forKeyPath: ObservablePaths.center.rawValue, context: Self.kCenterObservingContext)
         }
     }
     
@@ -35,8 +36,8 @@ final class KeyboardAnchorControl: UIView {
         
         if observerInstalled {
             observerInstalled = false
-            superview?.removeObserver(self, forKeyPath: ObservablePaths.frame.rawValue, context: &observingContext)
-            superview?.removeObserver(self, forKeyPath: ObservablePaths.center.rawValue, context: &observingContext)
+            superview?.removeObserver(self, forKeyPath: ObservablePaths.frame.rawValue, context: Self.kFrameObservingContext)
+            superview?.removeObserver(self, forKeyPath: ObservablePaths.center.rawValue, context: Self.kCenterObservingContext)
         }
     }
     
@@ -45,8 +46,8 @@ final class KeyboardAnchorControl: UIView {
         
         isUserInteractionEnabled = false
         
-        superview?.addObserver(self, forKeyPath: ObservablePaths.frame.rawValue, options: .jv_empty, context: &observingContext)
-        superview?.addObserver(self, forKeyPath: ObservablePaths.center.rawValue, options: .jv_empty, context: &observingContext)
+        superview?.addObserver(self, forKeyPath: ObservablePaths.frame.rawValue, options: .jv_empty, context: Self.kFrameObservingContext)
+        superview?.addObserver(self, forKeyPath: ObservablePaths.center.rawValue, options: .jv_empty, context: Self.kCenterObservingContext)
         observerInstalled = true
     }
     

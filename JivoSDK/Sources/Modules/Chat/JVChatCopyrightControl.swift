@@ -63,7 +63,7 @@ class JVChatCopyrightControl: UIView {
     fileprivate func getLayout(size: CGSize) -> Layout {
         return Layout(
             bounds: bounds,
-            safeAreaInsets: jv_safeInsets,
+            safeAreaInsets: safeAreaInsets,
             contentInsets: UIEdgeInsets(top: 5, left: 0, bottom: 5, right: 10),
             spacing: 6.5,
             titleLabel: titleLabel,

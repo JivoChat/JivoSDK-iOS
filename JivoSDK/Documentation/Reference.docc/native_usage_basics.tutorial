@@ -100,36 +100,21 @@
         
         @Steps {
             @Step {
-                In most projects, this class just implements the entry point
+                In most projects, this class just implements an entry point
                 
                 @Code(name: "AppDelegate.swift", file: native.app_delegate_00.swift.sample)
             }
             
             @Step {
-                To support Push Notifications,
-                JivoSDK should take care of related system methods
+                First, you should implement some system methods related to Push Notifications
                 
                 @Code(name: "AppDelegate.swift", file: native.app_delegate_01.swift.sample)
             }
             
             @Step {
-                Also, JivoSDK can support User Notifications
-                to take care of notifications displaying in foreground
+                Second, make the calls of corresponding JivoSDK methods
                 
                 @Code(name: "AppDelegate.swift", file: native.app_delegate_02.swift.sample)
-            }
-            
-            @Step {
-                As an alternative, you can just make your AppDelegate to inherit from JVAppDelegate
-                that already implements all of these methods
-                
-                @Code(name: "AppDelegate.swift", file: native.app_delegate_10.swift.sample)
-            }
-            
-            @Step {
-                Also, with ability to customize notifications handling
-                
-                @Code(name: "AppDelegate.swift", file: native.app_delegate_11.swift.sample)
             }
         }
     }

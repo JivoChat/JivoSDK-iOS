@@ -348,7 +348,11 @@ class JVDatabaseDriver: JVIDatabaseDriver {
                 return object
             }
             else {
-                let cdc = JVDatabaseDriverMoc(namespace: namespace, concurrencyType: .confinementConcurrencyType)
+                // SP: To avoid warnings about <.confinementConcurrencyType> is deprecated,
+                // Use init(rawValue:) to create it in runtime
+                let ctype = NSManagedObjectContextConcurrencyType(rawValue: 0) ?? .privateQueueConcurrencyType
+                
+                let cdc = JVDatabaseDriverMoc(namespace: namespace, concurrencyType: ctype)
                 cdc.name = "\(namespace).database.context.engine"
                 cdc.persistentStoreCoordinator = container.persistentStoreCoordinator
                 cdc.mergePolicy = NSMergeByPropertyStoreTrumpMergePolicy

@@ -11,7 +11,7 @@ import DTModelStorage
 import JMTimelineKit
 
 final class JMTimelineVoiceMessageRegion: JMTimelineMessageCanvasRegion {
-    private let audioBlock = JMTimelineCompositeAudioBlock(type: .voice)
+    private let audioBlock = JMTimelineCompositeAudioBlock(type: .voice(.standard))
     
     init() {
         super.init(renderMode: .bubble(time: .compact))

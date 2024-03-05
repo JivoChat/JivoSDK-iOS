@@ -68,7 +68,7 @@ final class JMTimelineRateFormControl: UIView, UITextFieldDelegate {
     private lazy var closeButton: UIButton = {
         let button = UIButton()
         button.setImage(UIImage(named: "close", in: Bundle(for: JVDesign.self), compatibleWith: nil), for: .normal)
-        button.contentEdgeInsets = UIEdgeInsets(jv_by: 11.0)
+        button.jv_contentEdgeInsets = UIEdgeInsets(jv_by: 11.0)
         return button
     }()
     
@@ -224,7 +224,7 @@ final class JMTimelineRateFormControl: UIView, UITextFieldDelegate {
     func textFieldShouldBeginEditing(_ textField: UITextField) -> Bool {
         switch sizing {
         case .rated:
-            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(50)) { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(50)) {
                 textField.becomeFirstResponder()
             }
             return true

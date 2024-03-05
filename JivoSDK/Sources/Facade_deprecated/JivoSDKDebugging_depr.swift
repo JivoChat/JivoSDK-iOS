@@ -40,6 +40,7 @@ public enum JivoSDKArchivingStatus: Int {
     case failedPreparing
 }
 
+@available(*, deprecated)
 fileprivate extension JivoSDKDebuggingLevel {
     func toNewAPI() -> JVDebuggingLevel {
         switch self {
@@ -51,6 +52,7 @@ fileprivate extension JivoSDKDebuggingLevel {
     }
 }
 
+@available(*, deprecated)
 fileprivate extension JVDebuggingArchiveStatus {
     func toNewAPI() -> JivoSDKArchivingStatus {
         switch self {

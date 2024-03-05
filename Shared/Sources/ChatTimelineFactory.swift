@@ -1167,27 +1167,39 @@ final class ChatTimelineFactory: JMTimelineFactory {
             return generatePlainItem(for: message)
         }
         
+        let uid = message.UUID
+        let position = obtainItemPosition(for: message)
         let sender = detectSenderType(for: message)
+        let palette = obtainItemPalette(for: message)
+        let isFailure = message.delivery.isFailure
+        let contentKind = detectSenderType(for: message)
         
         let messageInfo = JMTimelineMessagePhotoInfo(
             quotedMessage: message.quotedMessage,
             url: url,
             width: Int(media.originalSize.width),
             height: Int(media.originalSize.height),
+            caption: media.caption,
+            plainStyle: JMTimelineCompositePlainStyle(
+                textColor: _generatePlainItem_textColor(sender: sender, isDeleted: message.isDeleted),
+                identityColor: _generatePlainItem_identityColor(sender: sender),
+                linkColor: _generatePlainItem_linkColor(sender: sender),
+                font: _generatePlainItem_regularFont(isDeleted: message.isDeleted),
+                boldFont: _generatePlainItem_boldFont(),
+                italicsFont: _generatePlainItem_italicsFont(),
+                strikeFont: _generatePlainItem_regularFont(isDeleted: message.isDeleted),
+                lineHeight: 22,
+                alignment: .natural,
+                underlineStyle: .single,
+                parseMarkdown: message.isMarkdown
+            ),
             contentMode: contentMode,
             allowFullscreen: true,
             contentTint: _generatePlainItem_textColor(sender: sender, isDeleted: message.isDeleted)
         )
         
-        let messageMeta = generateMessageMeta(
-            message: message
-        )
-        
-        let uid = message.UUID
-        let position = obtainItemPosition(for: message)
-        let contentKind = detectSenderType(for: message)
-        let palette = obtainItemPalette(for: message)
-        let isFailure = message.delivery.isFailure
+        let messageMeta = generateMessageMeta(message: message)
+        let hasCaption = (messageInfo.caption != nil)
         
         return JMTimelineMessageItem(
             uid: uid,
@@ -1200,7 +1212,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 ),
             extraActions: obtainItemExtra(for: message),
             payload: JMTimelineMessagePayload(
-                kindID: #function,
+                kindID: #function + (hasCaption ? "withCaption" : "withoutCaption"),
                 sender: obtainItemSender(for: message),
                 renderOptions: JMTimelineMessageRenderOptions(
                     position: position
@@ -1208,7 +1220,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 provider: provider,
                 interactor: interactor,
                 regionsGenerator: {
-                    let photoRegion = JMTimelineMessagePhotoRegion()
+                    let photoRegion = JMTimelineMessagePhotoRegion(hasCaption: hasCaption)
                     return [photoRegion]
                 },
                 regionsPopulator: { [provider, interactor] regions in
@@ -1348,7 +1360,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
             URL: url,
             title: media.name,
             duration: media.duration.ifPositive(),
-            style: _generateAudioItem_style(contentKind: contentKind)
+            style: _generateAudioItem_style(contentKind: contentKind, sentByMe: message.sentByMe)
         )
         
         let messageMeta = generateMessageMeta(
@@ -1465,7 +1477,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
-    private func _generateAudioItem_style(contentKind: ChatTimelineSenderType) -> JMTimelineCompositeAudioStyleExtended {
+    private func _generateAudioItem_style(contentKind: ChatTimelineSenderType, sentByMe: Bool) -> JMTimelineCompositeAudioStyleExtended {
         switch contentKind {
         case .agent, .comment, .call, .info, .bot, .neutral:
             return JMTimelineCompositeAudioStyleExtended(
@@ -1476,7 +1488,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 minimumTrackColor: JVDesign.colors.resolve(usage: .audioPlayerDuration),
                 maximumTrackColor: JVDesign.colors.resolve(usage: .audioPlayerDuration).jv_withAlpha(0.5),
                 durationLabelColor: JVDesign.colors.resolve(usage: .audioPlayerDuration),
-                waveformColor: JVDesign.colors.resolve(alias: .white)
+                waveformColor: JVDesign.colors.resolve(usage: .waveformColor)
             )
         case .client, .story:
             return JMTimelineCompositeAudioStyleExtended(
@@ -1487,7 +1499,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 minimumTrackColor: JVDesign.colors.resolve(alias: .white),
                 maximumTrackColor: JVDesign.colors.resolve(alias: .white).jv_withAlpha(0.5),
                 durationLabelColor: JVDesign.colors.resolve(alias: .white),
-                waveformColor: JVDesign.colors.resolve(usage: .waveformColor)
+                waveformColor: JVDesign.colors.resolve(alias: .white)
             )
         }
     }
@@ -1503,7 +1515,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 minimumTrackColor: JVDesign.colors.resolve(usage: .agentBackground).jv_withAlpha(0.5),
                 maximumTrackColor: JVDesign.colors.resolve(usage: .agentBackground).jv_withAlpha(0),
                 durationLabelColor: JVDesign.colors.resolve(usage: .audioPlayerDuration),
-                waveformColor: JVDesign.colors.resolve(alias: .white)
+                waveformColor: JVDesign.colors.resolve(usage: .waveformColor)
             )
         case .client, .story:
             return JMTimelineCompositeAudioStyleExtended(
@@ -1514,7 +1526,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 minimumTrackColor: JVDesign.colors.resolve(usage: .clientBackground).jv_withAlpha(0.5),
                 maximumTrackColor: JVDesign.colors.resolve(alias: .white).jv_withAlpha(0),
                 durationLabelColor: JVDesign.colors.resolve(alias: .white),
-                waveformColor: JVDesign.colors.resolve(usage: .waveformColor)
+                waveformColor: JVDesign.colors.resolve(alias: .white)
             )
         }
     }
@@ -1526,6 +1538,8 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 url: url,
                 width: Int(media.originalSize.width),
                 height: Int(media.originalSize.height),
+                caption: nil,
+                plainStyle: nil,
                 contentMode: .scaleAspectFit,
                 allowFullscreen: true,
                 contentTint: .clear
@@ -1560,7 +1574,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
                     provider: provider,
                     interactor: interactor,
                     regionsGenerator: {
-                        let photoRegion = JMTimelineMessagePhotoRegion()
+                        let photoRegion = JMTimelineMessagePhotoRegion(hasCaption: false)
                         return [photoRegion]
                     },
                     regionsPopulator: { [provider, interactor] regions in
@@ -2470,6 +2484,8 @@ final class ChatTimelineFactory: JMTimelineFactory {
             url: url,
             width: Int(UIScreen.main.bounds.width * 0.4),
             height: Int(UIScreen.main.bounds.width * 0.62),
+            caption: nil,
+            plainStyle: nil,
             contentMode: .scaleAspectFill,
             allowFullscreen: true,
             contentTint: _generatePlainItem_textColor(sender: sender, isDeleted: message.isDeleted)
@@ -2650,6 +2666,8 @@ final class ChatTimelineFactory: JMTimelineFactory {
             url: url,
             width: Int(UIScreen.main.bounds.width * 0.4),
             height: Int(UIScreen.main.bounds.width * 0.62),
+            caption: nil,
+            plainStyle: nil,
             contentMode: .scaleAspectFill,
             allowFullscreen: true,
             contentTint: _generatePlainItem_textColor(sender: sender, isDeleted: message.isDeleted)
@@ -3047,7 +3065,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
     private func detectSenderType(for message: JVMessage) -> ChatTimelineSenderType {
         let content = message.content
         
-        if message.isComment {
+        if message.renderingType == .comment {
             return .comment
         }
         else if let _ = message.call {
@@ -3427,6 +3445,10 @@ fileprivate extension JVMessage {
 
         let loadingOptions: JMTimelineLogicOptions
         if let historyDelegate = historyDelegate {
+//            if flags.contains(.edgeToHistoryPast) {
+//                journal { [date] in "D/LMH having flag[edgeToHistoryPast], set option[missingHistoryPast] for date[\(date)]"}
+//            }
+            
             loadingOptions = JMTimelineLogicOptions()
                 .union(
                     flags.contains(.edgeToHistoryPast)

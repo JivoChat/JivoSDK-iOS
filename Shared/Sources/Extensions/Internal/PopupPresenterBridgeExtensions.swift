@@ -9,7 +9,7 @@ import UIKit
 extension IPopupPresenterBridge {
     func jv_warnAndDismiss(title: String?, message: String?, dismissKind: PopupPresenterItem.DismissKind) {
         displayAlert(
-            within: .root,
+            within: .auto,
             title: title,
             message: message,
             items: [
@@ -19,7 +19,7 @@ extension IPopupPresenterBridge {
     
     func jv_warnNetworkMissing() {
         displayAlert(
-            within: .root,
+            within: .auto,
             title: loc["status_missing_connection"],
             message: loc["suggest_check_internet_access"],
             items: [
@@ -29,7 +29,7 @@ extension IPopupPresenterBridge {
     
     func warnFeatureDisabled(caption: String? = nil) {
         displayAlert(
-            within: .root,
+            within: .auto,
             title: caption ?? loc["Me.DisabledFeature.Common"],
             message: nil,
             items: [
@@ -40,7 +40,7 @@ extension IPopupPresenterBridge {
     #if ENV_APP
     func warnFeatureNeedsPro(telemeteryService: ITelemetryService?) {
         displayAlert(
-            within: .root,
+            within: .auto,
             title: loc["Dialog.FeatureForPro.Description"],
             message: nil,
             items: [
@@ -54,7 +54,7 @@ extension IPopupPresenterBridge {
     
     func warnFeatureForOperators() {
         displayAlert(
-            within: .root,
+            within: .auto,
             title: loc["Me.DisabledFeature.isNotOperator"],
             message: nil,
             items: [
@@ -64,7 +64,7 @@ extension IPopupPresenterBridge {
     
     func warnFeatureForAdmins() {
         displayAlert(
-            within: .root,
+            within: .auto,
             title: loc["Me.DisabledFeature.isNotAdmin"],
             message: nil,
             items: [
@@ -74,7 +74,7 @@ extension IPopupPresenterBridge {
     
     func warnOperatingRevoked() {
         displayAlert(
-            within: .root,
+            within: .auto,
             title: String(),
             message: loc["Me.OperatorStatusRevoked"],
             items: [
@@ -84,7 +84,7 @@ extension IPopupPresenterBridge {
     
     func warnMissingMediaAccess() {
         displayAlert(
-            within: .root,
+            within: .auto,
             title: loc["Media.Access.Missing"],
             message: loc["Media.Access.Suggestion"],
             items: [
@@ -98,7 +98,7 @@ extension IPopupPresenterBridge {
     
     func warnSomeoneOnCallAlready() {
         displayAlert(
-            within: .root,
+            within: .auto,
             title: loc["Chat.AcceptanceFailure.OnCall"],
             message: nil,
             items: [
@@ -136,7 +136,7 @@ extension IPopupPresenterBridge {
     
     func informToRestart() {
         displayAlert(
-            within: .root,
+            within: .auto,
             title: "Please restart the app",
             message: nil,
             items: [
@@ -220,9 +220,16 @@ extension IPopupPresenterBridge {
             options: [.template])
     }
     
+    func warnAboutNoExtIdRegistration() {
+        informShortly(
+            message: loc["Me.Connection.NoExtIdRegistration"],
+            icon: nil,
+            options: [.template])
+    }
+    
     func alertAboutWorktimeDays() {
         displayMenu(
-            within: .root,
+            within: .auto,
             anchor: nil,
             title: loc["Alert.AtLeastOneWorkday.Title"],
             message: nil,
@@ -258,8 +265,8 @@ extension IPopupPresenterBridge {
     func pickGroupNotifications(group: JVChat, callback: @escaping (JVChatAttendeeNotifying) -> Void) {
         let map: [JVChatAttendeeNotifying: (title: String, preset: PopupPresenterItem.ActionIconPreset)] = [
             .everything: (title: loc["Teambox.Options.Everything"], preset: .checkmark),
-            .nothing: (title: loc["Teambox.Options.Everything"], preset: .checkmark),
-            .mentions: (title: loc["Teambox.Options.Everything"], preset: .checkmark),
+            .nothing: (title: loc["Teambox.Options.Nothing"], preset: .checkmark),
+            .mentions: (title: loc["Teambox.Options.Mentions"], preset: .checkmark),
         ]
         
         let actions: [PopupPresenterItem] = JVChatAttendeeNotifying.allCases.compactMap { option in
@@ -279,7 +286,7 @@ extension IPopupPresenterBridge {
         }
         
         displayMenu(
-            within: .root,
+            within: .auto,
             anchor: nil,
             title: nil,
             message: nil,
@@ -290,7 +297,7 @@ extension IPopupPresenterBridge {
     
     func confirmKickingMemberFromChat(confirmationBlock: @escaping () -> Void) {
         displayAlert(
-            within: .root,
+            within: .auto,
             title: loc["Details.KickFromChat.Title"],
             message: nil,
             items: [
@@ -303,7 +310,7 @@ extension IPopupPresenterBridge {
     
     func closableAlert(title: String?, message: String?) {
         displayAlert(
-            within: .root,
+            within: .auto,
             title: title,
             message: message,
             items: [

@@ -267,6 +267,7 @@ final class SdkEngine: ISdkEngine {
         ).build()
         
         managers = SdkEngineManagersFactory(
+            apnsEnvironment: UIApplication.shared.jv_detectApnsEnvironment(),
             workerThread: threads.workerThread,
             uploadingQueue: uploadingQueue,
             sessionContext: sessionContext,

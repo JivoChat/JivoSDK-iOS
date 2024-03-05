@@ -78,3 +78,10 @@ extension Array where Element == Int {
         return map { String("\($0)") }
     }
 }
+
+extension Array where Element == UInt8 {
+    func jv_stringify() -> String {
+        let hexBytes = self.map { String(format: "%02hhx", $0) }
+        return hexBytes.joined()
+    }
+}

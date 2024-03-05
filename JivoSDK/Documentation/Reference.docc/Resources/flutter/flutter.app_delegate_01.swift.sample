@@ -15,14 +15,15 @@ import JivoSDK
     }
     
     override func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        Jivo.notifications.setPushToken(data: nil)
+        Jivo.notifications.setPushToken(error: error)
     }
     
     override func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        if Jivo.notifications.handleIncoming(userInfo: userInfo, completionHandler: completionHandler) {
-            return
+        if let result = Jivo.notifications.didReceiveRemoteNotification(userInfo: userInfo) {
+            completionHandler(result)
         }
-        
-        completionHandler(.noData)
+        else {
+            completionHandler(.noData)
+        }
     }
 }

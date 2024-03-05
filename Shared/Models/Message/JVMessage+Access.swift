@@ -53,13 +53,6 @@ enum JVMessageDelivery {
     case status(JVMessageStatus)
 }
 
-enum JVMessageType: String {
-    case message = "message"
-    case system = "system"
-    case contactForm = "contact_form"
-    case chatRate = "chat_rate"
-}
-
 enum JVMessageTarget: Codable {
     case regular
     case email(fromEmail: String, toEmail: String)
@@ -86,7 +79,7 @@ enum JVMessageContent {
     case bot(message: String, buttons: [String], markdown: Bool)
     case order(email: String?, phone: String?, subject: String, details: String, button: String)
     case email(from: String, to: String, subject: String, message: String)
-    case photo(mime: String, name: String, link: String, dataSize: Int, width: Int, height: Int)
+    case photo(mime: String, name: String, link: String, dataSize: Int, width: Int, height: Int, title: String?, text: String?)
     case file(mime: String, name: String, link: String, size: Int)
     case transfer(from: JVAgent, to: JVAgent)
     case transferDepartment(from: JVAgent, department: JVDepartment, to: JVAgent)
@@ -270,7 +263,7 @@ extension JVMessage {
     }
     
     var direction: JVMessageDirection {
-        if ["system", "transfer", "join", "left", "line", "reminder"].contains(type) {
+        if renderingType.belonging == .hidden {
             return .system
         }
         else if call?.type == JVMessageBodyCallType.incoming {
@@ -284,46 +277,16 @@ extension JVMessage {
         }
     }
     
-    var type: String {
-        guard !(m_was_deleted) else {
-            return "message"
-        }
-        
-        return m_type.jv_orEmpty
+    var logicalType: JVMessageType {
+        return JVMessageType.by(name: m_type.jv_orEmpty) ?? .message
     }
     
-    var isSystemLike: Bool {
-        switch type {
-        case "proactive":
-            return false
-        case "hello":
-            return false
-        case "email":
-            return false
-        case "message":
-            return false
-        case "transfer":
-            return true
-        case "join":
-            return true
-        case "left":
-            return true
-        case "system":
-            return true
-        case "call":
-            return true
-        case "line":
-            return true
-        case "reminder":
-            return true
-        case "comment":
-            return false
-        case "keyboard":
-            return false
-        case "order":
-            return false
-        default:
-            return true
+    var renderingType: JVMessageType {
+        if wasDeleted {
+            return .message
+        }
+        else {
+            return logicalType
         }
     }
     
@@ -343,7 +306,9 @@ extension JVMessage {
                     link: link,
                     dataSize: media.dataSize,
                     width: Int(media.originalSize.width),
-                    height: Int(media.originalSize.height)
+                    height: Int(media.originalSize.height),
+                    title: media.m_title,
+                    text: media.m_text
                 )
             }
             else if let conference = media.conference {
@@ -366,23 +331,23 @@ extension JVMessage {
             }
         }
         
-        switch type {
-        case "proactive":
+        switch renderingType {
+        case .proactive:
             return .proactive(
                 message: m_text.jv_orEmpty
             )
             
-        case "hello":
+        case .hello:
             return .hello(
                 message: m_text.jv_orEmpty
             )
 
-        case "offline":
+        case .offline:
             return .offline(
                 message: m_text.jv_orEmpty
             )
             
-        case "email":
+        case .email:
             if let email = m_body?.email {
                 return .email(
                     from: email.from,
@@ -395,7 +360,7 @@ extension JVMessage {
                 assertionFailure()
             }
             
-        case "message", "keyboard":
+        case .message, .keyboard:
             if let call = m_body?.call {
                 return .call(
                     call: call
@@ -416,7 +381,7 @@ extension JVMessage {
                 )
             }
             
-        case "transfer":
+        case .transfer:
             if let transferFrom = m_sender_agent, let department = m_body?.transfer?.department, let transferTo = m_body?.transfer?.agent {
                 return .transferDepartment(
                     from: transferFrom,
@@ -434,7 +399,7 @@ extension JVMessage {
                 assertionFailure()
             }
             
-        case "join":
+        case .join:
             if let joinedAgent = m_sender_agent {
                 return .join(
                     assistant: joinedAgent,
@@ -445,7 +410,7 @@ extension JVMessage {
                 assertionFailure()
             }
 
-        case "left":
+        case .left:
             if let leftAgent = m_sender_agent {
                 return .left(
                     agent: leftAgent,
@@ -456,34 +421,34 @@ extension JVMessage {
                 assertionFailure()
             }
             
-        case "system":
+        case .system:
             return .text(
                 message: m_text.jv_orEmpty
             )
             
-        case "call":
+        case .call:
             if let call = m_body?.call {
                 return .call(
                     call: call
                 )
             }
 
-        case "line":
+        case .line:
             return .line
 
-        case "reminder":
+        case .reminder:
             if let task = m_body?.task {
                 return .task(
                     task: task
                 )
             }
             
-        case "comment":
+        case .comment:
             return .comment(
                 message: m_text.jv_orEmpty
             )
             
-        case "order":
+        case .order:
             if let order = m_body?.order {
                 return .order(
                     email: order.email,
@@ -493,11 +458,11 @@ extension JVMessage {
                     button: loc["Chat.Order.Call.Button"])
             }
             
-        case "contact_form":
+        case .contactForm:
             let status = JVMessageBodyContactFormStatus(rawValue: rawText) ?? .inactive
             return .contactForm(status: status)
             
-        case "chat_rate":
+        case .chatRate:
             let status = JVMessageBodyRateFormStatus(rawValue: rawDetails) ?? .initial
             return .rateForm(status: status)
             
@@ -517,10 +482,6 @@ extension JVMessage {
         else {
             return false
         }
-    }
-    
-    var isComment: Bool {
-        return (m_type == "comment")
     }
     
     var quotedMessage: JVMessage? {
@@ -557,7 +518,7 @@ extension JVMessage {
             return "bot"
         }
         else if let sender = sender, sender.jv_isValid {
-            return isSystemLike ? nil : sender.displayName(kind: .relative)
+            return (renderingType.belonging == .hidden ? nil : sender.displayName(kind: .relative))
         }
         else {
             return nil
@@ -617,7 +578,7 @@ extension JVMessage {
     var contentHash: JVMessageContentHash {
         var hasher = Hasher()
         
-        hasher.combine(type)
+        hasher.combine(renderingType.exportableName())
         hasher.combine(text)
         
         if let media = m_media {

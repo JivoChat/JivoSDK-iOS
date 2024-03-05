@@ -37,10 +37,10 @@ protocol ISdkChatSubStorage: IBaseChattingSubStorage {
     func markMessagesAsSeen(to messageId: Int, inChatWithId chatId: Int) -> [JVMessage]
     func markSendingStart(message: JVMessage)
     func markSendingFailure(message: JVMessage)
-    @discardableResult func upsertAgent(havingId id: Int, with: [UserTransactionSubject]) -> JVAgent?
+    @discardableResult func upsertAgent(havingId id: Int, with: [SdkChatProtoUserSubject]) -> JVAgent?
     func makeAllAgentsOffline()
-    @discardableResult func upsertMessage(havingId id: Int, inChatWithId chatId: Int, with subjects: [MessageTransactionSubject]) -> JVMessage?
-    @discardableResult func upsertMessage(byPrivateId privateId: String, inChatWithId chatId: Int, with subjects: [MessageTransactionSubject]) -> JVMessage?
+    @discardableResult func upsertMessage(havingId id: Int, inChatWithId chatId: Int, with subjects: [SdkChatProtoMessageSubject]) -> JVMessage?
+    @discardableResult func upsertMessage(byPrivateId privateId: String, inChatWithId chatId: Int, with subjects: [SdkChatProtoMessageSubject]) -> JVMessage?
     func removeMessages(_ messagesToRemove: [JVMessage])
     func deleteAllMessages()
 }
@@ -187,7 +187,8 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
             .sender(.client(withId: clientID == 0 ? 1 : clientID)),
             .typeInitial(type),
             .isIncoming(false),
-            .orderingIndex(orderingIndex)
+            .orderingIndex(orderingIndex),
+            .mustBeSent
         ]
         
         if let status = status {
@@ -205,7 +206,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         case let .text(data):
             updates.append(.text(data))
             
-        case let .photo(mime, name, link, dataSize, width, height):
+        case let .photo(mime, name, link, dataSize, width, height, _, _):
             let messageMediaChange = JVMessageMediaGeneralChange(
                 type: JVMessageMediaType.photo.rawValue,
                 mime: mime,
@@ -231,7 +232,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
             
         case let .contactForm(status):
             updates.append(.text(status.rawValue))
-        case let .rateForm(status):
+        case .rateForm:
             break
         default:
             break
@@ -284,6 +285,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
                         id: message.ID,
                         localId: message.localID,
                         status: nil,
+                        sendingDate: nil,
                         date: nil
                     ))
             }
@@ -299,6 +301,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
                         id: message.ID,
                         localId: message.localID,
                         status: nil,
+                        sendingDate: nil,
                         date: Date()
                     )
                 )
@@ -444,7 +447,9 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
                 change: JVSdkMessageStatusChange(
                     id: message.ID,
                     localId: message.localID,
-                    status: JVMessageStatus.sent
+                    status: JVMessageStatus.sent,
+                    sendingDate: Date(),
+                    date: nil
                 )
             )
         }
@@ -472,7 +477,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
     }
     
     @discardableResult
-    func upsertAgent(havingId id: Int, with subjects: [UserTransactionSubject]) -> JVAgent? {
+    func upsertAgent(havingId id: Int, with subjects: [SdkChatProtoUserSubject]) -> JVAgent? {
         var updates = agentPropertyUpdates(fromSubjects: subjects)
         if updates.contains(where: { update in
             if case .displayName = update { return true } else { return false }
@@ -503,7 +508,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
     }
     
     @discardableResult
-    func upsertMessage(havingId id: Int, inChatWithId chatId: Int, with subjects: [MessageTransactionSubject]) -> JVMessage? {
+    func upsertMessage(havingId id: Int, inChatWithId chatId: Int, with subjects: [SdkChatProtoMessageSubject]) -> JVMessage? {
         let updates = messagePropertyUpdates(fromSubjects: subjects, forMessageInChatWithId: chatId)
         guard let change = try? JVSdkMessageAtomChange(id: id, updates: updates) else { return nil }
         
@@ -512,7 +517,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
     }
     
     @discardableResult
-    func upsertMessage(byPrivateId privateId: String, inChatWithId chatId: Int, with subjects: [MessageTransactionSubject]) -> JVMessage? {
+    func upsertMessage(byPrivateId privateId: String, inChatWithId chatId: Int, with subjects: [SdkChatProtoMessageSubject]) -> JVMessage? {
         let updates = messagePropertyUpdates(fromSubjects: subjects, forMessageInChatWithId: chatId)
         guard let change = try? JVSdkMessageAtomChange(localId: privateId, updates: updates) else { return nil }
 
@@ -535,7 +540,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
     
     // MARK: - Private methods
     
-    private func messagePropertyUpdates(fromSubjects subjects: [MessageTransactionSubject], forMessageInChatWithId chatId: Int) -> [JVMessagePropertyUpdate] {
+    private func messagePropertyUpdates(fromSubjects subjects: [SdkChatProtoMessageSubject], forMessageInChatWithId chatId: Int) -> [JVMessagePropertyUpdate] {
         var updates: [JVMessagePropertyUpdate] = [
             .chatId(chatId),
             .isSendingFailed(false)
@@ -621,7 +626,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         return updates
     }
     
-    private func agentPropertyUpdates(fromSubjects subjects: [UserTransactionSubject]) -> [AgentPropertyUpdate] {
+    private func agentPropertyUpdates(fromSubjects subjects: [SdkChatProtoUserSubject]) -> [AgentPropertyUpdate] {
         let updates: [AgentPropertyUpdate] = subjects
             .reduce([]) { updates, subject in
                 switch subject {

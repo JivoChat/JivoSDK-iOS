@@ -62,7 +62,7 @@ class SidePanelView: UIView, SidePanel {
     private func getLayout(size: CGSize) -> Layout {
         Layout(
             bounds: CGRect(origin: .zero, size: size),
-            safeAreaInsets: jv_safeInsets)
+            safeAreaInsets: safeAreaInsets)
     }
 }
 

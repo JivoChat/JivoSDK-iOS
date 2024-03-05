@@ -7,8 +7,12 @@ final class AppDelegate: UIResponder
 , UIApplicationDelegate
 , UNUserNotificationCenterDelegate {
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey : Any]? = nil) -> Bool {
-        Jivo.notifications.handleLaunch(options: launchOptions)
         UNUserNotificationCenter.current().delegate = self
+        
+        if Jivo.notifications.handleLaunch(options: launchOptions) {
+            // Launched by JivoSDK notification
+        }
+        
         return true
     }
     
@@ -17,29 +21,33 @@ final class AppDelegate: UIResponder
     }
     
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        Jivo.notifications.setPushToken(data: nil)
+        Jivo.notifications.setPushToken(error: error)
     }
     
     func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        if Jivo.notifications.handleIncoming(userInfo: userInfo, completionHandler: completionHandler) {
-            return
+        if let result = Jivo.notifications.didReceiveRemoteNotification(userInfo: userInfo) {
+            // Notification for JivoSDK, just pass this result into completionHandler
+            completionHandler(result)
         }
-        
-        completionHandler(.noData)
+        else {
+            // Notification for your app, provide the result needed for your business logic
+            completionHandler(.noData)
+        }
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        Jivo.notifications.configurePresentation(notification: notification, proxyTo: completionHandler) { target, event in
-            switch target {
-            case .app:
-                return []
-            case .sdk:
-                return [.alert]
-            }
+        if let options = Jivo.notifications.willPresent(notification: notification, preferableOptions: .banner) {
+            // Notification for JivoSDK, just pass these options into completionHandler
+            completionHandler(options)
+        }
+        else {
+            // Notification for your app, provide the options needed for your business logic
+            completionHandler([])
         }
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        Jivo.notifications.handleUser(response: response)
+        Jivo.notifications.didReceive(response: response)
+        completionHandler()
     }
 }

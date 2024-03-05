@@ -77,6 +77,7 @@ class StackViewController<Satellite: BaseViewControllerSatellite>: KeyboardableV
 
     func setDefaultTopMargin(_ top: CGFloat) {
         defaultMargins.top = top
+        view.setNeedsLayout()
     }
     
     func setDefaultTopPadding(_ top: CGFloat) {

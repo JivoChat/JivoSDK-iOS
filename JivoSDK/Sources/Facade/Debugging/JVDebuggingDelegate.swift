@@ -9,7 +9,7 @@ import Foundation
 
 /**
  Interface to control debugging process,
- relates to ``Jivo.debugging`` namespace
+ relates to `Jivo.debugging` namespace
  */
 @objc(JVDebuggingDelegate)
 public protocol JVDebuggingDelegate {

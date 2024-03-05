@@ -14,6 +14,8 @@ struct JMTimelineMessagePhotoInfo: JMTimelineInfo {
     let url: URL
     let width: Int
     let height: Int
+    let caption: String?
+    let plainStyle: JMTimelineCompositePlainStyle?
     let contentMode: UIView.ContentMode
     let allowFullscreen: Bool
     let contentTint: UIColor

@@ -25,8 +25,8 @@ final class ChipsElementControl: UIButton {
         
         if options.contains(.deletable), #available(iOS 13.0, *) {
             semanticContentAttribute = .forceRightToLeft
-            imageEdgeInsets = UIEdgeInsets(top: 3, left: 4, bottom: 3, right: -3)
-            contentEdgeInsets = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
+            jv_imageEdgeInsets = UIEdgeInsets(top: 3, left: 4, bottom: 3, right: -3)
+            jv_contentEdgeInsets = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
             setImage(UIImage(systemName: "xmark"), for: .normal)
             imageView?.contentMode = .scaleAspectFit
         }

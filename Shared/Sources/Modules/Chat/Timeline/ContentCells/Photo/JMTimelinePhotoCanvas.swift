@@ -11,7 +11,7 @@ import JMTimelineKit
 
 class JMTimelinePhotoCanvas: JMTimelineSingleCanvas<JMTimelineMessagePhotoRegion> {
     init() {
-        super.init(region: JMTimelineMessagePhotoRegion())
+        super.init(region: JMTimelineMessagePhotoRegion(hasCaption: false))
     }
     
     required init?(coder aDecoder: NSCoder) {

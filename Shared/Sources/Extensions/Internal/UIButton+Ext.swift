@@ -36,3 +36,44 @@ extension UIButton {
         setBackgroundImage(colorImage, for: state)
     }
 }
+
+extension UIButton: Deprecations {
+    var jv_showsTouchWhenHighlighted: Bool {
+        get { (self as Deprecations).showsTouchWhenHighlighted }
+        set { (self as Deprecations).showsTouchWhenHighlighted = newValue }
+    }
+
+    var jv_adjustsImageWhenHighlighted: Bool {
+        get { (self as Deprecations).adjustsImageWhenHighlighted }
+        set { (self as Deprecations).adjustsImageWhenHighlighted = newValue }
+    }
+    
+    var jv_adjustsImageWhenDisabled: Bool {
+        get { (self as Deprecations).adjustsImageWhenDisabled }
+        set { (self as Deprecations).adjustsImageWhenDisabled = newValue }
+    }
+    
+    var jv_contentEdgeInsets: UIEdgeInsets {
+        get { (self as Deprecations).contentEdgeInsets }
+        set { (self as Deprecations).contentEdgeInsets = newValue }
+    }
+    
+    var jv_titleEdgeInsets: UIEdgeInsets {
+        get { (self as Deprecations).titleEdgeInsets }
+        set { (self as Deprecations).titleEdgeInsets = newValue }
+    }
+    
+    var jv_imageEdgeInsets: UIEdgeInsets {
+        get { (self as Deprecations).imageEdgeInsets }
+        set { (self as Deprecations).imageEdgeInsets = newValue }
+    }
+}
+
+fileprivate protocol Deprecations: AnyObject {
+    var showsTouchWhenHighlighted: Bool { get set }
+    var adjustsImageWhenHighlighted: Bool { get set }
+    var adjustsImageWhenDisabled: Bool { get set }
+    var contentEdgeInsets: UIEdgeInsets { get set }
+    var titleEdgeInsets: UIEdgeInsets { get set }
+    var imageEdgeInsets: UIEdgeInsets { get set }
+}

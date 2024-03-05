@@ -15,7 +15,7 @@ final class JVPromise<Value> {
     private let thread = Thread.current
     private let uid = UUID()
     
-    init(queue: DispatchQueue = .main, evaluate block: (JVPromise<Value>) -> Void) {
+    init(queue: DispatchQueue = .main, evaluate block: (JVPromise<Value>) -> Void = { _ in }) {
         self.queue = queue
         block(self)
     }

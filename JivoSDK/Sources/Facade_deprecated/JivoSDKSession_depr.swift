@@ -148,6 +148,7 @@ public class JivoSDKSessionCustomDataField: NSObject {
     }
 }
 
+@available(*, deprecated)
 fileprivate extension JivoSDKSessionServer {
     func toNewAPI() -> JVSessionServer {
         switch self {
@@ -163,18 +164,21 @@ fileprivate extension JivoSDKSessionServer {
     }
 }
 
+@available(*, deprecated)
 fileprivate extension JivoSDKSessionCustomData {
     func toNewAPI() -> JVSessionContactInfo {
         return JVSessionContactInfo(name: name, email: email, phone: phone, brief: brief)
     }
 }
 
+@available(*, deprecated)
 fileprivate extension JivoSDKSessionClientInfo {
     func toNewAPI() -> JVSessionContactInfo {
         return JVSessionContactInfo(name: name, email: email, phone: phone, brief: brief)
     }
 }
 
+@available(*, deprecated)
 fileprivate extension JivoSDKSessionCustomDataField {
     func toNewAPI() -> JVSessionCustomDataField {
         return JVSessionCustomDataField(title: title, key: key, content: content, link: link)

@@ -17,7 +17,9 @@ extension Optional where Wrapped == String {
 
 extension String {
     static let jv_empty = String()
-    
+    static let jv_newline = "\n"
+    static let jv_space = " "
+
     enum JVSearchingMode {
         case plain
         case email

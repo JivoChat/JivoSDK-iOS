@@ -6,9 +6,9 @@ import JivoSDK
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
     override func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
+        UNUserNotificationCenter.current().delegate = self
         GeneratedPluginRegistrant.register(with: self)
         Jivo.notifications.handleLaunch(options: launchOptions)
-        UNUserNotificationCenter.current().delegate = self
         return super.application(application, didFinishLaunchingWithOptions: launchOptions)
     }
     
@@ -21,26 +21,25 @@ import JivoSDK
     }
     
     override func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-        if Jivo.notifications.handleIncoming(userInfo: userInfo, completionHandler: completionHandler) {
-            return
+        if let result = Jivo.notifications.didReceiveRemoteNotification(userInfo: userInfo) {
+            completionHandler(result)
         }
-        
-        completionHandler(.noData)
+        else {
+            completionHandler(.noData)
+        }
     }
     
-    override func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        Jivo.notifications.configurePresentation(notification: notification, proxyTo: completionHandler) { target, event in
-            switch target {
-            case .app:
-                return []
-            case .sdk:
-                return [.alert]
-            }
+    func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
+        if let options = Jivo.notifications.willPresent(notification: notification, preferableOptions: .banner) {
+            completionHandler(options)
+        }
+        else {
+            completionHandler([])
         }
     }
     
     override func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        Jivo.notifications.handleUser(response: response)
+        Jivo.notifications.didReceive(response: response)
         completionHandler()
     }
 }

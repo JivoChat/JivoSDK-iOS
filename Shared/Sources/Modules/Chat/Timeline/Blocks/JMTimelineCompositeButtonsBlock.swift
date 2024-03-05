@@ -103,7 +103,7 @@ final class JMTimelineCompositeButtonsBlock: UIView, JMTimelineBlockCallable {
             button.setTitleColor(JVDesign.colors.resolve(usage: .white), for: .highlighted)
             button.titleLabel?.font = style.captionFont
             button.titleLabel?.lineBreakMode = .byTruncatingTail
-            button.titleEdgeInsets = style.captionPadding
+            button.jv_titleEdgeInsets = style.captionPadding
             button.layer.borderWidth = 1
             button.layer.borderColor = style.borderColor.cgColor
             button.layer.cornerRadius = style.cornerRadius
@@ -177,7 +177,7 @@ fileprivate struct Layout {
             let size = normalize(
                 buttonSize: button
                     .sizeThatFits(.zero)
-                    .jv_extendedBy(insets: button.titleEdgeInsets)
+                    .jv_extendedBy(insets: button.jv_titleEdgeInsets)
             )
             
             defer {

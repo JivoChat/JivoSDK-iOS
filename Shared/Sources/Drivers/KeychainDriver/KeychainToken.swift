@@ -35,6 +35,8 @@ extension KeychainToken {
     static let deviceID = KeychainToken(key: "deviceID", hint: String.self, accessing: [.unlockedOnce, .preventSync])
     static let firstUseDate = KeychainToken(key: "firstUseDate", hint: Date.self, accessing: [.unlockedOnce])
     static let token = KeychainToken(key: "token", hint: String.self, accessing: [.unlockedOnce])
+    static let vkToken = KeychainToken(key: "vkToken", hint: String.self, accessing: [.unlockedOnce])
+    static let vkID = KeychainToken(key: "vkID", hint: String.self, accessing: [.unlockedOnce])
     static let tokenDate = KeychainToken(key: "tokenDate", hint: Date.self, accessing: [.unlockedOnce])
     static let siteID = KeychainToken(key: "siteID", hint: Int.self, accessing: [.unlockedOnce])
     static let shard = KeychainToken(key: "shard", hint: String.self, accessing: [.unlockedOnce])

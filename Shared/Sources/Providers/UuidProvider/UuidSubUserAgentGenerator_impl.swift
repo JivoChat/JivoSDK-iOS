@@ -20,7 +20,7 @@ final class UuidSubUserAgentGenerator: IUuidSubUserAgentGenerator {
         switch package {
         case .app:
             return enumerate(values: [
-                collectPackageInfo(name: "JivoApp-ios", version: bundle.jv_semanticVersion),
+                collectPackageInfo(name: "JivoApp-ios", version: bundle.jv_formatVersion(.semanticFull)),
                 surround(fields: [
                     "Mobile",
                     "Device" => collectDeviceInfo(),
@@ -33,7 +33,7 @@ final class UuidSubUserAgentGenerator: IUuidSubUserAgentGenerator {
             ])
         case .sdk:
             return enumerate(values: [
-                collectPackageInfo(name: "JivoSDK-ios", version: bundle.jv_packageVersion),
+                collectPackageInfo(name: "JivoSDK-ios", version: bundle.jv_formatVersion(.package)),
                 surround(fields: [
                     "Mobile",
                     "Device" => collectDeviceInfo(),
@@ -42,7 +42,7 @@ final class UuidSubUserAgentGenerator: IUuidSubUserAgentGenerator {
                     "Environment" => collectEnvironmentInfo(),
                     "Engine" => collectEngineInfo()
                 ]),
-                "sdk/\(bundle.jv_version)",
+                "sdk/\(bundle.jv_formatVersion(.marketingShort))",
                 "(iOS \(UIDevice.current.systemVersion))",
                 "CFNetwork/\(collectNetworkingInfo())",
                 "Darwin/\(collectDarwinInfo())"
@@ -99,7 +99,7 @@ final class UuidSubUserAgentGenerator: IUuidSubUserAgentGenerator {
         let bundle = Bundle.main
         
         if let name = bundle.jv_ID ?? bundle.jv_name {
-            return collectPackageInfo(name: name, version: bundle.jv_version)
+            return collectPackageInfo(name: name, version: bundle.jv_formatVersion(.marketingShort))
         }
         else {
             return collectPackageInfo(name: "unknown", version: "0")
@@ -173,10 +173,10 @@ final class UuidSubUserAgentGenerator: IUuidSubUserAgentGenerator {
             return "flutter"
         }
         else if let _ = objc_getClass("RCTBridge") {
-            return "react"
+            return "reactnative"
         }
         else if let _ = objc_getClass("SharedBase"), let _ = objc_getClass("SharedNumber") {
-            return "kotlin"
+            return "kmp"
         }
         else {
             return nil

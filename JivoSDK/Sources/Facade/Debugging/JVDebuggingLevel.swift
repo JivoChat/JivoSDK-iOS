@@ -9,7 +9,7 @@ import Foundation
 
 /**
  Level of logging verbosity,
- relates to ``Jivo.debugging`` namespace
+ relates to `Jivo.debugging` namespace
  */
 @objc(JVDebuggingLevel)
 public enum JVDebuggingLevel: Int {

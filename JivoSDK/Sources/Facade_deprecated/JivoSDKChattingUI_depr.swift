@@ -258,6 +258,7 @@ public class JivoSDKChattingConfig: NSObject {
     }
 }
 
+@available(*, deprecated)
 fileprivate extension JivoSDKChattingCloseButton {
     func toNewAPI() -> JVDisplayCloseButton {
         switch self {

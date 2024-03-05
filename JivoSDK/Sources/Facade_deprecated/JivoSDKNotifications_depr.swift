@@ -79,6 +79,7 @@ public protocol JivoSDKNotificationsDelegate {
     optional func jivo(needAccessToNotifications sdk: JivoSDK, proceedBlock: @escaping () -> Void)
 }
 
+@available(*, deprecated)
 fileprivate extension JivoSDKNotificationsPermissionAskingMoment {
     func toNewAPI() -> JVNotificationsPermissionAskingMoment {
         switch self {

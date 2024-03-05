@@ -9,7 +9,7 @@ import Foundation
 
 /**
  Interface to handle notifications events,
- relates to ``Jivo.notifications`` namespace
+ relates to `Jivo.notifications` namespace
  */
 @objc(JVNotificationsDelegate)
 public protocol JVNotificationsDelegate {

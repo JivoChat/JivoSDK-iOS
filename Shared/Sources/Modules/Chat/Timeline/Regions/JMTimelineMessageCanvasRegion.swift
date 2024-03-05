@@ -129,11 +129,11 @@ class JMTimelineMessageCanvasRegion: UIView, JMTimelineStylable {
         }
         
         switch renderMode {
-        case .content(time: .over) where renderOptions.isFailure:
-            timeLabel.backgroundColor = JVDesign.colors.resolve(usage: .oppositeBackground).jv_withAlpha(0.35)
+        case .content(time: .over, _) where renderOptions.isFailure:
+            timeLabel.backgroundColor = .red
             timeLabel.textColor = JVDesign.colors.resolve(usage: .warningForeground)
             timeLabel.textAlignment = .center
-        case .content(time: .over):
+        case .content(time: .over, color: .shaded):
             timeLabel.backgroundColor = JVDesign.colors.resolve(usage: .oppositeBackground).jv_withAlpha(0.35)
             timeLabel.textColor = JVDesign.colors.resolve(usage: .oppositeForeground).jv_withAlpha(0.85)
             timeLabel.textAlignment = .center
@@ -361,13 +361,13 @@ fileprivate struct Layout {
         switch (renderMode, renderOptions.position) {
         case (.bubble, _):
             return base
-        case (.content(time: .omit), _):
+        case (.content(time: .omit, _), _):
             return base.divided(atDistance: 0, from: .maxXEdge).slice
-        case (.content(time: .over), _):
+        case (.content(time: .over, _), _):
             return base
-        case (.content(time: .near), .left):
+        case (.content(time: .near, _), .left):
             return base.offsetBy(dx: -leftX + decorationViewFrame.maxX + 8, dy: 0)
-        case (.content(time: .near), .right):
+        case (.content(time: .near, _), .right):
             return base.offsetBy(dx: -leftX + decorationViewFrame.minX - 8 - size.width, dy: 0)
         }
     }
@@ -412,7 +412,7 @@ fileprivate struct Layout {
         case .bubble(.compact), .bubble(time: .inline):
             contentInsetsHeight = contentInsets.vertical
             coveringMetaHeight = max(statusSize.height, timeHeight)
-        case .content(time: .over):
+        case .content(time: .over, _):
             contentInsetsHeight = contentInsets.vertical
             coveringMetaHeight = 0
         case .content:
@@ -448,11 +448,11 @@ fileprivate struct Layout {
             return UIEdgeInsets(top: 14, left: 14, bottom: 0, right: 14)
         case .bubble(time: .inline):
             return UIEdgeInsets(top: 14, left: 14, bottom: 0, right: 14)
-        case .content(time: .over):
+        case .content(time: .over, _):
             return UIEdgeInsets(top: 2, left: 2, bottom: 2, right: 2)
-        case .content(time: .near):
+        case .content(time: .near, _):
             return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-        case .content(time: .omit):
+        case .content(time: .omit, _):
             return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         }
     }
@@ -465,11 +465,11 @@ fileprivate struct Layout {
             return UIEdgeInsets(top: 6, left: 6, bottom: 8, right: 8)
         case .bubble(time: .inline):
             return UIEdgeInsets(top: 0, left: 6, bottom: 8, right: 8)
-        case .content(time: .over):
+        case .content(time: .over, _):
             return UIEdgeInsets(top: 0, left: 0, bottom: 5, right: 10)
-        case .content(time: .near):
+        case .content(time: .near, _):
             return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
-        case .content(time: .omit):
+        case .content(time: .omit, _):
             return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
         }
     }
@@ -540,7 +540,7 @@ fileprivate struct Layout {
         case .bubble(.compact), .bubble(.inline):
             contentInsetsHeight = s.contentInsets.vertical
             coveringTimeHeight = max(s.statusSize.height, timeHeight)
-        case .content(time: .over):
+        case .content(time: .over, _):
             contentInsetsHeight = s.contentInsets.vertical
             coveringTimeHeight = 0
         case .content:
@@ -573,7 +573,7 @@ fileprivate struct Layout {
         let size = timeLabel.jv_size(forWidth: bounds.width)
         
         switch renderMode {
-        case .content(time: .over):
+        case .content(time: .over, _):
             return CGSize(width: size.width + size.height * 0.5, height: size.height)
         default:
             return size

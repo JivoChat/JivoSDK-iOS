@@ -8,7 +8,6 @@
 
 import Foundation
 import JMCodingKit
-
 import SwiftMime
 
 protocol ISdkChatProto {
@@ -25,17 +24,17 @@ enum SdkChatProtoEventSubject: IProtoEventSubject {
 }
 
 extension ProtoTransactionKind {
-    enum ChatValue: String {
+    enum ChatNamespace: String {
         case user
         case message
     }
     
-    static func chat(_ value: ChatValue) -> ProtoTransactionKind {
-        return caseFor(value)
+    static func chat(_ namespace: ChatNamespace) -> ProtoTransactionKind {
+        return caseFor(namespace)
     }
 }
 
-enum UserTransactionSubject: IProtoEventSubject {
+enum SdkChatProtoUserSubject: IProtoEventSubject {
     case switchingDataReceivingMode
     case statusUpdated(to: String, ofUserWithId: String)
     case nameUpdated(to: String, ofUserWithId: String)
@@ -43,21 +42,21 @@ enum UserTransactionSubject: IProtoEventSubject {
     case photoUpdated(to: String, ofUserWithId: String)
 }
 
-enum MessageTransactionSubject: IProtoEventSubject {
+enum SdkChatProtoMessageSubject: IProtoEventSubject {
     case delivered(messageWithId: Int, andPrivateId: String, at: Date)
-    case received(messageWithId: Int, data: String?, andMedia: AtomMessageMedia? = nil, fromUserWithId: String, sentAt: Date)
+    case received(messageWithId: Int, data: String?, andMedia: SdkChatProtoAtomMessageMedia? = nil, fromUserWithId: String, sentAt: Date)
     case seen(messageWithId: Int, andDate: Date)
     case rate
 }
 
-struct AtomMessageMedia {
+struct SdkChatProtoAtomMessageMedia {
     let name: String
     let mime: String
     let type: JVMessageMediaType
     let link: String
 }
 
-enum MessageMediaMimeType {
+enum SdkChatProtoMessageMediaMimeType {
     case text(ext: String? = nil)
     case image(ext: String)
     case application(ext: String)
@@ -84,7 +83,7 @@ enum MessageMediaMimeType {
 }
 
 extension JVMessageMediaType {
-    init(mimeType: MessageMediaMimeType) {
+    init(mimeType: SdkChatProtoMessageMediaMimeType) {
         switch mimeType {
         case .text: self = .document
         case .image: self = .photo
@@ -171,7 +170,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
                 type: "atom/message.ack",
                 context: nil,
                 id: nil,
-                data: "\(id).\(date.timeIntervalSince1970)"
+                data: "\(id).\(Int(date.timeIntervalSince1970))"
             ),
             caching: .disabled)
     }
@@ -358,7 +357,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         return ProtoEventBundle(
             type: .chat(.message),
             id: privateId,
-            subject: MessageTransactionSubject.delivered(
+            subject: SdkChatProtoMessageSubject.delivered(
                 messageWithId: messageId,
                 andPrivateId: privateId,
                 at: messageDate
@@ -376,7 +375,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         return ProtoEventBundle(
             type: .chat(.message),
             id: messageId,
-            subject: MessageTransactionSubject.seen(
+            subject: SdkChatProtoMessageSubject.seen(
                 messageWithId: messageId,
                 andDate: messageDate
             )
@@ -387,7 +386,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         return ProtoEventBundle(
             type: .chat(.message),
             id: json["id"].stringValue,
-            subject: MessageTransactionSubject.rate
+            subject: SdkChatProtoMessageSubject.rate
         )
     }
     
@@ -403,7 +402,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         return ProtoEventBundle(
             type: .chat(.message),
             id: messageId,
-            subject: MessageTransactionSubject.received(
+            subject: SdkChatProtoMessageSubject.received(
                 messageWithId: messageId,
                 data: data,
                 fromUserWithId: userId,
@@ -420,7 +419,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
             return nil
         }
         
-        let mimeType = MessageMediaMimeType(string: type)
+        let mimeType = SdkChatProtoMessageMediaMimeType(string: type)
         let mediaType = mimeType.flatMap(JVMessageMediaType.init(mimeType:))
         let mediaName = json["data"].string
             .flatMap(URL.init(string:))?
@@ -430,10 +429,10 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         return ProtoEventBundle(
             type: .chat(.message),
             id: id,
-            subject: MessageTransactionSubject.received(
+            subject: SdkChatProtoMessageSubject.received(
                 messageWithId: messageId,
                 data: nil,
-                andMedia: AtomMessageMedia(
+                andMedia: SdkChatProtoAtomMessageMedia(
                     name: mediaName,
                     mime: type,
                     type: mediaType ?? .unknown,
@@ -463,7 +462,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
             }
             
             let link = (markdown as NSString).substring(with: match.range(at: 1))
-            let mimeType = SwiftMime.mime((link as NSString).pathExtension).flatMap(MessageMediaMimeType.init)
+            let mimeType = SwiftMime.mime((link as NSString).pathExtension).flatMap(SdkChatProtoMessageMediaMimeType.init)
             let mediaType = mimeType.flatMap(JVMessageMediaType.init(mimeType:))
             let mediaName = URL(string: link)?
                 .lastPathComponent
@@ -472,10 +471,10 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
             return ProtoEventBundle(
                 type: .chat(.message),
                 id: id,
-                subject: MessageTransactionSubject.received(
+                subject: SdkChatProtoMessageSubject.received(
                     messageWithId: messageId,
                     data: nil,
-                    andMedia: AtomMessageMedia(
+                    andMedia: SdkChatProtoAtomMessageMedia(
                         name: mediaName,
                         mime: type,
                         type: mediaType ?? .unknown,
@@ -501,7 +500,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
             return ProtoEventBundle(
                 type: .chat(.user),
                 id: id,
-                subject: UserTransactionSubject.statusUpdated(
+                subject: SdkChatProtoUserSubject.statusUpdated(
                     to: status,
                     ofUserWithId: id
                 )
@@ -511,7 +510,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
             return ProtoEventBundle(
                 type: .chat(.user),
                 id: nil,
-                subject: UserTransactionSubject.switchingDataReceivingMode
+                subject: SdkChatProtoUserSubject.switchingDataReceivingMode
             )
         }
     }
@@ -526,7 +525,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         return ProtoEventBundle(
             type: .chat(.user),
             id: id,
-            subject: UserTransactionSubject.nameUpdated(
+            subject: SdkChatProtoUserSubject.nameUpdated(
                 to: name,
                 ofUserWithId: id
             )
@@ -543,7 +542,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         return ProtoEventBundle(
             type: .chat(.user),
             id: id,
-            subject: UserTransactionSubject.titleUpdated(
+            subject: SdkChatProtoUserSubject.titleUpdated(
                 to: title,
                 ofUserWithId: id
             )
@@ -560,7 +559,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         return ProtoEventBundle(
             type: .chat(.user),
             id: id,
-            subject: UserTransactionSubject.photoUpdated(
+            subject: SdkChatProtoUserSubject.photoUpdated(
                 to: photoUrl,
                 ofUserWithId: id
             )

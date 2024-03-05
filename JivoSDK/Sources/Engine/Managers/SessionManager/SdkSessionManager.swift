@@ -265,21 +265,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             channelId: meta.endpointInfo.channelId
         )
 
-        do {
-            let jwt = try decode(jwt: clientToken)
-            
-            if let _ = jwt.body["id"] as? String {
-                sessionContext.identifyingToken = clientToken
-            }
-            else {
-                inform {"Please use JWT format for userToken, and put mandatory 'id' key with string value"}
-            }
-        }
-        catch {
-            inform {"For better integration, the userToken should be JWT"}
-            sessionContext.identifyingToken = clientToken
-        }
-        
+        sessionContext.updateIdentity(token: clientToken)
         sessionContext.accountConfig = accountConfig
         sessionContext.authorizationState = .unknown
         clientContext.personalNamespace = meta.personalNamespace
@@ -520,14 +506,14 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     // MARK: BaseManager methods
     
     override func handleProtoEvent(subject: IProtoEventSubject, context: ProtoEventContext?) {
-        switch subject as? SessionProtoEventSubject {
+        switch subject as? SdkSessionProtoEventSubject {
         case .connectionConfig(let meta):
             handleConnectionConfig(meta: meta, context: context)
         default:
             break
         }
         
-        switch subject as? SessionProtoEventSubject {
+        switch subject as? SdkSessionProtoEventSubject {
         case .socketOpen:
             handleSocketOpenEvent()
         case .socketClose(let kind, let error):
@@ -633,10 +619,10 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         sessionContext.authorizationState = .ready
         
         transaction.forEach { bundle in
-            switch bundle.payload.subject as? MeTransactionSubject {
-            case .meUrlPath(let path):
+            switch bundle.payload.subject as? SdkSessionProtoMeSubject {
+            case .urlPath(let path):
                 sessionContext.authorizingPath = path
-            case .meId(let id):
+            case .id(let id):
                 clientContext.clientId = id
             default:
                 break

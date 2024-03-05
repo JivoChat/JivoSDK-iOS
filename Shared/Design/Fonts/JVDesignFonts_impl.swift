@@ -86,12 +86,7 @@ final class JVDesignFonts: JVDesignEnvironmental, JVIDesignFonts {
     }
     
     func scaled(_ value: CGFloat, category: UIFont.TextStyle) -> CGFloat {
-        if #available(iOS 11.0, *) {
-            return UIFontMetrics(forTextStyle: category).scaledValue(for: value)
-        }
-        else {
-            return value
-        }
+        return UIFontMetrics(forTextStyle: category).scaledValue(for: value)
     }
     
     func scaled(_ size: CGSize, category: UIFont.TextStyle) -> CGSize {

@@ -9,7 +9,7 @@ import Foundation
 
 /**
  Interface to handle session events,
- relates to ``Jivo.session`` namespace
+ relates to `Jivo.session` namespace
  */
 @objc(JVSessionDelegate)
 public protocol JVSessionDelegate {

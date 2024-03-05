@@ -54,7 +54,7 @@ final class SdkChatSubSender: ISdkChatSubSender {
         outgoingMessagesListener = databaseDriver.subscribe(
             JVMessage.self,
             options: JVDatabaseRequestOptions(
-                filter: NSPredicate(format: "m_status = '' AND m_type != 'system' AND m_type != 'offline' AND m_type != 'proactive' AND m_type != 'contact_form' AND m_type != 'chat_rate' AND m_type != 'hello'"),
+                filter: NSPredicate(format: "m_can_be_sent == true"),
                 sortBy: [JVDatabaseResponseSort(keyPath: "m_date", ascending: true)]
             ),
             callback: { [unowned self] messages in
@@ -76,7 +76,7 @@ final class SdkChatSubSender: ISdkChatSubSender {
         let messages = databaseDriver.objects(
             JVMessage.self,
             options: JVDatabaseRequestOptions(
-                filter: NSPredicate(format: "m_status = 'sent'"),
+                filter: NSPredicate(format: "m_status == 'sent'"),
                 sortBy: [JVDatabaseResponseSort(keyPath: "m_date", ascending: true)]
             )
         )
@@ -95,7 +95,7 @@ final class SdkChatSubSender: ISdkChatSubSender {
             }
             
             switch outmessage.content {
-            case .photo(let mime, _, _, _, _, _):
+            case .photo(let mime, _, _, _, _, _, _, _):
                 proto
                     .sendMessage(outmessage, mime: mime)
             default:

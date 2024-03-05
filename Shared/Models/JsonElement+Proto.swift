@@ -16,7 +16,7 @@ extension JsonElement {
     
     func parse<T: JVDatabaseModelChange>(force: Bool = false) -> T? {
         if exists(withValue: true) {
-            let change = T(json: self)
+            let change = T.init(json: self)
             return (change.isValid || force ? change : nil)
         }
         else {
@@ -26,7 +26,7 @@ extension JsonElement {
     
     func parse<T: JVDatabaseModelChange>(model: T.Type, force: Bool = false) -> T? {
         if exists(withValue: true) {
-            let change = T(json: self)
+            let change = T.init(json: self)
             return (change.isValid || force ? change : nil)
         }
         else {

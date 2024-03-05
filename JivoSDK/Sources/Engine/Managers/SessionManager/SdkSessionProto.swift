@@ -9,8 +9,7 @@
 import Foundation
 import JMCodingKit
 
-
-enum SessionProtoEventSubject: IProtoEventSubject {
+enum SdkSessionProtoEventSubject: IProtoEventSubject {
     case connectionConfig(ProtoEventSubjectPayload.ConnectionConfig)
     case pushRegistration(ProtoEventSubjectPayload.PushRegistration)
     case socketOpen
@@ -18,31 +17,29 @@ enum SessionProtoEventSubject: IProtoEventSubject {
 }
 
 extension ProtoTransactionKind {
-    enum SessionValue: String {
-        case socket
+    enum SessionNamespace: String {
         case me
     }
     
-    static func session(_ value: SessionValue) -> ProtoTransactionKind {
-        caseFor(value)
+    static func session(_ namespace: SessionNamespace) -> ProtoTransactionKind {
+        caseFor(namespace)
     }
 }
 
-enum MeTransactionSubject: IProtoEventSubject {
-    case meId(id: String)
-    case meUrlPath(path: String)
-    case meHistory(lastMessageId: Int?)
+enum SdkSessionProtoMeSubject: IProtoEventSubject {
+    case id(id: String)
+    case urlPath(path: String)
+    case history(lastMessageId: Int?)
 }
 
 protocol ISdkSessionProto: IProto {
     func requestConfig(channelId: String) -> INetworking
 
     @discardableResult
-    func connectToLive(host: String, port: Int?, credentials: SdkSessionLiveCredentials) -> Bool
-    
+    func connectToLive(host: String, port: Int?, credentials: SdkSessionProtoLiveCredentials) -> Bool
 }
 
-enum SdkSessionLiveCredentials {
+enum SdkSessionProtoLiveCredentials {
     case ids(siteId: Int, widgetId: String, clientToken: String?)
     case path(String)
 }
@@ -93,7 +90,7 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
         return networking
     }
     
-    func connectToLive(host: String, port: Int?, credentials: SdkSessionLiveCredentials) -> Bool {
+    func connectToLive(host: String, port: Int?, credentials: SdkSessionProtoLiveCredentials) -> Bool {
         guard let url = URL(string: host),
               var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
         else {
@@ -123,7 +120,7 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
     override func decodeToSubject(event: NetworkingSubject) -> IProtoEventSubject? {
         switch event {
         case .socket(.open):
-            return SessionProtoEventSubject.socketOpen
+            return SdkSessionProtoEventSubject.socketOpen
         case .socket(let .close(identifier, code, reason, error)):
             return decodeSocketClose(identifier: identifier, code: code, reason: reason, error: error)
         case let .rest(.response(ProtoEventSubjectPayload.ConnectionConfig.kindId, _, response)):
@@ -146,7 +143,7 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
         }
     }
     
-    private func decodeConnectionConfig(_ response: NetworkingSubRestEvent.Response) -> SessionProtoEventSubject {
+    private func decodeConnectionConfig(_ response: NetworkingSubRestEvent.Response) -> SdkSessionProtoEventSubject {
         let meta = ProtoEventSubjectPayload.ConnectionConfig(
             status: response.status,
             body: .init(
@@ -162,22 +159,22 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
         return .connectionConfig(meta)
     }
     
-    private func decodeSocketClose(identifier: UUID, code: Int, reason: String, error: Error?) -> SessionProtoEventSubject? {
+    private func decodeSocketClose(identifier: UUID, code: Int, reason: String, error: Error?) -> SdkSessionProtoEventSubject? {
         switch code {
         case connectionNormalCloseCode:
-            return SessionProtoEventSubject.socketClose(kind: .connectionBreak, error: error)
+            return SdkSessionProtoEventSubject.socketClose(kind: .connectionBreak, error: error)
         case connectionSessionEndCode where reason.lowercased().contains("blacklist"):
-            return SessionProtoEventSubject.socketClose(kind: .blacklist, error: error)
+            return SdkSessionProtoEventSubject.socketClose(kind: .blacklist, error: error)
         case connectionSessionEndCode where error == nil:
-            return SessionProtoEventSubject.socketClose(kind: .sessionEnd, error: error)
+            return SdkSessionProtoEventSubject.socketClose(kind: .sessionEnd, error: error)
         case connectionAbsentCode:
-            return SessionProtoEventSubject.socketClose(kind: .missingConnection, error: error)
+            return SdkSessionProtoEventSubject.socketClose(kind: .missingConnection, error: error)
         case connectionNotReachableCode:
-            return SessionProtoEventSubject.socketClose(kind: .missingConnection, error: error)
+            return SdkSessionProtoEventSubject.socketClose(kind: .missingConnection, error: error)
         case connectionMissingPongCode:
-            return SessionProtoEventSubject.socketClose(kind: .missingConnection, error: error)
+            return SdkSessionProtoEventSubject.socketClose(kind: .missingConnection, error: error)
         default:
-            return SessionProtoEventSubject.socketClose(kind: .unknown(code), error: error)
+            return SdkSessionProtoEventSubject.socketClose(kind: .unknown(code), error: error)
         }
     }
     
@@ -191,7 +188,7 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
         return ProtoEventBundle(
             type: .session(.me),
             id: nil,
-            subject: MeTransactionSubject.meId(id: id)
+            subject: SdkSessionProtoMeSubject.id(id: id)
         )
     }
     
@@ -204,7 +201,7 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
         return ProtoEventBundle(
             type: .session(.me),
             id: nil,
-            subject: MeTransactionSubject.meUrlPath(path: path)
+            subject: SdkSessionProtoMeSubject.urlPath(path: path)
         )
     }
     
@@ -212,7 +209,7 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
         return ProtoEventBundle(
             type: .session(.me),
             id: nil,
-            subject: MeTransactionSubject.meHistory(
+            subject: SdkSessionProtoMeSubject.history(
                 lastMessageId: (json["data"].string?.jv_toInt() ?? json["data"].int)
             )
         )

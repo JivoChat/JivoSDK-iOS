@@ -14,6 +14,7 @@ protocol IJournalDriver: AnyObject {
     var fileSizeLimit: UInt64 { get }
     var lastLogURLs: [URL] { get }
     var level: JournalLevel { get set }
+    func copy(to file: URL) -> JournalDriverArchivingStatus
     func archive(to file: URL) -> JournalDriverArchivingStatus
     func clear()
 }
@@ -89,23 +90,22 @@ final class JournalDriver: IJournalDriver {
         set { setJournalLevel(newValue) }
     }
     
+    func copy(to file: URL) -> JournalDriverArchivingStatus {
+        guard let limitedData = accumulateJournal() else {
+            return .failedCutting
+        }
+        
+        do {
+            try limitedData.write(to: file)
+            return .success
+        }
+        catch {
+            return .failedCompressing
+        }
+    }
+    
     func archive(to file: URL) -> JournalDriverArchivingStatus {
-        func _read(fileURL: URL?) -> String? {
-            guard let url = fileURL else { return nil }
-            guard let data = try? Data(contentsOf: url) else { return "<Cannot access the file>\n" }
-            return String(data: data, encoding: .utf8) ?? "<Cannot read the file>\n"
-        }
-        
-        var accumulatedRaw = String()
-        lastLogURLs.compactMap(_read).forEach { slice in
-            accumulatedRaw += "\n<next slice>\n\n"
-            accumulatedRaw += slice
-        }
-        
-        let limitSize = Int(fileSizeLimit * 3)
-        let limitedRaw = String(accumulatedRaw.suffix(limitSize))
-        
-        guard let limitedData = limitedRaw.data(using: .utf8) else {
+        guard let limitedData = accumulateJournal() else {
             return .failedCutting
         }
         
@@ -121,5 +121,24 @@ final class JournalDriver: IJournalDriver {
     
     func clear() {
         try? Data().write(to: activeURL)
+    }
+    
+    private func accumulateJournal() -> Data? {
+        func _read(fileURL: URL?) -> String? {
+            guard let url = fileURL else { return nil }
+            guard let data = try? Data(contentsOf: url) else { return "<Cannot access the file>\n" }
+            return String(data: data, encoding: .utf8) ?? "<Cannot read the file>\n"
+        }
+        
+        var accumulatedRaw = String()
+        lastLogURLs.compactMap(_read).forEach { slice in
+            accumulatedRaw += "\n<next slice>\n\n"
+            accumulatedRaw += slice
+        }
+        
+        let limitSize = Int(fileSizeLimit * 3)
+        let limitedRaw = String(accumulatedRaw.suffix(limitSize))
+        
+        return limitedRaw.data(using: .utf8)
     }
 }

@@ -26,20 +26,8 @@ extension UINavigationBar {
     }
 }
 
-extension UINavigationItem {
-    var jv_largeDisplayMode: LargeTitleDisplayMode {
-        get {
-            if #available(iOS 11.0, *) {
-                return largeTitleDisplayMode
-            }
-            else {
-                return .never
-            }
-        }
-        set {
-            if #available(iOS 11.0, *) {
-                largeTitleDisplayMode = newValue
-            }
-        }
+extension UIBarButtonItem {
+    static func jv_spinner() -> UIBarButtonItem {
+        return UIBarButtonItem(customView: UIActivityIndicatorView(style: .jv_auto).jv_started())
     }
 }

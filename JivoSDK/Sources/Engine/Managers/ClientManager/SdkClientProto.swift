@@ -10,13 +10,13 @@ import Foundation
 import JMCodingKit
 
 protocol ISdkClientProto: IProto {
-    func registerDevice(deviceId: String, deviceLiveToken: String, siteId: Int, channelId: String, clientId: String)
+    func registerDevice(deviceId: String, deviceLiveToken: String, shouldUseSandbox: Bool, siteId: Int, channelId: String, clientId: String)
     func setContactInfo(clientId: String, name: String?, email: String?, phone: String?, brief: String?)
     func setCustomData(fields: [JVSessionCustomDataField])
 }
 
 final class SdkClientProto: BaseProto, ISdkClientProto {
-    func registerDevice(deviceId: String, deviceLiveToken: String, siteId: Int, channelId: String, clientId: String) {
+    func registerDevice(deviceId: String, deviceLiveToken: String, shouldUseSandbox: Bool, siteId: Int, channelId: String, clientId: String) {
         let options = RestRequestOptions(
             behavior: .ephemeral(priority: 1.0),
             method: .post,
@@ -28,11 +28,10 @@ final class SdkClientProto: BaseProto, ISdkClientProto {
             body: .json(.params([
                 JsonElement(key: "device_id", value: deviceId),
                 JsonElement(key: "platform", value: "ios"),
-                JsonElement(key: "token", value: deviceLiveToken)
+                JsonElement(key: "token", value: deviceLiveToken),
+                JsonElement(key: "debug_mode", value: shouldUseSandbox),
             ]))
         )
-        
-//        print("[DEBUG] (Un)subscribe: \(options.body)")
         
         let contextID = networking.flushContext()
         _ = networking.send(
@@ -104,7 +103,7 @@ final class SdkClientProto: BaseProto, ISdkClientProto {
         }
     }
     
-    private func decodePushRegistration(_ response: NetworkingSubRestEvent.Response) -> SessionProtoEventSubject? {
+    private func decodePushRegistration(_ response: NetworkingSubRestEvent.Response) -> SdkSessionProtoEventSubject? {
         let meta = ProtoEventSubjectPayload.PushRegistration(
             status: response.status,
             body: .init()

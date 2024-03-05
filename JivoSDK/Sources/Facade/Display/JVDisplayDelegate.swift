@@ -9,7 +9,7 @@ import Foundation
 
 /**
  Interface to control displaying lifecycle,
- relates to ``Jivo.display`` namespace
+ relates to `Jivo.display` namespace
  */
 @objc(JVDisplayDelegate)
 public protocol JVDisplayDelegate {
@@ -45,6 +45,9 @@ public protocol JVDisplayDelegate {
     optional func jivoDisplay(customizeHeader sdk: Jivo, navigationBar: UINavigationBar, navigationItem: UINavigationItem)
     
     /**
+     DEPRECATED
+     Please use Jivo.display.define(text:forElement:) instead
+     
      Called to customize captions and texts for some elements
      
      - Parameter sdk:
@@ -52,11 +55,13 @@ public protocol JVDisplayDelegate {
      - Parameter forElement:
      Element for which you provide your custom setting, or nil to use the default one
      */
-    @available(*, deprecated, message: "Please use Jivo.display.define(text:forElement:) instead")
     @objc(jivoDisplayDefineText:forElement:)
     optional func jivoDisplay(defineText sdk: Jivo, forElement element: JVDisplayElement) -> String?
     
     /**
+     DEPRECATED
+     Please use Jivo.display.define(color:forElement:) instead
+     
      Called to customize colors for some elements
      
      - Parameter sdk:
@@ -64,11 +69,13 @@ public protocol JVDisplayDelegate {
      - Parameter forElement:
      Element for which you provide your custom setting, or nil to use the default one
      */
-    @available(*, deprecated, message: "Please use Jivo.display.define(color:forElement:) instead")
     @objc(jivoDisplayDefineColor:forElement:)
     optional func jivoDisplay(defineColor sdk: Jivo, forElement element: JVDisplayElement) -> UIColor?
     
     /**
+     DEPRECATED
+     Please use Jivo.display.define(image:forElement:) instead
+     
      Called to customize icons for some elements
      
      - Parameter sdk:
@@ -76,7 +83,6 @@ public protocol JVDisplayDelegate {
      - Parameter forElement:
      Element for which you provide your custom setting, or nil to use the default one
      */
-    @available(*, deprecated, message: "Please use Jivo.display.define(image:forElement:) instead")
     @objc(jivoDisplayDefineImage:forElement:)
     optional func jivoDisplay(defineImage sdk: Jivo, forElement element: JVDisplayElement) -> UIImage?
 }

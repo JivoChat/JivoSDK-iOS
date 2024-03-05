@@ -13,15 +13,31 @@ final class WaveFormDrawer {
     
     static var shared = WaveFormDrawer()
     
-    func image(samples: [Float],
-                      configuration: WaveformConfiguration) -> UIImage? {
+    func image(
+        samples: [Float],
+        configuration: WaveformConfiguration
+    ) -> UIImage? {
         UIGraphicsBeginImageContextWithOptions(configuration.size, false, UIScreen.main.scale)
         guard let context = UIGraphicsGetCurrentContext() else { return nil }
         context.setAllowsAntialiasing(true)
         context.setShouldAntialias(true)
         drawBackground(context, configuration)
         context.saveGState()
-        drawGraph(samples, context, configuration)
+        
+        context.setLineWidth(configuration.lineWidth)
+        context.setLineCap(.round)
+        
+        let amountOfLines = Int((configuration.size.width + configuration.space) / (configuration.lineWidth + configuration.space))
+        
+        var resultedSamples = samples
+        
+        while resultedSamples.count < amountOfLines { resultedSamples.append(0) }
+        
+        let sampleParts = normalize(resultedSamples.chunked(into: resultedSamples.count / amountOfLines))
+        let localMaxes = sampleParts.compactMap({ Float($0.reduce(0, +)) / Float($0.count) })
+        
+        drawGraph(localMaxes, context, configuration)
+        
         context.restoreGState()
         
         let graphImage = UIGraphicsGetImageFromCurrentImageContext()
@@ -29,52 +45,36 @@ final class WaveFormDrawer {
         return graphImage
     }
     
-    private func drawBackground(_ context: CGContext,
-                                _ configuration: WaveformConfiguration) {
-        context.setFillColor(configuration.backgroundColor.cgColor)
-        context.fill(CGRect(origin: CGPoint.zero, size: configuration.size))
-    }
+    private func drawBackground(
+        _ context: CGContext,
+        _ configuration: WaveformConfiguration) {
+            context.setFillColor(configuration.backgroundColor.cgColor
+            )
+            context.fill(CGRect(origin: CGPoint.zero, size: configuration.size))
+        }
     
     private func drawGraph(_ samples: [Float],
                            _ context: CGContext,
                            _ config: WaveformConfiguration) {
-        let rect = CGRect(origin: CGPoint.zero, size: config.size)
-        let rectHeight = rect.size.height
-        let rectWidth = rect.size.width
-        let yCenter = rectHeight / 2.0
-        let path = CGMutablePath()
-        context.setLineWidth(config.lineWidth)
-        context.setLineCap(.round)
-        
-        let amountOfLines = max(samples.count, Int((rectWidth + config.space) / (config.lineWidth + config.space)))
-        
-        let sampleParts = normalize(samples.chunked(into: samples.count / amountOfLines))
-        let localMaxes = sampleParts.compactMap { Double($0.reduce(0, +)) / Double($0.count) }
-        let globalMax = localMaxes.max() ?? 0
+        let globalMax = samples.max() ?? 0
         
         let defaultAmplitude = (config.pickToPickAmplitude - config.lineWidth) / 2
+        let yCenter = config.size.height / 2
         
-        for i in 0..<localMaxes.count {
-            let ampliduteCoef = CGFloat(min(globalMax, localMaxes[i] / globalMax))
+        
+        let path = CGMutablePath()
+        
+        for i in 0..<samples.count {
+            let ampliduteCoef = CGFloat(min(globalMax, samples[i] / globalMax))
             let drawingAmplitudeUp = yCenter - defaultAmplitude * ampliduteCoef
             let drawingAmplitudeDown = yCenter + defaultAmplitude * ampliduteCoef
             
             let x = CGFloat(i) * (config.space + config.lineWidth) + config.lineWidth * 0.5
             
-            path.move(
-                to: CGPoint(
-                    x: x,
-                    y: drawingAmplitudeUp
-                )
-            )
-            path.addLine(
-                to: CGPoint(
-                    x: x,
-                    y: drawingAmplitudeDown
-                )
-            )
+            path.move(to: CGPoint(x: x, y: drawingAmplitudeUp))
+            path.addLine(to: CGPoint(x: x, y: drawingAmplitudeDown))
         }
-
+        
         context.addPath(path)
         context.setStrokeColor(config.color.cgColor)
         context.strokePath()

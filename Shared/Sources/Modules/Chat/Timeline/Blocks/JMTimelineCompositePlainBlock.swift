@@ -51,13 +51,22 @@ struct JMTimelineCompositePlainStyle: JMTimelineStyle {
 }
 
 final class JMTimelineCompositePlainBlock: JMTimelineBlock {
+    private let sideOffset: CGFloat
     private let internalControl = InternalControl()
     
     private var mentionProvider: JMMarkdownMentionProvider?
     
     override init() {
-        super.init()
+        self.sideOffset = 0
         
+        super.init()
+        addSubview(internalControl)
+    }
+    
+    init(sideOffset: CGFloat) {
+        self.sideOffset = sideOffset
+//        
+        super.init()
         addSubview(internalControl)
     }
     
@@ -66,21 +75,18 @@ final class JMTimelineCompositePlainBlock: JMTimelineBlock {
     }
     
     override func sizeThatFits(_ size: CGSize) -> CGSize {
-        return internalControl.sizeThatFits(size)
+        return internalControl.sizeThatFits(CGSize(width: size.width - (2 * sideOffset), height: size.height))
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        internalControl.frame = bounds
+        internalControl.frame = CGRect(
+            x: sideOffset,
+            y: 0,
+            width: bounds.width - (2 * sideOffset),
+            height: bounds.height
+        )
     }
-    
-//    override func linkTo(provider: JVChatTimelineProvider, interactor: JVChatTimelineInteractor) {
-//        mentionProvider = provider.mentionProvider
-//
-//        internalControl.urlHandler = { url, interaction in
-//            interactor.follow(url: url, interaction: interaction)
-//        }
-//    }
     
     func configure(content: String, style: JMTimelineCompositePlainStyle, provider: JVChatTimelineProvider, interactor: JVChatTimelineInteractor) {
         mentionProvider = provider.mentionProvider

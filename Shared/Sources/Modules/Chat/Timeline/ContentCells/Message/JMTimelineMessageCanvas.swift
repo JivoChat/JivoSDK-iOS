@@ -46,7 +46,8 @@ enum JMTimelineCompositeRenderMode: Equatable {
     case bubble(time: BubbleTime)
     
     enum ContentTime { case near, over, omit }
-    case content(time: ContentTime)
+    enum ContentColor { case standard, shaded }
+    case content(time: ContentTime, color: ContentColor? = nil)
 }
 
 struct JMTimelineMessageRenderOptions {
@@ -187,6 +188,7 @@ class JMTimelineMessageCanvas: JMTimelineCanvas {
         senderMark.font = item.payload.sender.style.font
         
         if item.logicOptions.contains(.missingHistoryPast) {
+//            journal {"D/LMH having[missingHistoryPast], show button for date[\(item.date)]"}
             topEdge = topEdge ?? makeIndicator(selector: #selector(handleTopIndicatorTap))
             topEdge?.showAsButton()
         }

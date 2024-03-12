@@ -252,13 +252,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     
     var hasActiveChat: Bool = false {
         didSet {
-            guard hasActiveChat else {
-                return
-            }
-            
-            if let messageId = historyState.localLatestMessageId, let date = historyState.localLatestMessageDate {
-                proto
-                    .sendMessageAck(id: messageId, date: date)
+            if hasActiveChat {
+                sendLatestMessageAckIfNeeded()
             }
         }
     }
@@ -1010,13 +1005,16 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     private func handleMessageTransaction(_ transaction: [NetworkingEventBundle]) {
-        guard let chat = self.chatContext.chatRef?.resolved else { return }
+        guard let chat = self.chatContext.chatRef?.resolved else {
+            return
+        }
         
         historyState.activity = .synced
         
         let inmemoryFirstId = historyState.localEarliestMessageId ?? .min
         let inmemoryLastId = historyState.localLatestMessageId ?? .max
         let persistentIds = Set(subStorage.historyIdsBetween(chatId: chat.ID, firstId: inmemoryFirstId, lastId: inmemoryLastId))
+        var shouldSendMessageAck = false
         
         var upsertedMessages = OrderedMap<String, JVMessage>()
         transaction.forEach { bundle in
@@ -1090,6 +1088,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             case .received(let messageId, _, _, _, let sentAt) where messageId > historyState.localLatestMessageId.jv_orZero:
                 historyState.localLatestMessageId = messageId
                 historyState.localLatestMessageDate = sentAt
+                shouldSendMessageAck = hasActiveChat
 
             default:
                 break
@@ -1103,9 +1102,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         
         requestedHistoryPastUids.subtract(upsertedMessages.orderedKeys)
         
-        if let messageId = historyState.localLatestMessageId, let sentAt = historyState.localLatestMessageDate, hasActiveChat {
-            proto
-                .sendMessageAck(id: messageId, date: sentAt)
+        if shouldSendMessageAck {
+            sendLatestMessageAckIfNeeded()
         }
         
         let messageReferences = subStorage.reference(to: Array(upsertedMessages.orderedValues.filter(\.hasBeenChanged)))
@@ -1491,6 +1489,19 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         DispatchQueue.main.async {
             self.notifyObservers(event: .enableReplying)
         }
+    }
+    
+    private func sendLatestMessageAckIfNeeded() {
+        guard let messageId = historyState.localLatestMessageId else {
+            return
+        }
+        
+        guard let date = historyState.localLatestMessageDate else {
+            return
+        }
+        
+        proto
+            .sendMessageAck(id: messageId, date: date)
     }
     
     private func flushContactForm(info: JVSessionContactInfo) {

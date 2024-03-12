@@ -548,10 +548,6 @@ extension JVMessage {
                         m_id = newValue.jv_toInt64(.standard)
                     }
                     
-                    if !m_is_markdown {
-                        m_is_markdown = true
-                    }
-                    
                 case let .localId(newValue):
                     if m_local_id != newValue {
                         m_local_id = newValue
@@ -603,21 +599,18 @@ extension JVMessage {
                     
                 case let .sender(senderType):
                     switch senderType {
-                    case let .client(id):
+                    case .client(let id):
                         let client = context.client(for: id, needsDefault: true)
                         if m_sender_client?.objectID != client?.objectID {
                             m_sender_client = client
                         }
                         
-                    case let .agent(id, displayNameUpdate):
-                        let existingAgent = context.agent(for: id, provideDefault: false)
-                        let agent = existingAgent ?? { () -> JVAgent? in
-                            let defaultAgent = context.agent(for: id, provideDefault: true)
-                            if case let JVMessagePropertyUpdate.Sender.DisplayNameUpdatingLogic.updating(with: newValue) = displayNameUpdate {
-                                newValue.flatMap { defaultAgent?.m_display_name = $0 }
-                            }
-                            return defaultAgent
-                        }()
+                    case .agent(let id):
+                        let agent = context.agent(for: id, provideDefault: true)
+                        
+                        if let agent = agent, agent.displayName(kind: .original).isEmpty {
+                            agent.m_display_name = loc["agent_name_default"]
+                        }
                         
                         let m_sender_bot_flag_value = (id < 0)
                         if m_sender_bot_flag != m_sender_bot_flag_value {
@@ -626,6 +619,10 @@ extension JVMessage {
                         
                         if m_sender_agent?.objectID != agent?.objectID {
                             m_sender_agent = agent
+                        }
+                        
+                        if m_sender_bot_flag, !m_is_markdown {
+                            m_is_markdown = true
                         }
                     }
                     
@@ -1514,13 +1511,8 @@ class JVSdkMessageStatusChange: JVDatabaseModelChange {
 
 enum JVMessagePropertyUpdate {
     enum Sender {
-        enum DisplayNameUpdatingLogic {
-            case updating(with: String?)
-            case withoutUpdate
-        }
-        
-        case client(withId: Int)
-        case agent(withId: Int, andDisplayName: DisplayNameUpdatingLogic = .withoutUpdate)
+        case client(Int)
+        case agent(Int)
     }
     
     case id(Int)

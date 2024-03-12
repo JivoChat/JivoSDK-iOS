@@ -46,10 +46,6 @@ protocol ISdkChatSubStorage: IBaseChattingSubStorage {
 }
 
 class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
-    // MARK: Constants
-    
-    let AGENT_DEFAULT_DISPLAY_NAME_LOC_KEY = "agent_name_default"
-    
     // MARK: - Public properties
     
     let eventSignal = JVBroadcastTool<SdkChatSubStorageEvent>()
@@ -184,12 +180,15 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         var updates: [JVMessagePropertyUpdate] = [
             .localId(localID),
             .chatId(chatID),
-            .sender(.client(withId: clientID == 0 ? 1 : clientID)),
+            .sender(.client(clientID == 0 ? 1 : clientID)),
             .typeInitial(type),
             .isIncoming(false),
-            .orderingIndex(orderingIndex),
-            .mustBeSent
+            .orderingIndex(orderingIndex)
         ]
+        
+        if type == .message {
+            updates.append(.mustBeSent)
+        }
         
         if let status = status {
             updates.append(.status(status))
@@ -562,17 +561,12 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
             case let .received(id, data, media, userId, date):
                 if userId == userContext.clientId {
                     accumulatingUpdates += [
-                        .sender(.client(withId: userContext.clientHash)),
+                        .sender(.client(userContext.clientHash)),
                         .isIncoming(false)
                     ]
                 } else if let agentId = Int(userId) {
                     accumulatingUpdates += [
-                        .sender(
-                            .agent(
-                                withId: agentId,
-                                andDisplayName: .updating(with: loc[AGENT_DEFAULT_DISPLAY_NAME_LOC_KEY])
-                            )
-                        ),
+                        .sender(.agent(agentId)),
                         .isIncoming(true)
                     ]
                 }

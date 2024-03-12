@@ -168,7 +168,7 @@ final class UuidSubUserAgentGenerator: IUuidSubUserAgentGenerator {
         }
     }
     
-    private func collectEngineInfo() -> String? {
+    private func collectEngineInfo() -> String {
         if let _ = objc_getClass("FlutterEngine") {
             return "flutter"
         }
@@ -179,7 +179,7 @@ final class UuidSubUserAgentGenerator: IUuidSubUserAgentGenerator {
             return "kmp"
         }
         else {
-            return nil
+            return "native"
         }
     }
     

@@ -24,6 +24,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     
     private var isKeychainStoringEnabled = true
     private var customFields: [JVSessionCustomDataField]?
+    private var shouldSendApnsToken = true
     
     init(pipeline: SdkManagerPipeline,
          thread: JVIDispatchThread,
@@ -83,7 +84,12 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     
     var apnsDeviceLiveToken: String? {
         didSet {
-            subscribeDeviceToApns()
+            guard apnsDeviceLiveToken != oldValue else {
+                return
+            }
+            
+            shouldSendApnsToken = true
+            flushApnsTokenIfNeeded()
         }
     }
     
@@ -145,7 +151,8 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     }
     
     private func flushCustomDataIfNeeded() {
-        guard let fields = customFields,
+        guard let clientId = clientContext.clientId,
+              let fields = customFields,
               sessionContext.connectionState == .connected
         else {
             return
@@ -226,14 +233,14 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         switch subject as? SdkSessionProtoEventSubject {
         case .connectionConfig(let meta):
             handleConnectionConfig(meta: meta, context: context)
+        case .socketOpen:
+            handleSocketOpened()
         default:
             break
         }
     }
     
     override func handleProtoEvent(transaction: [NetworkingEventBundle]) {
-        let meTransaction = transaction.filter { $0.payload.type == .session(.me) }
-        handleMeTransaction(meTransaction)
     }
     
     private func handleConnectionConfig(meta: ProtoEventSubjectPayload.ConnectionConfig, context: ProtoEventContext?) {
@@ -246,16 +253,26 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         unsubscribeDeviceFromApns(exceptActiveSubscriptions: true)
     }
     
+    private func handleSocketOpened() {
+        shouldSendApnsToken = true
+        flushInfo()
+    }
+    
     private func handleMeTransaction(_ transaction: [NetworkingEventBundle]) {
         transaction.forEach { bundle in
-            guard case SdkSessionProtoMeSubject.history(nil) = bundle.payload.subject else {
-                return
+            switch bundle.payload.subject {
+            case SdkSessionProtoMeSubject.id:
+                flushInfo()
+            default:
+                break
             }
-            
-            flushClientInfoIfNeeded()
-            flushCustomDataIfNeeded()
-            subscribeDeviceToApns()
         }
+    }
+    
+    private func flushInfo() {
+        flushClientInfoIfNeeded()
+        flushCustomDataIfNeeded()
+        flushApnsTokenIfNeeded()
     }
     
     private func clientIdUpdated(to newClientId: String?) {
@@ -281,13 +298,17 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         }
     }
     
-    private func subscribeDeviceToApns() {
-        guard let accountConfig = sessionContext.accountConfig,
-              accountConfig.siteId > 0,
+    private func flushApnsTokenIfNeeded() {
+        guard let accountConfig = sessionContext.accountConfig, accountConfig.siteId > 0,
               let clientId = clientContext.clientId,
-              let apnsLiveToken = apnsDeviceLiveToken
+              let apnsLiveToken = apnsDeviceLiveToken,
+              shouldSendApnsToken
         else {
             return
+        }
+        
+        defer {
+            shouldSendApnsToken = false
         }
         
         let deviceId = uuidProvider.currentDeviceID

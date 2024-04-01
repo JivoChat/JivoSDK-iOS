@@ -12,6 +12,10 @@ func jv_convert<Source, Target>(_ value: Source, block: (Source) -> Target) -> T
     return block(value)
 }
 
+func not(_ value: Bool) -> Bool {
+    return jv_not(value)
+}
+
 func jv_not(_ value: Bool) -> Bool {
     return !value
 }

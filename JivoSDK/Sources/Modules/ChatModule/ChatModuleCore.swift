@@ -187,8 +187,6 @@ final class ChatModuleCore
             self?.timelineScrollHandler()
         }
         
-        chatManager.hasActiveChat = true
-        
         timelineInteractor.mediaBecameUnavailableHandler = { [weak self] url, mime in
             self?.mediaBecameUnavailableHandler(url: url, mime: mime)
         }
@@ -281,7 +279,7 @@ final class ChatModuleCore
         NotificationCenter.default.removeObserver(self)
         
         managerPipeline.notify(event: .turnInactive(.connection))
-        chatManager.hasActiveChat = false
+        chatManager.activeSessionHandle = nil
     }
     
     override func run() {
@@ -735,18 +733,26 @@ final class ChatModuleCore
             return
         }
         
-        chatManager.sendMessage(text: message, attachments: attachments)
-        reconnectIfNeeded()
-        
-        if let chat = self.chat {
-            typingCacheService.resetInput(context: TypingContext(kind: .chat, ID: chat.ID))
+        do {
+            try chatManager.sendMessage(
+                trigger: .ui,
+                text: message,
+                attachments: attachments)
+            
+            reconnectIfNeeded()
+            
+            if let chat = self.chat {
+                typingCacheService.resetInput(context: TypingContext(kind: .chat, ID: chat.ID))
+            }
+            else {
+                assertionFailure()
+            }
+            
+            pipeline?.notify(event: .messageSent)
+            pipeline?.notify(event: .inputUpdate(.update(.init(input: .active(placeholder: uiConfig.inputPlaceholder, text: .jv_empty, menu: nil), submit: .send))))
         }
-        else {
-            assertionFailure()
+        catch {
         }
-        
-        pipeline?.notify(event: .messageSent)
-        pipeline?.notify(event: .inputUpdate(.update(.init(input: .active(placeholder: uiConfig.inputPlaceholder, text: .jv_empty, menu: nil), submit: .send))))
     }
     
     private func validateSendingMessageContent(text: String?, attachments: [ChatPhotoPickerObject]) -> Bool {

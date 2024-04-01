@@ -668,18 +668,7 @@ extension JVMessage {
     }
     
     var status: JVMessageStatus? {
-        switch m_status {
-        case "sent":
-            return JVMessageStatus.sent
-        case "delivered":
-            return JVMessageStatus.delivered
-        case "seen":
-            return JVMessageStatus.seen
-        case "queued":
-            return JVMessageStatus.queued
-        default:
-            return nil
-        }
+        return JVMessageStatus(rawValue: m_status.jv_orEmpty)
     }
     
     var delivery: JVMessageDelivery {

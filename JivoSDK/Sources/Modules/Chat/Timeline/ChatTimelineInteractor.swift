@@ -125,7 +125,10 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
     }
     
     func sendMessage(text: String) {
-        chatManager.sendMessage(text: text, attachments: .jv_empty)
+        try? chatManager.sendMessage(
+            trigger: .ui,
+            text: text,
+            attachments: .jv_empty)
     }
     
     func hasTouchingView() -> Bool {

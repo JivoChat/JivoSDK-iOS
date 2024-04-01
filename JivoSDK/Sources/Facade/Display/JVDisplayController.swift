@@ -90,8 +90,9 @@ public final class JVDisplayController: NSObject {
      Your existing UINavigationController to push the JivoSDK into
      */
     @objc(pushInto:)
-    public func push(into navigationController: UINavigationController) {
-        _push(into: navigationController)
+    @discardableResult
+    public func push(into navigationController: UINavigationController) -> JVSessionHandle {
+        return _push(into: navigationController)
     }
 
     /**
@@ -104,8 +105,9 @@ public final class JVDisplayController: NSObject {
      Close Button look that mostly fits your needs in this case
      */
     @objc(placeWithin:closeButton:)
-    public func place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton) {
-        _place(within: navigationController, closeButton: closeButton)
+    @discardableResult
+    public func place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton) -> JVSessionHandle {
+        return _place(within: navigationController, closeButton: closeButton)
     }
     
     /**
@@ -115,8 +117,9 @@ public final class JVDisplayController: NSObject {
      Your UIViewController on top of which the JivoSDK will be displayed
      */
     @objc(presentOver:)
-    public func present(over viewController: UIViewController) {
-        _present(over: viewController)
+    @discardableResult
+    public func present(over viewController: UIViewController) -> JVSessionHandle {
+        return _present(over: viewController)
     }
 }
 
@@ -163,27 +166,27 @@ extension JVDisplayController {
         }
     }
     
-    private func _push(into navigationController: UINavigationController) {
+    private func _push(into navigationController: UINavigationController) -> JVSessionHandle {
         journal {"FACADE[display] push into navigationController"}
         
-        joint.push(
+        return joint.push(
             into: navigationController,
             displayDelegate: delegate)
     }
     
-    private func _place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton) {
+    private func _place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton) -> JVSessionHandle {
         journal {"FACADE[display] place within navigationController @closeButton[\(closeButton)]"}
         
-        joint.place(
+        return joint.place(
             within: navigationController,
             closeButton: closeButton,
             displayDelegate: delegate)
     }
     
-    private func _present(over viewController: UIViewController) {
+    private func _present(over viewController: UIViewController) -> JVSessionHandle {
         journal {"FACADE[display] present over viewController"}
         
-        joint.present(
+        return joint.present(
             over: viewController,
             displayDelegate: delegate)
     }

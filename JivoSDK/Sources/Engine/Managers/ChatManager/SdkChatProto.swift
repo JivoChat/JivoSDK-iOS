@@ -121,7 +121,9 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
             headers: [
                 "x-jv-client-id": clientId
             ],
-            query: Array(),
+            query: [
+                JsonElement(key: "limit", value: 1),
+            ],
             body: .omit
         )
         

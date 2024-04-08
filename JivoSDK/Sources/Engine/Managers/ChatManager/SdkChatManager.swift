@@ -29,6 +29,16 @@ enum SdkChatManagerRateFormAction {
     case dismiss
 }
 
+enum SdkChatContactFormBehavior {
+    case omit
+    case blocking
+    case regular
+}
+
+enum SdkChatManagerError: Error {
+    case awaitingContactForm
+}
+
 enum SdkChatEvent {
     case sessionInitialized(isFirst: Bool)
     case chatObtained(_ chat: JVDatabaseModelRef<JVChat>)
@@ -49,19 +59,21 @@ protocol ISdkChatManager: ISdkManager, ChatTimelineFactoryHistoryDelegate {
     var contactInfoStatusObservable: JVBroadcastTool<SdkChatContactInfoStatus> { get }
     var subOffline: ISdkChatSubOffline { get }
     var subHello: ISdkChatSubHello { get }
-    var hasActiveChat: Bool { get set }
+    var activeSessionHandle: JVSessionHandle? { get set }
     var hasMessagesInQueue: Bool { get }
     var inactivityPlaceholder: String? { get }
     var globalRateConfig: JMTimelineRateConfig?  { get set }
     func restoreChat()
     func makeAllAgentsOffline()
     func sendTyping(text: String)
-    func sendMessage(text: String, attachments: [ChatPhotoPickerObject])
+    func sendMessage(trigger: SdkManagerTrigger, text: String, attachments: [ChatPhotoPickerObject]) throws
     func copy(message: JVMessage)
     func resendMessage(uuid: String)
     func deleteMessage(uuid: String)
     func requestMessageHistory(before anchorMessageId: Int?, behavior: SdkChatHistoryRequestBehavior)
     func markSeen(message: JVMessage)
+    
+    func identifyContactFormBehavior() -> SdkChatContactFormBehavior
     func informContactInfoStatus()
     func toggleContactForm(message: JVMessage)
     
@@ -130,6 +142,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         var localEarliestMessageId: Int?
         var localLatestMessageId: Int?
         var localLatestMessageDate: Date?
+        var remoteHasContent = false
         var remoteEarliestMessageId: Int?
         var remoteLatestMessageId: Int?
     }
@@ -155,6 +168,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     
     private var outgoingPairedMessagesIds = [String: Array<String>]()
     private var requestedHistoryPastUids = Set<String>()
+    private var messagingOutgoingIntents = [OutgoingIntent]()
     
     // MARK: - Init
     
@@ -250,9 +264,13 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         return true
     }
     
-    var hasActiveChat: Bool = false {
+    var activeSessionHandle: JVSessionHandle? {
         didSet {
-            if hasActiveChat {
+            if activeSessionHandle !== oldValue {
+                oldValue?.disableInteraction()
+            }
+            
+            if let _ = activeSessionHandle {
                 sendLatestMessageAckIfNeeded()
             }
         }
@@ -323,29 +341,32 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
     }
     
-    func sendMessage(text: String, attachments: [ChatPhotoPickerObject]) {
-        journal {"Sending the message"}
-        apnsService.requestForPermission(at: .onSend)
-        
+    func sendMessage(trigger: SdkManagerTrigger, text: String, attachments: [ChatPhotoPickerObject]) throws {
         thread.async { [unowned self] in
-            _sendMessage(text: text, attachments: attachments)
+            _sendMessage(trigger: trigger, text: text, attachments: attachments)
         }
     }
     
-    private func _sendMessage(text: String, attachments: [ChatPhotoPickerObject]) {
-        guard let chat = chatContext.chatRef?.resolved
-        else {
+    private func _sendMessage(trigger: SdkManagerTrigger, text: String, attachments: [ChatPhotoPickerObject]) {
+        journal {"Sending the message"}
+        
+        DispatchQueue.main.async { [apnsService] in
+            apnsService.requestForPermission(at: .onSend)
+        }
+        
+        guard let chat = chatContext.chatRef?.resolved else {
             journal {"Cannot send message: ChatManager.chat doesn't exist"}
             return
         }
         
-        guard subStorage.retrieveQueuedMessages(chatId: chat.ID).isEmpty
-        else {
-            return
+        switch (historyState.remoteHasContent, trigger) {
+        case (true, _), (_, .ui):
+            _sendMessage_process(chat: chat, text: text.jv_trimmed())
+            _sendMessage_process(attachments: attachments)
+        default:
+            let intent = OutgoingIntent(text: text)
+            messagingOutgoingIntents.append(intent)
         }
-        
-        _sendMessage_process(chat: chat, text: text.jv_trimmed())
-        _sendMessage_process(attachments: attachments)
     }
     
     private func _sendMessage_process(chat: JVChat, text: String) {
@@ -355,7 +376,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             return
         }
         
-        let formBehavior = identifyContactFormBehavior(chatId: chat.ID)
+        let formBehavior = identifyContactFormBehavior()
         let message = subStorage.storeOutgoingMessage(
             localID: UUID().uuidString.lowercased(),
             clientID: userContext.clientHash,
@@ -371,88 +392,75 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             messagingContext.broadcast(event: .messageSending(messageRef), onQueue: .main)
             messagingContext.broadcast(event: .messagesUpserted([messageRef]), onQueue: .main)
             
-            switch formBehavior {
-            case .omit:
+            _sendMessage_removeContactForm(chat: chat)
+            _sendMessage_appendContactForm(chat: chat, pairedMessage: message, behavior: formBehavior)
+        }
+    }
+    
+    private func _sendMessage_removeContactForm(chat: JVChat) {
+        guard let message = subStorage.message(withLocalId: MESSAGE_CONTACT_FORM_LOCAL_ID) else {
+            return
+        }
+        
+        guard let pairedIds = outgoingPairedMessagesIds.values.first(where: { $0.contains(message.UUID) }) else {
+            return
+        }
+        
+        let pairedMessages = pairedIds.map(subStorage.messageWithUUID)
+        subStorage.removeMessages(pairedMessages.jv_flatten())
+        
+        let pairedMessagesRefs = pairedMessages.map(subStorage.reference(to:))
+        messagingContext.broadcast(event: .messagesRemoved(pairedMessagesRefs), onQueue: .main)
+    }
+    
+    private func _sendMessage_appendContactForm(chat: JVChat, pairedMessage: JVMessage, behavior: SdkChatContactFormBehavior) {
+        let systemText: String
+        switch behavior {
+        case .omit:
+            return
+        case .regular:
+            systemText = loc["chat.system.contact_form.introduce_in_chat"]
+        case .blocking:
+            systemText = loc["chat.system.contact_form.must_fill"]
+        }
+        
+        let systemMessage = subStorage.storeOutgoingMessage(
+            localID: UUID().uuidString.lowercased(),
+            clientID: userContext.clientHash,
+            chatID: chat.ID,
+            type: .system,
+            content: .makeWith(text: systemText),
+            status: .historic,
+            timing: .regular,
+            orderingIndex: 1)
+
+        if let message = systemMessage {
+            let messageRef = subStorage.reference(to: message)
+            messagingContext.broadcast(event: .messagesUpserted([messageRef]), onQueue: .main)
+        }
+        
+        let formMessage = subStorage.storeOutgoingMessage(
+            localID: MESSAGE_CONTACT_FORM_LOCAL_ID,
+            clientID: userContext.clientHash,
+            chatID: chat.ID,
+            type: .contactForm,
+            content: .contactForm(status: .inactive),
+            status: nil,
+            timing: .regular,
+            orderingIndex: 2)
+
+        if let message = formMessage {
+            preferencesDriver.retrieveAccessor(forToken: .contactInfoWasShownAt).date = Date()
+            
+            let messageRef = subStorage.reference(to: message)
+            messagingContext.broadcast(event: .messagesUpserted([messageRef]), onQueue: .main)
+            
+            switch behavior {
+            case .omit, .regular:
                 break
-            case .regular:
-                _sendMessage_appendRegularForm(chat: chat, pairedMessage: message)
             case .blocking:
-                _sendMessage_appendBlockingForm(chat: chat, pairedMessage: message)
+                notifyObservers(event: .disableReplying(reason: loc["chat_input.status.contact_info"]), onQueue: .main)
             }
-        }
-    }
-    
-    private func _sendMessage_appendRegularForm(chat: JVChat, pairedMessage: JVMessage) {
-        let systemMessage = subStorage.storeOutgoingMessage(
-            localID: UUID().uuidString.lowercased(),
-            clientID: userContext.clientHash,
-            chatID: chat.ID,
-            type: .system,
-            content: .makeWith(text: loc["chat.system.contact_form.introduce_in_chat"]),
-            status: .historic,
-            timing: .regular,
-            orderingIndex: 1)
-
-        if let message = systemMessage {
-            let messageRef = subStorage.reference(to: message)
-            messagingContext.broadcast(event: .messagesUpserted([messageRef]), onQueue: .main)
-        }
-        
-        let formMessage = subStorage.storeOutgoingMessage(
-            localID: MESSAGE_CONTACT_FORM_LOCAL_ID,
-            clientID: userContext.clientHash,
-            chatID: chat.ID,
-            type: .contactForm,
-            content: .contactForm(status: .inactive),
-            status: nil,
-            timing: .regular,
-            orderingIndex: 1)
-
-        if let message = formMessage {
-            preferencesDriver.retrieveAccessor(forToken: .contactInfoWasShownAt).date = Date()
-            
-            let messageRef = subStorage.reference(to: message)
-            messagingContext.broadcast(event: .messagesUpserted([messageRef]), onQueue: .main)
-        }
-        
-        outgoingPairedMessagesIds[pairedMessage.UUID] = [
-            systemMessage?.UUID,
-            formMessage?.UUID
-        ].jv_flatten()
-    }
-    
-    private func _sendMessage_appendBlockingForm(chat: JVChat, pairedMessage: JVMessage) {
-        let systemMessage = subStorage.storeOutgoingMessage(
-            localID: UUID().uuidString.lowercased(),
-            clientID: userContext.clientHash,
-            chatID: chat.ID,
-            type: .system,
-            content: .makeWith(text: loc["chat.system.contact_form.must_fill"]),
-            status: .historic,
-            timing: .regular,
-            orderingIndex: 1)
-
-        if let message = systemMessage {
-            let messageRef = subStorage.reference(to: message)
-            messagingContext.broadcast(event: .messagesUpserted([messageRef]), onQueue: .main)
-        }
-
-        let formMessage = subStorage.storeOutgoingMessage(
-            localID: MESSAGE_CONTACT_FORM_LOCAL_ID,
-            clientID: userContext.clientHash,
-            chatID: chat.ID,
-            type: .contactForm,
-            content: .contactForm(status: .inactive),
-            status: nil,
-            timing: .regular,
-            orderingIndex: 1)
-
-        if let message = formMessage {
-            preferencesDriver.retrieveAccessor(forToken: .contactInfoWasShownAt).date = Date()
-            
-            let messageRef = subStorage.reference(to: message)
-            messagingContext.broadcast(event: .messagesUpserted([messageRef]), onQueue: .main)
-            notifyObservers(event: .disableReplying(reason: loc["chat_input.status.contact_info"]), onQueue: .main)
         }
         
         outgoingPairedMessagesIds[pairedMessage.UUID] = [
@@ -614,7 +622,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     
     private func detectContactInfoStatus() -> SdkChatContactInfoStatus {
         guard let chatId = sessionContext.localChatId,
-              let _ = subStorage.history(chatId: chatId, after: nil, limit: 1).first
+              let lastMessage = subStorage.history(chatId: chatId, after: nil, limit: 1).first
         else {
             return .omit
         }
@@ -632,6 +640,10 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         let channelAgents = chatContext.channelAgents.values.compactMap(\.resolved)
         
         switch userDataReceivingMode {
+        case .channel where lastMessage.status == .seen:
+            return .askDesired
+        case .channel where historyState.remoteHasContent:
+            return .askDesired
         case .channel where channelAgents.map(\.state).contains(.active):
             return .askDesired
         case .channel:
@@ -775,7 +787,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     func handleNotification(userInfo: [AnyHashable : Any]) -> Bool {
         switch parseRemoteNotification(containingUserInfo: userInfo) {
         case let .success(notification):
-            historyState.remoteLatestMessageId = hasActiveChat ? nil : .max
+            historyState.remoteLatestMessageId = (activeSessionHandle.jv_hasValue ? nil : .max)
             notificationDidTap(notification)
             return true
         case .failure:
@@ -931,6 +943,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         
         let messageTransaction = transaction.filter { $0.payload.type == .chat(.message) }
         handleMessageTransaction(messageTransaction)
+        
+        _informContactInfoStatus()
     }
     
     override func _handlePipeline(event: SdkManagerPipelineEvent) {
@@ -971,26 +985,30 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             preferencesDriver.retrieveAccessor(forToken: .contactInfoWasShownAt).erase()
             preferencesDriver.retrieveAccessor(forToken: .contactInfoWasEverSent).erase()
             unreadNumber = 0
+            messagingOutgoingIntents.removeAll()
         }
     }
 
     private func handleMeTransaction(_ transaction: [NetworkingEventBundle]) {
         transaction.forEach { bundle in
-            guard case SdkSessionProtoMeSubject.history(let data) = bundle.payload.subject else {
-                return
-            }
-            
-            if let messageId = data {
+            switch bundle.payload.subject {
+            case SdkSessionProtoMeSubject.id:
+                historyState.remoteHasContent = true
+            case SdkSessionProtoMeSubject.history(.some(let messageId)):
+                historyState.remoteHasContent = true
                 historyState.remoteLatestMessageId = messageId
                 notifyUnreadCounter()
-            }
-            else {
+            case SdkSessionProtoMeSubject.history(.none):
                 historyState.remoteEarliestMessageId = historyState.localEarliestMessageId
                 historyState.activity = .synced
                 handleMeTransaction_contactFormAutorun()
                 messagingContext.broadcast(event: .allHistoryLoaded, onQueue: .main)
+            default:
+                break
             }
         }
+        
+        _flushSilentMessages()
     }
     
     private func handleMeTransaction_contactFormAutorun() {
@@ -1025,6 +1043,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             switch subject {
             case .delivered(let messageId, _, let messageDate), .received(let messageId, _, _, _, let messageDate):
                 defer {
+                    historyState.remoteHasContent = true
                     historyState.localEarliestMessageId.jv_replaceWithLesser(messageId)
                     historyState.localLatestMessageId.jv_replaceWithGreater(messageId)
                     historyState.localLatestMessageDate.jv_replaceWithGreater(messageDate)
@@ -1074,6 +1093,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
                 }
                 
             case let .seen(id, _): // second associated value is date
+                historyState.remoteHasContent = true
+                
                 let seenMessages = markMessagesAsSeen(to: id)
                 seenMessages.forEach { upsertedMessages[$0.UUID] = $0 }
             case .rate:
@@ -1088,7 +1109,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             case .received(let messageId, _, _, _, let sentAt) where messageId > historyState.localLatestMessageId.jv_orZero:
                 historyState.localLatestMessageId = messageId
                 historyState.localLatestMessageDate = sentAt
-                shouldSendMessageAck = hasActiveChat
+                shouldSendMessageAck = activeSessionHandle.jv_hasValue
 
             default:
                 break
@@ -1110,6 +1131,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         messagingContext.broadcast(event: .messagesUpserted(messageReferences), onQueue: .main)
         
         notifyUnreadCounter()
+        _flushSilentMessages()
     }
     
     private func handleMessageTransaction_detectMissingRanges(
@@ -1280,15 +1302,16 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         
         subOffline.reactToActiveConnection()
         subHello.reactToActiveConnection()
-        
-        subSender.run()
+        subSender.reactToActiveConnection()
     }
     
     private func handleSocketClosed(kind: APIConnectionCloseCode, error: Error?) {
+        historyState.remoteHasContent = false
         userDataReceivingMode = .channel
         
         subOffline.reactToInactiveConnection()
         subHello.reactToInactiveConnection()
+        subSender.reactToInactiveConnection()
     }
     
     private func handleRecentMessages(meta: ProtoEventSubjectPayload.RecentActivity) {
@@ -1430,16 +1453,12 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         case hasMessagesInQueue
     }
     
-    enum ContactFormBehavior {
-        case omit
-        case blocking
-        case regular
-    }
-    
-    private func identifyContactFormBehavior(chatId: Int) -> ContactFormBehavior {
-        guard !preferencesDriver.retrieveAccessor(forToken: .contactInfoWasShownAt).hasObject,
-              !preferencesDriver.retrieveAccessor(forToken: .contactInfoWasEverSent).boolean
-        else {
+    func identifyContactFormBehavior() -> SdkChatContactFormBehavior {
+        guard let chat = chatContext.chatRef?.resolved else {
+            return .omit
+        }
+            
+        guard not(preferencesDriver.retrieveAccessor(forToken: .contactInfoWasEverSent).boolean) else {
             return .omit
         }
         
@@ -1447,6 +1466,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         let states = agents.map(\.state)
         
         switch userDataReceivingMode {
+        case .channel where preferencesDriver.retrieveAccessor(forToken: .contactInfoWasShownAt).hasObject:
+            return .omit
         case .channel where states.contains(.active):
             return .regular
         case .channel:
@@ -1528,6 +1549,26 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
                 subStorage.refresh()
                 messagingContext.broadcast(event: .messagesUpserted([messageRef]))
             }
+        }
+    }
+    
+    private func _flushSilentMessages() {
+        guard messagingOutgoingIntents.jv_hasElements else {
+            return
+        }
+        
+        guard historyState.remoteHasContent else {
+            return
+        }
+        
+        let intents = messagingOutgoingIntents
+        messagingOutgoingIntents.removeAll()
+
+        for intent in intents {
+            _sendMessage(
+                trigger: .api,
+                text: intent.text,
+                attachments: .jv_empty)
         }
     }
     
@@ -1629,6 +1670,10 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
 enum AgentDataReceivingMode {
     case channel
     case chat
+}
+
+private struct OutgoingIntent {
+    let text: String
 }
 
 fileprivate extension UNNotification {

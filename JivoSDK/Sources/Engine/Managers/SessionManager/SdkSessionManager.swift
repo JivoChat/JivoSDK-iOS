@@ -246,16 +246,6 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             return
         }
         
-        do {
-            let jwt = try decode(jwt: clientToken)
-            if jv_not(jwt.body.keys.contains("id")) {
-                inform {"The userToken must contain mandatory 'id' key inside its JWT body"}
-            }
-        }
-        catch {
-            inform {"For better integration, the userToken should be JWT"}
-        }
-        
         if let domain = meta.endpointInfo.domain {
             networking.setPreferredDomain(domain)
         }
@@ -602,7 +592,6 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     }
     
     private func handleSocketClosedEvent(kind: APIConnectionCloseCode, error: Error?) {
-        journal {"Socket closed of kind[\(kind)] with error[\(error?.localizedDescription ?? "")]"}
         sessionContext.connectionState = .disconnected
         
         switch (kind, sessionContext.authorizationState) {

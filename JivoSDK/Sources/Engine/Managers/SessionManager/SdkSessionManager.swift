@@ -246,16 +246,6 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             return
         }
         
-        do {
-            let jwt = try decode(jwt: clientToken)
-            if jv_not(jwt.body.keys.contains("id")) {
-                inform {"The userToken must contain mandatory 'id' key inside its JWT body"}
-            }
-        }
-        catch {
-            inform {"For better integration, the userToken should be JWT"}
-        }
-        
         if let domain = meta.endpointInfo.domain {
             networking.setPreferredDomain(domain)
         }
@@ -267,6 +257,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
 
         sessionContext.updateIdentity(token: clientToken)
         sessionContext.accountConfig = accountConfig
+        journal {"D/CTU authorizationState = .unknown"}
         sessionContext.authorizationState = .unknown
         clientContext.personalNamespace = meta.personalNamespace
         
@@ -484,6 +475,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         
         if subsystems.contains(.connection) {
             networking.disconnect()
+            journal {"D/CTU authorizationState = .unknown"}
             sessionContext.authorizationState = .unknown
             sessionContext.connectionState = .disconnected
         }
@@ -602,13 +594,14 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     }
     
     private func handleSocketClosedEvent(kind: APIConnectionCloseCode, error: Error?) {
-        journal {"Socket closed of kind[\(kind)] with error[\(error?.localizedDescription ?? "")]"}
         sessionContext.connectionState = .disconnected
         
         switch (kind, sessionContext.authorizationState) {
         case (.connectionBreak, .unknown):
+            journal {"D/CTU authorizationState = .unavailable"}
             sessionContext.authorizationState = .unavailable
         case (.blacklist, _):
+            journal {"D/CTU authorizationState = .unavailable"}
             sessionContext.authorizationState = .unavailable
         default:
             break
@@ -616,6 +609,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     }
     
     private func handleMeTransaction(_ transaction: [NetworkingEventBundle]) {
+        journal {"D/CTU authorizationState = .ready"}
         sessionContext.authorizationState = .ready
         
         transaction.forEach { bundle in

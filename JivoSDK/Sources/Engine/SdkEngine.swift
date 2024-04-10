@@ -18,7 +18,7 @@ struct SdkConfig {
     }
 }
 
-protocol ISdkEngine {
+protocol ISdkEngine: AnyObject {
     var sessionContext: ISdkSessionContext { get }
     var clientContext: ISdkClientContext { get }
     var messagingContext: ISdkMessagingContext { get }

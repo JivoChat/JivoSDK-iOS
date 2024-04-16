@@ -25,16 +25,18 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
     private let popupPresenterBridge: IPopupPresenterBridge
     private let databaseDriver: JVIDatabaseDriver
     private let preferencesDriver: IPreferencesDriver
+    private let endpointAccessor: IKeychainAccessor
     
     private var interactedItemUUID: String?
     
-    init(clientManager: ISdkClientManager, chatManager: ISdkChatManager, remoteStorageService: IRemoteStorageService, popupPresenterBridge: IPopupPresenterBridge, databaseDriver: JVIDatabaseDriver, preferencesDriver: IPreferencesDriver) {
+    init(clientManager: ISdkClientManager, chatManager: ISdkChatManager, remoteStorageService: IRemoteStorageService, popupPresenterBridge: IPopupPresenterBridge, databaseDriver: JVIDatabaseDriver, preferencesDriver: IPreferencesDriver, endpointAccessor: IKeychainAccessor) {
         self.clientManager = clientManager
         self.chatManager = chatManager
         self.remoteStorageService = remoteStorageService
         self.popupPresenterBridge = popupPresenterBridge
         self.databaseDriver = databaseDriver
         self.preferencesDriver = preferencesDriver
+        self.endpointAccessor = endpointAccessor
     }
     
     func playCall(item: URL) {
@@ -77,10 +79,11 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
     }
     
     func requestMedia(url: URL, kind: RemoteStorageFileKind?, mime: String?, completion: @escaping (JMTimelineMediaStatus) -> Void) {
-        remoteStorageService.retrieveMeta(originURL: url, caching: .enabled, on: .main) { [weak self] result in
+        let endpoint = endpointAccessor.string
+        remoteStorageService.retrieveMeta(endpoint: endpoint, originURL: url, caching: .enabled, on: .main) { [weak self] result in
             switch result {
             case .success:
-                self?.remoteStorageService.retrieveMeta(originURL: url, caching: .disabled, on: .main) { result in
+                self?.remoteStorageService.retrieveMeta(endpoint: endpoint, originURL: url, caching: .disabled, on: .main) { result in
                     switch result {
                     case .success: break
                     case let .failure(error):
@@ -125,7 +128,10 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
     }
     
     func sendMessage(text: String) {
-        chatManager.sendMessage(text: text, attachments: .jv_empty)
+        try? chatManager.sendMessage(
+            trigger: .ui,
+            text: text,
+            attachments: .jv_empty)
     }
     
     func hasTouchingView() -> Bool {
@@ -260,6 +266,7 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
         guard let resultedURL = URL(string: (url.absoluteString + "?width=512&thumb")) else { return }
         
         remoteStorageService.retrieveFile(
+            endpoint: endpointAccessor.string,
             originURL: resultedURL,
             quality: .original,
             caching: .disabled,

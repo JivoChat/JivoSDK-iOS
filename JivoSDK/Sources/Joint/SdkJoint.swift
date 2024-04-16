@@ -12,9 +12,9 @@ import JMTimelineKit
 protocol ISdkJoint {
     var isDisplaying: Bool { get }
     func modifyConfig(block: (inout SdkInputConfig) -> Void)
-    func push(into navigationController: UINavigationController, displayDelegate: JVDisplayDelegate?)
-    func place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton, displayDelegate: JVDisplayDelegate?)
-    func present(over viewController: UIViewController, displayDelegate: JVDisplayDelegate?)
+    func push(into navigationController: UINavigationController, displayDelegate: JVDisplayDelegate?) -> JVSessionHandle
+    func place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton, displayDelegate: JVDisplayDelegate?) -> JVSessionHandle
+    func present(over viewController: UIViewController, displayDelegate: JVDisplayDelegate?) -> JVSessionHandle
 }
 
 struct SdkInputConfig {
@@ -32,7 +32,6 @@ class SdkJoint: ISdkJoint {
     private let navigator: IRTNavigator
     private var config = SdkInputConfig()
     private lazy var uiConfig = buildChatModuleVisualConfig(from: SdkInputConfig(), displayDelegate: nil)
-    private lazy var timelineConfig = buildChatTimelineUIConfig(from: SdkInputConfig(), displayDelegate: nil)
     private weak var rootViewController: UIViewController?
     private weak var chatModuleJoint: ChatModuleJoint?
     private var navigationBarSnapshot: UINavigationController.BarSnapshot?
@@ -52,13 +51,13 @@ class SdkJoint: ISdkJoint {
         block(&config)
     }
     
-    func push(into navigationController: UINavigationController, displayDelegate: JVDisplayDelegate?) {
+    func push(into navigationController: UINavigationController, displayDelegate: JVDisplayDelegate?) -> JVSessionHandle {
         adjustUI(displayDelegate: displayDelegate)
         
         let module = navigator.push(into: .native(navigationController), animate: true) {
             ChatModuleBuilder(
                 uiConfig: uiConfig,
-                timelineConfig: timelineConfig,
+                timelineConfig: makeTimelineConfig(input: config, displayDelegate: displayDelegate),
                 closeButton: .back,
                 reducer: generateReducer(displayDelegate: displayDelegate) { [weak self] in
                     if let snapshot = self?.navigationBarSnapshot {
@@ -83,15 +82,17 @@ class SdkJoint: ISdkJoint {
         
         rootViewController = navigationController
         chatModuleJoint = module.joint
+        
+        return prepareTemporarySessionHandle()
     }
     
-    func place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton, displayDelegate: JVDisplayDelegate?) {
+    func place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton, displayDelegate: JVDisplayDelegate?) -> JVSessionHandle {
         adjustUI(displayDelegate: displayDelegate)
         
         let module = navigator.replace(inside: .native(navigationController)) {
             ChatModuleBuilder(
                 uiConfig: uiConfig,
-                timelineConfig: timelineConfig,
+                timelineConfig: makeTimelineConfig(input: config, displayDelegate: displayDelegate),
                 closeButton: closeButton,
                 reducer: generateReducer(displayDelegate: displayDelegate, dismissalHandler: nil)
             )
@@ -113,15 +114,17 @@ class SdkJoint: ISdkJoint {
         
         rootViewController = navigationController
         chatModuleJoint = module.joint
+        
+        return prepareTemporarySessionHandle()
     }
     
-    func present(over viewController: UIViewController, displayDelegate: JVDisplayDelegate?) {
+    func present(over viewController: UIViewController, displayDelegate: JVDisplayDelegate?) -> JVSessionHandle {
         adjustUI(displayDelegate: displayDelegate)
         
         let built = navigator.build {
             ChatModuleBuilder(
                 uiConfig: uiConfig,
-                timelineConfig: timelineConfig,
+                timelineConfig: makeTimelineConfig(input: config, displayDelegate: displayDelegate),
                 closeButton: .dismiss,
                 reducer: generateReducer(displayDelegate: displayDelegate, dismissalHandler: nil)
             )
@@ -142,6 +145,8 @@ class SdkJoint: ISdkJoint {
         
         rootViewController = container
         chatModuleJoint = built.module.joint
+        
+        return prepareTemporarySessionHandle()
     }
     
     private func adjustUI(displayDelegate: JVDisplayDelegate?) {
@@ -149,6 +154,17 @@ class SdkJoint: ISdkJoint {
         uiConfig = buildChatModuleVisualConfig(from: config, displayDelegate: displayDelegate)
         engine.managers.chatManager.subOffline.customText = uiConfig.offlineMessage.jv_valuable
         engine.managers.chatManager.subHello.customText = uiConfig.helloMessage.jv_valuable
+    }
+    
+    private func prepareTemporarySessionHandle() -> JVSessionHandle {
+        let sessionHandle = JVSessionHandle()
+        engine.managers.chatManager.activeSessionHandle = sessionHandle
+        
+        DispatchQueue.main.async {
+            sessionHandle.disableInteraction()
+        }
+        
+        return sessionHandle
     }
     
     private func buildChatModuleVisualConfig(from config: SdkInputConfig, displayDelegate: JVDisplayDelegate?) -> SdkChatModuleVisualConfig {
@@ -199,7 +215,7 @@ class SdkJoint: ISdkJoint {
         )
     }
     
-    private func buildChatTimelineUIConfig(from config: SdkInputConfig, displayDelegate: JVDisplayDelegate?) -> ChatTimelineVisualConfig {
+    private func makeTimelineConfig(input config: SdkInputConfig, displayDelegate: JVDisplayDelegate?) -> ChatTimelineVisualConfig {
         return ChatTimelineVisualConfig(
             outcomingPalette: .init(
                 backgroundColor: displayDelegate.jv_defineColor(

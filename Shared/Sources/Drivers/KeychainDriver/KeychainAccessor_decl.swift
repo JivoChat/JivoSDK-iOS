@@ -14,6 +14,6 @@ protocol IKeychainAccessor: AnyObject {
     var number: Int? { get set }
     var date: Date? { get set }
     var data: Data? { get set }
-    func withScope(_ scope: String?) -> IKeychainAccessor
+    func scope(_ name: String?) -> IKeychainAccessor
     func erase()
 }

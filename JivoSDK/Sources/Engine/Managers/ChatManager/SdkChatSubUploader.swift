@@ -29,7 +29,7 @@ enum ChatMediaUploadingError: Error {
 
 protocol ISdkChatSubUploader {
     var uploadingAttachments: [ChatPhotoPickerObject] { get }
-    func upload(attachments: [ChatPhotoPickerObject], clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void)
+    func upload(endpoint: String?, attachments: [ChatPhotoPickerObject], clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void)
 }
 
 class SdkChatSubUploader: ISdkChatSubUploader {
@@ -55,7 +55,7 @@ class SdkChatSubUploader: ISdkChatSubUploader {
         semaphore.setCounter(to: 0)
     }
     
-    func upload(attachments: [ChatPhotoPickerObject], clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void) {
+    func upload(endpoint: String?, attachments: [ChatPhotoPickerObject], clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void) {
         uploadingQueue.async { [unowned self] in
             for attachment in attachments {
                 uploadingAttachments.append(attachment)
@@ -63,7 +63,7 @@ class SdkChatSubUploader: ISdkChatSubUploader {
                 switch attachment.payload {
                 case let .image(meta):
                     _ = meta.url?.startAccessingSecurityScopedResource()
-                    uploadImage(uuid: attachment.uuid, meta: meta, clientId: clientId, channelId: channelId, siteId: siteId) { [unowned self] result in
+                    uploadImage(endpoint: endpoint, uuid: attachment.uuid, meta: meta, clientId: clientId, channelId: channelId, siteId: siteId) { [unowned self] result in
                         meta.url?.stopAccessingSecurityScopedResource()
                         semaphore.setCounter(to: 0)
                         completion(result)
@@ -71,7 +71,7 @@ class SdkChatSubUploader: ISdkChatSubUploader {
                     
                 case let .file(meta):
                     _ = meta.url.startAccessingSecurityScopedResource()
-                    uploadFile(uuid: attachment.uuid, meta: meta, clientId: clientId, channelId: channelId, siteId: siteId) { [unowned self] result in
+                    uploadFile(endpoint: endpoint, uuid: attachment.uuid, meta: meta, clientId: clientId, channelId: channelId, siteId: siteId) { [unowned self] result in
                         meta.url.stopAccessingSecurityScopedResource()
                         semaphore.setCounter(to: 0)
                         completion(result)
@@ -79,7 +79,7 @@ class SdkChatSubUploader: ISdkChatSubUploader {
                     
                 case let .voice(meta):
                     _ = meta.url.startAccessingSecurityScopedResource()
-                    uploadFile(uuid: attachment.uuid, meta: meta, clientId: clientId, channelId: channelId, siteId: siteId) { [unowned self] result in
+                    uploadFile(endpoint: endpoint, uuid: attachment.uuid, meta: meta, clientId: clientId, channelId: channelId, siteId: siteId) { [unowned self] result in
                         meta.url.stopAccessingSecurityScopedResource()
                         semaphore.setCounter(to: 0)
                         completion(result)
@@ -94,7 +94,7 @@ class SdkChatSubUploader: ISdkChatSubUploader {
         }
     }
     
-    private func uploadImage(uuid: UUID, meta: ChatPhotoPickerImageMeta, clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void) {
+    private func uploadImage(endpoint: String?, uuid: UUID, meta: ChatPhotoPickerImageMeta, clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void) {
         guard let imageData = meta.image.jpegData(compressionQuality: JPEG_DATA_COMPRESSION_QUALITY)
         else {
             journal {"Failed uploading the media: cannot extract the image data"}
@@ -111,7 +111,8 @@ class SdkChatSubUploader: ISdkChatSubUploader {
         let imageMime = meta.url.flatMap(mimeFrom(url:)) ?? "image/jpeg"
         
         uploadData(
-            imageData,
+            endpoint: endpoint,
+            data: imageData,
             fileName: imageName,
             uuid: uuid,
             mimeType: imageMime,
@@ -121,7 +122,7 @@ class SdkChatSubUploader: ISdkChatSubUploader {
             completion: completion)
     }
     
-    private func uploadFile(uuid: UUID, meta: ChatPhotoPickerFileMeta, clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void) {
+    private func uploadFile(endpoint: String?, uuid: UUID, meta: ChatPhotoPickerFileMeta, clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void) {
         guard let fileSize = meta.url.jv_fileSize, fileSize <= SdkConfig.uploadingLimit.bytes
         else {
             journal {"Failed uploading the media: file size limit exceeded"}
@@ -135,7 +136,8 @@ class SdkChatSubUploader: ISdkChatSubUploader {
         }
         
         uploadData(
-            data,
+            endpoint: endpoint,
+            data: data,
             fileName: meta.name,
             uuid: uuid,
             mimeType: mimeFrom(url: meta.url),
@@ -146,7 +148,7 @@ class SdkChatSubUploader: ISdkChatSubUploader {
             completion: completion)
     }
     
-    private func uploadData(_ data: Data, fileName: String, uuid: UUID, mimeType: String?, duration: Int? = nil, clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void) {
+    private func uploadData(endpoint: String?, data: Data, fileName: String, uuid: UUID, mimeType: String?, duration: Int? = nil, clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void) {
         let target = RemoteStorageTarget(purpose: .exchange, context: 0)
         
         let file = HTTPFileConfig(
@@ -167,7 +169,7 @@ class SdkChatSubUploader: ISdkChatSubUploader {
             ]
         )
         
-        remoteStorageService.upload(target: target, file: file) { [unowned self] result in
+        remoteStorageService.upload(endpoint: endpoint, target: target, file: file) { [unowned self] result in
             workerThread.async { [unowned self] in
                 let attachmentToRemoveIndex = uploadingAttachments.firstIndex {
                     $0.uuid.uuidString == uuid.uuidString

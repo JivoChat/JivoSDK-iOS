@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>WebSocket</title>
+<style>
+body
+{
+	margin           : 0;
+	color            : #ccc;
+	border-color     : #888;
+	background-color : #2e3334;
+}
+input, textarea { color : inherit; background-color : #393f3f; }
+textarea { resize : none; }
+#addr, #stdin, #stdout
+{
+	border-style: solid;
+	border-width: 1px;
+	border-color: inherit;
+	border-radius: .3em;
+	display: block;
+	padding: .3em;
+	margin: .6em;
+	min-width: 32em;
+	width: 95%;
+}
+#addr
+{
+	height: 1.6em;
+	line-height: 1.6em;
+   white-space: nowrap;
+   overflow: hidden;
+   text-overflow: ellipsis;
+}
+#tools { border-color : inherit; padding-left : .6em; }
+#stdin { height : 8em; }
+#stdout
+{
+	height: 32em;
+	overflow: auto;
+	white-space: pre;
+	font-family: monospace;
+}
+btn
+{
+	color: inherit;
+	background-color: inherit;
+	border-width: 1px;
+	border-style: solid;
+	border-color: inherit;
+	border-radius: .3em;
+	padding: .2em;
+	vertical-align: middle;
+	font-family: sans-serif;
+	cursor: pointer;
+	line-height: 1.8em !important;
+	height: 1.8em;
+}
+#state
+{
+	display: inline-block;
+	width: 1.6em;
+	height: 1.6em;
+	line-height: 1.6em;
+	border-width: 1px;
+	border-style: solid;
+	border-color: inherit;
+	border-radius: 0.8em;
+	margin: 0px 3px;
+	vertical-align: middle;
+}
+#state.connecting { background-color : #ff0; }
+#state.open       { background-color : #0a0; }
+#state.closing    { background-color : #f70; }
+#state.closed     { background-color : #f00; }
+div.connecting { color : #ff0; font-weight : bold; }
+div.open       { color : #0a0; font-weight : bold; }
+div.closing    { color : #f70; font-weight : bold; }
+div.close      { color : #f00; font-weight : bold; }
+div.error      { color : #888; font-weight : bold; }
+div.message    { border-bottom-width : 1px; border-bottom-style : dotted; }
+</style>
+<script>
+var PING = 20000;
+var $ = function (id) { return document.getElementById(id); }
+window.onload = function () {
+   $('stdin').onkeypress = function (e)
+   {
+      switch (e.keyCode) {
+      case 9: this.value += '\t'; break;
+      default: return;
+      }
+      if ('function' === typeof e.preventDefault) e.preventDefault();
+      return false;
+   };
+   ws.reset();
+};
+var log = function (name, txt) {
+   var out = $('stdout');
+   var e = document.createElement('div');
+   e.className = name;
+   var t = new Date();
+   var ms = String(t.getMilliseconds())
+   while (3 > ms.length) ms = '0' + ms;
+   var str = t.toLocaleTimeString() + '.' + ms + '\t' + name;
+   if (txt) str += '\t' + txt;
+   e.innerText = str;
+   out.appendChild(e).scrollIntoView();
+};
+var ws = new (function(){
+var pi, ws = null;
+var ping = function () {
+   try { ws.send(' '); }
+   catch (ex) { return void clearInterval(pi); }
+};
+var clean = function() {
+   clearInterval(pi);
+   ws.onclose = null;
+   ws.onerror = null;
+   ws.onmessage = null;
+   ws.onopen = null;
+   if (ws.CLOSING > ws.readyState) ws.close(4000, 'Connection Reset');
+   ws = null;
+};
+this.reset = function () {
+   if (ws) clean();
+   $('state').className = null;
+   $('stdout').innerHTML = '';
+   $('stdin').value = '{\n   "type": "text/plain",\n   "data": "Hello, world!",\n   "context": "CONTEXT"\n}';
+};
+this.open = function () {
+   if (ws) clean();
+   var addr = $('addr').value;
+   $('state').className = 'connecting';
+   log('connecting');
+   try { ws = new WebSocket(addr); }
+   catch (ex) {
+      $('state').className = 'closed';
+      log('error', ex);
+      return;
+   }
+   ws.onclose = function (e) {
+      clearInterval(pi);
+      $('state').className = 'closed';
+      log('close', e.wasClean + ' ' + e.code + ' ' + e.reason);
+   };
+   ws.onerror = function (e) { log('error'); };
+   ws.onmessage = function (e) {
+      if (' ' == e.data) return; // skip ping
+      log('message', '[' + e.data.length + ']\n' + e.data);
+   };
+   ws.onopen = function (e) {
+      $('state').className = 'open';
+      log('open');
+      clearInterval(pi);
+      pi = setInterval(ping, PING);
+   };
+};
+this.close = function () {
+   if (!ws) return;
+   if (ws.OPEN < ws.readyState) return;
+   log('closing')
+   $('state').className = 'closing';
+   try { ws.close(1000, 'Normal Closure'); }
+   catch (ex) { log('error', ex); }
+};
+this.send = function () {
+   if (!ws) return void log('error', 'Is not open');
+   try { ws.send($('stdin').value); }
+   catch (ex) { return void log('error', ex); }
+   clearInterval(pi);
+   pi = setInterval(ping, PING);
+};
+})()
+</script>
+</head><body>
+<input id="addr" list="addrs" maxlength="16384" size="16384" placeholder="URL">
+<datalist id="addrs">
+   <option>wss://node-sber1-az1-5.jivosite.com/atom/1:Q7BcPYNqCG</option>
+   <option>wss://localhost:1443/atom/1:4Ed1iFNhfF:21632729.rMq+WVXNNkNgnM3nU2gRFZfZFjehZX8awxIDrHYihrM?name=boot&desc=its+test</option>
+   <option>wss://node-jvs3.jivosite.com/cometcn</option>
+   <option>wss://node.miwork.dev.jivosite.com:1443/atom/211760:ylyuZjJOwl:2.7omucQn8JgAImEjQN4OWJqSBKXMpDtld1RgQlDxXMsU?name=Boot&desc=it+is+test</option>
+   <option>wss://node.ios-sdk.dev.jivosite.com:1443/atom/180794:Tgm2u9ufDB:2.7omucQn8JgAImEjQN4OWJqSBKXMpDtld1RgQlDxXMsU?name=Boot&desc=it+is+test</option>
+   <option>wss://node.androidsdk.dev.jivosite.com:1443/atom/448036: ynL74oTbOg:2.7omucQn8JgAImEjQN4OWJqSBKXMpDtld1RgQlDxXMsU?name=Boot&desc=it+is+test</option>
+</datalist>
+<div id="tools">
+   <btn onclick="ws.reset()">reset</btn>
+   <span id="state"></span>
+   <btn onclick="ws.open()">open</btn>
+   <btn onclick="ws.close()">close</btn>
+   <btn onclick="ws.send()">send</btn>
+</div>
+<textarea id="stdin" spellcheck="false"></textarea>
+<div id="stdout"></div>
+</body></html>

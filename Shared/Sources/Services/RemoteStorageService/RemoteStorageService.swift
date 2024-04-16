@@ -17,22 +17,22 @@ protocol IRemoteStorageService: IRemoteStorageServiceDown, IRemoteStorageService
 }
 
 protocol IRemoteStorageServiceDown {
-    func retrieveURL(originURL: URL, quality: RemoteStorageQuality, on completionQueue: DispatchQueue, completion: @escaping (URL?) -> Void)
+    func retrieveURL(endpoint: String?, originURL: URL, quality: RemoteStorageQuality, on completionQueue: DispatchQueue, completion: @escaping (URL?) -> Void)
     func retrieveCachedURL(originURL: URL, quality: RemoteStorageQuality) -> URL?
-    func retrieveFile(originURL: URL, quality: RemoteStorageQuality, caching: RemoteStorageCaching, on callbackQueue: DispatchQueue, callback: @escaping (RemoteStorageFileResource) -> Void)
-    func retrieveMeta(originURL: URL, caching: RemoteStorageCaching, on completionQueue: DispatchQueue, completion: @escaping (Result<RemoteStorageFileInfo, RemoteStorageFileInfoError>) -> Void)
+    func retrieveFile(endpoint: String?, originURL: URL, quality: RemoteStorageQuality, caching: RemoteStorageCaching, on callbackQueue: DispatchQueue, callback: @escaping (RemoteStorageFileResource) -> Void)
+    func retrieveMeta(endpoint: String?, originURL: URL, caching: RemoteStorageCaching, on completionQueue: DispatchQueue, completion: @escaping (Result<RemoteStorageFileInfo, RemoteStorageFileInfoError>) -> Void)
 }
 
 protocol IRemoteStorageServiceUp {
     var observable: JVBroadcastTool<[RemoteStorageItem]> { get }
     func subscribeOn(_ subscribeBlock: @escaping ([RemoteStorageItem]) -> Void)
-    func upload(target: RemoteStorageTarget, file: HTTPFileConfig, completion: @escaping (Result<RemoteStorageUploadedMeta, RemoteStorageFileUploadError>) -> Void)
+    func upload(endpoint: String?, target: RemoteStorageTarget, file: HTTPFileConfig, completion: @escaping (Result<RemoteStorageUploadedMeta, RemoteStorageFileUploadError>) -> Void)
     func uploadingStatus(target: RemoteStorageTarget) -> RemoteStorageUploadingStatus?
     func findUpload(uploadID: String) -> RemoteStorageUploadedMeta?
 }
 
 protocol IRemoteStorageSubEngineUp: INetworkingEventDecoder, INetworkingEventHandler {
-    func upload(center: String, auth: NetworkingHelperAuth, item: RemoteStorageItem, completion: @escaping (Result<InternalMeta, RemoteStorageFileUploadError>) -> Void)
+    func upload(endpoint: String?, center: String, auth: NetworkingHelperAuth, item: RemoteStorageItem, completion: @escaping (Result<InternalMeta, RemoteStorageFileUploadError>) -> Void)
 }
 
 struct RemoteStorageCenter {
@@ -194,7 +194,6 @@ final class RemoteStorageService: IRemoteStorageService {
         
         mediaDown = RemoteStorageSubMediaDown(
             networking: networking,
-            endpointAccessor: keychainDriver.retrieveAccessor(forToken: .endpoint),
             cacheDriver: cacheDriver,
             cachingDirectory: cachingDirectory,
             tokenProvider: tokenProvider,
@@ -213,9 +212,10 @@ final class RemoteStorageService: IRemoteStorageService {
         subQueue.subscribeOn(subscribeBlock)
     }
     
-    func retrieveURL(originURL: URL, quality: RemoteStorageQuality, on completionQueue: DispatchQueue, completion: @escaping (URL?) -> Void) {
+    func retrieveURL(endpoint: String?, originURL: URL, quality: RemoteStorageQuality, on completionQueue: DispatchQueue, completion: @escaping (URL?) -> Void) {
         let engine = pickEngineDown(url: originURL)
         engine.retrieveURL(
+            endpoint: endpoint,
             originURL: originURL,
             quality: quality,
             on: completionQueue,
@@ -230,9 +230,10 @@ final class RemoteStorageService: IRemoteStorageService {
         )
     }
     
-    func retrieveFile(originURL: URL, quality: RemoteStorageQuality, caching: RemoteStorageCaching, on callbackQueue: DispatchQueue, callback: @escaping (RemoteStorageFileResource) -> Void) {
+    func retrieveFile(endpoint: String?, originURL: URL, quality: RemoteStorageQuality, caching: RemoteStorageCaching, on callbackQueue: DispatchQueue, callback: @escaping (RemoteStorageFileResource) -> Void) {
         let engine = pickEngineDown(url: originURL)
         engine.retrieveFile(
+            endpoint: endpoint,
             originURL: originURL,
             quality: quality,
             caching: caching,
@@ -240,9 +241,10 @@ final class RemoteStorageService: IRemoteStorageService {
             callback: callback)
     }
     
-    func retrieveMeta(originURL: URL, caching: RemoteStorageCaching, on completionQueue: DispatchQueue, completion: @escaping (Result<RemoteStorageFileInfo, RemoteStorageFileInfoError>) -> Void) {
+    func retrieveMeta(endpoint: String?, originURL: URL, caching: RemoteStorageCaching, on completionQueue: DispatchQueue, completion: @escaping (Result<RemoteStorageFileInfo, RemoteStorageFileInfoError>) -> Void) {
         let engine = pickEngineDown(url: originURL)
         engine.retrieveMeta(
+            endpoint: endpoint,
             originURL: originURL,
             caching: caching,
             on: completionQueue,
@@ -263,8 +265,9 @@ final class RemoteStorageService: IRemoteStorageService {
         return subQueue.eventSignal
     }
     
-    func upload(target: RemoteStorageTarget, file: HTTPFileConfig, completion: @escaping (Result<RemoteStorageUploadedMeta, RemoteStorageFileUploadError>) -> Void) {
+    func upload(endpoint: String?, target: RemoteStorageTarget, file: HTTPFileConfig, completion: @escaping (Result<RemoteStorageUploadedMeta, RemoteStorageFileUploadError>) -> Void) {
         subQueue.enqueue(
+            endpoint: endpoint,
             itemID: file.uploadID,
             target: target,
             file: file,
@@ -308,7 +311,7 @@ final class RemoteStorageService: IRemoteStorageService {
             }
         }()
         
-        engine.upload(center: center.path, auth: center.auth, item: media) { [unowned self] result in
+        engine.upload(endpoint: media.endpoint, center: center.path, auth: center.auth, item: media) { [unowned self] result in
             subQueue.handleMediaMeta(media: media, meta: result)
         }
     }

@@ -578,7 +578,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
                     .typeInitial(.message),
                     { () -> JVMessagePropertyUpdate in
                         guard
-                            let lastSeenMessageId = keychainDriver.retrieveAccessor(forToken: .lastSeenMessageId, usingClientToken: true).number,
+                            let lastSeenMessageId = keychainDriver.userScope().retrieveAccessor(forToken: .lastSeenMessageId).number,
                             let lastSeedMessage = messageWithID(lastSeenMessageId)
                         else { return .status(.delivered) }
                         

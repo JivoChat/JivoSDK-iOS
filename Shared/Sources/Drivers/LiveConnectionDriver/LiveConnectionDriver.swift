@@ -66,9 +66,9 @@ let connectionNotReachableCode = 1009
 let connectionSecureFailureCode = 1200
 
 protocol ILiveConnectionDriver: AnyObject {
-    var openHandler: ((JournalChild) -> Void)? { get set }
-    var messageHandler: ((JournalChild, Any) -> Void)? { get set }
-    var closeHandler: ((JournalChild, Int, String, Error?) -> Void)? { get set }
+    var openHandler: ((JournalChild?) -> Void)? { get set }
+    var messageHandler: ((JournalChild?, Any) -> Void)? { get set }
+    var closeHandler: ((JournalChild?, Int, String, Error?) -> Void)? { get set }
     
     var isConnecting: Bool { get }
     var isConnected: Bool { get }
@@ -96,9 +96,9 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
         case caching(sinceDate: Date)
     }
     
-    var openHandler: ((JournalChild) -> Void)?
-    var messageHandler: ((JournalChild, Any) -> Void)?
-    var closeHandler: ((JournalChild, Int, String, Error?) -> Void)?
+    var openHandler: ((JournalChild?) -> Void)?
+    var messageHandler: ((JournalChild?, Any) -> Void)?
+    var closeHandler: ((JournalChild?, Int, String, Error?) -> Void)?
     
     private let jsonCoder = JsonCoder()
     @JVSafeDispatching private var websocketQueue = generateWebSocketQueue()

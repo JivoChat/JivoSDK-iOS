@@ -18,7 +18,6 @@ enum PushNotificationsCredentialsKeychainField: String {
 }
 
 extension KeychainToken {
-    static let siteId = KeychainToken(key: "siteId", hint: Int.self, accessing: [.unlockedOnce])
     static let channelId = KeychainToken(key: "channelId", hint: String.self, accessing: [.unlockedOnce])
     static let sessionId = KeychainToken(key: "sessionId", hint: String.self, accessing: [.unlockedOnce])
     static let clientId = KeychainToken(key: "clientId", hint: String.self, accessing: [.unlockedOnce])
@@ -28,8 +27,7 @@ extension KeychainToken {
 }
 
 extension IKeychainDriver {
-    func retrieveAccessor(forToken token: KeychainToken, usingClientToken: Bool) -> IKeychainAccessor {
-        let clientToken = usingClientToken ? retrieveAccessor(forToken: .token).string : nil
-        return retrieveAccessor(forToken: token).withScope(clientToken)
+    func userScope() -> IKeychainDriver {
+        return scope(retrieveAccessor(forToken: .currentUserNamespace).string.jv_orEmpty)
     }
 }

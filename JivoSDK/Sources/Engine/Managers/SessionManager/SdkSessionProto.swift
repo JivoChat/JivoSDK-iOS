@@ -40,7 +40,7 @@ protocol ISdkSessionProto: IProto {
 }
 
 enum SdkSessionProtoLiveCredentials {
-    case ids(siteId: Int, widgetId: String, clientToken: String?)
+    case ids(siteId: Int, widgetId: String, userToken: String?)
     case path(String)
 }
 
@@ -55,12 +55,16 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
          socketUUID: UUID,
          networking: INetworking,
          networkingHelper: INetworkingHelper,
-         keychainTokenAccessor: IKeychainAccessor,
          uuidProvider: IUUIDProvider,
          localeProvider: JVILocaleProvider) {
              self.localeProvider = localeProvider
              
-             super.init(userContext: clientContext, socketUUID: socketUUID, networking: networking, networkingHelper: networkingHelper, keychainTokenAccessor: keychainTokenAccessor, uuidProvider: uuidProvider)
+             super.init(
+                userContext: clientContext,
+                socketUUID: socketUUID,
+                networking: networking,
+                networkingHelper: networkingHelper,
+                uuidProvider: uuidProvider)
     }
     
     // MARK: Public methods

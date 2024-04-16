@@ -22,7 +22,7 @@ final class RemoteStorageSubFilesDown: RemoteStorageSubDown {
         super.init(cacheDriver: cacheDriver, cachingDirectory: cachingDirectory)
     }
     
-    override func retrieveURL(originURL: URL, quality: RemoteStorageQuality, on completionQueue: DispatchQueue, completion: @escaping (URL?) -> Void) {
+    override func retrieveURL(endpoint: String?, originURL: URL, quality: RemoteStorageQuality, on completionQueue: DispatchQueue, completion: @escaping (URL?) -> Void) {
         completionQueue.async {
             completion(originURL)
         }
@@ -32,7 +32,7 @@ final class RemoteStorageSubFilesDown: RemoteStorageSubDown {
         return originURL
     }
     
-    override func retrieveMeta(originURL: URL, caching: RemoteStorageCaching, on completionQueue: DispatchQueue, completion: @escaping (Result<RemoteStorageFileInfo, RemoteStorageFileInfoError>) -> Void) {
+    override func retrieveMeta(endpoint: String?, originURL: URL, caching: RemoteStorageCaching, on completionQueue: DispatchQueue, completion: @escaping (Result<RemoteStorageFileInfo, RemoteStorageFileInfoError>) -> Void) {
         return completionQueue.async {
             completion(.failure(.notFromCloudStorage))
         }

@@ -20,15 +20,18 @@ protocol JVChatTimelineProvider: JMTimelineProvider {
 
 final class ChatTimelineProvider: JVChatTimelineProvider {
     private let client: JVClient?
+    private let endpointAccessor: IKeychainAccessor
     private let formattingProvider: IFormattingProvider
     private let remoteStorageService: IRemoteStorageService
     private let mentionProviderBridge: JMMarkdownMentionProvider
     
     init(client: JVClient?,
+         endpointAccessor: IKeychainAccessor,
          formattingProvider: IFormattingProvider,
          remoteStorageService: IRemoteStorageService,
          mentionProvider: @escaping JMMarkdownMentionProvider) {
         self.client = client
+        self.endpointAccessor = endpointAccessor
         self.formattingProvider = formattingProvider
         self.remoteStorageService = remoteStorageService
         self.mentionProviderBridge = mentionProvider
@@ -62,6 +65,7 @@ final class ChatTimelineProvider: JVChatTimelineProvider {
     
     func retrieveResource(from url: URL, canvasWidth: CGFloat, completion: @escaping (RemoteStorageFileResource?) -> Void) {
         remoteStorageService.retrieveFile(
+            endpoint: endpointAccessor.string,
             originURL: url,
             quality: .preview(width: canvasWidth),
             caching: .enabled,
@@ -71,6 +75,7 @@ final class ChatTimelineProvider: JVChatTimelineProvider {
     
     func requestWaveformPoints(from url: URL, completion: @escaping (RemoteStorageFileResource?) -> Void) {
         remoteStorageService.retrieveFile(
+            endpoint: endpointAccessor.string,
             originURL: url,
             quality: .preview(width: CGFloat(1024)),
             caching: .enabled,
@@ -80,18 +85,24 @@ final class ChatTimelineProvider: JVChatTimelineProvider {
     }
     
     func retrieveMeta(forFileWithURL fileURL: URL, completion: @escaping (JMTimelineMediaMetaResult) -> Void) {
-        remoteStorageService.retrieveMeta(originURL: fileURL, caching: .enabled, on: .main) { result in
-            switch result {
-            case let .success(fileMeta):
-                completion(.meta(fileName: fileMeta.name))
-            case .failure(.unauthorized):
-                completion(.accessDenied(description: loc["file_download_expired"]))
-            case .failure(.notFromCloudStorage):
-                completion(.metaIsNotNeeded())
-            default:
-                completion(.unknownError(description: loc["file_download_unavailable"]))
+        remoteStorageService.retrieveMeta(
+            endpoint: endpointAccessor.string,
+            originURL: fileURL,
+            caching: .enabled,
+            on: .main,
+            completion: { result in
+                switch result {
+                case let .success(fileMeta):
+                    completion(.meta(fileName: fileMeta.name))
+                case .failure(.unauthorized):
+                    completion(.accessDenied(description: loc["file_download_expired"]))
+                case .failure(.notFromCloudStorage):
+                    completion(.metaIsNotNeeded())
+                default:
+                    completion(.unknownError(description: loc["file_download_unavailable"]))
+                }
             }
-        }
+        )
     }
 }
 

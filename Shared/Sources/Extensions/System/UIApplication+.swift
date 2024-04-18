@@ -23,17 +23,23 @@ extension UIApplication {
     }
     
     var jv_isActive: Bool {
-        switch applicationState {
-        case .active: return true
-        case .inactive: return false
-        case .background: return false
-        @unknown default: return false
-        }
+        return applicationState.jv_isActive
     }
     
     func jv_discardCachedLaunchScreen() {
         let path = NSHomeDirectory() + "/Library/SplashBoard"
         try? FileManager.default.removeItem(atPath: path)
+    }
+}
+
+extension UIApplication.State {
+    var jv_isActive: Bool {
+        switch self {
+        case .active: return true
+        case .inactive: return false
+        case .background: return false
+        @unknown default: return false
+        }
     }
 }
 

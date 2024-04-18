@@ -17,7 +17,7 @@ extension JVMessage {
                 m_sender = m_sender_value
             }
             
-            let m_can_be_sent_value = (m_must_be_sent == true && m_id == 0 && m_sending_date == 0)
+            let m_can_be_sent_value = (m_must_be_sent == true && m_id == 0 && m_sending_date == 0 && m_status != JVMessageStatus.queued.rawValue)
             if m_can_be_sent != m_can_be_sent_value {
                 m_can_be_sent = m_can_be_sent_value
             }

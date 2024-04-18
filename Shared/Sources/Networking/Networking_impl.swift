@@ -32,7 +32,6 @@ final class Networking: INetworking {
     private let localeProvider: JVILocaleProvider
     private let uuidProvider: IUUIDProvider
     private let preferencesDriver: IPreferencesDriver
-    private let endpointAccessor: IKeychainAccessor
     private let jsonPrivacyTool: JVJsonPrivacyTool
     private let urlBuilder: NetworkingUrlBuilder
 
@@ -72,7 +71,6 @@ final class Networking: INetworking {
         self.localeProvider = localeProvider
         self.uuidProvider = uuidProvider
         self.preferencesDriver = preferencesDriver
-        self.endpointAccessor = keychainDriver.retrieveAccessor(forToken: .endpoint)
         self.jsonPrivacyTool = jsonPrivacyTool
         self.urlBuilder = urlBuilder
 
@@ -205,19 +203,19 @@ final class Networking: INetworking {
                     chain.nextLine { "Link: " + String(describing: link) }
                     return self
                 }
-            case .build(.chatServer, let path):
-                if let scopedURL = urlBuilder(baseURL, endpointAccessor.string, .original, path) {
+            case .build(let endpoint, .chatServer, let path):
+                if let scopedURL = urlBuilder(baseURL, endpoint, .original, path) {
                     resolvedURL = scopedURL
                 }
                 else {
                     let chain = journal {"Failed constructing the scoped url for chatServer"}
                     chain.nextLine { [value = baseURL] in "Base URL: " + String(describing: value) }
-                    chain.nextLine { [value = endpointAccessor.string] in "Endpoint: " + String(describing: value) }
+                    chain.nextLine { [value = endpoint] in "Endpoint: " + String(describing: value) }
                     chain.nextLine { "Path: " + String(describing: path) }
                     return self
                 }
-            case .build(let scope, let path) where scope.kind == .specific:
-                if let scopedURL = urlBuilder(baseURL, endpointAccessor.string, .replace(scope.value), path) {
+            case .build(let endpoint, let scope, let path) where scope.kind == .specific:
+                if let scopedURL = urlBuilder(baseURL, endpoint, .replace(scope.value), path) {
                     resolvedURL = scopedURL
                 }
                 else {

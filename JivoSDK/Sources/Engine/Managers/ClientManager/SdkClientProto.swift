@@ -10,13 +10,13 @@ import Foundation
 import JMCodingKit
 
 protocol ISdkClientProto: IProto {
-    func registerDevice(deviceId: String, deviceLiveToken: String, shouldUseSandbox: Bool, siteId: Int, channelId: String, clientId: String)
+    func registerDevice(endpoint: String?, deviceId: String, deviceLiveToken: String, shouldUseSandbox: Bool, siteId: Int, channelId: String, clientId: String)
     func setContactInfo(clientId: String, name: String?, email: String?, phone: String?, brief: String?)
     func setCustomData(fields: [JVSessionCustomDataField])
 }
 
 final class SdkClientProto: BaseProto, ISdkClientProto {
-    func registerDevice(deviceId: String, deviceLiveToken: String, shouldUseSandbox: Bool, siteId: Int, channelId: String, clientId: String) {
+    func registerDevice(endpoint: String?, deviceId: String, deviceLiveToken: String, shouldUseSandbox: Bool, siteId: Int, channelId: String, clientId: String) {
         let options = RestRequestOptions(
             behavior: .ephemeral(priority: 1.0),
             method: .post,
@@ -37,7 +37,11 @@ final class SdkClientProto: BaseProto, ISdkClientProto {
         _ = networking.send(
             output: .rest(
                 kindID: ProtoEventSubjectPayload.PushRegistration.kindID,
-                target: .build(scope: .chatServer, path: "/client/\(siteId)/\(channelId)/device"),
+                target: .build(
+                    endpoint: endpoint,
+                    scope: .chatServer,
+                    path: "/client/\(siteId)/\(channelId)/device"
+                ),
                 options: options,
                 contextID: contextID
             ),

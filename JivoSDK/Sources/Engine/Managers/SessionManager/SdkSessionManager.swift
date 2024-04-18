@@ -13,8 +13,7 @@ import JMCodingKit
 protocol ISdkSessionManager: ISdkManager {
     var delegate: JVSessionDelegate? { get set }
     func setPreferredServer(_ server: JVSessionServer)
-    func startUp(channelPath: String, clientToken: String)
-    func requestConfig()
+    func startUp(channelPath: String, userToken: String)
     func establishConnection()
 }
 
@@ -25,7 +24,7 @@ enum SdkSessionManagerStartupMode {
 }
 
 enum SdkSessionManagerStartUpBehavior {
-    case newContext(personalNamespace: String)
+    case newContext
     case previousContext
     case hasAnotherActiveContext
     case alreadyConnecting
@@ -36,13 +35,45 @@ enum SdkSessionManagerContactInfoAllowance {
     case allFields
 }
 
+struct SdkSessionUserIdentity: Equatable {
+    let token: String
+    let payload: [String: AnyHashable]?
+    let id: String?
+    
+    init(input: String) {
+        do {
+            let info = try decode(jwt: input)
+            token = input
+            payload = info.body as? [String: AnyHashable]
+            id = info.body["id"] as? String
+        }
+        catch {
+            token = input
+            payload = Dictionary()
+            id = nil
+        }
+    }
+    
+    static func ==(lhs: Self, rhs: Self) -> Bool {
+        if lhs.token == rhs.token {
+            return true
+        }
+        else if lhs.payload == rhs.payload {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+}
+
 extension PreferencesToken {
     static let contactInfoWasShownAt = Self.init(key: "contactInfoWasShownAt", hint: Date.self)
     static let contactInfoWasEverSent = Self.init(key: "contactInfoWasEverSent", hint: Bool.self)
 }
 
 extension KeychainToken {
-    static let previousPersonalNamespace = Self.init(key: "previousToken", hint: String.self, accessing: .unlockedOnce)
+    static let currentUserNamespace = Self.init(key: "currentUserNamespace", hint: String.self, accessing: .unlockedOnce)
 }
 
 fileprivate struct SdkSessionConnectionContext {
@@ -54,10 +85,9 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     private var startUpDeferred: StartUpDeferred?
     private struct StartUpDeferred {
         let channelPath: String
-        let clientToken: String
+        let userToken: String
     }
     
-    private var channelId: String?
     private var preferredStartupMode = SdkSessionManagerStartupMode.fresh
     
     // MARK: Constants
@@ -148,18 +178,18 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             return false
         }
         
-        let path = keychainDriver.retrieveAccessor(forToken: .connectionUrlPath, usingClientToken: true).string
+        let path = keychainDriver.userScope().retrieveAccessor(forToken: .connectionUrlPath).string
         sessionContext.authorizingPath = path
         
-        if let lastStoredSiteId = keychainDriver.retrieveAccessor(forToken: .siteId).number,
-           let lastStoredChannelId = keychainDriver.retrieveAccessor(forToken: .channelId).string {
+        if let lastStoredSiteId = keychainDriver.userScope().retrieveAccessor(forToken: .siteID).number,
+           let lastStoredChannelId = keychainDriver.userScope().retrieveAccessor(forToken: .channelId).string {
             let lastStoredAccountConfig = SdkClientAccountConfig(siteId: lastStoredSiteId, channelId: lastStoredChannelId)
             sessionContext.accountConfig = lastStoredAccountConfig
         }
         
         reachabilityDriver.start()
         reachabilityDriver.addListener { [unowned self] mode in
-            self.sessionContext.networkingState = mode
+            sessionContext.networkingState = mode
             
             switch mode {
             case .cell, .wifi:
@@ -180,7 +210,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     // MARK: - Public methods
     
     func setPreferredServer(_ server: JVSessionServer) {
-        thread.async { [unowned self] in
+        thread.sync { [unowned self] in
             _setPreferredServer(server)
         }
     }
@@ -200,25 +230,23 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         }
     }
     
-    func startUp(channelPath: String, clientToken: String) {
-        guard UIApplication.shared.jv_isActive
-        else {
-            startUpDeferred = .init(channelPath: channelPath, clientToken: clientToken)
-            return
-        }
-        
-        thread.async { [unowned self] in
+    func startUp(channelPath: String, userToken: String) {
+        let applicationState = UIApplication.shared.applicationState
+        thread.sync { [unowned self] in
             _startUp(
                 channelPath: channelPath,
-                clientToken: clientToken,
-                preferredMode: .resume)
+                userToken: userToken,
+                preferredMode: .resume,
+                applicationState: applicationState)
         }
     }
     
-    private func _startUp(channelPath: String, clientToken: String, preferredMode: SdkSessionManagerStartupMode) {
+    private func _startUp(channelPath: String, userToken: String, preferredMode: SdkSessionManagerStartupMode, applicationState: UIApplication.State) {
+        let userIdentity = SdkSessionUserIdentity(input: userToken)
+        
         guard let meta = detectStartUpMeta(
             channelPath: channelPath,
-            clientToken: clientToken,
+            userIdentity: userIdentity,
             preferredMode: preferredMode)
         else {
             return
@@ -230,8 +258,8 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             return
         case .newContext:
             sessionContext.recentStartupMode = .fresh
-            keychainDriver.retrieveAccessor(forToken: .siteID).erase()
-            keychainDriver.retrieveAccessor(forToken: .previousPersonalNamespace).string = meta.personalNamespace
+            keychainDriver.userScope().retrieveAccessor(forToken: .siteID).erase()
+            keychainDriver.retrieveAccessor(forToken: .currentUserNamespace).string = meta.personalNamespace
             preferencesDriver.retrieveAccessor(forToken: .contactInfoWasShownAt).erase()
             preferencesDriver.retrieveAccessor(forToken: .contactInfoWasEverSent).erase()
             notifyPipeline(event: .turnInactive(.artifacts))
@@ -242,18 +270,8 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         case .hasAnotherActiveContext:
             sessionContext.connectionAllowance = .disallowed
             notifyPipeline(event: .turnInactive(.connection + .artifacts))
-            _startUp(channelPath: channelPath, clientToken: clientToken, preferredMode: .fresh)
+            _startUp(channelPath: channelPath, userToken: userToken, preferredMode: .fresh, applicationState: applicationState)
             return
-        }
-        
-        do {
-            let jwt = try decode(jwt: clientToken)
-            if jv_not(jwt.body.keys.contains("id")) {
-                inform {"The userToken must contain mandatory 'id' key inside its JWT body"}
-            }
-        }
-        catch {
-            inform {"For better integration, the userToken should be JWT"}
         }
         
         if let domain = meta.endpointInfo.domain {
@@ -261,11 +279,11 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         }
         
         let accountConfig = SdkClientAccountConfig(
-            siteId: keychainDriver.retrieveAccessor(forToken: .siteID).number ?? .zero,
+            siteId: keychainDriver.userScope().retrieveAccessor(forToken: .siteID).number ?? .zero,
             channelId: meta.endpointInfo.channelId
         )
 
-        sessionContext.updateIdentity(token: clientToken)
+        sessionContext.updateIdentity(userIdentity)
         sessionContext.accountConfig = accountConfig
         sessionContext.authorizationState = .unknown
         clientContext.personalNamespace = meta.personalNamespace
@@ -274,10 +292,21 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             preferredStartupMode = .resume
         }
         
+        if applicationState.jv_isActive {
+            _startUp_perform()
+        }
+        else {
+            journal {"Session: defer the startUp"}
+            startUpDeferred = .init(channelPath: channelPath, userToken: userToken)
+        }
+    }
+    
+    private func _startUp_perform() {
         apnsService.requestForPermission(at: .onConnect)
         
-        sessionContext.connectionState = .identifying
-        _requestConfig()
+        if sessionContext.raise(connectionState: .identifying) {
+            _requestConfig()
+        }
     }
     
     private struct _StartUpMeta {
@@ -286,7 +315,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         let behavior: SdkSessionManagerStartUpBehavior
     }
     
-    private func detectStartUpMeta(channelPath: String, clientToken: String, preferredMode: SdkSessionManagerStartupMode) -> _StartUpMeta? {
+    private func detectStartUpMeta(channelPath: String, userIdentity: SdkSessionUserIdentity, preferredMode: SdkSessionManagerStartupMode) -> _StartUpMeta? {
         guard let endpointInfo = extractEndpointInfo(channelPath: channelPath)
         else {
             return nil
@@ -294,9 +323,10 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         
         let personalNamespace = constructPersonalNamespace(
             channelId: endpointInfo.channelId,
-            userToken: clientToken)
+            userIdentity: userIdentity)
         
         func _construct(behavior: SdkSessionManagerStartUpBehavior) -> _StartUpMeta {
+            journal {"StartUp behavior \(behavior) for personalNamespace \(personalNamespace)"}
             return _StartUpMeta(endpointInfo: endpointInfo, personalNamespace: personalNamespace, behavior: behavior)
         }
         
@@ -308,12 +338,12 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             return _construct(behavior: .alreadyConnecting)
         }
         
-        let previousAccessor = keychainDriver.retrieveAccessor(forToken: .previousPersonalNamespace)
+        let previousAccessor = keychainDriver.retrieveAccessor(forToken: .currentUserNamespace)
         if personalNamespace == previousAccessor.string {
             return _construct(behavior: .previousContext)
         }
         else {
-            return _construct(behavior: .newContext(personalNamespace: personalNamespace))
+            return _construct(behavior: .newContext)
         }
     }
     
@@ -353,23 +383,24 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         }
     }
     
-    private func constructPersonalNamespace(channelId: String, userToken: String?) -> String {
-        guard let userToken = userToken else {
-            return channelId + ":"
+    private func constructChannelNamespace(channelId: String) -> String {
+        return "channel(\(channelId))"
+    }
+    
+    private func constructChannelUserNamespace(channelId: String) -> String {
+        return constructChannelNamespace(channelId: channelId) + ":user"
+    }
+    
+    private func constructPersonalNamespace(channelId: String, userIdentity: SdkSessionUserIdentity) -> String {
+        if let userId = userIdentity.id {
+            return constructChannelUserNamespace(channelId: channelId) + "jwt(\(userId))"
         }
-        
-        do {
-            let jwt = try decode(jwt: userToken)
-            let values = [channelId, String(describing: jwt.body["id"])]
-            return values.joined(separator: String(USER_TOKEN_JOIN_SEPARATOR))
-        }
-        catch {
-            let values = [channelId, userToken]
-            return values.joined(separator: String(USER_TOKEN_JOIN_SEPARATOR))
+        else {
+            return constructChannelUserNamespace(channelId: channelId) + "tmp(\(userIdentity.token))"
         }
     }
     
-    func requestConfig() {
+    private func requestConfig() {
         thread.async { [unowned self] in
             _requestConfig()
         }
@@ -406,12 +437,6 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             return
         }
         
-        guard sessionContext.connectionState != .connecting
-        else {
-            journal {"Connection to socket: already starting"}
-            return
-        }
-        
         guard !networking.isConnected
         else {
             journal {"Connection to socket: already connected"}
@@ -445,11 +470,14 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
                 credentials: .ids(
                     siteId: accountConfig.siteId,
                     widgetId: accountConfig.channelId,
-                    clientToken: sessionContext.identifyingToken
+                    userToken: sessionContext.userIdentity?.token
                 ))
         }
         
-        sessionContext.connectionState = .connecting
+        guard sessionContext.raise(connectionState: .connecting) else {
+            journal {"Connection to socket: already starting"}
+            return
+        }
         
         switch preferredStartupMode {
         case .fresh:
@@ -489,6 +517,11 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         }
         
         if subsystems.contains(.artifacts) {
+            if let channelId = sessionContext.accountConfig?.channelId {
+                let prefix = constructChannelUserNamespace(channelId: channelId)
+                keychainDriver.clearNamespace(scopePrefix: prefix)
+            }
+            
             preferredStartupMode = .fresh
             sessionContext.reset()
         }
@@ -497,7 +530,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     private func handleSessionContextEvent(_ event: SdkSessionContextEvent) {
         switch event {
         case .authorizingPathChanged(let path):
-            keychainDriver.retrieveAccessor(forToken: .connectionUrlPath, usingClientToken: true).string = path
+            keychainDriver.userScope().retrieveAccessor(forToken: .connectionUrlPath).string = path
         default:
             break
         }
@@ -546,8 +579,8 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             return
         }
         
-        keychainDriver.retrieveAccessor(forToken: .endpoint).string = meta.body.chatserverHost
-        keychainDriver.retrieveAccessor(forToken: .siteID).number = meta.body.siteId
+        keychainDriver.userScope().retrieveAccessor(forToken: .endpoint).string = meta.body.chatserverHost
+        keychainDriver.userScope().retrieveAccessor(forToken: .siteID).number = meta.body.siteId
         
         sessionContext.accountConfig = SdkClientAccountConfig(
             siteId: meta.body.siteId,
@@ -571,6 +604,8 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         
         switch sessionContext.connectionAllowance {
         case .disallowed:
+            break
+        case .allowed where sessionContext.reached(connectionState: .connecting):
             break
         case .allowed:
             _establishConnection()
@@ -597,17 +632,16 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     // MARK: Proto event handling
     
     private func handleSocketOpenEvent() {
-        sessionContext.connectionState = .connected
+        sessionContext.raise(connectionState: .connected)
         sessionContext.numberOfResumes += 1
     }
     
     private func handleSocketClosedEvent(kind: APIConnectionCloseCode, error: Error?) {
-        journal {"Socket closed of kind[\(kind)] with error[\(error?.localizedDescription ?? "")]"}
         sessionContext.connectionState = .disconnected
         
         switch (kind, sessionContext.authorizationState) {
-        case (.connectionBreak, .unknown):
-            sessionContext.authorizationState = .unavailable
+//        case (.connectionBreak, .unknown):
+//            sessionContext.authorizationState = .unavailable
         case (.blacklist, _):
             sessionContext.authorizationState = .unavailable
         default:
@@ -632,13 +666,11 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     
     @objc private func handleApplicationStateChange() {
         if UIApplication.shared.jv_isActive, let deferred = startUpDeferred {
+            journal {"Session: use the deferred startUp"}
             startUpDeferred = nil
             
             thread.async { [unowned self] in
-                _startUp(
-                    channelPath: deferred.channelPath,
-                    clientToken: deferred.clientToken,
-                    preferredMode: .reconnect)
+                _startUp_perform()
             }
         }
     }

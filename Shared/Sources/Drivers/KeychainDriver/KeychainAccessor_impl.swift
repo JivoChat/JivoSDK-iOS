@@ -73,8 +73,8 @@ class KeychainAccessor: IKeychainAccessor {
         }
     }
     
-    func withScope(_ scope: String?) -> IKeychainAccessor {
-        return KeychainAccessor(storage: storage, namespace: namespace, scope: scope, key: key, options: options)
+    func scope(_ name: String?) -> IKeychainAccessor {
+        return KeychainAccessor(storage: storage, namespace: namespace, scope: name, key: key, options: options)
     }
     
     func erase() {

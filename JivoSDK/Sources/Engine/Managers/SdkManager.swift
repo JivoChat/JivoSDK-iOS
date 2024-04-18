@@ -18,6 +18,11 @@ struct SdkManagerSubsystem: OptionSet {
     static let all = Self.init(rawValue: ~0)
 }
 
+enum SdkManagerTrigger {
+    case ui
+    case api
+}
+
 class SdkManager: BaseManager, ISdkManager {
     private let pipeline: SdkManagerPipeline
     

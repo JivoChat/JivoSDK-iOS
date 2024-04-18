@@ -11,12 +11,12 @@ import JMCodingKit
 
 final class NetworkingHelper: INetworkingHelper {
     private let uuidProvider: IUUIDProvider
-    private let keychainTokenAccessor: IKeychainAccessor
+    private let keychainTokenProvider: () -> String?
     private let jsonPrivacyTool: JVJsonPrivacyTool
     
-    init(uuidProvider: IUUIDProvider, keychainTokenAccessor: IKeychainAccessor, jsonPrivacyTool: JVJsonPrivacyTool) {
+    init(uuidProvider: IUUIDProvider, keychainTokenProvider: @escaping () -> String?, jsonPrivacyTool: JVJsonPrivacyTool) {
         self.uuidProvider = uuidProvider
-        self.keychainTokenAccessor = keychainTokenAccessor
+        self.keychainTokenProvider = keychainTokenProvider
         self.jsonPrivacyTool = jsonPrivacyTool
     }
     
@@ -33,7 +33,7 @@ final class NetworkingHelper: INetworkingHelper {
             "x-app-instance-id": uuidProvider.currentInstallationID
         ]
         
-        if let token = keychainTokenAccessor.string, auth == .apply {
+        if let token = keychainTokenProvider(), auth == .apply {
             ret["Authorization"] = token
         }
         

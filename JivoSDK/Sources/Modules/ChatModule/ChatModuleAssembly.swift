@@ -64,6 +64,7 @@ func ChatModuleAssembly(
     
     let timelineProvider = ChatTimelineProvider(
         client: nil,
+        endpointAccessor: engine.drivers.keychainDriver.userScope().retrieveAccessor(forToken: .endpoint),
         formattingProvider: engine.providers.formattingProvider,
         remoteStorageService: engine.services.remoteStorageService,
         mentionProvider: engine.providers.mentionRetriever
@@ -75,7 +76,8 @@ func ChatModuleAssembly(
         remoteStorageService: engine.services.remoteStorageService,
         popupPresenterBridge: engine.bridges.popupPresenterBridge,
         databaseDriver: engine.drivers.databaseDriver,
-        preferencesDriver: engine.drivers.preferencesDriver
+        preferencesDriver: engine.drivers.preferencesDriver,
+        endpointAccessor: engine.drivers.keychainDriver.userScope().retrieveAccessor(forToken: .endpoint)
     )
     
     let timelineFactory = ChatTimelineFactory(

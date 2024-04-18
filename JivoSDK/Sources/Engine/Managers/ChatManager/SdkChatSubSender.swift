@@ -14,8 +14,8 @@ enum SdkChatSubSenderEvent {
 
 protocol ISdkChatSubSender {
     var eventSignal: JVBroadcastTool<SdkChatSubStorageEvent> { get }
-    func run()
-    func stop()
+    func reactToActiveConnection()
+    func reactToInactiveConnection()
 }
 
 final class SdkChatSubSender: ISdkChatSubSender {
@@ -31,7 +31,6 @@ final class SdkChatSubSender: ISdkChatSubSender {
 //    private let messageAddObservable = JVBroadcastTool<(message: JVMessage, animated: Bool)>()
 //    private let messageUpdateObservable = JVBroadcastTool<JVMessage>()
 
-    private var firstRun = true
     private var outgoingMessagesListener: JVDatabaseListener?
 
     init(clientContext: ISdkClientContext,
@@ -48,9 +47,11 @@ final class SdkChatSubSender: ISdkChatSubSender {
         self.subStorage = subStorage
         self.systemMessagingService = systemMessagingService
         self.scheduledActionTool = scheduledActionTool
+        
+        markUnsentMessagesAsFailed()
     }
     
-    func run() {
+    func reactToActiveConnection() {
         outgoingMessagesListener = databaseDriver.subscribe(
             JVMessage.self,
             options: JVDatabaseRequestOptions(
@@ -61,18 +62,13 @@ final class SdkChatSubSender: ISdkChatSubSender {
                 self.handleMessagesToSend(messages)
             }
         )
-        
-        if firstRun {
-            firstRun = false
-            markSentMessagesAsFailed()
-        }
     }
     
-    func stop() {
+    func reactToInactiveConnection() {
         outgoingMessagesListener = nil
     }
     
-    private func markSentMessagesAsFailed() {
+    private func markUnsentMessagesAsFailed() {
         let messages = databaseDriver.objects(
             JVMessage.self,
             options: JVDatabaseRequestOptions(
@@ -80,6 +76,7 @@ final class SdkChatSubSender: ISdkChatSubSender {
                 sortBy: [JVDatabaseResponseSort(keyPath: "m_date", ascending: true)]
             )
         )
+        
         messages.forEach {
             self.subStorage.markSendingFailure(message: $0)
         }

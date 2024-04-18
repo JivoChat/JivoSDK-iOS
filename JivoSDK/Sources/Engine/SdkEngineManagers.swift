@@ -75,7 +75,6 @@ struct SdkEngineManagersFactory {
             socketUUID: UUID(),
             networking: networking,
             networkingHelper: networkingHelper,
-            keychainTokenAccessor: keychainDriver.retrieveAccessor(forToken: .token),
             uuidProvider: uuidProvider,
             localeProvider: localeProvider
         )
@@ -109,7 +108,6 @@ struct SdkEngineManagersFactory {
             socketUUID: UUID(),
             networking: networking,
             networkingHelper: networkingHelper,
-            keychainTokenAccessor: keychainDriver.retrieveAccessor(forToken: .token),
             uuidProvider: uuidProvider
         )
         
@@ -144,7 +142,6 @@ struct SdkEngineManagersFactory {
             socketUUID: UUID(),
             networking: networking,
             networkingHelper: networkingHelper,
-            keychainTokenAccessor: keychainDriver.retrieveAccessor(forToken: .token),
             uuidProvider: uuidProvider
         )
         
@@ -218,7 +215,8 @@ struct SdkEngineManagersFactory {
             typingCacheService: typingCacheService,
             apnsService: apnsService,
             preferencesDriver: preferencesDriver,
-            keychainDriver: keychainDriver
+            keychainDriver: keychainDriver,
+            cacheDriver: cacheDriver
         )
         
         return chatManager

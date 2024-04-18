@@ -18,7 +18,6 @@ enum RemoteStorageFileMetaRequestState {
 
 final class RemoteStorageSubMediaDown: RemoteStorageSubDown {
     private let networking: INetworking
-    private let endpointAccessor: IKeychainAccessor
     private let tokenProvider: () -> String?
     private let urlBuilder: NetworkingUrlBuilder
     
@@ -27,9 +26,8 @@ final class RemoteStorageSubMediaDown: RemoteStorageSubDown {
     private var enqueuedSignedURLCallbacks: [CachedParams: [(URL?) -> Void]]
     private var fileMetaRequestStates: [URL: RemoteStorageFileMetaRequestState]
     
-    init(networking: INetworking, endpointAccessor: IKeychainAccessor, cacheDriver: ICacheDriver, cachingDirectory: String, tokenProvider: @escaping () -> String?, urlBuilder: @escaping NetworkingUrlBuilder) {
+    init(networking: INetworking, cacheDriver: ICacheDriver, cachingDirectory: String, tokenProvider: @escaping () -> String?, urlBuilder: @escaping NetworkingUrlBuilder) {
         self.networking = networking
-        self.endpointAccessor = endpointAccessor
         self.tokenProvider = tokenProvider
         self.urlBuilder = urlBuilder
         
@@ -40,10 +38,10 @@ final class RemoteStorageSubMediaDown: RemoteStorageSubDown {
         super.init(cacheDriver: cacheDriver, cachingDirectory: cachingDirectory)
     }
     
-    override func retrieveURL(originURL: URL, quality: RemoteStorageQuality, on completionQueue: DispatchQueue, completion: @escaping (URL?) -> Void) {
+    override func retrieveURL(endpoint: String?, originURL: URL, quality: RemoteStorageQuality, on completionQueue: DispatchQueue, completion: @escaping (URL?) -> Void) {
         resourceQueue.addOperation { [unowned self] in
             let params = CachedParams(url: originURL, quality: quality)
-            requestForSignedURL(params: params, on: completionQueue) { signedURL in
+            requestForSignedURL(endpoint: endpoint, params: params, on: completionQueue) { signedURL in
                 completion(signedURL)
             }
         }
@@ -57,7 +55,7 @@ final class RemoteStorageSubMediaDown: RemoteStorageSubDown {
         return url
     }
     
-    override func retrieveMeta(originURL: URL, caching: RemoteStorageCaching, on completionQueue: DispatchQueue, completion: @escaping (Result<RemoteStorageFileInfo, RemoteStorageFileInfoError>) -> Void) {
+    override func retrieveMeta(endpoint: String?, originURL: URL, caching: RemoteStorageCaching, on completionQueue: DispatchQueue, completion: @escaping (Result<RemoteStorageFileInfo, RemoteStorageFileInfoError>) -> Void) {
         resourceQueue.addOperation { [weak self] in
             if let sameURLRequestState = self?.fileMetaRequestStates[originURL] {
                 if case let .performedWithResult(result) = sameURLRequestState, caching == .enabled {
@@ -76,7 +74,7 @@ final class RemoteStorageSubMediaDown: RemoteStorageSubDown {
                 self?.fileMetaRequestStates[originURL] = .enqueuedWithCallbacks([completion])
             }
             
-            self?.retrieveURL(originURL: originURL, quality: .original, on: completionQueue) { signedURL in
+            self?.retrieveURL(endpoint: endpoint, originURL: originURL, quality: .original, on: completionQueue) { signedURL in
                 if let signedURL = signedURL {
                     self?.performMetaRequest(url: signedURL) { result in
                         self?.resourceQueue.addOperation {
@@ -95,7 +93,7 @@ final class RemoteStorageSubMediaDown: RemoteStorageSubDown {
         return .preview
     }
     
-    private func requestForSignedURL(params: CachedParams, on completionQueue: DispatchQueue, completion: @escaping (URL?) -> Void) {
+    private func requestForSignedURL(endpoint: String?, params: CachedParams, on completionQueue: DispatchQueue, completion: @escaping (URL?) -> Void) {
         resourceMutex.lock()
         let cachedItem = resolvedSigns[params]
         resourceMutex.unlock()
@@ -114,7 +112,7 @@ final class RemoteStorageSubMediaDown: RemoteStorageSubDown {
         }
         
         guard
-            let sub = endpointAccessor.string,
+            let sub = endpoint,
             let url = urlBuilder(networking.baseURL(module: "api"), sub, .replace("auth"), "/api/1.0/auth/media/app/sign/get"),
             var signComponents = URLComponents(string: url.absoluteString)
         else {

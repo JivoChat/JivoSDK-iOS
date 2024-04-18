@@ -29,7 +29,7 @@ class RemoteStorageSubFilesUp: IRemoteStorageSubEngineUp {
         self.networkingHelper = networkingHelper
     }
     
-    func upload(center: String, auth: NetworkingHelperAuth, item: RemoteStorageItem, completion: @escaping (Result<InternalMeta, RemoteStorageFileUploadError>) -> Void) {
+    func upload(endpoint: String?, center: String, auth: NetworkingHelperAuth, item: RemoteStorageItem, completion: @escaping (Result<InternalMeta, RemoteStorageFileUploadError>) -> Void) {
         journal(layer: .logic, unimessage: {"file-exchange-upload-url[\(item.filePath ?? String())]"})
         
         let context = CommonFileContext(file: item.file) { [unowned self] ack in
@@ -67,6 +67,7 @@ class RemoteStorageSubFilesUp: IRemoteStorageSubEngineUp {
                 output: .rest(
                     kindID: retrieveCredentialsKindID,
                     target: .build(
+                        endpoint: endpoint,
                         scope: .api,
                         path: center
                     ),

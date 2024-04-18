@@ -576,18 +576,19 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
                     .text((data ?? "").jv_trimmed()),
                     .date(date),
                     .typeInitial(.message),
-                    { () -> JVMessagePropertyUpdate in
-                        guard
-                            let lastSeenMessageId = keychainDriver.retrieveAccessor(forToken: .lastSeenMessageId, usingClientToken: true).number,
-                            let lastSeedMessage = messageWithID(lastSeenMessageId)
-                        else { return .status(.delivered) }
-                        
-                        if lastSeedMessage.date != date {
-                            return date <= lastSeedMessage.date ? .status(.seen) : .status(.delivered)
-                        } else {
-                            return id <= lastSeenMessageId ? .status(.seen) : .status(.delivered)
-                        }
-                    }()
+                    .status(.delivered)
+//                    { () -> JVMessagePropertyUpdate in
+//                        guard
+//                            let lastSeenMessageId = keychainDriver.userScope().retrieveAccessor(forToken: .lastSeenMessageId).number,
+//                            let lastSeenMessage = messageWithID(lastSeenMessageId)
+//                        else { return .status(.delivered) }
+//                        
+//                        if lastSeenMessage.date != date {
+//                            return date <= lastSeenMessage.date ? .status(.seen) : .status(.delivered)
+//                        } else {
+//                            return id <= lastSeenMessageId ? .status(.seen) : .status(.delivered)
+//                        }
+//                    }()
                 ]
                 
                 if let media = media {

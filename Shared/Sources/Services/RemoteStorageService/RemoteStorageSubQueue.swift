@@ -12,7 +12,7 @@ import SwiftMime
 
 protocol IRemoteStorageSubQueue: AnyObject {
     func subscribeOn(_ subscribeBlock: @escaping ([RemoteStorageItem]) -> Void)
-    func enqueue(itemID: String, target: RemoteStorageTarget, file: HTTPFileConfig, completion: @escaping (Result<RemoteStorageUploadedMeta, RemoteStorageFileUploadError>) -> Void)
+    func enqueue(endpoint: String?, itemID: String, target: RemoteStorageTarget, file: HTTPFileConfig, completion: @escaping (Result<RemoteStorageUploadedMeta, RemoteStorageFileUploadError>) -> Void)
     func uploadingStatus(target: RemoteStorageTarget) -> RemoteStorageUploadingStatus?
     func findUpload(uploadID: String) -> RemoteStorageUploadedMeta?
     func handleMediaMeta(media: RemoteStorageItem, meta: Result<InternalMeta, RemoteStorageFileUploadError>)
@@ -64,7 +64,7 @@ final class RemoteStorageSubQueue: IRemoteStorageSubQueue {
         eventSignal.attachObserver(observer: subscribeBlock)
     }
     
-    func enqueue(itemID: String, target: RemoteStorageTarget, file: HTTPFileConfig, completion: @escaping (Result<RemoteStorageUploadedMeta, RemoteStorageFileUploadError>) -> Void) {
+    func enqueue(endpoint: String?, itemID: String, target: RemoteStorageTarget, file: HTTPFileConfig, completion: @escaping (Result<RemoteStorageUploadedMeta, RemoteStorageFileUploadError>) -> Void) {
         guard let sessionID = userContext.remoteStorageToken else {
             return completion(.failure(.unknown(statusCode: nil, error: nil)))
         }
@@ -79,6 +79,7 @@ final class RemoteStorageSubQueue: IRemoteStorageSubQueue {
         
         let change = RemoteStorageItem(
             ID: file.uploadID,
+            endpoint: endpoint,
             sessionID: sessionID,
             filePath: nil,
             file: file,
@@ -180,6 +181,7 @@ class RemoteStorageItem {
     var filePath: String?
     
     let ID: String
+    let endpoint: String?
     let sessionID: String
     let file: HTTPFileConfig
     let target: RemoteStorageTarget
@@ -187,6 +189,7 @@ class RemoteStorageItem {
     let completion: (Result<RemoteStorageUploadedMeta, RemoteStorageFileUploadError>) -> Void
     
     init(ID: String,
+         endpoint: String?,
          sessionID: String,
          filePath: String?,
          file: HTTPFileConfig,
@@ -194,6 +197,7 @@ class RemoteStorageItem {
          size: CGSize?,
          completion: @escaping (Result<RemoteStorageUploadedMeta, RemoteStorageFileUploadError>) -> Void) {
         self.ID = ID
+        self.endpoint = endpoint
         self.sessionID = sessionID
         self.filePath = filePath
         self.file = file
@@ -205,6 +209,7 @@ class RemoteStorageItem {
     func copy(filePath: String?) -> RemoteStorageItem {
         return RemoteStorageItem(
             ID: ID,
+            endpoint: endpoint,
             sessionID: sessionID,
             filePath: filePath,
             file: file,

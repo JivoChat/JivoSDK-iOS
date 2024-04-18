@@ -192,7 +192,7 @@ enum RestConnectionBehavior {
 
 enum RestConnectionTarget {
     case url(String)
-    case build(scope: RestConnectionTargetBuildScope, path: String)
+    case build(endpoint: String?, scope: RestConnectionTargetBuildScope, path: String)
 }
 
 struct RestConnectionTargetBuildScope: Equatable {

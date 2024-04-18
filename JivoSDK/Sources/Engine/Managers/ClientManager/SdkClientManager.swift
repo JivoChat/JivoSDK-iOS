@@ -24,6 +24,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     
     private var isKeychainStoringEnabled = true
     private var customFields: [JVSessionCustomDataField]?
+    private var shouldSynchronizeData = false
     
     init(pipeline: SdkManagerPipeline,
          thread: JVIDispatchThread,
@@ -81,9 +82,15 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         return true
     }
     
+    private var apnsDeviceLiveTokenSyncable: String? = nil
     var apnsDeviceLiveToken: String? {
         didSet {
-            subscribeDeviceToApns()
+            guard apnsDeviceLiveToken != oldValue else {
+                return
+            }
+            
+            apnsDeviceLiveTokenSyncable = apnsDeviceLiveToken
+            flushApnsTokenIfNeeded()
         }
     }
     
@@ -161,7 +168,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         journal {"Restoring the ClientContext" }
         
         withoutKeychainStoring {
-            let clientId = keychainDriver.retrieveAccessor(forToken: .clientId, usingClientToken: true).string
+            let clientId = keychainDriver.userScope().retrieveAccessor(forToken: .clientId).string
             userContext.clientId = clientId
         }
     }
@@ -177,6 +184,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     
     private func _handlePipelineTurnInactiveEvent(subsystems: SdkManagerSubsystem) {
         if subsystems.contains(.artifacts) {
+            apnsDeviceLiveToken = nil
             unsubscribeDeviceFromApns(exceptActiveSubscriptions: false)
             
             withoutKeychainStoring {
@@ -196,7 +204,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     
     private func storeToKeychain<T>(_ value: T?, ofProperty token: KeychainToken, withType type: ReferenceWritableKeyPath<IKeychainAccessor, T?>, usingClientToken: Bool) {
         if isKeychainStoringEnabled {
-            keychainDriver.retrieveAccessor(forToken: token, usingClientToken: usingClientToken)[keyPath: type] = value
+            keychainDriver.userScope().retrieveAccessor(forToken: token)[keyPath: type] = value
         }
     }
     
@@ -204,8 +212,8 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         switch event {
         case .accountConfigChanged(let newAccountConfig):
             accountConfigUpdated(to: newAccountConfig)
-        case .identifyingTokenChanged(let token):
-            tokenUpdated(to: token)
+        case .userIdentityChanged(let identity):
+            tokenUpdated(to: identity)
         default:
             break
         }
@@ -226,6 +234,8 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         switch subject as? SdkSessionProtoEventSubject {
         case .connectionConfig(let meta):
             handleConnectionConfig(meta: meta, context: context)
+        case .socketOpen:
+            handleSocketOpened()
         default:
             break
         }
@@ -234,6 +244,13 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     override func handleProtoEvent(transaction: [NetworkingEventBundle]) {
         let meTransaction = transaction.filter { $0.payload.type == .session(.me) }
         handleMeTransaction(meTransaction)
+        
+        let messageTransaction = transaction.filter { $0.payload.type == .chat(.message) }
+        handleMeTransaction(meTransaction)
+    }
+    
+    private func handleSocketOpened() {
+        shouldSynchronizeData = true
     }
     
     private func handleConnectionConfig(meta: ProtoEventSubjectPayload.ConnectionConfig, context: ProtoEventContext?) {
@@ -248,14 +265,37 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     
     private func handleMeTransaction(_ transaction: [NetworkingEventBundle]) {
         transaction.forEach { bundle in
-            guard case SdkSessionProtoMeSubject.history(nil) = bundle.payload.subject else {
-                return
+            switch bundle.payload.subject {
+            case SdkSessionProtoMeSubject.history:
+                synchronizeData()
+            default:
+                break
             }
-            
-            flushClientInfoIfNeeded()
-            flushCustomDataIfNeeded()
-            subscribeDeviceToApns()
         }
+    }
+    
+    private func handleMessageTransaction(_ transaction: [NetworkingEventBundle]) {
+        transaction.forEach { bundle in
+            switch bundle.payload.subject {
+            case SdkChatProtoMessageSubject.received:
+                synchronizeData()
+            default:
+                break
+            }
+        }
+    }
+    
+    private func synchronizeData() {
+        if shouldSynchronizeData {
+            shouldSynchronizeData = false
+        }
+        else {
+            return
+        }
+        
+        flushClientInfoIfNeeded()
+        flushCustomDataIfNeeded()
+        flushApnsTokenIfNeeded()
     }
     
     private func clientIdUpdated(to newClientId: String?) {
@@ -269,36 +309,40 @@ class SdkClientManager: SdkManager, ISdkClientManager {
             sessionContext.authorizingPath = nil
         }
         
-        storeToKeychain(newAccountConfig?.siteId, ofProperty: .siteId, withType: \.number, usingClientToken: true)
-        storeToKeychain(newAccountConfig?.channelId, ofProperty: .channelId, withType: \.string, usingClientToken: true)
+        keychainDriver.userScope().retrieveAccessor(forToken: .siteID).number = newAccountConfig?.siteId
+        keychainDriver.userScope().retrieveAccessor(forToken: .channelId).string = newAccountConfig?.channelId
     }
     
-    private func tokenUpdated(to token: String?) {
-        let lastStoredToken = keychainDriver.retrieveAccessor(forToken: .token).string
-        if lastStoredToken != token {
-            storeToKeychain(token, ofProperty: .token, withType: \.string, usingClientToken: false)
+    private func tokenUpdated(to identity: SdkSessionUserIdentity?) {
+        let lastStoredToken = keychainDriver.userScope().retrieveAccessor(forToken: .token).string
+        if lastStoredToken != identity?.token {
+            storeToKeychain(identity?.token, ofProperty: .token, withType: \.string, usingClientToken: false)
             restoreClientContext()
         }
     }
     
-    private func subscribeDeviceToApns() {
-        guard let accountConfig = sessionContext.accountConfig,
-              accountConfig.siteId > 0,
+    private func flushApnsTokenIfNeeded() {
+        guard let accountConfig = sessionContext.accountConfig, accountConfig.siteId > 0,
               let clientId = clientContext.clientId,
-              let apnsLiveToken = apnsDeviceLiveToken
+              let token = apnsDeviceLiveTokenSyncable
         else {
             return
+        }
+        
+        defer {
+            apnsDeviceLiveTokenSyncable = nil
         }
         
         let deviceId = uuidProvider.currentDeviceID
         journal {"APNS: going to subscribe\ndeviceId[\(deviceId)]"}
         
         let credentials = SdkClientSubPusherCredentials(
+            endpoint: keychainDriver.userScope().retrieveAccessor(forToken: .endpoint).string,
             siteId: accountConfig.siteId,
             channelId: accountConfig.channelId,
             clientId: clientId,
             deviceId: deviceId,
-            deviceLiveToken: apnsLiveToken,
+            deviceLiveToken: token,
             date: Date(),
             status: .waitingForSubscribe
         )

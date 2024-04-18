@@ -110,7 +110,7 @@ extension JVSessionController: SdkEngineAccessing {
         
         engine.managers.sessionManager.startUp(
             channelPath: channelPath,
-            clientToken: userToken)
+            userToken: userToken)
     }
     
     private func _setContactInfo(_ info: JVSessionContactInfo?) {

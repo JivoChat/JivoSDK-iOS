@@ -17,6 +17,7 @@ extension JVPushCredentials {
         
         if let c = change as? JVPushCredentialsChange {
             m_id = c.id
+            m_endpoint = c.endpoint
             m_site_id = Int64(c.siteId)
             m_channel_id = c.channelId
             m_client_id = c.clientId
@@ -30,6 +31,7 @@ extension JVPushCredentials {
 
 final class JVPushCredentialsChange: JVDatabaseModelChange {
     let id: String
+    let endpoint: String?
     let siteId: Int
     let channelId: String
     let clientId: String
@@ -44,6 +46,7 @@ final class JVPushCredentialsChange: JVDatabaseModelChange {
 
     init(
         id: String,
+        endpoint: String?,
         siteId: Int,
         channelId: String,
         clientId: String,
@@ -53,6 +56,7 @@ final class JVPushCredentialsChange: JVDatabaseModelChange {
         status: JVPushCredentials.Status
     ) {
         self.id = id
+        self.endpoint = endpoint
         self.siteId = siteId
         self.channelId = channelId
         self.clientId = clientId

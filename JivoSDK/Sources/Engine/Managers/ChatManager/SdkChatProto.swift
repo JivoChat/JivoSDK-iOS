@@ -11,7 +11,7 @@ import JMCodingKit
 import SwiftMime
 
 protocol ISdkChatProto {
-    func requestRecentActivity(siteId: Int, channelId: String, clientId: String) -> INetworking
+    func requestRecentActivity(endpoint: String?, siteId: Int, channelId: String, clientId: String) -> INetworking
     func requestMessageHistory(before anchorMessageId: Int?)
     func sendMessage(_ message: JVMessage, mime: String)
     func sendRateInfo(chatID: String, rate: String, comment: String?)
@@ -114,14 +114,16 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
     
     // MARK: Encoding
     
-    func requestRecentActivity(siteId: Int, channelId: String, clientId: String) -> INetworking {
+    func requestRecentActivity(endpoint: String?, siteId: Int, channelId: String, clientId: String) -> INetworking {
         let options = RestRequestOptions(
             behavior: .regular,
             method: .get,
             headers: [
                 "x-jv-client-id": clientId
             ],
-            query: Array(),
+            query: [
+                JsonElement(key: "limit", value: 1),
+            ],
             body: .omit
         )
         
@@ -129,6 +131,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
             output: .rest(
                 kindID: ProtoEventSubjectPayload.RecentActivity.kindId,
                 target: .build(
+                    endpoint: endpoint,
                     scope: .chatServer,
                     path: "client/\(siteId)/\(channelId)/messages"
                 ),

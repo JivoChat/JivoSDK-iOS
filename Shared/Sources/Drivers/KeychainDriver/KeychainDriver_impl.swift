@@ -36,6 +36,23 @@ class KeychainDriver: IKeychainDriver {
         }
     }
     
+    func scope(_ name: String) -> IKeychainDriver {
+        let path = [namespace, name].joined(separator: ":")
+        return KeychainDriver(storage: storage, namespace: path)
+    }
+    
+    final func clearNamespace(scopePrefix: String) {
+        if namespace.isEmpty {
+            storage.clear()
+        }
+        else {
+            let prefix = constructPath(key: .jv_empty)
+            storage.allKeys
+                .filter { $0.hasPrefix(prefix + ":" + scopePrefix) }
+                .forEach { storage.delete($0) }
+        }
+    }
+    
     final func clearAll() {
         storage.clear()
     }

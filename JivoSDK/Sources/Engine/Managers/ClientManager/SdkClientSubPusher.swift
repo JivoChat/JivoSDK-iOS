@@ -26,6 +26,7 @@ struct SdkClientSubPusherCredentials: Equatable {
         return [channelId, clientId, deviceId].joined(separator: ":")
     }
     
+    let endpoint: String?
     let siteId: Int
     let channelId: String
     let clientId: String
@@ -86,6 +87,7 @@ final class SdkClientSubPusher: ISdkClientSubPusher {
                 })
             
             let upsertingCredentials = SdkClientSubPusherCredentials(
+                endpoint: credentials.endpoint,
                 siteId: credentials.siteId,
                 channelId: credentials.channelId,
                 clientId: credentials.clientId,
@@ -119,6 +121,7 @@ final class SdkClientSubPusher: ISdkClientSubPusher {
                     .filter { $0.status == .active }
                     .map {
                         SdkClientSubPusherCredentials(
+                            endpoint: $0.endpoint,
                             siteId: $0.siteId,
                             channelId: $0.channelId,
                             clientId: $0.clientId,
@@ -211,6 +214,7 @@ final class SdkClientSubPusher: ISdkClientSubPusher {
                     completion: completion
                 ))
                 .registerDevice(
+                    endpoint: credentials.endpoint,
                     deviceId: credentials.deviceId,
                     deviceLiveToken: credentials.deviceLiveToken,
                     shouldUseSandbox: apnsEnvironment.shouldUseSandbox,
@@ -230,6 +234,7 @@ final class SdkClientSubPusher: ISdkClientSubPusher {
                     completion: completion
                 ))
                 .registerDevice(
+                    endpoint: credentials.endpoint,
                     deviceId: credentials.deviceId,
                     deviceLiveToken: .jv_empty,
                     shouldUseSandbox: apnsEnvironment.shouldUseSandbox,

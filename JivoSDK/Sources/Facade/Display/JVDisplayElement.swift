@@ -12,7 +12,7 @@ import Foundation
  */
 @objc(JVDisplayElement)
 public enum JVDisplayElement: Int {
-    /// Back button in Header Bar,
+    /// Support icon in Header Bar,
     /// customizable: image
     case headerIcon
     

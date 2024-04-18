@@ -18,7 +18,7 @@ struct SdkConfig {
     }
 }
 
-protocol ISdkEngine {
+protocol ISdkEngine: AnyObject {
     var sessionContext: ISdkSessionContext { get }
     var clientContext: ISdkClientContext { get }
     var messagingContext: ISdkMessagingContext { get }
@@ -163,7 +163,7 @@ final class SdkEngine: ISdkEngine {
         
         networkingHelper = NetworkingHelper(
             uuidProvider: providers.uuidProvider,
-            keychainTokenAccessor: drivers.keychainDriver.retrieveAccessor(forToken: .token),
+            keychainTokenProvider: {drivers.keychainDriver.userScope().retrieveAccessor(forToken: .token).string},
             jsonPrivacyTool: jsonPrivacyTool
         )
         

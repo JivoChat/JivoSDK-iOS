@@ -255,9 +255,7 @@ class SdkChatSubOffline: ISdkChatSubOffline {
     }
     
     private func appendMessageToHistory() {
-        guard let offlineText = customText?.jv_valuable,
-              let offlineMessage = chatSubStorage.storeMessage(change: JVSDKMessageOfflineChange(message: offlineText))
-        else {
+        guard let offlineText = customText?.jv_valuable else {
             return
         }
         
@@ -266,6 +264,7 @@ class SdkChatSubOffline: ISdkChatSubOffline {
             withTimeInterval: Self.offlineMessageAddingDelay,
             repeats: false,
             block: { [unowned self] _ in
+                let offlineMessage = chatSubStorage.storeMessage(change: JVSDKMessageOfflineChange(message: offlineText))
                 let ref = databaseDriver.reference(to: offlineMessage)
                 messagingEventObservable.broadcast(.messagesUpserted([ref]), async: .main)
             })

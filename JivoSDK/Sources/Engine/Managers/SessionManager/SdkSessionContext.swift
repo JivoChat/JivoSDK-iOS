@@ -21,10 +21,15 @@ protocol ISdkSessionContext: AnyObject {
     var recentStartupMode: SdkSessionManagerStartupMode { get set }
     var recentStartupModeSignal: JVBroadcastUniqueTool<SdkSessionManagerStartupMode> { get }
     var numberOfResumes: Int { get set }
-    var identifyingToken: String? { get }
+    var userIdentity: SdkSessionUserIdentity? { get }
     var localChatId: Int? { get }
     var authorizingPath: String? { get set }
-    func updateIdentity(token: String?)
+    func updateIdentity(_ value: SdkSessionUserIdentity?)
+    
+    @discardableResult
+    func raise(connectionState: SdkSessionConnectionState) -> Bool
+    func reached(connectionState: SdkSessionConnectionState) -> Bool
+
     func reset()
 }
 
@@ -38,7 +43,7 @@ enum SdkSessionContextEvent {
     case networkingStateChanged(ReachabilityMode)
     case connectionStateChanged(SdkSessionConnectionState)
     case accountConfigChanged(SdkClientAccountConfig?)
-    case identifyingTokenChanged(String?)
+    case userIdentityChanged(SdkSessionUserIdentity?)
     case authorizingPathChanged(String?)
 }
 
@@ -47,7 +52,7 @@ enum SdkSessionConnectionAllowance {
     case disallowed
 }
 
-enum SdkSessionConnectionState {
+enum SdkSessionConnectionState: Int {
     case disconnected
     case searching
     case identifying
@@ -135,9 +140,13 @@ final class SdkSessionContext: ISdkSessionContext {
     
     var numberOfResumes = 0
     
-    private(set) var identifyingToken: String? {
+    private(set) var userIdentity: SdkSessionUserIdentity? {
         didSet {
-            eventSignal.broadcast(.identifyingTokenChanged(identifyingToken))
+            guard userIdentity != oldValue else {
+                return
+            }
+            
+            eventSignal.broadcast(.userIdentityChanged(userIdentity))
         }
     }
     
@@ -149,32 +158,41 @@ final class SdkSessionContext: ISdkSessionContext {
         }
     }
     
-    func updateIdentity(token: String?) {
-        if let token = token {
-            do {
-                let jwt = try decode(jwt: token)
-                
-                if let id = jwt.body["id"] as? String {
-                    localChatId = max(1, CRC32.encrypt(id))
-                }
-                else {
-                    inform {"Please put mandatory 'id' key inside JWT"}
-                    localChatId = max(1, CRC32.encrypt(token))
-                }
-            }
-            catch {
-                inform {"For better integration, please use JWT format for userToken"}
-                localChatId = max(1, CRC32.encrypt(token))
-            }
+    func updateIdentity(_ value: SdkSessionUserIdentity?) {
+        if let value = value {
+            localChatId = max(1, CRC32.encrypt(value.id ?? value.token))
+        }
+        else {
+            localChatId = nil
         }
         
-        identifyingToken = token
+        userIdentity = value
+    }
+    
+    @discardableResult
+    func raise(connectionState value: SdkSessionConnectionState) -> Bool {
+        if !reached(connectionState: value) {
+            connectionState = value
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    
+    func reached(connectionState value: SdkSessionConnectionState) -> Bool {
+        if connectionState.rawValue >= value.rawValue {
+            return true
+        }
+        else {
+            return false
+        }
     }
     
     func reset() {
         authorizationState = .unknown
         accountConfig = nil
-        identifyingToken = nil
+        userIdentity = nil
         authorizingPath = nil
         numberOfResumes = 0
     }

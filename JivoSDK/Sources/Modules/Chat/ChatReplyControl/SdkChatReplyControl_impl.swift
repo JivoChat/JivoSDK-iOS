@@ -81,6 +81,7 @@ final class SdkChatReplyControl: ChatGrowingSubmitControl<SdkChatReplyControl.Ou
             switch submit {
             case .send:
                 submitButton.setImage(JVDesign.icons.find(asset: .send_reply, rendering: .template), for: .normal)
+                submitButton.setImage(JVDesign.icons.find(asset: .send_reply, rendering: .original), for: .disabled)
                 submitButton.setTitleColor(tintColor, for: .normal)
                 submitButton.setTitleColor(JVDesign.colors.resolve(alias: .alto), for: .disabled)
                 submitButton.jv_isBlinking = false

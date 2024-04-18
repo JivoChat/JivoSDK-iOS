@@ -14,20 +14,17 @@ class BaseProto: IProto {
     let socketUUID: UUID
     let networking: INetworking
     let networkingHelper: INetworkingHelper
-    let keychainTokenAccessor: IKeychainAccessor
     let uuidProvider: IUUIDProvider
 
     init(userContext: AnyObject?,
          socketUUID: UUID,
          networking: INetworking,
          networkingHelper: INetworkingHelper,
-         keychainTokenAccessor: IKeychainAccessor,
          uuidProvider: IUUIDProvider) {
         self.userContextAny = userContext
         self.socketUUID = socketUUID
         self.networking = networking
         self.networkingHelper = networkingHelper
-        self.keychainTokenAccessor = keychainTokenAccessor
         self.uuidProvider = uuidProvider
     }
     

@@ -11,9 +11,9 @@ import JMCodingKit
 import JFWebSocket
 
 class WebSocketDriver: ILiveConnectionDriver {
-    var openHandler: ((JournalChild) -> Void)?
-    var messageHandler: ((JournalChild, Any) -> Void)?
-    var closeHandler: ((JournalChild, Int, String, Error?) -> Void)?
+    var openHandler: ((JournalChild?) -> Void)?
+    var messageHandler: ((JournalChild?, Any) -> Void)?
+    var closeHandler: ((JournalChild?, Int, String, Error?) -> Void)?
     
     var isConnecting: Bool {
         return webSocket?.readyState == .connecting
@@ -186,14 +186,18 @@ class WebSocketDriver: ILiveConnectionDriver {
     }
     
     func close() {
-        webSocket?.chain?.journal(.full) {"WebSocket: close"}
         webSocket?.close()
         invalidateTimers()
     }
     
     func disconnect() {
+        if let ws = webSocket {
+            closeHandler?(ws.chain, 0, String(), nil)
+        }
+        
         close()
-        webSocket?.event.open = {}
+        
+        webSocket?.event.open = { }
         webSocket?.event.message = { _ in }
         webSocket?.event.pong = { _ in }
         webSocket?.event.end = { _, _, _, _ in }

@@ -31,7 +31,7 @@ class RemoteStorageSubDown: IRemoteStorageServiceDown {
         enqueuedResourceCallbacks = Dictionary()
     }
     
-    func retrieveURL(originURL: URL, quality: RemoteStorageQuality, on completionQueue: DispatchQueue, completion: @escaping (URL?) -> Void) {
+    func retrieveURL(endpoint: String?, originURL: URL, quality: RemoteStorageQuality, on completionQueue: DispatchQueue, completion: @escaping (URL?) -> Void) {
         preconditionFailure()
     }
     
@@ -39,7 +39,7 @@ class RemoteStorageSubDown: IRemoteStorageServiceDown {
         preconditionFailure()
     }
     
-    func retrieveFile(originURL: URL, quality: RemoteStorageQuality, caching: RemoteStorageCaching, on callbackQueue: DispatchQueue, callback: @escaping (RemoteStorageFileResource) -> Void) {
+    func retrieveFile(endpoint: String?, originURL: URL, quality: RemoteStorageQuality, caching: RemoteStorageCaching, on callbackQueue: DispatchQueue, callback: @escaping (RemoteStorageFileResource) -> Void) {
         resourceQueue.addOperation { [unowned self] in
             let params = CachedParams(url: originURL, quality: quality)
             
@@ -67,7 +67,7 @@ class RemoteStorageSubDown: IRemoteStorageServiceDown {
                 }
             }
             
-            retrieveURL(originURL: originURL, quality: quality, on: callbackQueue) { [unowned self] signedURL in
+            retrieveURL(endpoint: endpoint, originURL: originURL, quality: quality, on: callbackQueue) { [unowned self] signedURL in
                 guard let signedURL = signedURL else {
                     return informOut(
                         params: params,
@@ -87,7 +87,7 @@ class RemoteStorageSubDown: IRemoteStorageServiceDown {
         }
     }
     
-    func retrieveMeta(originURL: URL, caching: RemoteStorageCaching, on completionQueue: DispatchQueue, completion: @escaping (Result<RemoteStorageFileInfo, RemoteStorageFileInfoError>) -> Void) {
+    func retrieveMeta(endpoint: String?, originURL: URL, caching: RemoteStorageCaching, on completionQueue: DispatchQueue, completion: @escaping (Result<RemoteStorageFileInfo, RemoteStorageFileInfoError>) -> Void) {
         preconditionFailure()
     }
     

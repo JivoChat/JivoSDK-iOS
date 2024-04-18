@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22522" systemVersion="23C71" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22757" systemVersion="23E224" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="JVAgent" representedClassName=".JVAgent" parentEntity="JVParticipant" syncable="YES" codeGenerationType="category">
         <attribute name="m_avatar_link" optional="YES" attributeType="String"/>
         <attribute name="m_calling_destination" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -423,6 +423,7 @@
         <attribute name="m_date" attributeType="Date" defaultDateTimeInterval="697185660" usesScalarValueType="NO"/>
         <attribute name="m_device_id" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_device_live_token" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_endpoint" optional="YES" attributeType="String"/>
         <attribute name="m_id" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_site_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_status" optional="YES" attributeType="String" defaultValueString=""/>

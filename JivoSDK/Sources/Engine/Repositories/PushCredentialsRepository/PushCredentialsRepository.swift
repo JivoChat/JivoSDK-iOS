@@ -20,6 +20,7 @@ final class PushCredentialsRepository: PersistentRepository<String, SdkClientSub
             changeFromItem: { item in
                 return JVPushCredentialsChange(
                     id: item.id,
+                    endpoint: item.endpoint,
                     siteId: item.siteId,
                     channelId: item.channelId,
                     clientId: item.clientId,
@@ -40,6 +41,7 @@ final class PushCredentialsRepository: PersistentRepository<String, SdkClientSub
             },
             itemFromModel: { model in
                 return SdkClientSubPusherCredentials(
+                    endpoint: model.m_endpoint,
                     siteId: model.siteId,
                     channelId: model.channelId,
                     clientId: model.clientId,

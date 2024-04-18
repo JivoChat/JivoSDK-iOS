@@ -21,6 +21,7 @@ final class JVDispatchThread: NSObject, JVIDispatchThread {
         
         thread = ref
         ref.name = caption
+        ref.qualityOfService = .userInteractive
         ref.start()
     }
     

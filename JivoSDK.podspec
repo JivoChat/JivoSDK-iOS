@@ -1,6 +1,6 @@
 Pod::Spec.new do |root|
     root.name = 'JivoSDK'
-    root.version = '4.3.0'
+    root.version = '4.3.1'
     root.homepage = 'https://github.com/JivoChat'
     root.authors = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
     root.summary = 'Jivo business chat Mobile SDK'
@@ -82,6 +82,7 @@ Pod::Spec.new do |root|
         spec.framework = 'SystemConfiguration'
         spec.source_files = 'Shared/Models', 'Shared/Models/**/*.swift', 'JivoSDK/Sources/**/*.{h,swift}', 'Shared/Sources/**/*.swift', 'Shared/Sources/Extensions/System/*.swift', 'Shared/Design/**/*.swift', 'JivoSDK/Documentation/Reference.docc/**/*'
         spec.resource = 'Shared/Models/*.xcdatamodeld', 'JivoSDK/Resources/Assets.xcassets', 'JivoSDK/Resources/Langpack/*.lproj', 'Shared/Design/*.{xcassets,ttf}'
+        spec.resource_bundles = {'JivoSDK_Privacy' => ['JivoSDK/Resources/PrivacyInfo.xcprivacy']}
 
         spec.exclude_files = [
             'Shared/**/*Unit.swift',

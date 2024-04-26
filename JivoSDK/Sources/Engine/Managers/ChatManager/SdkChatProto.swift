@@ -43,9 +43,27 @@ enum SdkChatProtoUserSubject: IProtoEventSubject {
 }
 
 enum SdkChatProtoMessageSubject: IProtoEventSubject {
-    case delivered(messageWithId: Int, andPrivateId: String, at: Date)
-    case received(messageWithId: Int, data: String?, andMedia: SdkChatProtoAtomMessageMedia? = nil, fromUserWithId: String, sentAt: Date)
-    case seen(messageWithId: Int, andDate: Date)
+    struct MessageEntireId: Equatable {
+        let messageId: Int
+        let timepoint: Date
+    }
+    
+    case becamePermanent(entireId: MessageEntireId, payload: BecamePermanentPayload)
+    struct BecamePermanentPayload {
+        let privateId: String
+    }
+    
+    case historyEntry(entireId: MessageEntireId, payload: HistoryEntryPayload)
+    struct HistoryEntryPayload {
+        let senderId: String
+        let data: String?
+        let media: SdkChatProtoAtomMessageMedia?
+    }
+    
+    case alreadySeen(entireId: MessageEntireId, payload: AlreadySeenPayload)
+    struct AlreadySeenPayload {
+    }
+    
     case rate
 }
 
@@ -352,7 +370,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
     private func decodeMessageId(_ json: JsonElement) -> ProtoEventBundle? {
         guard let data = json["data"].string,
               let privateId = json["context"].string,
-              let (messageId, messageDate) = splitIntoParts(messageIdWithTS: data)
+              let (messageId, messageTimepoint) = splitIntoParts(messageIdWithTS: data)
         else {
             return nil
         }
@@ -360,17 +378,21 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         return ProtoEventBundle(
             type: .chat(.message),
             id: privateId,
-            subject: SdkChatProtoMessageSubject.delivered(
-                messageWithId: messageId,
-                andPrivateId: privateId,
-                at: messageDate
+            subject: SdkChatProtoMessageSubject.becamePermanent(
+                entireId: .init(
+                    messageId: messageId,
+                    timepoint: messageTimepoint
+                ),
+                payload: .init(
+                    privateId: privateId
+                )
             )
         )
     }
     
     private func decodeMessageAck(_ json: JsonElement) -> ProtoEventBundle? {
         guard let data = json["data"].string,
-              let (messageId, messageDate) = splitIntoParts(messageIdWithTS: data)
+              let (messageId, messageTimepoint) = splitIntoParts(messageIdWithTS: data)
         else {
             return nil
         }
@@ -378,9 +400,12 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         return ProtoEventBundle(
             type: .chat(.message),
             id: messageId,
-            subject: SdkChatProtoMessageSubject.seen(
-                messageWithId: messageId,
-                andDate: messageDate
+            subject: SdkChatProtoMessageSubject.alreadySeen(
+                entireId: .init(
+                    messageId: messageId,
+                    timepoint: messageTimepoint
+                ),
+                payload: .init()
             )
         )
     }
@@ -397,7 +422,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         guard let id = json["id"].string,
               let data = json["data"].string,
               let userId = json["from"].string,
-              let (messageId, messageDate) = splitIntoParts(messageIdWithTS: id)
+              let (messageId, messageTimepoint) = splitIntoParts(messageIdWithTS: id)
         else {
             return nil
         }
@@ -405,11 +430,16 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         return ProtoEventBundle(
             type: .chat(.message),
             id: messageId,
-            subject: SdkChatProtoMessageSubject.received(
-                messageWithId: messageId,
-                data: data,
-                fromUserWithId: userId,
-                sentAt: messageDate
+            subject: SdkChatProtoMessageSubject.historyEntry(
+                entireId: .init(
+                    messageId: messageId,
+                    timepoint: messageTimepoint
+                ),
+                payload: .init(
+                    senderId: userId,
+                    data: data,
+                    media: nil
+                )
             )
         )
     }
@@ -417,7 +447,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
     private func decodeMessageAsMediaLink(_ json: JsonElement, type: String) -> ProtoEventBundle? {
         guard let id = json["id"].string,
               let userId = json["from"].string,
-              let (messageId, messageDate) = splitIntoParts(messageIdWithTS: id)
+              let (messageId, messageTimepoint) = splitIntoParts(messageIdWithTS: id)
         else {
             return nil
         }
@@ -432,17 +462,21 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
         return ProtoEventBundle(
             type: .chat(.message),
             id: id,
-            subject: SdkChatProtoMessageSubject.received(
-                messageWithId: messageId,
-                data: nil,
-                andMedia: SdkChatProtoAtomMessageMedia(
-                    name: mediaName,
-                    mime: type,
-                    type: mediaType ?? .unknown,
-                    link: json["data"].stringValue
+            subject: SdkChatProtoMessageSubject.historyEntry(
+                entireId: .init(
+                    messageId: messageId,
+                    timepoint: messageTimepoint
                 ),
-                fromUserWithId: userId,
-                sentAt: messageDate
+                payload: .init(
+                    senderId: userId,
+                    data: nil,
+                    media: SdkChatProtoAtomMessageMedia(
+                        name: mediaName,
+                        mime: type,
+                        type: mediaType ?? .unknown,
+                        link: json["data"].stringValue
+                    )
+                )
             )
         )
     }
@@ -450,7 +484,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
     private func decodeMessageAsMediaMarkdown(_ json: JsonElement, type: String) -> ProtoEventBundle? {
         guard let id = json["id"].string,
               let userId = json["from"].string,
-              let (messageId, messageDate) = splitIntoParts(messageIdWithTS: id)
+              let (messageId, messageTimepoint) = splitIntoParts(messageIdWithTS: id)
         else {
             return nil
         }
@@ -474,17 +508,21 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
             return ProtoEventBundle(
                 type: .chat(.message),
                 id: id,
-                subject: SdkChatProtoMessageSubject.received(
-                    messageWithId: messageId,
-                    data: nil,
-                    andMedia: SdkChatProtoAtomMessageMedia(
-                        name: mediaName,
-                        mime: type,
-                        type: mediaType ?? .unknown,
-                        link: link
+                subject: SdkChatProtoMessageSubject.historyEntry(
+                    entireId: .init(
+                        messageId: messageId,
+                        timepoint: messageTimepoint
                     ),
-                    fromUserWithId: userId,
-                    sentAt: messageDate
+                    payload: .init(
+                        senderId: userId,
+                        data: nil,
+                        media: SdkChatProtoAtomMessageMedia(
+                            name: mediaName,
+                            mime: type,
+                            type: mediaType ?? .unknown,
+                            link: link
+                        )
+                    )
                 )
             )
         }

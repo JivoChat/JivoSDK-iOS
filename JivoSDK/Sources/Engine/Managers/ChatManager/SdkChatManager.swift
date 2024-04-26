@@ -335,7 +335,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             text: text)
     }
     
-    func sendRateForm(id: String, chat: JVChat?) {
+    func presentRateForm(id: String, chat: JVChat?) {
         guard let chat = chat else { return }
         
         currentRateFormId = id
@@ -1074,7 +1074,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     private func handleMessageTransaction(_ transaction: [NetworkingEventBundle]) {
-        guard let chat = self.chatContext.chatRef?.resolved else {
+        guard let chat = chatContext.chatRef?.resolved else {
             return
         }
         
@@ -1092,80 +1092,58 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             }
             
             switch subject {
-            case .delivered(let messageId, _, let messageDate), .received(let messageId, _, _, _, let messageDate):
+            case .historyEntry(let entireId, let payload):
                 defer {
+                    shouldSendMessageAck = activeSessionHandle.jv_hasValue
                     historyState.remoteHasContent = true
-                    historyState.localEarliestMessageId.jv_replaceWithLesser(messageId)
-                    historyState.localLatestMessageId.jv_replaceWithGreater(messageId)
-                    historyState.localLatestMessageDate.jv_replaceWithGreater(messageDate)
+                    historyState.localEarliestMessageId.jv_replaceWithLesser(entireId.messageId)
+                    historyState.localLatestMessageId.jv_replaceWithGreater(entireId.messageId)
+                    historyState.localLatestMessageDate.jv_replaceWithGreater(entireId.timepoint)
                 }
-
-                guard let message: JVMessage = {
-                    switch bundle.payload.id {
-                    case let id as String:
-                        return subStorage.upsertMessage(byPrivateId: id, inChatWithId: chat.ID, with: [subject])
-
-                    case let id as Int:
-                        let message = subStorage.upsertMessage(
-                            havingId: id,
-                            inChatWithId: chat.ID,
-                            with: [subject])
-                        
-//                        if let lastSeenMessageId = keychainDriver.userScope().retrieveAccessor(forToken: .lastSeenMessageId).number,
-//                           lastSeenMessageId < id {
-//                            let seenMessages = markMessagesAsSeen(to: id)
-//                            seenMessages.forEach {
-//                                upsertedMessages[$0.UUID] = $0
-//                            }
-//                        }
-
-                        return message
-
-                    default:
-                        return nil
-                    }
-                }() else { return }
+                
+                guard let message = handleMessageTransaction_upsertMessage(messageIdentifier: bundle.payload.id, subject: subject) else {
+                    return
+                }
                 
                 if message.hasBeenChanged {
                     upsertedMessages[message.UUID] = message
                 }
                 
-                if let linkedMessageIds = outgoingPairedMessagesIds.removeValue(forKey: message.UUID) {
-                    do {
-                        for linkedMessage in linkedMessageIds.compactMap(subStorage.messageWithUUID) {
-                            _ = subStorage.updateMessage(change: try JVSdkMessageAtomChange(
-                                localId: linkedMessage.localID,
-                                updates: [
-                                    .date(message.anchorDate)
-                                ]
-                            ))
-                        }
-                    }
-                    catch {
+                if payload.senderId != userContext.clientId {
+                    let newlySeenMessages = markMessagesAsSeen(including: entireId.messageId)
+                    newlySeenMessages.forEach {
+                        upsertedMessages[$0.UUID] = $0
                     }
                 }
+
+            case .becamePermanent(let entireId, _):
+                guard let message = handleMessageTransaction_upsertMessage(messageIdentifier: bundle.payload.id, subject: subject) else {
+                    return
+                }
                 
-            case let .seen(id, _): // second associated value is date
+                if message.hasBeenChanged {
+                    upsertedMessages[message.UUID] = message
+                }
+                
+                for linkedMessage in handleMessageTransaction_joinPairTimepoints(message: message) {
+                    upsertedMessages[linkedMessage.UUID] = linkedMessage
+                }
+                
+            case .alreadySeen(let entireId, _): // second associated value is date
                 historyState.remoteHasContent = true
                 
-//                let seenMessages = markMessagesAsSeen(to: id)
-//                seenMessages.forEach { upsertedMessages[$0.UUID] = $0 }
+                let newlySeenMessages = markMessagesAsSeen(including: entireId.messageId)
+                newlySeenMessages.forEach {
+                    upsertedMessages[$0.UUID] = $0
+                }
+                
             case .rate:
                 guard let rateFormID = bundle.payload.id as? String else {
                     assertionFailure()
                     return
                 }
-                sendRateForm(id: rateFormID, chat: self.chatContext.chatRef?.resolved)
-            }
-            
-            switch subject {
-            case .received(let messageId, _, _, _, let sentAt) where messageId > historyState.localLatestMessageId.jv_orZero:
-                historyState.localLatestMessageId = messageId
-                historyState.localLatestMessageDate = sentAt
-                shouldSendMessageAck = activeSessionHandle.jv_hasValue
-
-            default:
-                break
+                
+                presentRateForm(id: rateFormID, chat: self.chatContext.chatRef?.resolved)
             }
         }
         
@@ -1185,6 +1163,50 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         
         notifyUnreadCounter()
         _flushSilentMessages()
+    }
+    
+    private func handleMessageTransaction_upsertMessage(
+        messageIdentifier: AnyHashable?,
+        subject: SdkChatProtoMessageSubject
+    ) -> JVMessage? {
+        guard let chat = chatContext.chatRef?.resolved else {
+            return nil
+        }
+        
+        switch messageIdentifier {
+        case let privateId as String:
+            return subStorage.upsertMessage(chatId: chat.ID, privateId: privateId, subjects: [subject])
+        case let messageId as Int:
+            return subStorage.upsertMessage(chatId: chat.ID, messageId: messageId, subjects: [subject])
+        default:
+            return nil
+        }
+    }
+    
+    private func handleMessageTransaction_joinPairTimepoints(
+        message: JVMessage
+    ) -> [JVMessage] {
+        guard let linkedMessageIds = outgoingPairedMessagesIds.removeValue(forKey: message.UUID) else {
+            return .jv_empty
+        }
+        
+        let linkedMessages = linkedMessageIds.compactMap(subStorage.messageWithUUID)
+        do {
+            for linkedMessage in linkedMessages {
+                let change = try JVSdkMessageAtomChange(
+                    localId: linkedMessage.localID,
+                    updates: [
+                        .date(message.anchorDate)
+                    ]
+                )
+                
+                _ = subStorage.updateMessage(change: change)
+            }
+        }
+        catch {
+        }
+        
+        return linkedMessages
     }
     
     private func handleMessageTransaction_detectMissingRanges(
@@ -1251,15 +1273,24 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
     }
     
-    private func markMessagesAsSeen(to messageId: Int) -> [JVMessage] {
-        keychainDriver.userScope().retrieveAccessor(forToken: .lastSeenMessageId).number = Int(messageId)
+    private func markMessagesAsSeen(including messageId: Int) -> [JVMessage] {
+        guard let chat = chatContext.chatRef?.resolved else {
+            return .jv_empty
+        }
         
-        guard let chatId = self.chatContext.chatRef?.resolved?.ID else { return [] }
-        let seenClientMessages = subStorage
-            .markMessagesAsSeen(to: messageId, inChatWithId: chatId)
-            .filter { !$0.m_is_incoming }
+        let lastSeenMessageIdAccessor = keychainDriver.userScope().retrieveAccessor(forToken: .lastSeenMessageId)
+        let lastSeenMessageId = lastSeenMessageIdAccessor.number.jv_orZero
         
-        return seenClientMessages
+        if messageId <= lastSeenMessageId {
+            return .jv_empty
+        }
+        else {
+            lastSeenMessageIdAccessor.number = max(lastSeenMessageId, Int(messageId))
+            
+            return subStorage
+                .markMessagesAsSeen(chat: chat, till: messageId)
+                .filter { !$0.m_is_incoming }
+        }
     }
     
     private func handleUserTransaction(_ transaction: [NetworkingEventBundle]) {

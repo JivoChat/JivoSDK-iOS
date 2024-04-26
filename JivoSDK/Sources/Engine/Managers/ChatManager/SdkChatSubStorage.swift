@@ -34,13 +34,13 @@ protocol ISdkChatSubStorage: IBaseChattingSubStorage {
     func turnContactForm(message: JVMessage, status: JVMessageBodyContactFormStatus, details: JsonElement?)
     func turnRateForm(message: JVMessage, details: String)
     func agents() -> [JVAgent]
-    func markMessagesAsSeen(to messageId: Int, inChatWithId chatId: Int) -> [JVMessage]
+    func markMessagesAsSeen(chat: JVChat, till messageId: Int) -> [JVMessage]
     func markSendingStart(message: JVMessage)
     func markSendingFailure(message: JVMessage)
     @discardableResult func upsertAgent(havingId id: Int, with: [SdkChatProtoUserSubject]) -> JVAgent?
     func makeAllAgentsOffline()
-    @discardableResult func upsertMessage(havingId id: Int, inChatWithId chatId: Int, with subjects: [SdkChatProtoMessageSubject]) -> JVMessage?
-    @discardableResult func upsertMessage(byPrivateId privateId: String, inChatWithId chatId: Int, with subjects: [SdkChatProtoMessageSubject]) -> JVMessage?
+    @discardableResult func upsertMessage(chatId: Int, messageId: Int, subjects: [SdkChatProtoMessageSubject]) -> JVMessage?
+    @discardableResult func upsertMessage(chatId: Int, privateId: String, subjects: [SdkChatProtoMessageSubject]) -> JVMessage?
     func removeMessages(_ messagesToRemove: [JVMessage])
     func deleteAllMessages()
 }
@@ -414,11 +414,11 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
     }
     
     @discardableResult
-    func markMessagesAsSeen(to messageId: Int, inChatWithId chatId: Int) -> [JVMessage] {
+    func markMessagesAsSeen(chat: JVChat, till messageId: Int) -> [JVMessage] {
         let filter = NSPredicate(
             format: "(m_chat_id == %lld OR m_chat_id == 0) AND m_is_hidden == false AND m_status != %@",
             argumentArray: [
-                chatId,
+                chat.ID,
                 JVMessageStatus.seen.rawValue
             ]
         )
@@ -507,16 +507,16 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
     }
     
     @discardableResult
-    func upsertMessage(havingId id: Int, inChatWithId chatId: Int, with subjects: [SdkChatProtoMessageSubject]) -> JVMessage? {
+    func upsertMessage(chatId: Int, messageId: Int, subjects: [SdkChatProtoMessageSubject]) -> JVMessage? {
         let updates = messagePropertyUpdates(fromSubjects: subjects, forMessageInChatWithId: chatId)
-        guard let change = try? JVSdkMessageAtomChange(id: id, updates: updates) else { return nil }
+        guard let change = try? JVSdkMessageAtomChange(id: messageId, updates: updates) else { return nil }
         
         let upsertedMessage = storeMessage(change: change)
         return upsertedMessage
     }
     
     @discardableResult
-    func upsertMessage(byPrivateId privateId: String, inChatWithId chatId: Int, with subjects: [SdkChatProtoMessageSubject]) -> JVMessage? {
+    func upsertMessage(chatId: Int, privateId: String, subjects: [SdkChatProtoMessageSubject]) -> JVMessage? {
         let updates = messagePropertyUpdates(fromSubjects: subjects, forMessageInChatWithId: chatId)
         guard let change = try? JVSdkMessageAtomChange(localId: privateId, updates: updates) else { return nil }
 
@@ -549,22 +549,23 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
             var accumulatingUpdates: [JVMessagePropertyUpdate] = updates
             
             switch subject {
-            case let .delivered(id, privateId, date): // message 'id' is the first associated value. No need to access it here because the associated value id and the transaction meta id must be equal. If it's not true, there's a bug.
+            case .becamePermanent(let entireId, let payload):
                 
                 accumulatingUpdates += [
-                    .id(id),
-                    .date(date),
+                    .id(entireId.messageId),
+                    .date(entireId.timepoint),
                     .status(JVMessageStatus.delivered),
-                    .localId(privateId)
+                    .localId(payload.privateId)
                 ]
                 
-            case let .received(id, data, media, userId, date):
-                if userId == userContext.clientId {
+            case .historyEntry(let entireId, let payload):
+                if payload.senderId == userContext.clientId {
                     accumulatingUpdates += [
                         .sender(.client(userContext.clientHash)),
                         .isIncoming(false)
                     ]
-                } else if let agentId = Int(userId) {
+                }
+                else if let agentId = Int(payload.senderId) {
                     accumulatingUpdates += [
                         .sender(.agent(agentId)),
                         .isIncoming(true)
@@ -572,26 +573,25 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
                 }
                 
                 accumulatingUpdates += [
-                    .id(id),
-                    .text((data ?? "").jv_trimmed()),
-                    .date(date),
+                    .id(entireId.messageId),
+                    .text(payload.data.jv_orEmpty.jv_trimmed()),
+                    .date(entireId.timepoint),
                     .typeInitial(.message),
-                    .status(.delivered)
-//                    { () -> JVMessagePropertyUpdate in
-//                        guard
-//                            let lastSeenMessageId = keychainDriver.userScope().retrieveAccessor(forToken: .lastSeenMessageId).number,
-//                            let lastSeenMessage = messageWithID(lastSeenMessageId)
-//                        else { return .status(.delivered) }
-//                        
-//                        if lastSeenMessage.date != date {
-//                            return date <= lastSeenMessage.date ? .status(.seen) : .status(.delivered)
-//                        } else {
-//                            return id <= lastSeenMessageId ? .status(.seen) : .status(.delivered)
-//                        }
-//                    }()
+                    { () -> JVMessagePropertyUpdate in
+                        guard let lastSeenMessageId = keychainDriver.userScope().retrieveAccessor(forToken: .lastSeenMessageId).number else {
+                            return .status(.delivered)
+                        }
+                        
+                        if entireId.messageId < lastSeenMessageId {
+                            return .status(.seen)
+                        }
+                        else {
+                            return .status(.delivered)
+                        }
+                    }()
                 ]
                 
-                if let media = media {
+                if let media = payload.media {
                     let messageMediaChange = JVMessageMediaGeneralChange(
                         type: media.type.rawValue,
                         mime: media.mime,
@@ -605,7 +605,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
                     accumulatingUpdates += [.media(messageMediaChange)]
                 }
                 
-            case .seen: // Associated values are: id, date
+            case .alreadySeen:
                 accumulatingUpdates += [.status(JVMessageStatus.seen)]
 //
 //                if message.text.isEmpty {

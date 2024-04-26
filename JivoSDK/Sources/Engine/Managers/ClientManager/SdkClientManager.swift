@@ -277,7 +277,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     private func handleMessageTransaction(_ transaction: [NetworkingEventBundle]) {
         transaction.forEach { bundle in
             switch bundle.payload.subject {
-            case SdkChatProtoMessageSubject.received:
+            case SdkChatProtoMessageSubject.historyEntry:
                 synchronizeData()
             default:
                 break

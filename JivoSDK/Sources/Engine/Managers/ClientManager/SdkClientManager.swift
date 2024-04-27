@@ -246,7 +246,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         handleMeTransaction(meTransaction)
         
         let messageTransaction = transaction.filter { $0.payload.type == .chat(.message) }
-        handleMeTransaction(meTransaction)
+        handleMessageTransaction(messageTransaction)
     }
     
     private func handleSocketOpened() {

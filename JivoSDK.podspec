@@ -1,6 +1,6 @@
 Pod::Spec.new do |root|
     root.name = 'JivoSDK'
-    root.version = '4.3.1'
+    root.version = '4.3.2'
     root.homepage = 'https://github.com/JivoChat'
     root.authors = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
     root.summary = 'Jivo business chat Mobile SDK'
@@ -71,7 +71,7 @@ Pod::Spec.new do |root|
         spec.dependency 'SwiftGraylog', '~> 1.1.1'
         spec.dependency 'SwiftDate', '~> 6.0'
         spec.dependency 'SwiftMime', '~> 1.0.0'
-        spec.dependency 'KeychainSwift', '~> 20.0'
+        spec.dependency 'KeychainSwift', '>= 20.0', '< 23.0'
         spec.dependency 'GzipSwift', '~> 5.1.1'
         spec.dependency 'SafeURL', '~> 3.0.1'
         spec.dependency 'CollectionAndTableViewCompatible', '~> 0.2.2'

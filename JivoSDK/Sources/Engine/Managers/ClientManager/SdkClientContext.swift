@@ -121,5 +121,6 @@ final class SdkClientContext: ISdkClientContext {
         clientId = nil
         personalNamespace = nil
         licensing = nil
+        contactInfo = .init()
     }
 }

@@ -15,6 +15,7 @@ protocol ISdkJoint {
     func push(into navigationController: UINavigationController, displayDelegate: JVDisplayDelegate?) -> JVSessionHandle
     func place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton, displayDelegate: JVDisplayDelegate?) -> JVSessionHandle
     func present(over viewController: UIViewController, displayDelegate: JVDisplayDelegate?) -> JVSessionHandle
+    func close(animated: Bool)
 }
 
 struct SdkInputConfig {
@@ -147,6 +148,19 @@ class SdkJoint: ISdkJoint {
         chatModuleJoint = built.module.joint
         
         return prepareTemporarySessionHandle()
+    }
+    
+    func close(animated: Bool) {
+        guard let content = chatModuleJoint?.view else {
+            return
+        }
+        
+        if let container = content.presentingViewController {
+            container.dismiss(animated: animated)
+        }
+        else if let navigationController = content.navigationController {
+            navigationController.popViewController(animated: animated)
+        }
     }
     
     private func adjustUI(displayDelegate: JVDisplayDelegate?) {

@@ -20,7 +20,7 @@ Future<void> Jivo.session.setContactInfo({String? name, String? email, String? p
 Same as ``Jivo``.``Jivo/session``.``JVSessionController/setContactInfo(_:)``
 
 ```
-Future<void> Jivo.session.setCustomData(List<Map<String, String>> fields) async
+Future<void> Jivo.session.setCustomData(List<JVSessionCustomDataField> fields) async
 ```
 Same as ``Jivo``.``Jivo/session``.``JVSessionController/setCustomData(fields:)``
 

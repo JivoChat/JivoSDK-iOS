@@ -131,7 +131,6 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     
     private var chatMessages: [JVDatabaseModelRef<JVMessage>] = []
     private var isFirstSessionInitialization = true
-    private var hasProceedToHistory = false
     private var userDataReceivingMode: AgentDataReceivingMode = .channel {
         didSet {
             subOffline.userDataReceivingMode = userDataReceivingMode
@@ -856,7 +855,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     private func handlePushMessage(notification: UNNotification?, userInfo: [AnyHashable: Any], sender: String, text: String) {
-        switch (userInfo["message_id"] as? Int, historyState.remoteLatestMessageId) {
+        let messageId = (userInfo["msg_id"] ?? userInfo["message_id"]) as? Int
+        switch (messageId, historyState.remoteLatestMessageId) {
         case (.none, _) where unreadNumber == nil:
             // Do nothing if chat is opened
             break
@@ -948,7 +948,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         else {
             return
         }
-        
+    
         proto
             .requestRecentActivity(
                 endpoint: keychainDriver.userScope().retrieveAccessor(forToken: .endpoint).string,
@@ -1017,25 +1017,25 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             unreadNumber = 0
         }
         
-        if subsystems.contains(.artifacts) {
-            isFirstSessionInitialization = true
-            hasProceedToHistory = false
+        if subsystems.contains(.communication) {
             userDataReceivingMode = .channel
-            chatContext.chatAgents = [:]
-            chatContext.channelAgents = [:]
-            chatMessages = []
+            chatContext.chatAgents = .jv_empty
+            chatContext.channelAgents = .jv_empty
+            chatMessages = .jv_empty
             historyState = HistoryState()
             messagingContext.broadcast(event: .historyErased, onQueue: .main)
             notifyObservers(event: .chatAgentsUpdated(.jv_empty), onQueue: .main)
             typingCacheService.resetInput(context: TypingContext(kind: .chat, ID: chatContext.chatRef?.resolved?.ID ?? 0))
-            chatContext.chatRef = nil
             subStorage.deleteAllMessages()
             outgoingPairedMessagesIds.removeAll()
             requestedHistoryPastUids.removeAll()
-            preferencesDriver.retrieveAccessor(forToken: .contactInfoWasShownAt).erase()
-            preferencesDriver.retrieveAccessor(forToken: .contactInfoWasEverSent).erase()
             unreadNumber = 0
             messagingOutgoingIntents.removeAll()
+        }
+        
+        if subsystems.contains(.artifacts) {
+            isFirstSessionInitialization = true
+            chatContext.chatRef = nil
             globalRateConfig = nil
         }
     }
@@ -1397,11 +1397,24 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         subOffline.reactToInactiveConnection()
         subHello.reactToInactiveConnection()
         subSender.reactToInactiveConnection()
+        
+        switch kind {
+        case .deleted:
+            notifyPipeline(event: .turnInactive(.communication))
+        default:
+            break
+        }
     }
     
     private func handleRecentMessages(meta: ProtoEventSubjectPayload.RecentActivity) {
+        let hadRemoteLatestMessageId = historyState.remoteLatestMessageId.jv_hasValue
         historyState.remoteLatestMessageId = meta.body.latestMessageId
+        
         notifyUnreadCounter()
+        
+        if hadRemoteLatestMessageId, meta.status == .noAccess {
+            notifyPipeline(event: .turnInactive(.communication))
+        }
     }
     
     // MARK: SubStorage event handling methods
@@ -1708,10 +1721,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
         
         switch (subStorage.lastSyncedMessage(chatId: chatId)?.ID, historyState.remoteLatestMessageId) {
-        case (.none, .none):
+        case (.none, _):
             _notify(number: 0)
-        case (.none, .some):
-            _notify(number: 1)
         case (.some, .none):
             _notify(number: 0)
         case (.some(let localId), .some(let knownId)):

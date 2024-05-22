@@ -30,6 +30,10 @@ extension UIApplication {
         let path = NSHomeDirectory() + "/Library/SplashBoard"
         try? FileManager.default.removeItem(atPath: path)
     }
+    
+    func jv_dismissKeyboard() {
+        sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
 }
 
 extension UIApplication.State {

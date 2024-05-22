@@ -169,6 +169,8 @@ class SdkSessionProto: BaseProto, ISdkSessionProto {
             return SdkSessionProtoEventSubject.socketClose(kind: .connectionBreak, error: error)
         case connectionSessionEndCode where reason.lowercased().contains("blacklist"):
             return SdkSessionProtoEventSubject.socketClose(kind: .blacklist, error: error)
+        case connectionSessionEndCode where reason.lowercased().contains("deleted"):
+            return SdkSessionProtoEventSubject.socketClose(kind: .deleted, error: error)
         case connectionSessionEndCode where error == nil:
             return SdkSessionProtoEventSubject.socketClose(kind: .sessionEnd, error: error)
         case connectionAbsentCode:

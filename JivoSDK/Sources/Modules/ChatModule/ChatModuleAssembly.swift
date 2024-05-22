@@ -91,7 +91,7 @@ func ChatModuleAssembly(
         botStyle: .outer,
         displayNameKind: .original,
         uiConfig: timelineConfig,
-        rateConfig: engine.managers.chatManager.globalRateConfig,
+        rateConfigProvider: {engine.managers.chatManager.globalRateConfig},
         keyboardAnchorControl: keyboardAnchorControl,
         contactFormCache: engine.retrieveCacheBundle(token: engine.clientContext.personalNamespace).contactFormCache,
         historyDelegate: engine.managers.chatManager

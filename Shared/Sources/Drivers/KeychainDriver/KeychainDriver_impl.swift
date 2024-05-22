@@ -46,9 +46,9 @@ class KeychainDriver: IKeychainDriver {
             storage.clear()
         }
         else {
-            let prefix = constructPath(key: .jv_empty)
+            let prefix = constructPath(key: scopePrefix)
             storage.allKeys
-                .filter { $0.hasPrefix(prefix + ":" + scopePrefix) }
+                .filter { $0.hasPrefix(prefix) }
                 .forEach { storage.delete($0) }
         }
     }

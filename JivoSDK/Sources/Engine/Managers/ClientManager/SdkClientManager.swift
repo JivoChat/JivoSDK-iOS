@@ -183,6 +183,11 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     }
     
     private func _handlePipelineTurnInactiveEvent(subsystems: SdkManagerSubsystem) {
+        if subsystems.contains(.communication) {
+            preferencesDriver.retrieveAccessor(forToken: .contactInfoWasShownAt).erase()
+            preferencesDriver.retrieveAccessor(forToken: .contactInfoWasEverSent).erase()
+        }
+        
         if subsystems.contains(.artifacts) {
             apnsDeviceLiveToken = nil
             unsubscribeDeviceFromApns(exceptActiveSubscriptions: false)
@@ -190,9 +195,9 @@ class SdkClientManager: SdkManager, ISdkClientManager {
             withoutKeychainStoring {
                 clientContext.reset()
             }
-            
-            preferencesDriver.retrieveAccessor(forToken: .contactInfoWasShownAt).erase()
-            preferencesDriver.retrieveAccessor(forToken: .contactInfoWasEverSent).erase()
+        }
+        else if subsystems.contains(.communication) {
+            _setContactInfo(info: clientContext.contactInfo, allowance: .anyField)
         }
     }
     

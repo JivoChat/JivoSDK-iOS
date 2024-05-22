@@ -14,7 +14,8 @@ struct SdkManagerSubsystem: OptionSet {
     let rawValue: Int
     static let config = Self.init(rawValue: 1 << 0)
     static let connection = Self.init(rawValue: 1 << 1)
-    static let artifacts = Self.init(rawValue: 1 << 2)
+    static let communication = Self.init(rawValue: 1 << 2)
+    static let artifacts = Self.init(rawValue: 1 << 3) + communication
     static let all = Self.init(rawValue: ~0)
 }
 

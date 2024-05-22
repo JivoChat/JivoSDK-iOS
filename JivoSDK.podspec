@@ -1,6 +1,6 @@
 Pod::Spec.new do |root|
     root.name = 'JivoSDK'
-    root.version = '4.3.3'
+    root.version = '4.4.0'
     root.homepage = 'https://github.com/JivoChat'
     root.authors = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
     root.summary = 'Jivo business chat Mobile SDK'

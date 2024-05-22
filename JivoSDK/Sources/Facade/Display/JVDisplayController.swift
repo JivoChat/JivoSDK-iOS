@@ -121,6 +121,17 @@ public final class JVDisplayController: NSObject {
     public func present(over viewController: UIViewController) -> JVSessionHandle? {
         return _present(over: viewController)
     }
+    
+    /**
+     Closes SDK if it is currently in UI hierarchy
+     
+     - Parameter animated:
+     Whether SDK should be closed with animation or not
+     */
+    @objc(closeAnimated:)
+    public func close(animated: Bool) {
+        _close(animated: animated)
+    }
 }
 
 extension JVDisplayController {
@@ -201,5 +212,9 @@ extension JVDisplayController {
         return joint.present(
             over: viewController,
             displayDelegate: delegate)
+    }
+    
+    private func _close(animated: Bool) {
+        joint.close(animated: animated)
     }
 }

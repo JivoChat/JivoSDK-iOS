@@ -585,7 +585,6 @@ final class ChatModuleCore
 //    }
     
     private func handleHistoryErasedEvent() {
-        chat = nil
         chatHistory.fill(with: [], partialLoaded: false, unreadPosition: .null)
     }
     

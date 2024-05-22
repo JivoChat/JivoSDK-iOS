@@ -36,6 +36,7 @@ enum APIConnectionCloseCode {
     case connectionBreak
     case sessionEnd
     case blacklist
+    case deleted
     case missingConnection
     case invalidConnection
     case invalidToken
@@ -46,6 +47,7 @@ enum APIConnectionCloseCode {
         case .connectionBreak: return "connection-break"
         case .sessionEnd: return "session-end"
         case .blacklist: return "blacklisted"
+        case .deleted: return "deleted"
         case .missingConnection: return "missing-connection"
         case .invalidToken: return "invalid-token"
         case .invalidConnection: return "invalid-connection"

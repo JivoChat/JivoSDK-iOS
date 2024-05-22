@@ -119,7 +119,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
     private let botStyle: ChatTimelineBotStyle
     private let displayNameKind: JVDisplayNameKind
     private let uiConfig: ChatTimelineVisualConfig?
-    private let rateConfig: JMTimelineRateConfig?
+    private let rateConfigProvider: () -> JMTimelineRateConfig?
     private let keyboardAnchorControl: KeyboardAnchorControl
     private let contactFormCache: ChatTimelineContactFormCache
     private weak var historyDelegate: ChatTimelineFactoryHistoryDelegate?
@@ -137,7 +137,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
          botStyle: ChatTimelineBotStyle,
          displayNameKind: JVDisplayNameKind,
          uiConfig: ChatTimelineVisualConfig?,
-         rateConfig: JMTimelineRateConfig?,
+         rateConfigProvider: @escaping () -> JMTimelineRateConfig?,
          keyboardAnchorControl: KeyboardAnchorControl,
          contactFormCache: ChatTimelineContactFormCache,
          historyDelegate: ChatTimelineFactoryHistoryDelegate?
@@ -152,7 +152,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         self.botStyle = botStyle
         self.displayNameKind = displayNameKind
         self.uiConfig = uiConfig
-        self.rateConfig = rateConfig
+        self.rateConfigProvider = rateConfigProvider
         self.keyboardAnchorControl = keyboardAnchorControl
         self.contactFormCache = contactFormCache
         self.historyDelegate = historyDelegate
@@ -1123,7 +1123,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         for message: JVMessage,
         status: JVMessageBodyRateFormStatus
     ) -> JMTimelineItem {
-        guard let rateConfig = rateConfig else {
+        guard let rateConfig = rateConfigProvider() else {
             return generatePlainItem(for: message)
         }
         

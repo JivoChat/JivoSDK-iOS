@@ -657,6 +657,10 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             case .urlPath(let path):
                 sessionContext.authorizingPath = path
             case .id(let id):
+                if let clientId = clientContext.clientId, id != clientId {
+                    notifyPipeline(event: .turnInactive(.communication))
+                }
+                
                 clientContext.clientId = id
             default:
                 break

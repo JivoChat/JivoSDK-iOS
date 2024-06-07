@@ -44,7 +44,9 @@ final class JVDispatchThread: NSObject, JVIDispatchThread {
         }
         
         let semaphore = DispatchSemaphore(value: 0)
-        defer { semaphore.wait() }
+        defer {
+            semaphore.wait()
+        }
         
         perform(
             #selector(handleTask),

@@ -244,7 +244,7 @@ extension JVNotificationsController: SdkEngineAccessing {
     }
     
     private func _handleLaunch(options: [UIApplication.LaunchOptionsKey : Any]?) -> Bool {
-        journal {"FACADE[notifications] handle the launch @options[\(options)]"}
+        journal {"FACADE[notifications] handle the launch @options[\(String(describing: options))]"}
         
         if let userInfo = options?[.remoteNotification] as? [AnyHashable: Any] {
             return handleIncoming(userInfo: userInfo, completionHandler: nil)

@@ -10,13 +10,14 @@ import Foundation
 
 protocol ISdkClientContext: AnyObject, IBaseUserContext {
     var eventSignal: JVBroadcastTool<SdkClientContextEvent> { get }
-    var clientId: String? { get set }
+    var clientId: String? { get }
     var clientNumber: Int? { get }
     var clientHash: Int { get }
+    func storeClientId(_ value: String?, async thread: JVIDispatchThread)
     var personalNamespace: String? { get set }
     var licensing: SdkClientLicensing? { get set }
     var contactInfo: JVSessionContactInfo { get set }
-    func reset()
+    func reset(async thread: JVIDispatchThread)
 }
 
 enum SdkClientContextEvent {
@@ -40,14 +41,21 @@ final class SdkClientContext: ISdkClientContext {
     
     private let databaseDriver: JVIDatabaseDriver
     
-    var clientId: String? {
-        didSet {
+    private(set) var clientId: String?
+    
+    func storeClientId(_ value: String?, async thread: JVIDispatchThread) {
+        clientId = value
+        eventSignal.broadcast(.clientIdChanged(clientId))
+
+        thread.async { [unowned self] in
             databaseDriver.readwrite { [unowned self] context in
-                client.m_id = Int64(clientHash)
-                client.m_public_id = clientId.jv_orEmpty
+                self.client.m_id = Int64(self.clientHash)
+                self.client.m_public_id = self.clientId.jv_orEmpty
+                
+                if value == nil {
+                    self.client.apply(context: context, change: JVClientResetChange(ID: 1))
+                }
             }
-            
-            eventSignal.broadcast(.clientIdChanged(clientId))
         }
     }
     
@@ -67,7 +75,7 @@ final class SdkClientContext: ISdkClientContext {
     }
     
     var clientHash: Int {
-        return CRC32.encrypt(client.publicID)
+        return CRC32.encrypt(clientId.jv_orEmpty)
     }
     
     var personalNamespace: String? {
@@ -110,15 +118,8 @@ final class SdkClientContext: ISdkClientContext {
         return true
     }
     
-    func reset() {
-        databaseDriver.readwrite { context in
-            client.apply(
-                context: context,
-                change: JVClientResetChange(ID: client.ID)
-            )
-        }
-        
-        clientId = nil
+    func reset(async thread: JVIDispatchThread) {
+        storeClientId(nil, async: thread)
         personalNamespace = nil
         licensing = nil
         contactInfo = .init()

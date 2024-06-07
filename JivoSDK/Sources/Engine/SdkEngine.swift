@@ -99,6 +99,8 @@ final class SdkEngine: ISdkEngine {
             ]
         }
         
+        JVAgent.registerDefaultDisplayName(value: loc["agent_name_default"])
+
         JVDesign.attachTo(
             application: .shared,
             window: UIWindow(frame: UIScreen.main.bounds))

@@ -169,7 +169,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         
         withoutKeychainStoring {
             let clientId = keychainDriver.userScope().retrieveAccessor(forToken: .clientId).string
-            userContext.clientId = clientId
+            userContext.storeClientId(clientId, async: thread)
         }
     }
     
@@ -193,7 +193,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
             unsubscribeDeviceFromApns(exceptActiveSubscriptions: false)
             
             withoutKeychainStoring {
-                clientContext.reset()
+                clientContext.reset(async: thread)
             }
         }
         else if subsystems.contains(.communication) {

@@ -9,6 +9,13 @@
 import Foundation
 import JMCodingKit
 
+fileprivate var f_defaultDisplayName = String()
+extension JVAgent {
+    static func registerDefaultDisplayName(value: String) {
+        f_defaultDisplayName = value
+    }
+}
+
 extension JVAgent {
     func performApply(context: JVIDatabaseContext, environment: JVIDatabaseEnvironment, change: JVDatabaseModelChange) {
         defer {
@@ -210,7 +217,7 @@ final class JVAgentGeneralChange: JVDatabaseModelChange, Codable {
         stateID = 0
         status = nil
         avatarLink = String()
-        displayName = (placeholderID > 0 ? "(\(loc["Agent.DisplayName.Deleted"]))" : .jv_empty)
+        displayName = (placeholderID > 0 ? f_defaultDisplayName : .jv_empty)
         title = ""
         callingDestination = -1
         callingOptions = 0

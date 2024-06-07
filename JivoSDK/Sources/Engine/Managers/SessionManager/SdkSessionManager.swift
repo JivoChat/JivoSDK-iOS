@@ -210,7 +210,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     // MARK: - Public methods
     
     func setPreferredServer(_ server: JVSessionServer) {
-        thread.sync { [unowned self] in
+        thread.async { [unowned self] in
             _setPreferredServer(server)
         }
     }
@@ -232,7 +232,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     
     func startUp(channelPath: String, userToken: String) {
         let applicationState = UIApplication.shared.applicationState
-        thread.sync { [unowned self] in
+        thread.async { [unowned self] in
             _startUp(
                 channelPath: channelPath,
                 userToken: userToken,
@@ -661,7 +661,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
                     notifyPipeline(event: .turnInactive(.communication))
                 }
                 
-                clientContext.clientId = id
+                clientContext.storeClientId(id, async: thread)
             default:
                 break
             }

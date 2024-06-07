@@ -135,6 +135,8 @@ extension JVSessionController: SdkEngineAccessing {
     private func _shutDown() {
         journal {"FACADE[session] shut down"}
         
-        engine.managers.notify(event: .turnInactive(.all))
+        engine.threads.workerThread.async { [unowned self] in
+            engine.managers.notify(event: .turnInactive(.all))
+        }
     }
 }

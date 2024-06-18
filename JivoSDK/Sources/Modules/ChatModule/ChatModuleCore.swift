@@ -246,7 +246,7 @@ final class ChatModuleCore
             case .askRequired:
                 self?.pipeline?.notify(event: .inputUpdate(.update(.init(
                     input: .inactive(
-                        reason: loc["chat_input.status.contact_info"]
+                        reason: loc["JV_ChatInput_Status_FillContactForm", "chat_input.status.contact_info"]
                     ),
                     submit: nil))))
             case .sent:
@@ -434,6 +434,7 @@ final class ChatModuleCore
                     ChatPhotoPickerImageMeta(
                         image: image,
                         url: url,
+                        assetLocalId: nil,
                         date: nil,
                         name: url.lastPathComponent.uppercased()
                     )
@@ -885,6 +886,7 @@ final class ChatModuleCore
                                     ChatPhotoPickerImageMeta(
                                         image: image,
                                         url: url,
+                                        assetLocalId: nil,
                                         date: date,
                                         name: name
                                     )
@@ -918,6 +920,7 @@ final class ChatModuleCore
                         ChatPhotoPickerImageMeta(
                             image: image,
                             url: nil,
+                            assetLocalId: nil,
                             date: nil,
                             name: nil
                         )

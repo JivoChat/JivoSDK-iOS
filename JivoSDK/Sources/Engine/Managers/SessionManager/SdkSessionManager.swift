@@ -669,7 +669,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     }
     
     @objc private func handleApplicationStateChange() {
-        if UIApplication.shared.jv_isActive, let deferred = startUpDeferred {
+        if UIApplication.shared.jv_isActive, let _ = startUpDeferred {
             journal {"Session: use the deferred startUp"}
             startUpDeferred = nil
             

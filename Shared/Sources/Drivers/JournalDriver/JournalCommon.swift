@@ -388,7 +388,9 @@ class JournalSilentGenerator: JournalGenerator {
 }
 
 func setJournalLevel(_ level: JournalLevel) {
-    globalJournalQueue.addOperation { globalJournalLevel = level }
+    globalJournalQueue.addOperation {
+        globalJournalLevel = level
+    }
 }
 
 func setJournalCustomHandler(block: @escaping (String) -> Bool) {

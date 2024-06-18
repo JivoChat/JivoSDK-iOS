@@ -56,7 +56,7 @@ final class NetworkingSubSocket: INetworkingSubSocket {
         }
         
         driver.closeHandler = { [unowned self] chain, code, reason, error in
-            chain?.journal {"WebSocket: event closed code=\(code) reason=\(reason) error=\(error)"}
+            chain?.journal {"WebSocket: event closed code=\(code) reason=\(reason) error=\(String(describing: error))"}
             
             let event = NetworkingSubSocketEvent.close(identifier: identifier, code: code, reason: reason, error: error)
             notity(event: event)

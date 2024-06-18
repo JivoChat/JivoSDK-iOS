@@ -21,20 +21,6 @@ struct ChatPhotoPickerImageMeta {
     let assetLocalId: String?
     let date: Date?
     let name: String?
-    
-    init(
-        image: UIImage,
-        url: URL?,
-        assetLocalId: String? = nil,
-        date: Date?,
-        name: String?
-    ) {
-        self.image = image
-        self.url = url
-        self.assetLocalId = assetLocalId
-        self.date = date
-        self.name = name
-    }
 }
 
 struct ChatPhotoPickerFileMeta {
@@ -42,18 +28,6 @@ struct ChatPhotoPickerFileMeta {
     let name: String
     let size: Int64
     let duration: Int
-    
-    init(
-        url: URL,
-        name: String,
-        size: Int64,
-        duration: Int
-    ) {
-        self.url = url
-        self.name = name
-        self.size = size
-        self.duration = duration
-    }
 }
 
 struct ChatPhotoPickerObject: Equatable {
@@ -81,8 +55,10 @@ enum ChatPhotoPickerObjectPayload {
     case voice(ChatPhotoPickerFileMeta)
 }
 
-enum ChatPhotoPickerType {
+enum AttachmentsPickerSource {
     case media
     case file
     case voice
+    case video
+    case document
 }

@@ -164,7 +164,7 @@ extension JVAgent: JVDisplayable {
                 (decor.contains(.status) ? m_status?.emoji : nil)
             ].compactMap{$0}.joined()
         case .relative where isMe:
-            return loc["Message.Sender.You"]
+            return loc["JV_DisplayName_Sender_You", "Message.Sender.You"]
         case .relative:
             return displayName(kind: .original)
         }
@@ -247,6 +247,12 @@ extension JVAgent: JVDisplayable {
         case .away:
             return Int(m_calling_options).jv_hasBit(JVAgentCallingOptions.supportsAway.rawValue)
         }
+    }
+    
+    var isOwnerOrAdmin: Bool {
+        if isAdmin { return true }
+        if isOwner { return true }
+        return false
     }
 
     var session: JVAgentSession? {

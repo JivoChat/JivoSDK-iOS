@@ -380,7 +380,7 @@ final class ChatHistory {
     }
     
     private func generateTimepointItem(date: Date) -> JMTimelineItem {
-        return factory.generateTimepointItem(date: date, caption: loc["Chat.System.NewMessages"])
+        return factory.generateTimepointItem(date: date, caption: loc["JV_ChatTimeline_SystemIndicator_NewMessages", "Chat.System.NewMessages"])
     }
 
     private func informHistoryHandler(_ value: Bool? = nil) {

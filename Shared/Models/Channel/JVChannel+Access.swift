@@ -15,14 +15,14 @@ enum JVChannelJoint: String {
     case ok = "ok"
     case tg = "tg"
     case vb = "vb"
-    case wa = "wa" // WhatsApp
-    case wb = "wb" // WhatsApp
+    case wa = "wa" // WhatsApp EDNA
+    case wb = "wb" // WhatsApp Jivo == WhatsApp Business
     case tw = "tw" // WhatsApp Twilio
     case email = "email"
     case sdk = "sdk"
     case ya = "ya"
     case tel = "tel"
-    case webhook = "bot"
+    case webhook = "bot" // WhatsApp if jointAlias == "sendpulse"
     case salute = "sb"
     case abc = "im"
     case ig = "ig"
@@ -48,7 +48,8 @@ enum JVChannelJoint: String {
         case .ig: return loc["Client.Integration.Instagram"]
         case .drom: return loc["Client.Integration.Drom"]
         case .ali: return loc["Client.Integration.Aliexpress"]
-        case .unknown: return nil
+        case .unknown:
+            return nil
         }
     }
     
@@ -165,6 +166,14 @@ extension JVChannel {
         return m_joint_url ?? String()
     }
     
+    var jointPhone: String {
+        return m_joint_phone ?? String()
+    }
+    
+    var jointVerifiedName: String {
+        return m_joint_verified_name ?? String()
+    }
+    
     var isTestable: Bool {
         switch jointType {
         case nil:
@@ -176,11 +185,15 @@ extension JVChannel {
         }
     }
     
+    var isSendpulse: Bool {
+        return jointAlias == "sendpulse"
+    }
+    
     var isWhatsapp: Bool {
         if jointType == .wa { return true }
         if jointType == .wb { return true }
         if jointType == .tw { return true }
-        if jointType == .webhook, jointAlias == "sendpulse" { return true }
+        if jointType == .webhook, isSendpulse { return true }
         return false
     }
     

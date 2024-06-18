@@ -95,11 +95,11 @@ final class ChatTimelineProvider: JVChatTimelineProvider {
                 case let .success(fileMeta):
                     completion(.meta(fileName: fileMeta.name))
                 case .failure(.unauthorized):
-                    completion(.accessDenied(description: loc["file_download_expired"]))
+                    completion(.accessDenied(description: loc["JV_FileAttachment_LinkStatus_Expired", "file_download_expired"]))
                 case .failure(.notFromCloudStorage):
                     completion(.metaIsNotNeeded())
                 default:
-                    completion(.unknownError(description: loc["file_download_unavailable"]))
+                    completion(.unknownError(description: loc["JV_FileAttachment_LinkStatus_Unavailable", "file_download_unavailable"]))
                 }
             }
         )

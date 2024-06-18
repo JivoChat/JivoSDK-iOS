@@ -78,8 +78,8 @@ final class PhotoPickingBridge: NSObject, IPhotoPickingBridge, PHPickerViewContr
                 case false:
                     popupPresenterBridge.displayAlert(
                         within: .specific(container),
-                        title: loc["Media.Access.Missing"],
-                        message: loc["Media.Access.Suggestion"],
+                        title: loc["JV_SystemAccess_Gallery_NoPermission", "Media.Access.Missing"],
+                        message: loc["JV_SystemAccess_Gallery_RequestReason", "Media.Access.Suggestion"],
                         items: [
                             .dismiss(.close)
                         ])
@@ -92,7 +92,7 @@ final class PhotoPickingBridge: NSObject, IPhotoPickingBridge, PHPickerViewContr
                 return popupPresenterBridge.displayAlert(
                     within: .specific(container),
                     title: nil,
-                    message: loc["PhotoLibrary.Access.Unavailable"],
+                    message: loc["JV_SystemAccess_Gallery_NoSource", "PhotoLibrary.Access.Unavailable"],
                     items: [
                         .dismiss(.close)
                     ])
@@ -104,12 +104,11 @@ final class PhotoPickingBridge: NSObject, IPhotoPickingBridge, PHPickerViewContr
                 return popupPresenterBridge.displayAlert(
                     within: .specific(container),
                     title: nil,
-                    message: loc["PhotoLibrary.Access.NoAvailableImages"],
+                    message: loc["JV_SystemAccess_Gallery_NoContent", "PhotoLibrary.Access.NoAvailableImages"],
                     items: [
                         .dismiss(.close)
                     ])
             }
-            
             
             let picker = UIImagePickerController()
             picker.sourceType = .photoLibrary
@@ -127,7 +126,7 @@ final class PhotoPickingBridge: NSObject, IPhotoPickingBridge, PHPickerViewContr
                     return popupPresenterBridge.displayAlert(
                         within: .specific(container),
                         title: nil,
-                        message: loc["Camera.Access.Unavailable"],
+                        message: loc["JV_SystemAccess_Camera_NoSource", "Camera.Access.Unavailable"],
                         items: [
                             .dismiss(.close)
                         ])
@@ -139,7 +138,7 @@ final class PhotoPickingBridge: NSObject, IPhotoPickingBridge, PHPickerViewContr
                     return popupPresenterBridge.displayAlert(
                         within: .specific(container),
                         title: nil,
-                        message: loc["PhotoLibrary.Access.NoAvailableImages"],
+                        message: loc["JV_SystemAccess_Gallery_NoContent", "PhotoLibrary.Access.NoAvailableImages"],
                         items: [
                             .dismiss(.close)
                         ])
@@ -153,8 +152,8 @@ final class PhotoPickingBridge: NSObject, IPhotoPickingBridge, PHPickerViewContr
             case .denied:
                 popupPresenterBridge.displayAlert(
                     within: .specific(container),
-                    title: loc["Media.Access.Missing"],
-                    message: loc["Camera.Access.Suggestion"],
+                    title: loc["JV_SystemAccess_Camera_NoPermission", "Media.Access.Missing"],
+                    message: loc["JV_SystemAccess_Camera_RequestReason", "Camera.Access.Suggestion"],
                     items: [
                         .dismiss(.close)
                     ])
@@ -162,7 +161,7 @@ final class PhotoPickingBridge: NSObject, IPhotoPickingBridge, PHPickerViewContr
             case .restricted:
                 popupPresenterBridge.displayAlert(
                     within: .specific(container),
-                    title: loc["Camera.Access.Restricted"],
+                    title: loc["JV_SystemAccess_Camera_NoPermission", "Camera.Access.Restricted"],
                     message: nil,
                     items: [
                         .dismiss(.close)

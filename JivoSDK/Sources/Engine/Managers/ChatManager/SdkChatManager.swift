@@ -115,8 +115,6 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     
     // MARK: - Constants
     
-    let AGENT_DEFAULT_DISPLAY_NAME_LOC_KEY = "agent_name_default"
-    
     let subOffline: ISdkChatSubOffline
     let subHello: ISdkChatSubHello
     
@@ -265,7 +263,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         
         sessionContext.eventSignal.attachObserver { [unowned self] event in
             switch event {
-            case .userIdentityChanged(let identity):
+            case .userIdentityChanged:
                 restoreChat()
             default:
                 break
@@ -311,7 +309,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             return nil
         }
         
-        return loc["chat_input.status.contact_info"]
+        return loc["JV_ChatInput_Status_FillContactForm", "chat_input.status.contact_info"]
     }
     
     private var unreadNumber: Int? = 0 {
@@ -434,9 +432,9 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         case .omit:
             return
         case .regular:
-            systemText = loc["chat.system.contact_form.introduce_in_chat"]
+            systemText = loc["JV_ContactForm_Legend_FillDesired", "chat.system.contact_form.introduce_in_chat"]
         case .blocking:
-            systemText = loc["chat.system.contact_form.must_fill"]
+            systemText = loc["JV_ContactForm_Legend_FillRequired", "chat.system.contact_form.must_fill"]
         }
         
         let systemMessage = subStorage.storeOutgoingMessage(
@@ -474,7 +472,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             case .omit, .regular:
                 break
             case .blocking:
-                notifyObservers(event: .disableReplying(reason: loc["chat_input.status.contact_info"]), onQueue: .main)
+                notifyObservers(event: .disableReplying(reason: loc["JV_ChatInput_Status_FillContactForm", "chat_input.status.contact_info"]), onQueue: .main)
             }
         }
         
@@ -1116,7 +1114,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
                     }
                 }
 
-            case .becamePermanent(let entireId, _):
+            case .becamePermanent:
                 guard let message = handleMessageTransaction_upsertMessage(messageIdentifier: bundle.payload.id, subject: subject) else {
                     return
                 }
@@ -1528,7 +1526,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     func identifyContactFormBehavior() -> SdkChatContactFormBehavior {
-        guard let chat = chatContext.chatRef?.resolved else {
+        guard let _ = chatContext.chatRef?.resolved else {
             return .omit
         }
             
@@ -1669,7 +1667,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
                     clientID: userContext.clientHash,
                     chatID: chatId,
                     type: .system,
-                    content: .text(message: loc["chat.system.contact_form.status_sent"]),
+                    content: .text(message: loc["JV_ChatTimeline_SystemMessage_ContactInfoSent", "chat.system.contact_form.status_sent"]),
                     status: nil,
                     timing: .regular,
                     orderingIndex: 0))

@@ -26,7 +26,7 @@ public final class JVDebuggingController: NSObject {
      Current level of logging verbosity
      */
     @objc(level)
-    public var level = JVDebuggingLevel.silent {
+    public var level = JVDebuggingLevel.full {
         didSet {
             _levelHookDidSet()
         }
@@ -56,6 +56,14 @@ public final class JVDebuggingController: NSObject {
     @objc(archiveLogsWithCompletionHandler:)
     public func archiveLogs(completion handler: @escaping (URL?, JVDebuggingArchiveStatus) -> Void) {
         _archiveLogs(completion: handler)
+    }
+    
+    /**
+     Presents a sharing screen of local log entries
+     */
+    @objc(exportLogsWithinParent:)
+    public func exportLogs(within parent: UIViewController?) {
+        _exportLogs(within: parent)
     }
 }
 
@@ -108,7 +116,15 @@ extension JVDebuggingController: SdkEngineAccessing {
     private func _archiveLogs(completion handler: @escaping (URL?, JVDebuggingArchiveStatus) -> Void) {
         let drivers = engine.drivers
         
-        guard let tmpFile = drivers.cacheDriver.url(item: .accumulatedLogs) else {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyMMdd'T'HHmmss"
+        let timepoint = formatter.string(from: Date())
+        
+        let uniqueChannel = engine.sessionContext.accountConfig?.channelId ?? "unknown"
+        let uniqueName = "support-\(uniqueChannel)-\(timepoint).txt.gz"
+        let uniqueItem = CacheDriverItem(fileName: uniqueName)
+
+        guard let tmpFile = drivers.cacheDriver.url(item: uniqueItem) else {
             return handler(nil, .failedAccessing)
         }
         
@@ -127,8 +143,21 @@ extension JVDebuggingController: SdkEngineAccessing {
             }
         }
     }
+    
+    private func _exportLogs(within parent: UIViewController?) {
+        _archiveLogs { [unowned self] url, status in
+            guard let url else {
+                return
+            }
+            
+            engine.bridges.popupPresenterBridge.share(
+                within: .specific(parent),
+                items: [url],
+                performCleanup: true)
+        }
+    }
 }
 
 extension CacheDriverItem {
-    static let accumulatedLogs = CacheDriverItem(fileName: "jivosdk.logs.txt.gz")
+    static let accumulatedLogs = CacheDriverItem(fileName: "support.txt.gz")
 }

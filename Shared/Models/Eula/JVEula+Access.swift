@@ -9,6 +9,7 @@ import Foundation
 
 extension JVEula {
     static let openAILicenseName = "AI_MODULE_OPENAI"
+    static let sberAILicenseName = "AI_MODULE_SBER"
     
     var module: String {
         return m_module.jv_orEmpty

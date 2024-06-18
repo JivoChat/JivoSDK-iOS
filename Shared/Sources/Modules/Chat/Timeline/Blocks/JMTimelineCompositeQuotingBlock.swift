@@ -97,7 +97,7 @@ final class JMTimelineCompositeQuotingBlock: UIView, JMTimelineBlockCallable {
             briefLabel.text = nil
         }
         
-        isHidden = (briefLabel.text == nil)
+        isHidden = not(briefLabel.jv_hasText)
     }
     
     func updateDesign() {

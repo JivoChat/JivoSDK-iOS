@@ -53,6 +53,21 @@ extension UIImage {
             return nil
         }
     }
+    
+    static func jv_fromEmoji(emoji: String?, size: CGFloat) -> UIImage? {
+        guard let emoji = emoji else { return nil }
+        let attributes = [NSAttributedString.Key.font: UIFont.systemFont(ofSize: size)]
+        let imageSize = emoji.size(withAttributes: attributes)
+
+        UIGraphicsBeginImageContextWithOptions(imageSize, false, 0.0)
+        
+        emoji.draw(at: .zero, withAttributes: attributes)
+        
+        let image = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return image
+    }
 }
 
 extension Optional where Wrapped == UIImage {

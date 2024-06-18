@@ -34,9 +34,9 @@ extension ErrorRendererConfiguration {
             errorDescriptionProvider: { error in
                 switch error {
                 case .notFound:
-                    return loc["file_download_expired"]
+                    return loc["JV_FileAttachment_LinkStatus_Expired", "file_download_expired"]
                 default:
-                    return loc["file_download_unavailable"]
+                    return loc["JV_FileAttachment_LinkStatus_Unavailable", "file_download_unavailable"]
                 }
             },
             style: ErrorRenderer.Style(

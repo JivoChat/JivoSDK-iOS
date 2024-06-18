@@ -69,7 +69,7 @@ extension JVClient: JVDisplayable {
     func displayName(kind: JVDisplayNameKind) -> String {
         switch kind {
         case .original where m_display_name.jv_orEmpty.isEmpty:
-            return loc[format: "Client.Title", m_id]
+            return loc[format: ["JV_DisplayName_Client_DefaultFormat", "Client.Title"], m_id]
         case .original:
             return m_display_name.jv_orEmpty
         case .short:

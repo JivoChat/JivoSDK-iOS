@@ -46,6 +46,7 @@ final class Networking: INetworking {
     private var recentBacksignal: JVBroadcastTool<Any>?
 
     init(
+        defaultHost: String?,
         subSocket: INetworkingSubSocket?,
         subRest: INetworkingSubRest?,
         subApns: INetworkingSubApns?,
@@ -57,6 +58,7 @@ final class Networking: INetworking {
         urlBuilder: @escaping NetworkingUrlBuilder
     ) {
         context = NetworkingContext(
+            defaultHost: defaultHost,
             localeProvider: localeProvider
         )
         

@@ -107,7 +107,6 @@ extension JVAgentSession {
 //            mediaServiceEnabled: m_global_media_service_enabled,
 //            voiceMessagesEnabled: m_global_voice_messages_enabled,
 //            aiAssistantEnabled: m_global_ai_assistant_enabled,
-//            aiAssistantChatResumeEnabled: m_global_ai_assistant_chat_resume_enabled
 //        )
 //    }
     

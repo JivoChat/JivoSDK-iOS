@@ -609,7 +609,7 @@ extension JVMessage {
                         let agent = context.agent(for: id, provideDefault: true)
                         
                         if let agent = agent, agent.displayName(kind: .original).isEmpty {
-                            agent.m_display_name = loc["agent_name_default"]
+                            agent.m_display_name = loc["JV_DisplayName_Agent_Default", "agent_name_default"]
                         }
                         
                         let m_sender_bot_flag_value = (id < 0)

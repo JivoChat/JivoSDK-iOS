@@ -11,7 +11,7 @@ import Foundation
 @objc(JivoSDKDebugging)
 public class JivoSDKDebugging: NSObject {
     @objc(level)
-    public var level: JivoSDKDebuggingLevel = .silent {
+    public var level: JivoSDKDebuggingLevel = .full {
         didSet {
             Jivo.debugging.level = level.toNewAPI()
         }
@@ -22,6 +22,8 @@ public class JivoSDKDebugging: NSObject {
         Jivo.debugging.archiveLogs { url, status in
             completion(url, status.toNewAPI())
         }
+        
+        UITextView.textDidChangeNotification
     }
 }
 

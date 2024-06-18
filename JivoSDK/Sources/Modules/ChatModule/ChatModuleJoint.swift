@@ -89,6 +89,18 @@ final class ChatModuleJoint
             setupAttachmentMenu(anchor: button)
         case .requestDeveloperMenu(let anchor):
             presentDeveloperMenu(anchor: anchor)
+        case .specialMenu:
+            popupPresenterBridge.displayMenu(
+                within: .specific(view),
+                anchor: nil,
+                title: loc["JV_SpecialMenu_Popup_Title"],
+                message: nil,
+                items: [
+                    .action(loc["JV_SpecialMenu_Popup_ExportAction"], .noicon, .regular { [weak self] _ in
+                        Jivo.debugging.exportLogs(within: self?.view)
+                    }),
+                    .dismiss(.cancel)
+                ])
         case .dismiss where view?.navigationController?.viewControllers.first === view:
             view?.dismiss(animated: true)
             notifyOut(output: .dismiss)
@@ -148,35 +160,35 @@ final class ChatModuleJoint
         let message: String = {
             switch error {
             case .extractionFailed:
-                return loc["media_uploading_extraction_error"]
+                return loc["JV_FileTransfer_Status_FailedPreparing", "media_uploading_extraction_error"]
             case .fileSizeExceeded(let megabytes):
-                return loc[format: "media_uploading_too_large", megabytes]
+                return loc[format: ["JV_FileTransfer_Status_TooLarge", "media_uploading_too_large"], megabytes]
             case .networkClientError:
                 journal {"Failed uploading"}
                     .nextLine {"Failed to upload the file"}
                     .nextLine {"networkClientError"}
 
-                return loc["media_uploading_common_error"]
+                return loc["JV_FileTransfer_Status_FailedUploading", "media_uploading_common_error"]
             case .cannotHandleUploadResult:
                 journal {"Failed uploading"}
                     .nextLine {"Failed to upload the file"}
                     .nextLine {"cannotHandleUploadResult"}
 
-                return loc["media_uploading_common_error"]
+                return loc["JV_FileTransfer_Status_FailedUploading", "media_uploading_common_error"]
             case let .uploadDeniedByAServer(brief):
                 journal {"Failed uploading"}
                     .nextLine {"Failed to upload the file"}
                     .nextLine {"uploadDeniedByAServer: " + String(describing: brief)}
 
-                return brief ?? loc["media_uploading_common_error"]
+                return brief ?? loc["JV_FileTransfer_Status_FailedUploading", "media_uploading_common_error"]
             case .unsupportedMediaType:
-                return loc["message_unsupported_media"]
+                return loc["JV_FileAttachment_Status_Unsupported", "message_unsupported_media"]
             case let .unknown(brief):
                 journal {"Failed uploading"}
                     .nextLine {"Failed to upload the file"}
                     .nextLine {"unknown: " + String(describing: brief)}
 
-                return brief ?? loc["media_uploading_common_error"]
+                return brief ?? loc["JV_FileTransfer_Status_FailedUploading", "media_uploading_common_error"]
             }
         }()
         
@@ -242,8 +254,8 @@ final class ChatModuleJoint
             case .failure:
                 self?.popupPresenterBridge.displayAlert(
                     within: .auto,
-                    title: loc["common_unknown_error"],
-                    message: loc["media_uploading_extraction_error"],
+                    title: loc["JV_Common_Captions_UnknownError", "common_unknown_error"],
+                    message: loc["JV_FileTransfer_Status_FailedPreparing", "media_uploading_extraction_error"],
                     items: [
                         .dismiss(.close)
                     ])
@@ -272,8 +284,8 @@ final class ChatModuleJoint
             else {
                 self?.popupPresenterBridge.displayAlert(
                     within: .auto,
-                    title: loc["media_uploading_extraction_error"],
-                    message: loc[format: "media_uploading_too_large", SdkConfig.uploadingLimit.megabytes],
+                    title: loc["JV_FileTransfer_Status_FailedPreparing", "media_uploading_extraction_error"],
+                    message: loc[format: ["JV_FileTransfer_Status_TooLarge", "media_uploading_too_large"], SdkConfig.uploadingLimit.megabytes],
                     items: [
                         .dismiss(.close)
                     ])
@@ -328,11 +340,11 @@ final class ChatModuleJoint
             items: [.dismiss(.cancel)] + optionsNeeded.map { option in
                 switch option {
                 case .copy:
-                    return .action(loc["options_copy"], .icon(.copy), .regular { [weak self] _ in
+                    return .action(loc["JV_ChatTimeline_MessageAction_Copy", "options_copy"], .icon(.copy), .regular { [weak self] _ in
                         self?.pipeline?.notify(input: .performMessageCopy)
                     })
                 case .resendMessage:
-                    return .action(loc["options_resend"], .icon(.again), .regular { [weak self] _ in
+                    return .action(loc["JV_ChatTimeline_MessageAction_Resend", "options_resend"], .icon(.again), .regular { [weak self] _ in
                         self?.pipeline?.notify(input: .performMessageResend)
                     })
                 }

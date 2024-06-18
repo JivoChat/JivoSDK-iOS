@@ -92,11 +92,11 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
                             self?.requestMediaHandler?(url, mime)
                             
                         case .unauthorized:
-                            completion(.accessDenied(loc["file_download_expired"]))
+                            completion(.accessDenied(loc["JV_FileAttachment_LinkStatus_Expired", "file_download_expired"]))
                             self?.mediaBecameUnavailableHandler?(url, mime)
                             
                         default:
-                            completion(.unknownError(loc["file_download_unavailable"]))
+                            completion(.unknownError(loc["JV_FileAttachment_LinkStatus_Unavailable", "file_download_unavailable"]))
                             self?.mediaBecameUnavailableHandler?(url, mime)
                         }
                     }
@@ -109,10 +109,10 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
                     self?.requestMediaHandler?(url, mime)
                     
                 case .unauthorized:
-                    completion(.accessDenied(loc["file_download_expired"]))
+                    completion(.accessDenied(loc["JV_FileAttachment_LinkStatus_Expired", "file_download_expired"]))
                     
                 default:
-                    completion(.unknownError(loc["file_download_unavailable"]))
+                    completion(.unknownError(loc["JV_FileAttachment_LinkStatus_Unavailable", "file_download_unavailable"]))
                 }
             }
         }
@@ -239,13 +239,13 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
             title: nil,
             message: nil,
             items: [
-                !canPerformCopy() ? .omit : .action(loc["options_copy"], .icon(.copy), .regular { [weak self] _ in
+                !canPerformCopy() ? .omit : .action(loc["JV_ChatTimeline_MessageAction_Copy", "options_copy"], .icon(.copy), .regular { [weak self] _ in
                     self?.performCopy()
                 }),
-                !canPerformResend() ? .omit : .action(loc["options_resend"], .icon(.again), .regular { [weak self] _ in
+                !canPerformResend() ? .omit : .action(loc["JV_ChatTimeline_MessageAction_Resend", "options_resend"], .icon(.again), .regular { [weak self] _ in
                     self?.performResend()
                 }),
-                !canPerformDelete() ? .omit : .action(loc["options_delete"], .icon(.delete), .regular { [weak self] _ in
+                !canPerformDelete() ? .omit : .action(loc["JV_ChatTimeline_MessageAction_Delete", "options_delete"], .icon(.delete), .regular { [weak self] _ in
                     self?.performDelete()
                 }),
                 .dismiss(.cancel)

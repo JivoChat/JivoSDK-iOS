@@ -1088,21 +1088,21 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 fields: [
                     TimelineContactFormField(
                         id: "name",
-                        placeholder: loc["contact_form.name.placeholder"],
+                        placeholder: loc["JV_ContactForm_NameField_Placeholder", "contact_form.name.placeholder"],
                         value: details["name"].string?.jv_valuable,
                         keyboardType: .default,
                         interactivity: .enabled
                     ),
                     TimelineContactFormField(
                         id: "phone",
-                        placeholder: loc["contact_form.phone.placeholder"],
+                        placeholder: loc["JV_ContactForm_PhoneField_Placeholder", "contact_form.phone.placeholder"],
                         value: details["phone"].string?.jv_valuable,
                         keyboardType: .phonePad,
                         interactivity: .enabled
                     ),
                     TimelineContactFormField(
                         id: "email",
-                        placeholder: loc["contact_form.email.placeholder"],
+                        placeholder: loc["JV_ContactForm_EmailField_Placeholder", "contact_form.email.placeholder"],
                         value: details["email"].string?.jv_valuable,
                         keyboardType: .emailAddress,
                         interactivity: .enabled
@@ -2910,7 +2910,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 ID: bot.hashedID,
                 icon: bot.repicItem(transparent: false, scale: nil),
                 name: bot.displayName(kind: displayNameKind),
-                mark: loc["messages.label.bot", "Message.Sender.Bot"],
+                mark: loc["JV_DisplayName_Bot_Default", "messages.label.bot", "Message.Sender.Bot"],
                 style: _obtainItemSender_style(contentKind: .bot)
             )
         }
@@ -2941,7 +2941,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
                         clipping: .dual
                     ),
                     name: agent.displayName(kind: displayNameKind).jv_valuable ?? String(" "),
-                    mark: loc["messages.label.bot", "Message.Sender.Bot"],
+                    mark: loc["JV_DisplayName_Bot_Default", "messages.label.bot", "Message.Sender.Bot"],
                     style: _obtainItemSender_style(contentKind: .bot)
                 )
             }
@@ -3363,7 +3363,7 @@ fileprivate extension JVMessage {
             return nil
         }
         else if let _ = updatedMeta {
-            return loc["Message.Edited"]
+            return loc["JV_ChatTimeline_MessageStatus_Edited", "Message.Edited"]
         }
         else {
             return nil

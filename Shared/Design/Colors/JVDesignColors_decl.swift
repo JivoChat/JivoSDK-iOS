@@ -32,6 +32,8 @@ enum JVDesignColorAlias {
     case darkBackground
     case white
     case black
+    case systemBlue
+    case systemGreen
     case accentGreen
     case accentBlue
     case accentGraphite
@@ -111,6 +113,7 @@ enum JVDesignColorUsage {
     case oppositeForeground
     case disabledForeground
     case placeholderForeground
+    case unnoticeableForeground
     // gradients
     case informativeGradientTop
     case informativeGradientBottom
@@ -205,4 +208,20 @@ enum JVDesignColorUsage {
     case audioPlayerMaxTrack
     
     case waveformColor
+    
+    // WA Templates Feature
+    case waPreviewTimeBadgeBackground
+    case waPreviewTimeBadgeForeground
+    case waPreviewTemplateAgentBubble
+    case waPreviewTemplateClientBubble
+    case waPreviewMessageReadCheckmark
+    case waPreviewBackground
+    case waPreviewTemplateClientMessageTime
+    case waPreviewTemplateAgentMessageTime
+    case waPreviewTemplateButtonsSeparatorColor
+    
+    case listBackground
+    case separatorColor_b9b9bb
+    
+    case pickerTint
 }

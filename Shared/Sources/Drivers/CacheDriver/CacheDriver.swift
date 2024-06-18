@@ -78,6 +78,7 @@ protocol ICacheDriver: AnyObject {
     func replace(item: CacheDriverItem, sourceURL: URL) -> URL?
     func link(aliasItem: CacheDriverItem, realItem: CacheDriverItem)
     func link(aliasUrl: URL, realUrl: URL)
+    func copy(originalUrl: URL, duplicateUrl: URL)
     func cleanUp(directoryItem: CacheDriverItem, olderThen: Date)
 }
 
@@ -197,6 +198,10 @@ final class CacheDriver: ICacheDriver {
     
     func link(aliasUrl: URL, realUrl: URL) {
         try? storage.linkItem(at: realUrl, to: aliasUrl)
+    }
+    
+    func copy(originalUrl: URL, duplicateUrl: URL) {
+        try? storage.copyItem(at: originalUrl, to: duplicateUrl)
     }
     
     func cleanUp(directoryItem: CacheDriverItem, olderThen: Date) {

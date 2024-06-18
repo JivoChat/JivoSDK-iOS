@@ -45,7 +45,19 @@ class SdkJoint: ISdkJoint {
     }
     
     var isDisplaying: Bool {
-        return chatModuleJoint?.view != nil
+        guard let canvas = chatModuleJoint?.view,
+              let navigator = canvas.navigationController
+        else {
+            return false
+        }
+        
+        if let container = navigator.view, container.window == nil {
+            journal {"Something wrong: there is a view, without attached window"}
+            return false
+        }
+        else {
+            return true
+        }
     }
 
     func modifyConfig(block: (inout SdkInputConfig) -> Void) {
@@ -188,19 +200,19 @@ class SdkJoint: ISdkJoint {
                 fallback: config.customizationImageMapping[.headerIcon] ?? JVDesign.icons.find(asset: .agentAvatarIcon, rendering: .original).jv_orEmpty),
             titleCaption: displayDelegate.jv_defineText(
                 forElement: .headerTitle,
-                fallback: config.customizationTextMapping[.headerTitle] ?? loc["chat_title_placeholder"]),
+                fallback: config.customizationTextMapping[.headerTitle] ?? loc["JV_ChatNavigation_HeaderTitle_Default", "chat_title_placeholder"]),
             titleColor: displayDelegate.jv_defineColor(
                 forElement: .headerTitle,
                 fallback: config.customizationColorMapping[.headerTitle] ?? .dynamicTitle),
             subtitleCaption: displayDelegate.jv_defineText(
                 forElement: .headerSubtitle,
-                fallback: config.customizationTextMapping[.headerSubtitle] ?? loc["chat_subtitle_placeholder"]),
+                fallback: config.customizationTextMapping[.headerSubtitle] ?? loc["JV_ChatNavigation_HeaderSubtitle_Default", "chat_subtitle_placeholder"]),
             subtitleColor: displayDelegate.jv_defineColor(
                 forElement: .headerSubtitle,
                 fallback: config.customizationColorMapping[.headerSubtitle] ?? .dynamicSubtitle),
             inputPlaceholder: displayDelegate.jv_defineText(
                 forElement: .replyPlaceholder,
-                fallback: config.customizationTextMapping[.replyPlaceholder] ?? loc["input_message_placeholder"]),
+                fallback: config.customizationTextMapping[.replyPlaceholder] ?? loc["JV_ChatInput_Message_Placeholder", "input_message_placeholder"]),
             inputPrefill: displayDelegate.jv_defineText(
                 forElement: .replyPrefill,
                 fallback: config.customizationTextMapping[.replyPrefill] ?? String()),
@@ -209,16 +221,16 @@ class SdkJoint: ISdkJoint {
                 fallback: config.customizationTextMapping[.messageHello] ?? String()),
             offlineMessage: displayDelegate.jv_defineText(
                 forElement: .messageOffline,
-                fallback: config.customizationTextMapping[.messageOffline] ?? loc["offline_message_placeholder"]),
+                fallback: config.customizationTextMapping[.messageOffline] ?? loc["JV_ChatTimeline_SystemMessage_OfflineDefault", "offline_message_placeholder"]),
             attachCamera: displayDelegate.jv_defineText(
                 forElement: .attachCamera,
-                fallback: config.customizationTextMapping[.attachCamera] ?? loc["Media.Picker.Camera"]),
+                fallback: config.customizationTextMapping[.attachCamera] ?? loc["JV_ChatInput_MenuAttach_Camera", "Media.Picker.Camera"]),
             attachLibrary: displayDelegate.jv_defineText(
                 forElement: .attachLibrary,
-                fallback: config.customizationTextMapping[.attachLibrary] ?? loc["media_upload_attachment_type_selecting_photo"]),
+                fallback: config.customizationTextMapping[.attachLibrary] ?? loc["JV_ChatInput_MenuAttach_Gallery", "media_upload_attachment_type_selecting_photo"]),
             attachFile: displayDelegate.jv_defineText(
                 forElement: .attachFile,
-                fallback: config.customizationTextMapping[.attachFile] ?? loc["media_upload_attachment_type_selecting_document"]),
+                fallback: config.customizationTextMapping[.attachFile] ?? loc["JV_ChatInput_MenuAttach_Document", "media_upload_attachment_type_selecting_document"]),
             replyMenuExtraItems: config.extraMenuItems[.attach, default: Array()],
             replyMenuCustomHandler: { index in
                 config.extraMenuHandlers[.attach]?(index)
@@ -243,16 +255,16 @@ class SdkJoint: ISdkJoint {
             rateForm: .init(
                 preSubmitTitle: displayDelegate.jv_defineText(
                     forElement: .rateFormPreSubmitTitle,
-                    fallback: config.customizationTextMapping[.rateFormPreSubmitTitle] ?? loc["rate_form.title"]),
+                    fallback: config.customizationTextMapping[.rateFormPreSubmitTitle] ?? loc["JV_RateForm_HeaderTitle_BeforeSubmission", "rate_form.title"]),
                 postSubmitTitle: displayDelegate.jv_defineText(
                     forElement: .rateFormPostSubmitTitle,
-                    fallback: config.customizationTextMapping[.rateFormPostSubmitTitle] ?? loc["rate_form.finish_title"]),
+                    fallback: config.customizationTextMapping[.rateFormPostSubmitTitle] ?? loc["JV_RateForm_HeaderTitle_AfterSubmission", "rate_form.finish_title"]),
                 commentPlaceholder: displayDelegate.jv_defineText(
                     forElement: .rateFormCommentPlaceholder,
-                    fallback: config.customizationTextMapping[.rateFormCommentPlaceholder] ?? loc["rate_form.comment_title"]),
+                    fallback: config.customizationTextMapping[.rateFormCommentPlaceholder] ?? loc["JV_RateForm_CommentField_Legend", "rate_form.comment_title"]),
                 submitCaption: displayDelegate.jv_defineText(
                     forElement: .rateFormSubmitCaption,
-                    fallback: config.customizationTextMapping[.rateFormSubmitCaption] ?? loc["rate_form.send"])
+                    fallback: config.customizationTextMapping[.rateFormSubmitCaption] ?? loc["JV_RateForm_SubmitButton_Caption", "rate_form.send"])
             )
         )
     }

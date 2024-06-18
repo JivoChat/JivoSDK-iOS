@@ -53,11 +53,23 @@ enum JVMessageDelivery {
     case status(JVMessageStatus)
 }
 
+enum WaComponent: Codable {
+    case bodyVariable(String)
+    case headerVariable(String)
+}
+
+struct WaTemplateOutput: Codable {
+    let name: String
+    let languageCode: String
+    let resultedMessage: String
+    let components: [WaComponent]
+}
+
 enum JVMessageTarget: Codable {
     case regular
     case email(fromEmail: String, toEmail: String)
     case sms(fromChannel: Int, toPhone: String)
-    case whatsapp(fromChannel: Int, toPhone: String)
+    case whatsapp(fromChannelName: String, fromPhone: Int, toPhone: String, templateData: WaTemplateOutput?)
     case comment
     
     var supportsFileExchange: Bool {
@@ -535,7 +547,7 @@ extension JVMessage {
     
     var text: String {
         guard !(wasDeleted) else {
-            return loc["Message.Deleted"]
+            return loc["JV_ChatTimeline_MessageStatus_Deleted", "Message.Deleted"]
         }
         
         if let media = m_media {

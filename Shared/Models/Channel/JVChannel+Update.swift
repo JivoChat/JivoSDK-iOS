@@ -27,6 +27,9 @@ extension JVChannel {
             m_joint_type = c.jointType ?? ""
             m_joint_alias = c.jointAlias.jv_orEmpty
             m_joint_url = c.jointURL ?? ""
+            m_joint_phone = c.phone
+            m_joint_verified_name = c.verifiedName
+            m_joint_id = c.jointID ?? ""
             m_agents_ids = "," + c.agentIDs.jv_stringify().joined(separator: ",") + ","
         }
     }
@@ -54,10 +57,13 @@ final class JVChannelGeneralChange: JVDatabaseModelChange, Codable {
     public let publicID: String
     public let stateID: Int
     public let siteURL: String
+    public let phone: String
+    public let verifiedName: String
     public let guestsNumber: Int
     public let jointType: String?
     public let jointAlias: String?
     public let jointURL: String?
+    public let jointID: String?
     public let agentIDs: [Int]
     
     override var primaryValue: Int {
@@ -74,6 +80,9 @@ final class JVChannelGeneralChange: JVDatabaseModelChange, Codable {
         jointType = info["joint_type"].string
         jointAlias = info["joint_alias"].string
         jointURL = info["prepared_joint_options"]["url"].stringValue
+        jointID = info["prepared_joint_options"]["id"].stringValue
+        phone = info["prepared_joint_options"]["phone"].stringValue
+        verifiedName = info["prepared_joint_options"]["verified_name"].stringValue
         agentIDs = json["agents"].intArray ?? []
         super.init(json: json)
     }

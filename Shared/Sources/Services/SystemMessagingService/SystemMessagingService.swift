@@ -492,7 +492,7 @@ final class SystemMessagingService: ISystemMessagingService {
     
     func generateMediaUploading(comment: String?) -> LocalizedMeta {
         return LocalizedMeta(
-            mode: .format("Chat.System.Media.Uploading"),
+            mode: .formatAny(["JV_ChatTimeline_SystemMessage_MediaUploading" ,"Chat.System.Media.Uploading"]),
             args: [],
             suffix: wrapCommentIfNeeded(comment, separated: false),
             interactiveID: nil
@@ -628,7 +628,7 @@ final class SystemMessagingService: ISystemMessagingService {
     
     func generatePreviewMeta(isGroup: Bool, message: JVMessage) -> LocalizedMeta {
         guard !(message.wasDeleted) else {
-            return .init(exact: loc["Message.Deleted"])
+            return .init(exact: loc["JV_ChatTimeline_MessageStatus_Deleted", "Message.Deleted"])
         }
         
         switch message.content {
@@ -736,7 +736,7 @@ final class SystemMessagingService: ISystemMessagingService {
             return .init(exact: value)
 
         case .line:
-            let value = loc["Message.Preview.Line"].jv_plain()
+            let value = loc["JV_ChatTimeline_SystemMessage_SecondLine", "Message.Preview.Line"].jv_plain()
             return .init(exact: value)
 
         case .task(let task):

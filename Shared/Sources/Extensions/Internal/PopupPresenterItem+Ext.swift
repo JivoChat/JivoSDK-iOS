@@ -44,10 +44,10 @@ extension PopupPresenterItem.ActionIconPreset {
     static let comment = Self.init(assetName: nil, systemName: "text.word.spacing")
     static let pointer = Self.init(assetName: "send_webpointer", systemName: nil)
     static let sms = Self.init(assetName: nil, systemName: "bubble.left")
-    static let whatsapp = Self.init(assetName: nil, systemName: "bubble.left")
+    static let whatsapp = Self.init(assetName: "whatsapp", systemName: nil)
     static let paintBrush = Self.init(assetName: nil, systemName: "paintbrush.pointed")
     static let briefcase = Self.init(assetName: nil, systemName: "briefcase")
     static let text = Self.init(assetName: nil, systemName: "text.justify.left")
-    static let questionmarkCircle = Self.init(assetName: nil, systemName: "questionmark.circle")
+    static let questionmark = Self.init(assetName: nil, systemName: "questionmark.circle")
     static let textQuote = Self.init(assetName: nil, systemName: "text.quote")
 }

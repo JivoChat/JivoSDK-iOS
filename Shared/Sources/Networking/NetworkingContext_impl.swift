@@ -9,19 +9,30 @@
 import Foundation
 
 final class NetworkingContext: INetworkingContext {
+    private let defaultHost: String?
     let localeProvider: JVILocaleProvider
     
     private let mGlobalDomain = "jivosite.com"
     private let mRussianDomain = "jivo.ru"
-    private let settingsKey = "jivo:connectivity.connection_type"
-    
+    private let settingsTypeKey = "jivo:connectivity.connection_type"
+    private let settingsHostKey = "jivo:connectivity.connection_host"
+
     private var domain = NetworkingDomain.auto
     
-    init(localeProvider: JVILocaleProvider) {
+    init(defaultHost: String?, localeProvider: JVILocaleProvider) {
+        self.defaultHost = defaultHost?.jv_valuable
         self.localeProvider = localeProvider
     }
     
     var primaryDomain: String {
+        if let host = UserDefaults.standard.string(forKey: settingsHostKey)?.jv_valuable {
+            return host
+        }
+        
+        if let defaultHost {
+            return defaultHost
+        }
+        
         switch domain {
         case .auto:
             break
@@ -35,7 +46,7 @@ final class NetworkingContext: INetworkingContext {
             return host
         }
         
-        switch UserDefaults.standard.string(forKey: settingsKey) {
+        switch UserDefaults.standard.string(forKey: settingsTypeKey) {
         case "pgtn", "eu", "asia":
             return mGlobalDomain
         case "srtn", "ru":

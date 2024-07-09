@@ -88,7 +88,7 @@ final class SdkClientContext: ISdkClientContext {
     
     var contactInfo = JVSessionContactInfo()
 
-    private var client: JVClient {
+    private var client: ClientEntity {
         if let object = databaseDriver.client(for: 1, needsDefault: true) {
             return object
         }

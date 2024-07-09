@@ -13,7 +13,7 @@ import JMCodingKit
 protocol ISdkSessionManager: ISdkManager {
     var delegate: JVSessionDelegate? { get set }
     func setPreferredServer(_ server: JVSessionServer)
-    func startUp(channelPath: String, userToken: String)
+    func setup(channelPath: String, userToken: String)
     func establishConnection()
 }
 
@@ -193,7 +193,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             
             switch mode {
             case .cell, .wifi:
-                journal {"Network: \(mode.rawValue)"}
+                journal(layer: .network) {"Network: \(mode.rawValue)"}
                 
                 if Jivo.display.isOnscreen {
                     requestConfig()
@@ -230,10 +230,10 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         }
     }
     
-    func startUp(channelPath: String, userToken: String) {
+    func setup(channelPath: String, userToken: String) {
         let applicationState = UIApplication.shared.applicationState
         thread.async { [unowned self] in
-            _startUp(
+            _setup(
                 channelPath: channelPath,
                 userToken: userToken,
                 preferredMode: .resume,
@@ -241,7 +241,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         }
     }
     
-    private func _startUp(channelPath: String, userToken: String, preferredMode: SdkSessionManagerStartupMode, applicationState: UIApplication.State) {
+    private func _setup(channelPath: String, userToken: String, preferredMode: SdkSessionManagerStartupMode, applicationState: UIApplication.State) {
         let userIdentity = SdkSessionUserIdentity(input: userToken)
         
         guard let meta = detectStartUpMeta(
@@ -270,7 +270,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         case .hasAnotherActiveContext:
             sessionContext.connectionAllowance = .disallowed
             notifyPipeline(event: .turnInactive(.connection + .artifacts))
-            _startUp(channelPath: channelPath, userToken: userToken, preferredMode: .fresh, applicationState: applicationState)
+            _setup(channelPath: channelPath, userToken: userToken, preferredMode: .fresh, applicationState: applicationState)
             return
         }
         
@@ -292,11 +292,11 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             preferredStartupMode = .resume
         }
         
-        if applicationState.jv_isActive {
+        if applicationState.jv_canCommunicate {
             _startUp_perform()
         }
         else {
-            journal {"Session: defer the startUp"}
+            journal(layer: .logic) {"Session: defer the startUp"}
             startUpDeferred = .init(channelPath: channelPath, userToken: userToken)
         }
     }
@@ -326,7 +326,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             userIdentity: userIdentity)
         
         func _construct(behavior: SdkSessionManagerStartUpBehavior) -> _StartUpMeta {
-            journal {"StartUp behavior \(behavior) for personalNamespace \(personalNamespace)"}
+            journal(layer: .logic) {"StartUp behavior[\(behavior)] for personalNamespace[\(personalNamespace)]"}
             return _StartUpMeta(endpointInfo: endpointInfo, personalNamespace: personalNamespace, behavior: behavior)
         }
         
@@ -423,6 +423,10 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     }
     
     func establishConnection() {
+        guard UIApplication.shared.applicationState.jv_canCommunicate else {
+            return
+        }
+        
         thread.async { [unowned self] in
             _establishConnection()
         }
@@ -437,22 +441,19 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             return
         }
         
-        guard !networking.isConnected
-        else {
+        guard !networking.isConnected else {
             journal {"Connection to socket: already connected"}
             return
         }
         
-        guard reachabilityDriver.isReachable
-        else {
+        guard reachabilityDriver.isReachable else {
             journal {"Connection to socket: missing network"}
             sessionContext.connectionState = .searching
             return
         }
         
         func _tryResume() -> Bool {
-            guard let path = sessionContext.authorizingPath
-            else {
+            guard let path = sessionContext.authorizingPath else {
                 return false
             }
             
@@ -484,14 +485,14 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             journal {"Session: wanted to start, performing Start"}
             _tryFresh()
         case .resume where _tryResume():
-            journal {"Session: wanted to resume, performing Resume"}
+            journal(layer: .logic) {"Session: wanted to resume, performing Resume"}
         case .resume:
-            journal {"Session: wanted to resume, performing Start"}
+            journal(layer: .logic) {"Session: wanted to resume, performing Start"}
             _tryFresh()
         case .reconnect where _tryResume():
-            journal {"Session: wanted to reconnect, performing Resume"}
+            journal(layer: .logic) {"Session: wanted to reconnect, performing Resume"}
         case .reconnect:
-            journal {"Session: wanted to reconnect, performing Start"}
+            journal(layer: .logic) {"Session: wanted to reconnect, performing Start"}
             _tryFresh()
         }
     }
@@ -568,7 +569,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             return
         }
         
-        journal {"API: received config\n@response[\(meta.body)]"}
+        journal(layer: .api) {"API: received config\n@response[\(meta.body)]"}
         let parts = meta.body.chatserverHost.split(separator: ":")
         let host = parts.first
         let port = parts.last.flatMap(String.init).flatMap(Int.init) ?? .zero
@@ -669,8 +670,8 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     }
     
     @objc private func handleApplicationStateChange() {
-        if UIApplication.shared.jv_isActive, let deferred = startUpDeferred {
-            journal {"Session: use the deferred startUp"}
+        if UIApplication.shared.applicationState.jv_canCommunicate, let _ = startUpDeferred {
+            journal(layer: .logic) {"Session: use the deferred startUp"}
             startUpDeferred = nil
             
             thread.async { [unowned self] in

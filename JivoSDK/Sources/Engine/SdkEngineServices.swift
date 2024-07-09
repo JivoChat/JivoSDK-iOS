@@ -165,6 +165,7 @@ struct NetworkServiceFactory: INetworkServiceFactory {
         )
         
         return Networking(
+            defaultHost: nil,
             subSocket: networkSubSocket,
             subRest: networkSubRest,
             subApns: nil,

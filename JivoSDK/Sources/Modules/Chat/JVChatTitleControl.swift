@@ -22,7 +22,7 @@ class JVChatTitleControl: UIView {
         }
     }
     
-    var titleLabelText: String = loc["chat_title_placeholder"] {
+    var titleLabelText: String = loc["JV_ChatNavigation_HeaderTitle_Default", "chat_title_placeholder"] {
         didSet {
             titleLabel.text = titleLabelText
             setNeedsLayout()
@@ -37,7 +37,7 @@ class JVChatTitleControl: UIView {
         }
     }
     
-    var subtitleLabelText: String = loc["chat_subtitle_placeholder"] {
+    var subtitleLabelText: String = loc["JV_ChatNavigation_HeaderSubtitle_Default", "chat_subtitle_placeholder"] {
         didSet {
             subtitleLabel.text = subtitleLabelText
         }

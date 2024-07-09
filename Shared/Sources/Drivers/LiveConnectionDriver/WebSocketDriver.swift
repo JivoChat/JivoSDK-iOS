@@ -97,7 +97,7 @@ class WebSocketDriver: ILiveConnectionDriver {
             let outgoingPackages = outgoingPackagesAccumulator.release()
             outgoingPackages.forEach { json, data in
                 if let json = json {
-                    webSocket?.chain?.journal(.full) { [p = jsonPrivacyTool] in "WebSocket: flush body=\(p.filter(json: json))"}
+                    webSocket?.chain?.journal(layer: .api, .full) { [p = jsonPrivacyTool] in "WebSocket: flush body=\(p.filter(json: json))"}
                 }
                 
                 webSocket?.send(data)
@@ -124,7 +124,7 @@ class WebSocketDriver: ILiveConnectionDriver {
             outgoingPackagesAccumulator.accumulate((json, data))
         }
         else {
-            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: send body=\(p.filter(json: json))"}
+            webSocket?.chain?.journal(layer: .api) { [p = jsonPrivacyTool] in "WebSocket: send body=\(p.filter(json: json))"}
             webSocket?.send(data)
             schedulePingTimer()
         }
@@ -140,7 +140,7 @@ class WebSocketDriver: ILiveConnectionDriver {
             outgoingPackagesAccumulator.accumulate((payload, data))
         }
         else {
-            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: send body=\(p.filter(json: payload))"}
+            webSocket?.chain?.journal(layer: .api) { [p = jsonPrivacyTool] in "WebSocket: send body=\(p.filter(json: payload))"}
             webSocket?.send(data)
             schedulePingTimer()
         }
@@ -165,7 +165,7 @@ class WebSocketDriver: ILiveConnectionDriver {
             outgoingPackagesAccumulator.accumulate((payload, data))
         }
         else {
-            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: send body=\(p.filter(json: payload))"}
+            webSocket?.chain?.journal(layer: .api) { [p = jsonPrivacyTool] in "WebSocket: send body=\(p.filter(json: payload))"}
             webSocket?.send(data)
             schedulePingTimer()
         }
@@ -247,12 +247,12 @@ class WebSocketDriver: ILiveConnectionDriver {
     }
     
     private func pongTimerFired(_ timer: Timer) {
-        webSocket?.chain?.journal(.full) {"WebSocket: disconnect as no Pong arrived"}
+        webSocket?.chain?.journal(layer: .network, .full) {"WebSocket: disconnect as no Pong arrived"}
         disconnect()
     }
     
     private func setupWebSocket(url: URL) {
-        let chain = journal {"WebSocket: connect to\n\(url.absoluteString)"}
+        let chain = journal(layer: .api) {"WebSocket: setup for\n\(url.absoluteString)"}
         
         webSocket = WebSocketVerbose()
         webSocket?.chain = chain

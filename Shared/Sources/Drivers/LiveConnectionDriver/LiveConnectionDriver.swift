@@ -343,7 +343,7 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
             outgoingCachedPackets?.append((json, data))
         }
         else {
-            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: send body=\(p.filter(json: json))"}
+            webSocket?.chain?.journal(layer: .api) { [p = jsonPrivacyTool] in "WebSocket: send body=\(p.filter(json: json))"}
             webSocket?.send(data)
             reshedulePinging()
         }
@@ -373,7 +373,7 @@ final class LiveConnectionDriver: ILiveConnectionDriver {
             outgoingCachedPackets?.append((payload, data))
         }
         else {
-            webSocket?.chain?.journal { [p = jsonPrivacyTool] in "WebSocket: send body=\(p.filter(json: payload))"}
+            webSocket?.chain?.journal(layer: .api) { [p = jsonPrivacyTool] in "WebSocket: send body=\(p.filter(json: payload))"}
             webSocket?.send(data)
             reshedulePinging()
         }

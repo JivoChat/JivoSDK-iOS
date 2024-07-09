@@ -9,13 +9,13 @@ import Foundation
 
 
 protocol ISdkChatContext: AnyObject {
-    var chatRef: JVDatabaseModelRef<JVChat>? { get set }
-    var chatAgents: [Int: JVDatabaseModelRef<JVAgent>] { get set }
-    var channelAgents: [Int: JVDatabaseModelRef<JVAgent>] { get set }
+    var chatRef: DatabaseEntityRef<ChatEntity>? { get set }
+    var chatAgents: [Int: DatabaseEntityRef<AgentEntity>] { get set }
+    var channelAgents: [Int: DatabaseEntityRef<AgentEntity>] { get set }
 }
 
 final class SdkChatContext: ISdkChatContext {
-    var chatRef: JVDatabaseModelRef<JVChat>?
-    var chatAgents = [Int: JVDatabaseModelRef<JVAgent>]()
-    var channelAgents = [Int: JVDatabaseModelRef<JVAgent>]()
+    var chatRef: DatabaseEntityRef<ChatEntity>?
+    var chatAgents = [Int: DatabaseEntityRef<AgentEntity>]()
+    var channelAgents = [Int: DatabaseEntityRef<AgentEntity>]()
 }

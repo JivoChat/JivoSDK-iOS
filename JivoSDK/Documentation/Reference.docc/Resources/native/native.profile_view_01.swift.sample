@@ -1,0 +1,16 @@
+import Foundation
+import SwiftUI
+import JivoSDK
+
+struct ProfileView: some View {
+    @State private var shouldPresentChat = false
+    
+    var body: some View {
+        Button(action: {shouldPresentChat.toggle()}) {
+            Text("Tech Support")
+        }
+        .fullScreenCover(isPresented: $shouldPresentChat) {
+            Jivo.display.makeScreen(.modal)
+        }
+    }
+}

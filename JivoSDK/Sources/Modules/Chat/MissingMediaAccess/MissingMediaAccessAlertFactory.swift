@@ -42,8 +42,8 @@ extension MissingMediaAccessAlertFactory {
     
     private func buildDefaultPhotoLibraryUsageAlertController() -> UIAlertController {
         let cameraUsageAlertController = buildCommonMissingAccessAlertController(
-            withTitle: loc["Media.Access.Missing"],
-            andMessage: loc["Media.Access.Suggestion"]
+            withTitle: loc["JV_SystemAccess_Gallery_NoPermission", "Media.Access.Missing"],
+            andMessage: loc["JV_SystemAccess_Gallery_RequestReason", "Media.Access.Suggestion"]
         )
         
         return cameraUsageAlertController
@@ -51,8 +51,8 @@ extension MissingMediaAccessAlertFactory {
     
     private func buildDefaultCameraAccessDeniedController() -> UIAlertController {
         let cameraUsageAlertController = buildCommonMissingAccessAlertController(
-            withTitle: loc["Media.Access.Missing"],
-            andMessage: loc["Camera.Access.Suggestion"]
+            withTitle: loc["JV_SystemAccess_Camera_NoPermission", "Media.Access.Missing"],
+            andMessage: loc["JV_SystemAccess_Camera_RequestReason", "Camera.Access.Suggestion"]
         )
         
         return cameraUsageAlertController
@@ -60,7 +60,7 @@ extension MissingMediaAccessAlertFactory {
     
     private func buildDefaultCameraAccessRestrictedController() -> UIAlertController {
         let cameraUsageAlertController = buildCommonMissingAccessAlertController(
-            withTitle: loc["Camera.Access.Restricted"]
+            withTitle: loc["JV_SystemAccess_Camera_NoPermission", "Camera.Access.Restricted"]
         )
         
         return cameraUsageAlertController
@@ -77,7 +77,7 @@ extension MissingMediaAccessAlertFactory {
                 preferredStyle: .alert
             )
             alertController.addAction(UIAlertAction(
-                title: loc["Common.Open"],
+                title: loc["JV_Common_Captions_Open", "Common.Open"],
                 style: .default,
                 handler: { _ in
                     guard let url = URL.jv_privacy() else { return }
@@ -85,7 +85,7 @@ extension MissingMediaAccessAlertFactory {
                 }
             ))
             alertController.addAction(UIAlertAction(
-                title: loc["common_cancel"],
+                title: loc["JV_Common_Captions_Cancel", "common_cancel"],
                 style: .cancel,
                 handler: { _ in
                     alertController.dismiss(animated: true)

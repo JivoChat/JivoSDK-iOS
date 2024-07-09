@@ -10,5 +10,5 @@ import Foundation
 
 struct ChatCacheEarliestMeta {
     let chatID: Int
-    let message: JVMessage
+    let message: MessageEntity
 }

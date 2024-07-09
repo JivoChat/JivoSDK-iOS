@@ -85,10 +85,10 @@ extension IPopupPresenterBridge {
     func warnMissingMediaAccess() {
         displayAlert(
             within: .auto,
-            title: loc["Media.Access.Missing"],
-            message: loc["Media.Access.Suggestion"],
+            title: loc["JV_SystemAccess_Gallery_NoPermission", "Media.Access.Missing"],
+            message: loc["JV_SystemAccess_Gallery_RequestReason", "Media.Access.Suggestion"],
             items: [
-                .action(loc["Common.Open"], .icon(.safari), .regular { _ in
+                .action(loc["JV_Common_Captions_Open", "Common.Open"], .icon(.safari), .regular { _ in
                     guard let url = URL.jv_privacy() else { return }
                     UIApplication.shared.open(url)
                 }),
@@ -262,7 +262,7 @@ extension IPopupPresenterBridge {
             options: [.template])
     }
     
-    func pickGroupNotifications(group: JVChat, callback: @escaping (JVChatAttendeeNotifying) -> Void) {
+    func pickGroupNotifications(group: ChatEntity, callback: @escaping (JVChatAttendeeNotifying) -> Void) {
         let map: [JVChatAttendeeNotifying: (title: String, preset: PopupPresenterItem.ActionIconPreset)] = [
             .everything: (title: loc["Teambox.Options.Everything"], preset: .checkmark),
             .nothing: (title: loc["Teambox.Options.Nothing"], preset: .checkmark),

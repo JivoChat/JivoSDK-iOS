@@ -41,7 +41,7 @@ final class TimelineContactFormControl: UIView, UITextFieldDelegate {
         
         isOpaque = false
         
-        buttonControl.caption = loc["common.send"]
+        buttonControl.caption = loc["JV_Common_Captions_Send", "common.send"]
         buttonControl.shortTapHandler = { [weak self] in self?.handleButtonTap() }
         addSubview(buttonControl)
     }
@@ -257,16 +257,16 @@ final class TimelineContactFormControl: UIView, UITextFieldDelegate {
         
         switch sizing {
         case .inactive:
-            buttonControl.caption = loc["common.send"]
+            buttonControl.caption = loc["JV_Common_Captions_Send", "common.send"]
             buttonControl.isEnabled = false
         case .editable:
-            buttonControl.caption = loc["common.send"]
+            buttonControl.caption = loc["JV_Common_Captions_Send", "common.send"]
             buttonControl.isEnabled = validation.values.reduce(true, { buff, item in buff && item })
         case .syncing:
-            buttonControl.caption = loc["common.send"]
+            buttonControl.caption = loc["JV_Common_Captions_Send", "common.send"]
             buttonControl.isEnabled = false
         case .snapshot:
-            buttonControl.caption = loc["contact_form.status.sent"]
+            buttonControl.caption = loc["JV_ContactForm_SubmitStatus_Done", "contact_form.status.sent"]
             buttonControl.isEnabled = false
         }
     }

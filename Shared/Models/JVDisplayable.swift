@@ -9,7 +9,7 @@
 import Foundation
 
 protocol JVDisplayable: JVPresentable {
-    var channel: JVChannel? { get }
+    var channel: ChannelEntity? { get }
     func displayName(kind: JVDisplayNameKind) -> String
     var integration: JVChannelJoint? { get }
     var hashedID: String { get }

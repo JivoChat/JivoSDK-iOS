@@ -92,6 +92,7 @@ final class JVDesignColors: JVDesignEnvironmental, JVIDesignColors {
         case .oppositeForeground: return dynamicColor(light: .alias(.white), dark: .alias(.black))
         case .disabledForeground: return dynamicColor(light: .native(.lightGray), dark: .native(.darkGray))
         case .placeholderForeground: return dynamicColor(light: .hex(0xE1E1E2), dark: .hex(0x404040))
+        case .unnoticeableForeground: return dynamicColor(light: .native(.black.withAlphaComponent(0.015)), dark: .native(.white.withAlphaComponent(0.035)))
         // gradients
         case .informativeGradientTop: return dynamicColor(light: .hex(0x0C1A40), dark: .hex(0x202020))
         case .informativeGradientBottom: return dynamicColor(light: .hex(0x263959), dark: .hex(0x202020))
@@ -193,6 +194,41 @@ final class JVDesignColors: JVDesignEnvironmental, JVIDesignColors {
             return dynamicColor(light: .native(UIColor(jv_hex: 0x3C3C43, alpha: 0.6)), dark: .hex(0x333333))
         case .audioPlayerButtonBorder:
             return dynamicColor(light: .native(UIColor(jv_hex: 0x3C3C43, alpha: 0.18)), dark: .native(UIColor.clear))
+        case .listBackground:
+            return dynamicColor(light: .native(UIColor(jv_hex: 0xF7F8FC, alpha: 1.0)), dark: .native(UIColor(jv_hex: 0x1C1C1E, alpha: 1.0)))
+        case .separatorColor_b9b9bb:
+            return dynamicColor(light: .native(UIColor(jv_hex: 0xB9B9BB, alpha: 1.0)), dark: .native(UIColor(jv_hex: 0x373739, alpha: 1.0)))
+        case .pickerTint:
+            return dynamicColor(light: .native(UIColor(jv_hex: 0x3C3C43, alpha: 0.18)), dark: .native(UIColor(jv_hex: 0xFFFFFF, alpha: 0.18)))
+        case .waPreviewTimeBadgeForeground:
+            // TODO: - Convert to jv_hex
+            return dynamicColor(light: .native(UIColor(red: 0.24, green: 0.24, blue: 0.26, alpha: 1)), dark: .native(UIColor(red: 0.65, green: 0.66, blue: 0.66, alpha: 1)))
+        case .waPreviewTimeBadgeBackground:
+            // TODO: - Convert to jv_hex
+            return dynamicColor(light: .native(UIColor(red: 0.87, green: 0.87, blue: 0.91, alpha: 1)), dark: .native(UIColor(red: 0.18, green: 0.18, blue: 0.18, alpha: 1)))
+        case .waPreviewTemplateAgentBubble:
+            return dynamicColor(light: .native(UIColor(red: 0.98, green: 0.98, blue: 0.98, alpha: 1)), dark: .native(UIColor(red: 0.21, green: 0.21, blue: 0.22, alpha: 1)))
+        case .waPreviewTemplateClientBubble:
+            return dynamicColor(light: .native(UIColor(red: 0.86, green: 0.97, blue: 0.77, alpha: 1)), dark: .native(UIColor(red: 0.13, green: 0.32, blue: 0.27, alpha: 1)))
+        case .waPreviewMessageReadCheckmark:
+            return UIColor(red: 0.2, green: 0.59, blue: 0.98, alpha: 1)
+        case .waPreviewTemplateClientMessageTime:
+            return dynamicColor(
+                light: .native(UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.25)),
+                dark: .native(UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.4))
+            )
+        case .waPreviewTemplateAgentMessageTime:
+            return dynamicColor(
+                light: .native(UIColor(red: 0.0, green: 0.0, blue: 0.0, alpha: 0.4)),
+                dark: .native(UIColor(red: 1.0, green: 1.0, blue: 1.0, alpha: 0.25))
+            )
+        case .waPreviewTemplateButtonsSeparatorColor:
+            return dynamicColor(
+                light: .native(UIColor(red: 198/255, green: 203/255, blue: 209/255, alpha: 1)),
+                dark: .native(UIColor(red: 84/255, green: 84/255, blue: 88/255, alpha: 0.65))
+            )
+        case .waPreviewBackground:
+            return dynamicColor(light: .native(UIColor(jv_hex: 0xE6DDD5, alpha: 1.0)), dark: .native(UIColor(jv_hex: 0x131517, alpha: 1.0)))
         }
     }
     
@@ -237,6 +273,8 @@ fileprivate let f_colors: [JVDesignColorBrightness: [JVDesignColorAlias: UIColor
         .darkBackground: UIColor(jv_hex: 0x1C1B17),
         .white: UIColor.white,
         .black: UIColor.black,
+        .systemBlue: UIColor.systemBlue,
+        .systemGreen: UIColor.systemGreen,
         .accentGreen: UIColor(jv_hex: 0x12A730),
         .accentBlue: UIColor(jv_hex: 0x086BCD),
         .accentGraphite: UIColor(jv_hex: 0x445669),
@@ -272,6 +310,7 @@ fileprivate let f_colors: [JVDesignColorBrightness: [JVDesignColorAlias: UIColor
     .dark: [
         .white: UIColor.white,
         .black: UIColor.black,
+        .systemBlue: UIColor.systemBlue,
         .accentGreen: UIColor(jv_hex: 0x12A730),
         .accentBlue: UIColor(jv_hex: 0x086BCD),
         .accentGraphite: UIColor(jv_hex: 0x445669),

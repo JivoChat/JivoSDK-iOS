@@ -10,7 +10,7 @@ import Foundation
 import CoreData
 
 extension JVIDatabaseDriver {
-    func insert<OT: JVDatabaseModel>(of type: OT.Type, with changes: [JVDatabaseModelChange]?) -> [OT] {
+    func insert<OT: DatabaseEntity>(of type: OT.Type, with changes: [JVDatabaseModelChange]?) -> [OT] {
         var result = [OT]()
         
         readwrite { context in
@@ -20,7 +20,7 @@ extension JVIDatabaseDriver {
         return result
     }
     
-    func upsert<OT: JVDatabaseModel>(of type: OT.Type, with change: JVDatabaseModelChange) -> OT? {
+    func upsert<OT: DatabaseEntity>(of type: OT.Type, with change: JVDatabaseModelChange) -> OT? {
         var result: OT?
         
         readwrite { context in
@@ -30,7 +30,7 @@ extension JVIDatabaseDriver {
         return result
     }
     
-    func upsert<OT: JVDatabaseModel>(of type: OT.Type, with changes: [JVDatabaseModelChange]) -> [OT] {
+    func upsert<OT: DatabaseEntity>(of type: OT.Type, with changes: [JVDatabaseModelChange]) -> [OT] {
         var result = [OT]()
         
         readwrite { context in
@@ -40,7 +40,7 @@ extension JVIDatabaseDriver {
         return result
     }
     
-    func update<OT: JVDatabaseModel>(of type: OT.Type, with change: JVDatabaseModelChange) -> OT? {
+    func update<OT: DatabaseEntity>(of type: OT.Type, with change: JVDatabaseModelChange) -> OT? {
         var result: OT?
         
         readwrite { context in
@@ -50,7 +50,7 @@ extension JVIDatabaseDriver {
         return result
     }
     
-    func replaceAll<OT: JVDatabaseModel>(of type: OT.Type, with changes: [JVDatabaseModelChange]) -> [OT] {
+    func replaceAll<OT: DatabaseEntity>(of type: OT.Type, with changes: [JVDatabaseModelChange]) -> [OT] {
         var result = [OT]()
         
         readwrite { context in
@@ -60,8 +60,8 @@ extension JVIDatabaseDriver {
         return result
     }
     
-    func chatWithID(_ ID: Int) -> JVChat? {
-        var chat: JVChat?
+    func chatWithID(_ ID: Int) -> ChatEntity? {
+        var chat: ChatEntity?
         
         read { context in
             chat = context.chatWithID(ID)
@@ -70,8 +70,8 @@ extension JVIDatabaseDriver {
         return chat
     }
 
-    func client(for clientID: Int, needsDefault: Bool) -> JVClient? {
-        var client: JVClient?
+    func client(for clientID: Int, needsDefault: Bool) -> ClientEntity? {
+        var client: ClientEntity?
 
         read { context in
             client = context.client(for: clientID, needsDefault: false)
@@ -86,7 +86,7 @@ extension JVIDatabaseDriver {
         return client
     }
     
-    func chatForMessage(_ message: JVMessage, evenArchived: Bool) -> JVChat? {
+    func chatForMessage(_ message: MessageEntity, evenArchived: Bool) -> ChatEntity? {
         if let client = message.client {
             return chat(for: client.ID, evenArchived: evenArchived)
         }
@@ -95,8 +95,8 @@ extension JVIDatabaseDriver {
         }
     }
 
-    func agents(withMe: Bool) -> [JVAgent] {
-        var agents = [JVAgent]()
+    func agents(withMe: Bool) -> [AgentEntity] {
+        var agents = [AgentEntity]()
         
         let predicate: NSPredicate
         if withMe {
@@ -108,7 +108,7 @@ extension JVIDatabaseDriver {
         
         read { context in
             agents = context.objects(
-                JVAgent.self,
+                AgentEntity.self,
                 options: JVDatabaseRequestOptions(
                     filter: predicate
                 )
@@ -118,8 +118,8 @@ extension JVIDatabaseDriver {
         return agents
     }
     
-    func agent(for agentID: Int, provideDefault: Bool) -> JVAgent? {
-        var agent: JVAgent?
+    func agent(for agentID: Int, provideDefault: Bool) -> AgentEntity? {
+        var agent: AgentEntity?
         
         read { context in
             agent = context.agent(for: agentID, provideDefault: false)
@@ -134,8 +134,8 @@ extension JVIDatabaseDriver {
         return agent
     }
     
-    func bot(for botID: Int, provideDefault: Bool) -> JVBot? {
-        var bot: JVBot?
+    func bot(for botID: Int, provideDefault: Bool) -> BotEntity? {
+        var bot: BotEntity?
         
         read { context in
             bot = context.bot(for: botID, provideDefault: false)
@@ -150,8 +150,8 @@ extension JVIDatabaseDriver {
         return bot
     }
     
-    func chat(for clientID: Int, evenArchived: Bool) -> JVChat? {
-        var chat: JVChat?
+    func chat(for clientID: Int, evenArchived: Bool) -> ChatEntity? {
+        var chat: ChatEntity?
         
         read { context in
             guard let client = context.client(for: clientID, needsDefault: false) else { return }
@@ -161,8 +161,8 @@ extension JVIDatabaseDriver {
         return chat
     }
     
-    func message(for UUID: String) -> JVMessage? {
-        var message: JVMessage?
+    func message(for UUID: String) -> MessageEntity? {
+        var message: MessageEntity?
         
         read { context in
             message = context.messageWithUUID(UUID)
@@ -171,8 +171,8 @@ extension JVIDatabaseDriver {
         return message
     }
     
-    func topic(for topicId: Int, needsDefault: Bool) -> JVTopic? {
-        var topic: JVTopic?
+    func topic(for topicId: Int, needsDefault: Bool) -> TopicEntity? {
+        var topic: TopicEntity?
 
         read { context in
             topic = context.topic(for: topicId, needsDefault: false)
@@ -189,7 +189,7 @@ extension JVIDatabaseDriver {
 }
 
 extension JVIDatabaseContext {
-    func find<OT: JVDatabaseModel>(of type: OT.Type, with change: JVDatabaseModelChange?) -> OT? {
+    func find<OT: DatabaseEntity>(of type: OT.Type, with change: JVDatabaseModelChange?) -> OT? {
         if let change = change, change.isValid {
             if let integerKey = change.integerKey {
                 let customId = JVDatabaseModelCustomId(key: integerKey.key, value: integerKey.value)
@@ -211,7 +211,7 @@ extension JVIDatabaseContext {
         }
     }
 
-    func insert<OT: JVDatabaseModel>(of type: OT.Type, with change: JVDatabaseModelChange?, validOnly: Bool = false) -> OT? {
+    func insert<OT: DatabaseEntity>(of type: OT.Type, with change: JVDatabaseModelChange?, validOnly: Bool = false) -> OT? {
         guard let change = change else {
             return nil
         }
@@ -227,7 +227,7 @@ extension JVIDatabaseContext {
         return obj
     }
     
-    func insert<OT: JVDatabaseModel>(of type: OT.Type, with changes: [JVDatabaseModelChange]?, validOnly: Bool = false) -> [OT] {
+    func insert<OT: DatabaseEntity>(of type: OT.Type, with changes: [JVDatabaseModelChange]?, validOnly: Bool = false) -> [OT] {
         guard let changes = changes else {
             return []
         }
@@ -237,12 +237,12 @@ extension JVIDatabaseContext {
         }
     }
     
-    func upsert<OT: JVDatabaseModel>(of type: OT.Type, with change: JVDatabaseModelChange?, validOnly: Bool = false) -> OT? {
+    func upsert<OT: DatabaseEntity>(of type: OT.Type, with change: JVDatabaseModelChange?, validOnly: Bool = false) -> OT? {
         let (obj, _) = upsertCallback(of: type, with: change, validOnly: validOnly)
         return obj
     }
     
-    func upsertCallback<OT: JVDatabaseModel>(of type: OT.Type, with change: JVDatabaseModelChange?, validOnly: Bool = false) -> (OT?, Bool) {
+    func upsertCallback<OT: DatabaseEntity>(of type: OT.Type, with change: JVDatabaseModelChange?, validOnly: Bool = false) -> (OT?, Bool) {
         var newlyAdded = false
         
         if let change = change, change.isValid {
@@ -297,7 +297,7 @@ extension JVIDatabaseContext {
         }
     }
     
-    func upsert<OT: JVDatabaseModel>(of type: OT.Type, with changes: [JVDatabaseModelChange]?) -> [OT] {
+    func upsert<OT: DatabaseEntity>(of type: OT.Type, with changes: [JVDatabaseModelChange]?) -> [OT] {
         if let changes = changes {
             return changes.compactMap { upsert(of: type, with: $0) }
         }
@@ -306,7 +306,7 @@ extension JVIDatabaseContext {
         }
     }
     
-    func upsert<OT: JVDatabaseModel>(_ model: OT?, with change: JVDatabaseModelChange?) -> OT? {
+    func upsert<OT: DatabaseEntity>(_ model: OT?, with change: JVDatabaseModelChange?) -> OT? {
         guard let change = change else {
             return model
         }
@@ -320,7 +320,7 @@ extension JVIDatabaseContext {
         }
     }
     
-    func update<OT: JVDatabaseModel>(of type: OT.Type, with change: JVDatabaseModelChange?) -> OT? {
+    func update<OT: DatabaseEntity>(of type: OT.Type, with change: JVDatabaseModelChange?) -> OT? {
         guard let change = change else {
             return nil
         }
@@ -366,7 +366,7 @@ extension JVIDatabaseContext {
         return obj
     }
     
-    func replaceAll<OT: JVDatabaseModel>(of type: OT.Type, with changes: [JVDatabaseModelChange]) -> [OT] {
+    func replaceAll<OT: DatabaseEntity>(of type: OT.Type, with changes: [JVDatabaseModelChange]) -> [OT] {
         for object in objects(type, options: nil) {
             context.delete(object)
         }
@@ -374,36 +374,36 @@ extension JVIDatabaseContext {
         return upsert(of: type, with: changes)
     }
     
-    func models<MT: JVDatabaseModel>(for IDs: [Int]) -> [MT] {
+    func models<MT: DatabaseEntity>(for IDs: [Int]) -> [MT] {
         return IDs.compactMap { self.object(MT.self, primaryId: $0) }
     }
     
-    func agent(for agentID: Int, provideDefault: Bool) -> JVAgent? {
-        if let value = object(JVAgent.self, primaryId: agentID) {
+    func agent(for agentID: Int, provideDefault: Bool) -> AgentEntity? {
+        if let value = object(AgentEntity.self, primaryId: agentID) {
             return value
         }
         else if provideDefault {
-            return upsert(of: JVAgent.self, with: JVAgentGeneralChange(placeholderID: agentID))
+            return upsert(of: AgentEntity.self, with: JVAgentGeneralChange(placeholderID: agentID))
         }
         else {
             return nil
         }
     }
     
-    func bot(for botID: Int, provideDefault: Bool) -> JVBot? {
-        if let value = object(JVBot.self, primaryId: botID) {
+    func bot(for botID: Int, provideDefault: Bool) -> BotEntity? {
+        if let value = object(BotEntity.self, primaryId: botID) {
             return value
         }
         else if provideDefault {
-            return upsert(of: JVBot.self, with: JVBotGeneralChange(placeholderID: botID))
+            return upsert(of: BotEntity.self, with: JVBotGeneralChange(placeholderID: botID))
         }
         else {
             return nil
         }
     }
     
-    func department(for departmentID: Int) -> JVDepartment? {
-        if let value = object(JVDepartment.self, primaryId: departmentID) {
+    func department(for departmentID: Int) -> DepartmentEntity? {
+        if let value = object(DepartmentEntity.self, primaryId: departmentID) {
             return value
         }
         else {
@@ -411,12 +411,12 @@ extension JVIDatabaseContext {
         }
     }
     
-    func client(for clientID: Int, needsDefault: Bool) -> JVClient? {
-        if let value = object(JVClient.self, primaryId: clientID) {
+    func client(for clientID: Int, needsDefault: Bool) -> ClientEntity? {
+        if let value = object(ClientEntity.self, primaryId: clientID) {
             return value
         }
         else if needsDefault {
-            return upsert(of: JVClient.self, with: JVClientGeneralChange(clientID: clientID))
+            return upsert(of: ClientEntity.self, with: JVClientGeneralChange(clientID: clientID))
         }
         else {
             return nil
@@ -432,15 +432,15 @@ extension JVIDatabaseContext {
         }
     }
     
-    func chatWithID(_ ID: Int) -> JVChat? {
-        return object(JVChat.self, primaryId: ID)
+    func chatWithID(_ ID: Int) -> ChatEntity? {
+        return object(ChatEntity.self, primaryId: ID)
     }
     
-    func messageWithUUID(_ UUID: String) -> JVMessage? {
-        return object(JVMessage.self, customId: JVDatabaseModelCustomId(key: "m_uid", value: UUID))
+    func messageWithUUID(_ UUID: String) -> MessageEntity? {
+        return object(MessageEntity.self, customId: JVDatabaseModelCustomId(key: "m_uid", value: UUID))
     }
     
-    func chatsWithClient(_ client: JVClient, includeArchived: Bool) -> [JVChat] {
+    func chatsWithClient(_ client: ClientEntity, includeArchived: Bool) -> [ChatEntity] {
         let predicate: NSPredicate
         if includeArchived {
             predicate = NSPredicate(format: "(m_client.m_id == \(client.ID))")
@@ -450,7 +450,7 @@ extension JVIDatabaseContext {
         }
 
         return objects(
-            JVChat.self,
+            ChatEntity.self,
             options: JVDatabaseRequestOptions(
                 filter: predicate,
                 sortBy: [],
@@ -459,9 +459,9 @@ extension JVIDatabaseContext {
         )
     }
     
-    func createMessage(with change: JVDatabaseModelChange) -> JVMessage {
-        let entityName = String(describing: JVMessage.self)
-        let message = NSEntityDescription.insertNewObject(forEntityName: entityName, into: context) as! JVMessage
+    func createMessage(with change: JVDatabaseModelChange) -> MessageEntity {
+        let entityName = String(describing: MessageEntity.self)
+        let message = NSEntityDescription.insertNewObject(forEntityName: entityName, into: context) as! MessageEntity
         
         message.apply(context: self, change: change)
         add([message])
@@ -469,22 +469,22 @@ extension JVIDatabaseContext {
         return message
     }
     
-    func messageWithCallID(_ callID: String?) -> JVMessage? {
+    func messageWithCallID(_ callID: String?) -> MessageEntity? {
         guard let callID = callID else { return nil }
 
         let filter = NSPredicate(format: "m_body.m_call_id == %@", callID)
         let options = JVDatabaseRequestOptions(filter: filter)
-        return objects(JVMessage.self, options: options).last
+        return objects(MessageEntity.self, options: options).last
     }
     
-    func unlinkChat(_ chat: JVChat) {
-        _ = update(of: JVChat.self, with: JVChatArchiveChange(ID: chat.ID))
+    func unlinkChat(_ chat: ChatEntity) {
+        _ = update(of: ChatEntity.self, with: JVChatArchiveChange(ID: chat.ID))
     }
 
-    func removeChat(_ chat: JVChat, cleanup: Bool) {
+    func removeChat(_ chat: ChatEntity, cleanup: Bool) {
         if cleanup, let client = chat.client, client.jv_isValid {
             let messages = objects(
-                JVMessage.self,
+                MessageEntity.self,
                 options: JVDatabaseRequestOptions(
                     filter: NSPredicate(format: "m_client_id == %lld", client.ID),
                     sortBy: []
@@ -501,7 +501,7 @@ extension JVIDatabaseContext {
         guard !uuids.isEmpty else { return }
 
         let messages = objects(
-            JVMessage.self,
+            MessageEntity.self,
             options: JVDatabaseRequestOptions(
                 filter: NSPredicate(format: "m_uid in %@", uuids)
             )

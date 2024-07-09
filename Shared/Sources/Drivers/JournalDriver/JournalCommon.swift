@@ -43,6 +43,10 @@ enum JournalLayer: String {
     case system
     case network
     case backend
+    case facade
+    case notifications
+    case api
+    case ui
 }
 
 enum JournalLevel: String {
@@ -264,7 +268,7 @@ class JournalGenerator {
     private let dateFormatter = DateFormatter()
     
     init() {
-        dateFormatter.dateFormat = "yyyy-MM-dd HH:mm:ss"
+        dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSS"
     }
     
     var isEnabled: Bool {
@@ -332,21 +336,21 @@ class JournalFullGenerator: JournalGenerator {
         }
         
         if let scope = meta.scope {
-            return "\(separator)\n\(prefix) \(callArg) \(infix) \(formatFile(value: meta.file)) \(infix) \(type(of: scope))"
+            return "\(separator)\n\(prefix) \(callArg) \(infix) \(formatFile(value: meta.file)):\(meta.line) \(infix) \(type(of: scope))"
         }
         else {
-            return "\(separator)\n\(prefix) \(callArg) \(infix) \(formatFile(value: meta.file))"
+            return "\(separator)\n\(prefix) \(callArg) \(infix) \(formatFile(value: meta.file)):\(meta.line)"
         }
     }
     
     private func generateBody(meta: JournalMeta, startsWithPrefix: Bool) -> String {
-        let titleArgs = [formatDate(), "@\(meta.layer)/\(meta.subsystem)"]
+        let titleArgs = [formatDate(), "~\(meta.layer):\(meta.subsystem)~"]
         let title = titleArgs.joined(separator: " ")
-        let subtitle = "\(formatFunction(value: meta.function)) :\(meta.line)"
+        let subtitle = "\(formatFunction(value: meta.function))"
         let body = formatMessage(value: meta.unimessage())
         
         let tokenRow = meta.debugging.flatMap({ "\n\(prefix) [D] <\($0.value)>" }) ?? String()
-        let base = "[I] \(title)\n\(prefix) [L] \(subtitle)\(tokenRow)\n\n\(body)"
+        let base = "\(title)\n\(prefix) \(subtitle)\(tokenRow)\n\n\(body)"
         return (
             startsWithPrefix
             ? "\(prefix) \(base)"
@@ -388,7 +392,9 @@ class JournalSilentGenerator: JournalGenerator {
 }
 
 func setJournalLevel(_ level: JournalLevel) {
-    globalJournalQueue.addOperation { globalJournalLevel = level }
+    globalJournalQueue.addOperation {
+        globalJournalLevel = level
+    }
 }
 
 func setJournalCustomHandler(block: @escaping (String) -> Bool) {

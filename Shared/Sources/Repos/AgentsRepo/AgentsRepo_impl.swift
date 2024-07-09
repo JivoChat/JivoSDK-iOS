@@ -25,7 +25,7 @@ final class AgentsRepo: IAgentsRepo {
         self.databaseDriver = databaseDriver
     }
     
-    func retrieve(id: Int, lookup: AgentRepoRetrievalLookup) -> JVAgent? {
+    func retrieve(id: Int, lookup: AgentRepoRetrievalLookup) -> AgentEntity? {
         switch lookup {
         case .storedOnly:
             return databaseDriver.agent(for: id, provideDefault: false)
@@ -34,7 +34,7 @@ final class AgentsRepo: IAgentsRepo {
         }
     }
     
-    func retrieveAll(listing: AgentRepoRetrievalListing) -> [JVAgent] {
+    func retrieveAll(listing: AgentRepoRetrievalListing) -> [AgentEntity] {
         switch listing {
         case .everyone:
             return databaseDriver.agents(withMe: true)
@@ -45,6 +45,6 @@ final class AgentsRepo: IAgentsRepo {
     
     func updateDraft(id: Int, currentText: String?) {
         let change = JVAgentDraftChange(ID: id, draft: currentText)
-        _ = databaseDriver.update(of: JVAgent.self, with: change)
+        _ = databaseDriver.update(of: AgentEntity.self, with: change)
     }
 }

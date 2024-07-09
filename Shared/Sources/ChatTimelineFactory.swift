@@ -121,7 +121,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
     private let uiConfig: ChatTimelineVisualConfig?
     private let rateConfigProvider: () -> JMTimelineRateConfig?
     private let keyboardAnchorControl: KeyboardAnchorControl
-    private let contactFormCache: ChatTimelineContactFormCache
+    private let contactFormCacheProvider: () -> ChatTimelineContactFormCache
     private weak var historyDelegate: ChatTimelineFactoryHistoryDelegate?
 
     private let botSenderUUID = UUID().uuidString
@@ -139,7 +139,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
          uiConfig: ChatTimelineVisualConfig?,
          rateConfigProvider: @escaping () -> JMTimelineRateConfig?,
          keyboardAnchorControl: KeyboardAnchorControl,
-         contactFormCache: ChatTimelineContactFormCache,
+         contactFormCacheProvider: @escaping () -> ChatTimelineContactFormCache,
          historyDelegate: ChatTimelineFactoryHistoryDelegate?
     ) {
         self.userContext = userContext
@@ -154,7 +154,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         self.uiConfig = uiConfig
         self.rateConfigProvider = rateConfigProvider
         self.keyboardAnchorControl = keyboardAnchorControl
-        self.contactFormCache = contactFormCache
+        self.contactFormCacheProvider = contactFormCacheProvider
         self.historyDelegate = historyDelegate
         
         super.init()
@@ -217,7 +217,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
-    func generateItem(for message: JVMessage, position: ChatTimelineMessagePosition) -> JMTimelineItem {
+    func generateItem(for message: MessageEntity, position: ChatTimelineMessagePosition) -> JMTimelineItem {
         guard !(message.isDeleted) else {
             return generatePlainItem(for: message)
         }
@@ -335,7 +335,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
-    private func generateSystemItem(for message: JVMessage) -> JMTimelineItem {
+    private func generateSystemItem(for message: MessageEntity) -> JMTimelineItem {
         return JMTimelineSystemItem(
             uid: message.UUID,
             date: message.anchorDate,
@@ -476,7 +476,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
-    func generateReminderItem(for reminder: JVTask) -> JMTimelineItem {
+    func generateReminderItem(for reminder: TaskEntity) -> JMTimelineItem {
         let payload = reminder.convertToMessageBody()
         return JMTimelineSystemItem(
             uid: ChatTimelineFiredReminderUUID,
@@ -629,7 +629,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
     //        )
     //    }
     
-    private func generatePlainItem(for message: JVMessage) -> JMTimelineItem {
+    private func generatePlainItem(for message: MessageEntity) -> JMTimelineItem {
         let uid = message.UUID
         let position = obtainItemPosition(for: message)
         let sender = detectSenderType(for: message)
@@ -757,7 +757,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         return JVDesign.fonts.resolve(.italics(16), scaling: .callout)
     }
     
-    private func generateOrderItem(for message: JVMessage) -> JMTimelineItem {
+    private func generateOrderItem(for message: MessageEntity) -> JMTimelineItem {
         guard case let .order(email, phone, _, details, button) = message.content else {
             return generatePlainItem(for: message)
         }
@@ -828,7 +828,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
-    private func generateBotItem(for message: JVMessage, position: ChatTimelineMessagePosition) -> JMTimelineItem {
+    private func generateBotItem(for message: MessageEntity, position: ChatTimelineMessagePosition) -> JMTimelineItem {
         switch botStyle {
         case .inner:
             return generateBotInnerItem(for: message)
@@ -837,7 +837,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         }
     }
     
-    private func generateBotInnerItem(for message: JVMessage) -> JMTimelineItem {
+    private func generateBotInnerItem(for message: MessageEntity) -> JMTimelineItem {
         let uid = message.UUID
         let contentKind = detectSenderType(for: message)
         let palette = obtainItemPalette(for: message)
@@ -910,7 +910,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
-    private func generateBotOuterItem(for message: JVMessage, position: ChatTimelineMessagePosition) -> JMTimelineItem {
+    private func generateBotOuterItem(for message: MessageEntity, position: ChatTimelineMessagePosition) -> JMTimelineItem {
         let uid = message.UUID
         let contentKind = detectSenderType(for: message)
         let palette = obtainItemPalette(for: message)
@@ -1072,7 +1072,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         return JVDesign.fonts.resolve(.italics(16), scaling: .callout)
     }
     
-    private func generateContactFormItem(for message: JVMessage, status: JVMessageBodyContactFormStatus) -> JMTimelineItem {
+    private func generateContactFormItem(for message: MessageEntity, status: JVMessageBodyContactFormStatus) -> JMTimelineItem {
         let details = JsonCoder().decode(raw: message.rawDetails) ?? .null
         return JMTimelineContactFormItem(
             uid: message.UUID,
@@ -1088,27 +1088,27 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 fields: [
                     TimelineContactFormField(
                         id: "name",
-                        placeholder: loc["contact_form.name.placeholder"],
+                        placeholder: loc["JV_ContactForm_NameField_Placeholder", "contact_form.name.placeholder"],
                         value: details["name"].string?.jv_valuable,
                         keyboardType: .default,
                         interactivity: .enabled
                     ),
                     TimelineContactFormField(
                         id: "phone",
-                        placeholder: loc["contact_form.phone.placeholder"],
+                        placeholder: loc["JV_ContactForm_PhoneField_Placeholder", "contact_form.phone.placeholder"],
                         value: details["phone"].string?.jv_valuable,
                         keyboardType: .phonePad,
                         interactivity: .enabled
                     ),
                     TimelineContactFormField(
                         id: "email",
-                        placeholder: loc["contact_form.email.placeholder"],
+                        placeholder: loc["JV_ContactForm_EmailField_Placeholder", "contact_form.email.placeholder"],
                         value: details["email"].string?.jv_valuable,
                         keyboardType: .emailAddress,
                         interactivity: .enabled
                     )
                 ],
-                cache: contactFormCache,
+                cache: contactFormCacheProvider(),
                 sizing: status,
                 accentColor: uiConfig?.outcomingPalette.backgroundColor,
                 interactiveID: message.interactiveID,
@@ -1120,7 +1120,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
     }
 
     private func generateRateFormItem(
-        for message: JVMessage,
+        for message: MessageEntity,
         status: JVMessageBodyRateFormStatus
     ) -> JMTimelineItem {
         guard let rateConfig = rateConfigProvider() else {
@@ -1162,7 +1162,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
-    private func generatePhotoItem(for message: JVMessage, contentMode: UIView.ContentMode) -> JMTimelineItem {
+    private func generatePhotoItem(for message: MessageEntity, contentMode: UIView.ContentMode) -> JMTimelineItem {
         guard let media = message.media, let url = media.fullURL ?? media.thumbURL else {
             return generatePlainItem(for: message)
         }
@@ -1245,7 +1245,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
-    private func generateVideoItem(for message: JVMessage) -> JMTimelineItem {
+    private func generateVideoItem(for message: MessageEntity) -> JMTimelineItem {
         guard let media = message.media, let url = media.fullURL ?? media.thumbURL else {
             return generatePlainItem(for: message)
         }
@@ -1345,7 +1345,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         }
     }
     
-    private func generateAudioItem(for message: JVMessage) -> JMTimelineItem {
+    private func generateAudioItem(for message: MessageEntity) -> JMTimelineItem {
         guard let media = message.media, let url = media.fullURL ?? media.thumbURL else {
             return generatePlainItem(for: message)
         }
@@ -1411,7 +1411,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
-    private func generateVoiceMessageItem(for message: JVMessage) -> JMTimelineItem {
+    private func generateVoiceMessageItem(for message: MessageEntity) -> JMTimelineItem {
         guard let media = message.media, let url = media.fullURL ?? media.thumbURL else {
             return generatePlainItem(for: message)
         }
@@ -1531,7 +1531,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         }
     }
     
-    private func generateStickerItem(for message: JVMessage) -> JMTimelineItem {
+    private func generateStickerItem(for message: MessageEntity) -> JMTimelineItem {
         if let media = message.media, let url = media.fullURL ?? media.thumbURL {
             let messageInfo = JMTimelineMessagePhotoInfo(
                 quotedMessage: message.quotedMessage,
@@ -1673,7 +1673,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         }
     }
     
-    private func generateDocumentItem(for message: JVMessage) -> JMTimelineItem {
+    private func generateDocumentItem(for message: MessageEntity) -> JMTimelineItem {
         guard let media = message.media, let url = media.fullURL ?? media.thumbURL else {
             return generatePlainItem(for: message)
         }
@@ -1777,7 +1777,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         }
     }
     
-    private func generateCommentItem(for message: JVMessage) -> JMTimelineItem {
+    private func generateCommentItem(for message: MessageEntity) -> JMTimelineItem {
         let uid = message.UUID
         let position = obtainItemPosition(for: message)
         let palette = obtainItemPalette(for: message)
@@ -1857,7 +1857,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         }
     }
     
-    private func generateLocationItem(for message: JVMessage) -> JMTimelineItem {
+    private func generateLocationItem(for message: MessageEntity) -> JMTimelineItem {
         guard let media = message.media, let coordinate = media.coordinate else {
             return generatePlainItem(for: message)
         }
@@ -1918,7 +1918,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
-    private func generateContactItem(for message: JVMessage) -> JMTimelineItem {
+    private func generateContactItem(for message: MessageEntity) -> JMTimelineItem {
         guard let media = message.media, let name = media.name, let phone = media.phone else {
             return generatePlainItem(for: message)
         }
@@ -2015,7 +2015,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         }
     }
     
-    private func generateCallItem(for message: JVMessage) -> JMTimelineItem {
+    private func generateCallItem(for message: MessageEntity) -> JMTimelineItem {
         guard let call = message.call else {
             abort()
         }
@@ -2186,7 +2186,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         }
     }
     
-    private func generateEmailItem(for message: JVMessage) -> JMTimelineItem {
+    private func generateEmailItem(for message: MessageEntity) -> JMTimelineItem {
         guard
             case let .email(from, to, subject, text) = message.content,
             let _ = message.senderClient
@@ -2316,7 +2316,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         }
     }
     
-    private func generateConferenceItem(for message: JVMessage) -> JMTimelineItem {
+    private func generateConferenceItem(for message: MessageEntity) -> JMTimelineItem {
         guard case .conference(let conference) = message.content else {
             return generatePlainItem(for: message)
         }
@@ -2435,7 +2435,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         }
     }
     
-    private func generateStoryItem(for message: JVMessage) -> JMTimelineItem {
+    private func generateStoryItem(for message: MessageEntity) -> JMTimelineItem {
         guard case .story(let story) = message.content else {
             preconditionFailure()
         }
@@ -2448,7 +2448,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         }
     }
     
-    private func _generateStoryReplyItem(for message: JVMessage, story: JVMessageBodyStory) -> JMTimelineItem {
+    private func _generateStoryReplyItem(for message: MessageEntity, story: JVMessageBodyStory) -> JMTimelineItem {
         guard let url = story.file?.absoluteURL else {
             preconditionFailure()
         }
@@ -2632,7 +2632,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
-    private func _generateStoryMentionItem(for message: JVMessage, story: JVMessageBodyStory) -> JMTimelineItem {
+    private func _generateStoryMentionItem(for message: MessageEntity, story: JVMessageBodyStory) -> JMTimelineItem {
         guard let url = story.file?.absoluteURL else {
             preconditionFailure()
         }
@@ -2737,12 +2737,12 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
-    private func generateReminderItem(for message: JVMessage) -> JMTimelineItem {
+    private func generateReminderItem(for message: MessageEntity) -> JMTimelineItem {
         guard let reminder = message.task else {
             return generateSystemItem(for: message)
         }
         
-        guard let object = databaseDriver.object(JVTask.self, primaryId: reminder.taskID) else {
+        guard let object = databaseDriver.object(TaskEntity.self, primaryId: reminder.taskID) else {
             return generateSystemItem(for: message)
         }
         
@@ -2781,7 +2781,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
-    private func obtainItemDelivery(for message: JVMessage) -> JMTimelineItemDelivery {
+    private func obtainItemDelivery(for message: MessageEntity) -> JMTimelineItemDelivery {
         if disablingOptions.contains(.delivery) {
             return .hidden
         }
@@ -2812,7 +2812,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         }
     }
     
-    private func obtainItemChannelIcons(for message: JVMessage) -> [UIImage] {
+    private func obtainItemChannelIcons(for message: MessageEntity) -> [UIImage] {
         if let icon = message.channel?.icon {
             return [icon]
         }
@@ -2821,7 +2821,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         }
     }
     
-    private func obtainItemPosition(for message: JVMessage) -> JMTimelineItemPosition {
+    private func obtainItemPosition(for message: MessageEntity) -> JMTimelineItemPosition {
         if let _ = message.call {
             return .left
         }
@@ -2839,7 +2839,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         }
     }
     
-    private func obtainItemPalette(for message: JVMessage) -> ChatTimelineVisualConfig.Palette? {
+    private func obtainItemPalette(for message: MessageEntity) -> ChatTimelineVisualConfig.Palette? {
         guard let outcomingPalette = uiConfig?.outcomingPalette
         else {
             return nil
@@ -2861,7 +2861,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
-    private func obtainItemSender(for message: JVMessage) -> JMTimelineItemSender {
+    private func obtainItemSender(for message: MessageEntity) -> JMTimelineItemSender {
         if let _ = message.call, let _ = message.client {
             if let agent = message.senderAgent {
                 let ID = agent.hashedID
@@ -2910,7 +2910,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 ID: bot.hashedID,
                 icon: bot.repicItem(transparent: false, scale: nil),
                 name: bot.displayName(kind: displayNameKind),
-                mark: loc["messages.label.bot", "Message.Sender.Bot"],
+                mark: loc["JV_DisplayName_Bot_Default", "messages.label.bot", "Message.Sender.Bot"],
                 style: _obtainItemSender_style(contentKind: .bot)
             )
         }
@@ -2941,7 +2941,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
                         clipping: .dual
                     ),
                     name: agent.displayName(kind: displayNameKind).jv_valuable ?? String(" "),
-                    mark: loc["messages.label.bot", "Message.Sender.Bot"],
+                    mark: loc["JV_DisplayName_Bot_Default", "messages.label.bot", "Message.Sender.Bot"],
                     style: _obtainItemSender_style(contentKind: .bot)
                 )
             }
@@ -3039,7 +3039,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         }
     }
     
-    private func obtainItemExtra(for message: JVMessage) -> JMTimelineExtraActions {
+    private func obtainItemExtra(for message: MessageEntity) -> JMTimelineExtraActions {
         let reactions = message.reactions
         
         guard
@@ -3062,7 +3062,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
-    private func detectSenderType(for message: JVMessage) -> ChatTimelineSenderType {
+    private func detectSenderType(for message: MessageEntity) -> ChatTimelineSenderType {
         let content = message.content
         
         if message.renderingType == .comment {
@@ -3335,7 +3335,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
-    private func generateMessageMeta(message: JVMessage) -> JMTimelineMessageMeta {
+    private func generateMessageMeta(message: MessageEntity) -> JMTimelineMessageMeta {
         return JMTimelineMessageMeta(
             timepoint: provider.formattedDateForMessageEvent(message.date),
             delivery: obtainItemDelivery(for: message),
@@ -3357,13 +3357,13 @@ fileprivate extension TimeInterval {
     }
 }
 
-fileprivate extension JVMessage {
+fileprivate extension MessageEntity {
     var systemStatus: String? {
         if isDeleted {
             return nil
         }
         else if let _ = updatedMeta {
-            return loc["Message.Edited"]
+            return loc["JV_ChatTimeline_MessageStatus_Edited", "Message.Edited"]
         }
         else {
             return nil
@@ -3438,7 +3438,7 @@ fileprivate extension JVMessageDelivery {
     }
 }
 
-fileprivate extension JVMessage {
+fileprivate extension MessageEntity {
     func jv_logicOptions(supportSizeCaching: Bool, historyDelegate: ChatTimelineFactoryHistoryDelegate?) -> JMTimelineLogicOptions {
         let basicOptions = JMTimelineLogicOptions()
             .union(supportSizeCaching ? .enableSizeCaching : .jv_empty)

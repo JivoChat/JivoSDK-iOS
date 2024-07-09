@@ -11,8 +11,8 @@ import Foundation
 
 protocol IBaseSubStorage: AnyObject {
     func refresh()
-    func reference<OT: JVDatabaseModel>(to object: OT?) -> JVDatabaseModelRef<OT>
-    func reference<OT: JVDatabaseModel>(to objects: [OT]) -> [JVDatabaseModelRef<OT>]
+    func reference<OT: DatabaseEntity>(to object: OT?) -> DatabaseEntityRef<OT>
+    func reference<OT: DatabaseEntity>(to objects: [OT]) -> [DatabaseEntityRef<OT>]
 }
 
 class BaseSubStorage: IBaseSubStorage {
@@ -28,11 +28,11 @@ class BaseSubStorage: IBaseSubStorage {
         _ = databaseDriver.refresh()
     }
     
-    func reference<OT: JVDatabaseModel>(to object: OT?) -> JVDatabaseModelRef<OT> {
+    func reference<OT: DatabaseEntity>(to object: OT?) -> DatabaseEntityRef<OT> {
         return databaseDriver.reference(to: object)
     }
     
-    func reference<OT: JVDatabaseModel>(to objects: [OT]) -> [JVDatabaseModelRef<OT>] {
+    func reference<OT: DatabaseEntity>(to objects: [OT]) -> [DatabaseEntityRef<OT>] {
         return objects.map(reference)
     }
 }

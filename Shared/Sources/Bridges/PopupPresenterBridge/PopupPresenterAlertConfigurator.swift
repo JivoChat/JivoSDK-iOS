@@ -95,7 +95,7 @@ fileprivate struct ConfiguratorInputCommand: PopupPresenterAlertConfiguratorComm
 
 fileprivate struct ConfiguratorSettingsCommand: PopupPresenterAlertConfiguratorCommand {
     func configure(alert: UIAlertController) {
-        let action = UIAlertAction(title: loc["Common.Settings"], style: .default) { _ in
+        let action = UIAlertAction(title: loc["JV_Common_Captions_Settings", "Common.Settings"], style: .default) { _ in
             guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
             UIApplication.shared.open(url)
         }
@@ -112,11 +112,11 @@ fileprivate struct ConfiguratorDismissCommand: PopupPresenterAlertConfiguratorCo
             title: jv_convert(kind) { value in
                 switch value {
                 case .cancel:
-                    return loc["Common.Cancel", "common_cancel"]
+                    return loc["JV_Common_Captions_Cancel", "Common.Cancel", "common_cancel"]
                 case .close:
-                    return loc["Common.Close", "common_close"]
+                    return loc["JV_Common_Captions_Close", "Common.Close", "common_close"]
                 case .understand:
-                    return loc["Common.Understand", "common_understand"]
+                    return loc["JV_Common_Captions_Understand", "Common.Understand", "common_understand"]
                 case .custom(let caption):
                     return caption
                 }

@@ -9,10 +9,10 @@
 import Foundation
 
 protocol IBaseChattingSubStorage: ICommonSubStorage {
-    func placeHistoryPointer(flag: JVMessageFlags, to newMessage: JVMessage)
-    func moveHistoryPointer(flag: JVMessageFlags, from oldMessage: JVMessage, to newMessage: JVMessage?)
+    func placeHistoryPointer(flag: JVMessageFlags, to newMessage: MessageEntity)
+    func moveHistoryPointer(flag: JVMessageFlags, from oldMessage: MessageEntity, to newMessage: MessageEntity?)
     func resetHistoryPointers(flag: JVMessageFlags, amongIds: [Int])
-    func flushQuoteToHistory(message: JVMessage)
+    func flushQuoteToHistory(message: MessageEntity)
 }
 
 class BaseChattingSubStorage: CommonSubStorage, IBaseChattingSubStorage {
@@ -26,24 +26,24 @@ class BaseChattingSubStorage: CommonSubStorage, IBaseChattingSubStorage {
             databaseDriver: databaseDriver)
     }
     
-    func placeHistoryPointer(flag: JVMessageFlags, to newMessage: JVMessage) {
+    func placeHistoryPointer(flag: JVMessageFlags, to newMessage: MessageEntity) {
         databaseDriver.readwrite { context in
-            _ = context.update(of: JVMessage.self, with: JVMessageFlagsChange(
+            _ = context.update(of: MessageEntity.self, with: JVMessageFlagsChange(
                 ID: newMessage.ID,
                 flags: newMessage.flags.union(flag)
             ))
         }
     }
     
-    func moveHistoryPointer(flag: JVMessageFlags, from oldMessage: JVMessage, to newMessage: JVMessage?) {
+    func moveHistoryPointer(flag: JVMessageFlags, from oldMessage: MessageEntity, to newMessage: MessageEntity?) {
         databaseDriver.readwrite { context in
-            _ = context.update(of: JVMessage.self, with: JVMessageFlagsChange(
+            _ = context.update(of: MessageEntity.self, with: JVMessageFlagsChange(
                 ID: oldMessage.ID,
                 flags: oldMessage.flags.subtracting(flag)
             ))
             
             if let newMessage = newMessage {
-                _ = context.update(of: JVMessage.self, with: JVMessageFlagsChange(
+                _ = context.update(of: MessageEntity.self, with: JVMessageFlagsChange(
                     ID: newMessage.ID,
                     flags: newMessage.flags.union(flag)
                 ))
@@ -54,7 +54,7 @@ class BaseChattingSubStorage: CommonSubStorage, IBaseChattingSubStorage {
     func resetHistoryPointers(flag: JVMessageFlags, amongIds: [Int]) {
         databaseDriver.readwrite { context in
             let messages = context.objects(
-                JVMessage.self,
+                MessageEntity.self,
                 options: JVDatabaseRequestOptions(
                     filter: NSPredicate(
                         format: "m_id in %@ AND (m_flags & %lld) > 0",
@@ -75,9 +75,9 @@ class BaseChattingSubStorage: CommonSubStorage, IBaseChattingSubStorage {
         }
     }
     
-    func flushQuoteToHistory(message: JVMessage) {
+    func flushQuoteToHistory(message: MessageEntity) {
         databaseDriver.readwrite { context in
-            _ = context.update(of: JVMessage.self, with: JVMessageFlagsChange(
+            _ = context.update(of: MessageEntity.self, with: JVMessageFlagsChange(
                 ID: message.ID,
                 flags: message.flags
                     .subtracting(.detachedFromHistory)

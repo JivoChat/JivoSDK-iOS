@@ -17,12 +17,12 @@ final class OptionsStorage: IOptionsStorage {
             .copy: ContextMenuOption(
                 type: .copy,
                 icon: JVDesign.icons.find(asset: .context_copy, rendering: .original),
-                title: loc["options_copy"]
+                title: loc["JV_ChatTimeline_MessageAction_Copy", "options_copy"]
             ),
             .resendMessage: ContextMenuOption(
                 type: .resendMessage,
                 icon: JVDesign.icons.find(asset: .context_repeat, rendering: .original),
-                title: loc["options_resend"]
+                title: loc["JV_ChatTimeline_MessageAction_Resend", "options_resend"]
             )
         ]
         

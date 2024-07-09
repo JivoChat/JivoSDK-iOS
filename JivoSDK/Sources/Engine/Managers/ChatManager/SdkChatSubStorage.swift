@@ -15,33 +15,33 @@ enum SdkChatSubStorageMessageTiming {
 }
 
 enum SdkChatSubStorageEvent {
-    case messageResending(_ message: JVMessage)
-    case messageSendingFailure(message: JVMessage)
+    case messageResending(_ message: MessageEntity)
+    case messageSendingFailure(message: MessageEntity)
 }
 
 protocol ISdkChatSubStorage: IBaseChattingSubStorage {
     var eventSignal: JVBroadcastTool<SdkChatSubStorageEvent> { get }
     
-    func message(withLocalId localId: String) -> JVMessage?
-    func history(chatId: Int, after anchorDate: Date?, limit: Int) -> [JVMessage]
+    func message(withLocalId localId: String) -> MessageEntity?
+    func history(chatId: Int, after anchorDate: Date?, limit: Int) -> [MessageEntity]
     func historyIdsBetween(chatId: Int, firstId: Int, lastId: Int) -> [Int]
-    func lastSyncedMessage(chatId: Int) -> JVMessage?
-    func storeOutgoingMessage(localID: String, clientID: Int, chatID: Int, type: JVMessageType, content: JVMessageContent, status: JVMessageStatus?, timing: SdkChatSubStorageMessageTiming, orderingIndex: Int) -> JVMessage?
-    func retrieveQueuedMessages(chatId: Int) -> [JVMessage]
-    func resendMessage(_ message: JVMessage)
-    func deleteMessage(_ message: JVMessage)
-    func createChat(withChatID chatId: Int) -> JVChat?
-    func turnContactForm(message: JVMessage, status: JVMessageBodyContactFormStatus, details: JsonElement?)
-    func turnRateForm(message: JVMessage, details: String)
-    func agents() -> [JVAgent]
-    func markMessagesAsSeen(chat: JVChat, till messageId: Int) -> [JVMessage]
-    func markSendingStart(message: JVMessage)
-    func markSendingFailure(message: JVMessage)
-    @discardableResult func upsertAgent(havingId id: Int, with: [SdkChatProtoUserSubject]) -> JVAgent?
+    func lastSyncedMessage(chatId: Int) -> MessageEntity?
+    func storeOutgoingMessage(localID: String, clientID: Int, chatID: Int, type: MessageType, content: JVMessageContent, status: JVMessageStatus?, timing: SdkChatSubStorageMessageTiming, orderingIndex: Int) -> MessageEntity?
+    func retrieveQueuedMessages(chatId: Int) -> [MessageEntity]
+    func resendMessage(_ message: MessageEntity)
+    func deleteMessage(_ message: MessageEntity)
+    func createChat(withChatID chatId: Int) -> ChatEntity?
+    func turnContactForm(message: MessageEntity, status: JVMessageBodyContactFormStatus, details: JsonElement?)
+    func turnRateForm(message: MessageEntity, details: String)
+    func agents() -> [AgentEntity]
+    func markMessagesAsSeen(chat: ChatEntity, till messageId: Int) -> [MessageEntity]
+    func markSendingStart(message: MessageEntity)
+    func markSendingFailure(message: MessageEntity)
+    @discardableResult func upsertAgent(havingId id: Int, with: [SdkChatProtoUserSubject]) -> AgentEntity?
     func makeAllAgentsOffline()
-    @discardableResult func upsertMessage(chatId: Int, messageId: Int, subjects: [SdkChatProtoMessageSubject]) -> JVMessage?
-    @discardableResult func upsertMessage(chatId: Int, privateId: String, subjects: [SdkChatProtoMessageSubject]) -> JVMessage?
-    func removeMessages(_ messagesToRemove: [JVMessage])
+    @discardableResult func upsertMessage(chatId: Int, messageId: Int, subjects: [SdkChatProtoMessageSubject]) -> MessageEntity?
+    @discardableResult func upsertMessage(chatId: Int, privateId: String, subjects: [SdkChatProtoMessageSubject]) -> MessageEntity?
+    func removeMessages(_ messagesToRemove: [MessageEntity])
     func deleteAllMessages()
 }
 
@@ -81,14 +81,14 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
     }
     
     @discardableResult
-    override func storeMessage(change: JVDatabaseModelChange) -> JVMessage? {
+    override func storeMessage(change: JVDatabaseModelChange) -> MessageEntity? {
         super.storeMessage(change: change)
     }
     
-    func message(withLocalId localId: String) -> JVMessage? {
+    func message(withLocalId localId: String) -> MessageEntity? {
         let key = JVDatabaseModelCustomId(key: "m_local_id", value: localId)
         guard
-            let message = databaseDriver.object(JVMessage.self, customId: key),
+            let message = databaseDriver.object(MessageEntity.self, customId: key),
             let _ = jv_validate(message)
         else {
 //            journal {"Message under localId[\(localId)] was invalidated"}
@@ -97,7 +97,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         return message
     }
     
-    func history(chatId: Int, after anchorDate: Date?, limit: Int) -> [JVMessage] {
+    func history(chatId: Int, after anchorDate: Date?, limit: Int) -> [MessageEntity] {
         let filter = NSPredicate(
             format: "(m_chat_id == %lld OR m_chat_id == 0) AND m_is_hidden == false AND m_date > %@",
             argumentArray: [
@@ -107,7 +107,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         )
         
         let messages = databaseDriver.objects(
-            JVMessage.self,
+            MessageEntity.self,
             options: JVDatabaseRequestOptions(
                 filter: filter,
                 limit: limit,
@@ -138,7 +138,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         )
         
         let messages = databaseDriver.objects(
-            JVMessage.self,
+            MessageEntity.self,
             options: JVDatabaseRequestOptions(
                 filter: filter,
                 properties: ["m_id"],
@@ -153,7 +153,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         return messages.map(\.ID)
     }
     
-    func lastSyncedMessage(chatId: Int) -> JVMessage? {
+    func lastSyncedMessage(chatId: Int) -> MessageEntity? {
         let filter = NSPredicate(
             format: "(m_chat_id == %lld OR m_chat_id == 0) AND (m_id > 0) AND (m_is_hidden == false) AND (m_sender != nil)",
             argumentArray: [
@@ -162,7 +162,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         )
         
         let messages = databaseDriver.objects(
-            JVMessage.self,
+            MessageEntity.self,
             options: JVDatabaseRequestOptions(
                 filter: filter,
                 sortBy: [
@@ -176,7 +176,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         return messages.first
     }
     
-    func storeOutgoingMessage(localID: String, clientID: Int, chatID: Int, type: JVMessageType, content: JVMessageContent, status: JVMessageStatus?, timing: SdkChatSubStorageMessageTiming, orderingIndex: Int) -> JVMessage? {
+    func storeOutgoingMessage(localID: String, clientID: Int, chatID: Int, type: MessageType, content: JVMessageContent, status: JVMessageStatus?, timing: SdkChatSubStorageMessageTiming, orderingIndex: Int) -> MessageEntity? {
         var updates: [JVMessagePropertyUpdate] = [
             .localId(localID),
             .chatId(chatID),
@@ -254,12 +254,12 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         return message
     }
     
-    func retrieveQueuedMessages(chatId: Int) -> [JVMessage] {
-        var messages = [JVMessage]()
+    func retrieveQueuedMessages(chatId: Int) -> [MessageEntity] {
+        var messages = [MessageEntity]()
         
         databaseDriver.read { context in
             messages = context.objects(
-                JVMessage.self,
+                MessageEntity.self,
                 options: JVDatabaseRequestOptions(
                     filter: NSPredicate(format: "m_chat_id == %lld AND m_status == 'queued'", argumentArray: [chatId]),
                     sortBy: [JVDatabaseResponseSort(keyPath: "m_date", ascending: true)]
@@ -269,7 +269,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         return messages
     }
     
-    func resendMessage(_ message: JVMessage) {
+    func resendMessage(_ message: MessageEntity) {
         guard let _ = jv_validate(message) else {
             journal {"Message is already invalidated"}
             return
@@ -321,11 +321,11 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         }
     }
     
-    func deleteMessage(_ message: JVMessage) {
+    func deleteMessage(_ message: MessageEntity) {
         databaseDriver.customRemove(objects: [message], recursive: true)
     }
     
-    override func chatWithID(_ chatID: Int) -> JVChat? {
+    override func chatWithID(_ chatID: Int) -> ChatEntity? {
         guard
             let chat = super.chatWithID(chatID),
             let _ = jv_validate(chat)
@@ -338,15 +338,15 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
     }
     
     @discardableResult
-    func createChat(withChatID chatId: Int) -> JVChat? {
+    func createChat(withChatID chatId: Int) -> ChatEntity? {
         guard let channelId = sessionContext.accountConfig?.channelId else { return nil }
         let channelHash = CRC32.encrypt(channelId)
         
-        var chat: JVChat?
+        var chat: ChatEntity?
         
         databaseDriver.readwrite { context in
             chat = context.insert(
-                of: JVChat.self,
+                of: ChatEntity.self,
                 with: JVChatShortChange(
                     ID: chatId,
                     client: JVClientShortChange(
@@ -368,7 +368,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         return chat
     }
     
-    func turnContactForm(message: JVMessage, status: JVMessageBodyContactFormStatus, details: JsonElement?) {
+    func turnContactForm(message: MessageEntity, status: JVMessageBodyContactFormStatus, details: JsonElement?) {
         do {
             let detailsRaw = JsonCoder().encodeToRaw(details ?? .ordict(.init()))
             
@@ -391,7 +391,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         }
     }
     
-    func turnRateForm(message: JVMessage, details: String) {
+    func turnRateForm(message: MessageEntity, details: String) {
         do {
             let change = try JVSdkMessageAtomChange(
                 localId: message.localID,
@@ -409,12 +409,12 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         } catch { }
     }
     
-    func agents() -> [JVAgent] {
+    func agents() -> [AgentEntity] {
         databaseDriver.agents()
     }
     
     @discardableResult
-    func markMessagesAsSeen(chat: JVChat, till messageId: Int) -> [JVMessage] {
+    func markMessagesAsSeen(chat: ChatEntity, till messageId: Int) -> [MessageEntity] {
         let filter = NSPredicate(
             format: "(m_chat_id == %lld OR m_chat_id == 0) AND m_is_hidden == false AND m_status != %@",
             argumentArray: [
@@ -424,7 +424,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         )
         
         let messages = databaseDriver.objects(
-            JVMessage.self,
+            MessageEntity.self,
             options: JVDatabaseRequestOptions(
                 filter: filter
             )
@@ -439,7 +439,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         return messages
     }
     
-    func markSendingStart(message: JVMessage) {
+    func markSendingStart(message: MessageEntity) {
         databaseDriver.readwrite { context in
             message.apply(
                 context: context,
@@ -454,7 +454,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         }
     }
     
-    func markSendingFailure(message: JVMessage) {
+    func markSendingFailure(message: MessageEntity) {
         guard let _ = jv_validate(message) else {
             journal {"Message is invalidated"}
             return
@@ -476,7 +476,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
     }
     
     @discardableResult
-    func upsertAgent(havingId id: Int, with subjects: [SdkChatProtoUserSubject]) -> JVAgent? {
+    func upsertAgent(havingId id: Int, with subjects: [SdkChatProtoUserSubject]) -> AgentEntity? {
         var updates = agentPropertyUpdates(fromSubjects: subjects)
         if updates.contains(where: { update in
             if case .displayName = update { return true } else { return false }
@@ -494,7 +494,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
     
     func makeAllAgentsOffline() {
         databaseDriver.readwrite { context in
-            let agents = context.objects(JVAgent.self, options: nil)
+            let agents = context.objects(AgentEntity.self, options: nil)
             for agent in agents {
                 agent.apply(
                     context: context,
@@ -507,7 +507,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
     }
     
     @discardableResult
-    func upsertMessage(chatId: Int, messageId: Int, subjects: [SdkChatProtoMessageSubject]) -> JVMessage? {
+    func upsertMessage(chatId: Int, messageId: Int, subjects: [SdkChatProtoMessageSubject]) -> MessageEntity? {
         let updates = messagePropertyUpdates(fromSubjects: subjects, forMessageInChatWithId: chatId)
         guard let change = try? JVSdkMessageAtomChange(id: messageId, updates: updates) else { return nil }
         
@@ -516,7 +516,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
     }
     
     @discardableResult
-    func upsertMessage(chatId: Int, privateId: String, subjects: [SdkChatProtoMessageSubject]) -> JVMessage? {
+    func upsertMessage(chatId: Int, privateId: String, subjects: [SdkChatProtoMessageSubject]) -> MessageEntity? {
         let updates = messagePropertyUpdates(fromSubjects: subjects, forMessageInChatWithId: chatId)
         guard let change = try? JVSdkMessageAtomChange(localId: privateId, updates: updates) else { return nil }
 
@@ -524,7 +524,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
         return upsertedMessage
     }
     
-    func removeMessages(_ messagesToRemove: [JVMessage]) {
+    func removeMessages(_ messagesToRemove: [MessageEntity]) {
         databaseDriver.readwrite { context in
             context.removeMessages(uuids: messagesToRemove.map(\.UUID))
         }
@@ -532,7 +532,7 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
     
     func deleteAllMessages() {
         databaseDriver.readwrite { context in
-            let messages = databaseDriver.objects(JVMessage.self, options: nil)
+            let messages = databaseDriver.objects(MessageEntity.self, options: nil)
             _ = context.simpleRemove(objects: messages)
         }
     }
@@ -659,9 +659,9 @@ class SdkChatSubStorage: BaseChattingSubStorage, ISdkChatSubStorage {
     }
 }
 
-extension JVAgent {
-    func detach() -> JVAgent {
-        let agent = JVAgent(context: managedObjectContext!)
+extension AgentEntity {
+    func detach() -> AgentEntity {
+        let agent = AgentEntity(context: managedObjectContext!)
         agent.m_id = m_id
         agent.m_public_id = m_public_id
         agent.m_display_name = m_display_name
@@ -686,12 +686,12 @@ extension JVAgentState {
 
 /*
 extension JVIDatabaseDriver {
-    func agents() -> [JVAgent] {
-        var agents = [JVAgent]()
+    func agents() -> [AgentEntity] {
+        var agents = [AgentEntity]()
         
         read { context in
             agents = context.objects(
-                JVAgent.self,
+                AgentEntity.self,
                 options: JVDatabaseRequestOptions(
                     filter: nil
                 )
@@ -704,12 +704,12 @@ extension JVIDatabaseDriver {
  */
 
 extension JVIDatabaseDriver {
-    func agents() -> [JVAgent] {
-        var agents = [JVAgent]()
+    func agents() -> [AgentEntity] {
+        var agents = [AgentEntity]()
         
         read { context in
             agents = context.objects(
-                JVAgent.self,
+                AgentEntity.self,
                 options: JVDatabaseRequestOptions(
                     filter: nil
                 )

@@ -37,6 +37,7 @@ final class ChatModuleState {
     
     var placeholderForInput = String()
     var inputText = String()
+    var isForeground: Bool
     
     init(uiConfig: SdkChatModuleVisualConfig, authorizationState: SessionAuthorizationState, recentStartupMode: SdkSessionManagerStartupMode) {
         self.uiConfig = uiConfig
@@ -44,5 +45,6 @@ final class ChatModuleState {
         self.recentStartupMode = recentStartupMode
         
         inputText = uiConfig.inputPrefill
+        isForeground = UIApplication.shared.applicationState.jv_isOnscreen
     }
 }

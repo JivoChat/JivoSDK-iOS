@@ -47,7 +47,7 @@ final class ChatModulePresenter
         switch event {
         case .hasUpdates:
             break
-        case .authorizationStateUpdated where UIApplication.shared.applicationState == .active:
+        case .authorizationStateUpdated where state.isForeground:
             feedPrimaryLayout()
             feedHistoryLoading()
         case .authorizationStateUpdated:

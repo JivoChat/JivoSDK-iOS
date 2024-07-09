@@ -64,7 +64,7 @@ func ChatModuleAssembly(
     
     let timelineProvider = ChatTimelineProvider(
         client: nil,
-        endpointAccessor: engine.drivers.keychainDriver.userScope().retrieveAccessor(forToken: .endpoint),
+        endpointAccessorProvider: {engine.drivers.keychainDriver.userScope().retrieveAccessor(forToken: .endpoint)},
         formattingProvider: engine.providers.formattingProvider,
         remoteStorageService: engine.services.remoteStorageService,
         mentionProvider: engine.providers.mentionRetriever
@@ -77,7 +77,7 @@ func ChatModuleAssembly(
         popupPresenterBridge: engine.bridges.popupPresenterBridge,
         databaseDriver: engine.drivers.databaseDriver,
         preferencesDriver: engine.drivers.preferencesDriver,
-        endpointAccessor: engine.drivers.keychainDriver.userScope().retrieveAccessor(forToken: .endpoint)
+        endpointAccessorProvider: {engine.drivers.keychainDriver.userScope().retrieveAccessor(forToken: .endpoint)}
     )
     
     let timelineFactory = ChatTimelineFactory(
@@ -93,14 +93,14 @@ func ChatModuleAssembly(
         uiConfig: timelineConfig,
         rateConfigProvider: {engine.managers.chatManager.globalRateConfig},
         keyboardAnchorControl: keyboardAnchorControl,
-        contactFormCache: engine.retrieveCacheBundle(token: engine.clientContext.personalNamespace).contactFormCache,
+        contactFormCacheProvider: {engine.retrieveCacheBundle(token: engine.clientContext.personalNamespace).contactFormCache},
         historyDelegate: engine.managers.chatManager
     )
     
     let timelineController = JMTimelineController<ChatTimelineInteractor>(
         factory: timelineFactory,
         cache: engine.timelineCache,
-        maxImageDiskCacheSize: 50 * 1024 * 1024
+        maxImageDiskCacheSize: (50 * 1024 * 1024)
     )
 
     return RTEModuleAssembly(
@@ -137,7 +137,7 @@ func ChatModuleAssembly(
                 timelineInteractor: timelineInteractor,
                 timelineCache: engine.timelineCache,
                 uiConfig: uiConfig,
-                maxImageDiskCacheSize: 15 * 1024 * 1024
+                maxImageDiskCacheSize: (15 * 1024 * 1024)
             )
         },
         presenterBuilder: { pipeline, state in

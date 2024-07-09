@@ -11,7 +11,7 @@ import Foundation
 
 /// What is mentioned: specific agent or any group
 enum MentionsItem {
-    case agent(JVAgent)
+    case agent(AgentEntity)
     case broadcast(String)
 }
 
@@ -171,7 +171,7 @@ final class MentioningService: IMentioningService {
         return result as String
     }
     
-    func detectMissingAgents(markup: String, chat: JVChat) -> [JVAgent] {
+    func detectMissingAgents(markup: String, chat: ChatEntity) -> [AgentEntity] {
         guard chat.isGroup else {
             return []
         }
@@ -182,7 +182,7 @@ final class MentioningService: IMentioningService {
             let matches = regex.matches(in: markup, options: [], range: range)
             
             let result = NSString(string: markup)
-            let missingAgents = matches.reversed().compactMap { match -> JVAgent? in
+            let missingAgents = matches.reversed().compactMap { match -> AgentEntity? in
                 let identifier = result.substring(with: match.range(at: 2)).jv_toInt()
                 
                 if let agent = agentsRepo.retrieve(id: identifier, lookup: .storedOnly) {

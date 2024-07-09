@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22757" systemVersion="23E224" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22222" systemVersion="23E224" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="JVAgent" representedClassName=".JVAgent" parentEntity="JVParticipant" syncable="YES" codeGenerationType="category">
         <attribute name="m_avatar_link" optional="YES" attributeType="String"/>
         <attribute name="m_calling_destination" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -74,6 +74,11 @@
         <relationship name="b_agent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVAgent" inverseName="m_worktime" inverseEntity="JVAgent"/>
         <relationship name="m_timezone" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVTimezone" inverseName="b_agent_worktimes" inverseEntity="JVTimezone"/>
     </entity>
+    <entity name="JVAICopilotSkill" representedClassName=".JVAICopilotSkill" parentEntity="JVDatabaseModel" syncable="YES" codeGenerationType="category">
+        <attribute name="m_emoji" attributeType="String" defaultValueString=""/>
+        <attribute name="m_id" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_title" attributeType="String" defaultValueString=""/>
+    </entity>
     <entity name="JVArchive" representedClassName=".JVArchive" parentEntity="JVDatabaseModel" syncable="YES" codeGenerationType="category">
         <attribute name="m_archite_total" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_id" optional="YES" attributeType="String" defaultValueString=":archive:"/>
@@ -130,8 +135,11 @@
         <attribute name="m_guests_number" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_joint_alias" optional="YES" attributeType="String"/>
+        <attribute name="m_joint_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_joint_phone" optional="YES" attributeType="String"/>
         <attribute name="m_joint_type" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_joint_url" optional="YES" attributeType="String"/>
+        <attribute name="m_joint_verified_name" optional="YES" attributeType="String"/>
         <attribute name="m_public_id" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_site_url" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_state_id" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -446,6 +454,16 @@
         <attribute name="m_text" optional="YES" attributeType="String" defaultValueString=""/>
         <relationship name="m_agent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVAgent" inverseName="b_tasks" inverseEntity="JVAgent"/>
         <relationship name="m_client" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVClient" inverseName="m_task" inverseEntity="JVClient"/>
+    </entity>
+    <entity name="JVTemplate" representedClassName=".JVTemplate" parentEntity="JVDatabaseModel" syncable="YES" codeGenerationType="category">
+        <attribute name="m_category" optional="YES" attributeType="String"/>
+        <attribute name="m_components" optional="YES" attributeType="String"/>
+        <attribute name="m_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_language" optional="YES" attributeType="String"/>
+        <attribute name="m_local_id" optional="YES" attributeType="String"/>
+        <attribute name="m_name" optional="YES" attributeType="String"/>
+        <attribute name="m_status" optional="YES" attributeType="String"/>
+        <attribute name="m_wa_account_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
     </entity>
     <entity name="JVTimezone" representedClassName=".JVTimezone" parentEntity="JVDatabaseModel" syncable="YES" codeGenerationType="category">
         <attribute name="m_display_gmt" optional="YES" attributeType="String"/>

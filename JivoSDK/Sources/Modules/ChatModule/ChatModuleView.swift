@@ -22,6 +22,7 @@ enum ChatModuleViewIntent {
     case mediaTap(url: URL, mime: String?)
     case requestDeveloperMenu(anchor: UIView)
     case timelineEvent(JMTimelineEvent)
+    case specialMenu
     case dismiss
 }
 
@@ -71,7 +72,6 @@ final class JVChatModuleViewController
 >
 , NavigationBarConfigurator {
     private lazy var titleControl = JVChatTitleControl()
-    private lazy var copyrightControl = JVChatCopyrightControl()
     private lazy var waitingIndicator = UIView()
     private lazy var replyUnderlay = UIView()
     private lazy var replyControl = SdkChatReplyControl()
@@ -107,6 +107,7 @@ final class JVChatModuleViewController
         
         navigationItem.titleView = titleControl
         navigationItem.largeTitleDisplayMode = .never
+        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: makeInfoLabel())
         
         edgesForExtendedLayout = []
         
@@ -136,6 +137,21 @@ final class JVChatModuleViewController
         if let timelineView = collectionView as? JMTimelineView<ChatTimelineInteractor> {
             timelineController.detach(timelineView: timelineView)
         }
+    }
+    
+    private func makeInfoLabel() -> UIView {
+        let label = UILabel()
+        label.text = "ver " + Bundle(for: Jivo.self).jv_formatVersion(.marketingShort)
+        label.textColor = JVDesign.colors.resolve(usage: .unnoticeableForeground)
+        label.font = JVDesign.fonts.resolve(.semibold(12), scaling: .caption2)
+        label.isUserInteractionEnabled = true
+        label.sizeToFit()
+
+        label.addGestureRecognizer(
+            UILongPressGestureRecognizer(target: self, action: #selector(handleInfoLabelLongPress))
+        )
+        
+        return label
     }
     
     override func handlePresenter(update: ChatModulePresenterUpdate) {
@@ -182,10 +198,6 @@ final class JVChatModuleViewController
         super.viewDidLoad()
         
         view.backgroundColor = JVDesign.colors.resolve(usage: .primaryBackground)
-        
-        if Bundle.main.jv_ID == Bundle.identifier(preset: .rmo) {
-            view.addSubview(copyrightControl)
-        }
         
         placeholderView.view.isHidden = true
         placeholderView.view.layer.zPosition = 100
@@ -260,7 +272,6 @@ final class JVChatModuleViewController
         replyUnderlay.frame = layout.replyUnderlayFrame
         replyControl.frame = layout.replyControlBounds
         titleControl.frame = layout.titleBarFrame
-        copyrightControl.frame = layout.copyrightControlFrame
         
         if let collectionView = collectionView {
             let contentOffsetY = collectionView.contentOffset.y
@@ -339,11 +350,11 @@ final class JVChatModuleViewController
                 gap: .auto
             ),
             .init(
-                content: .title(loc["chat.state_unavailable.title"]),
+                content: .title(loc["JV_ChatScreen_PlaceholderUnavailable_Headline", "chat.state_unavailable.title"]),
                 gap: .auto
             ),
             .init(
-                content: .body(loc["chat.state_unavailable.discription"]),
+                content: .body(loc["JV_ChatScreen_PlaceholderUnavailable_Body", "chat.state_unavailable.discription"]),
                 gap: .auto
             ),
         ]
@@ -362,7 +373,7 @@ final class JVChatModuleViewController
             return
         }
         
-        timelineView.jv_scrollToTop(duration: UIApplication.shared.jv_isActive ? 0.15 : 0)
+        timelineView.jv_scrollToTop(duration: UIApplication.shared.applicationState.jv_isOnscreen ? 0.15 : 0)
     }
     
     private func handleKeyboard(visible: Bool, frame: CGRect) {
@@ -374,13 +385,6 @@ final class JVChatModuleViewController
             view.setNeedsLayout()
             view.layoutIfNeeded()
         }
-
-        
-//        UIView.animate(withDuration: 0.25, animations: view.layoutIfNeeded)
-
-//        if visible {
-//            scrollToBottom()
-//        }
     }
 
     @objc private func handleDismissButtonTap() {
@@ -389,6 +393,10 @@ final class JVChatModuleViewController
     
     @objc private func handleCollectionTap() {
         view.endEditing(true)
+    }
+    
+    @objc private func handleInfoLabelLongPress() {
+        pipeline.notify(intent: .specialMenu)
     }
 }
 
@@ -452,11 +460,6 @@ fileprivate struct Layout {
     
     var copyrightControlSize: CGSize {
         return CGSize(width: bounds.width, height: copyrightHeight)
-    }
-    
-    var copyrightControlFrame: CGRect {
-        let origin = CGPoint(x: .zero, y: collectionViewFrame.minY)
-        return CGRect(origin: origin, size: copyrightControlSize)
     }
 }
 

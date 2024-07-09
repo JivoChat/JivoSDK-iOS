@@ -53,7 +53,7 @@ final class JMTimelineCompositeQuotingBlock: UIView, JMTimelineBlockCallable {
     func link(provider: JMTimelineProvider, interactor: JMTimelineInteractor) {
     }
     
-    func configure(message: JVMessage?, style: JMTimelineCompositeQuotingStyle, interactor: JVChatTimelineInteractor) {
+    func configure(message: MessageEntity?, style: JMTimelineCompositeQuotingStyle, interactor: JVChatTimelineInteractor) {
         self.interactor = interactor
         self.messageUid = message?.UUID
         
@@ -97,7 +97,7 @@ final class JMTimelineCompositeQuotingBlock: UIView, JMTimelineBlockCallable {
             briefLabel.text = nil
         }
         
-        isHidden = (briefLabel.text == nil)
+        isHidden = not(briefLabel.jv_hasText)
     }
     
     func updateDesign() {

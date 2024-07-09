@@ -45,10 +45,7 @@ class ChatGrowingSubmitControl<T>: UIView {
     }
     
     func update(text: String) {
-        guard text != inputArea.text
-        else {
-            return
-        }
+        guard text != inputArea.text else { return }
         
         inputArea.text = text
         handleInputChange(text: text)

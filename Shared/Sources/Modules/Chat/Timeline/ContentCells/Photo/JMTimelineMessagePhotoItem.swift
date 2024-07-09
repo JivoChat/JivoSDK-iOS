@@ -10,7 +10,7 @@ import UIKit
 import JMTimelineKit
 
 struct JMTimelineMessagePhotoInfo: JMTimelineInfo {
-    let quotedMessage: JVMessage?
+    let quotedMessage: MessageEntity?
     let url: URL
     let width: Int
     let height: Int

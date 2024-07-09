@@ -14,11 +14,11 @@ class JVDatabaseDriverMock: JVIDatabaseDriver {
         fatalError()
     }
 
-    func reference<OT: JVDatabaseModel>(to object: OT?) -> JVDatabaseModelRef<OT> {
+    func reference<OT: JVDatabaseModel>(to object: OT?) -> DatabaseEntityRef<OT> {
         fatalError()
     }
     
-    func resolve<OT: JVDatabaseModel>(ref: JVDatabaseModelRef<OT>) -> OT? {
+    func resolve<OT: JVDatabaseModel>(ref: DatabaseEntityRef<OT>) -> OT? {
         fatalError()
     }
     

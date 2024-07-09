@@ -22,10 +22,6 @@ extension UIApplication {
         }
     }
     
-    var jv_isActive: Bool {
-        return applicationState.jv_isActive
-    }
-    
     func jv_discardCachedLaunchScreen() {
         let path = NSHomeDirectory() + "/Library/SplashBoard"
         try? FileManager.default.removeItem(atPath: path)
@@ -37,10 +33,19 @@ extension UIApplication {
 }
 
 extension UIApplication.State {
-    var jv_isActive: Bool {
+    var jv_isOnscreen: Bool {
         switch self {
         case .active: return true
-        case .inactive: return false
+        case .inactive: return true
+        case .background: return false
+        @unknown default: return false
+        }
+    }
+    
+    var jv_canCommunicate: Bool {
+        switch self {
+        case .active: return true
+        case .inactive: return true
         case .background: return false
         @unknown default: return false
         }

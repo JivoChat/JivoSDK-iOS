@@ -47,7 +47,7 @@ class JVDatabaseDriver: JVIDatabaseDriver {
         self.localizer = localizer
         
         let momName = "JVDatabase"
-        guard let momURL = Bundle(for: JVDatabaseModel.self).url(forResource: momName, withExtension: "momd"),
+        guard let momURL = Bundle(for: DatabaseEntity.self).url(forResource: momName, withExtension: "momd"),
               let momContent = NSManagedObjectModel(contentsOf: momURL)
         else {
             fatalError()
@@ -93,11 +93,11 @@ class JVDatabaseDriver: JVIDatabaseDriver {
         return self
     }
 
-    func reference<OT: JVDatabaseModel>(to object: OT?) -> JVDatabaseModelRef<OT> {
-        return JVDatabaseModelRef(coreDataDriver: self, value: object)
+    func reference<OT: DatabaseEntity>(to object: OT?) -> DatabaseEntityRef<OT> {
+        return DatabaseEntityRef(coreDataDriver: self, value: object)
     }
     
-    func resolve<OT: JVDatabaseModel>(ref: JVDatabaseModelRef<OT>) -> OT? {
+    func resolve<OT: DatabaseEntity>(ref: DatabaseEntityRef<OT>) -> OT? {
         guard let objectId = ref.objectId
         else {
             return nil
@@ -129,15 +129,15 @@ class JVDatabaseDriver: JVIDatabaseDriver {
         }
     }
     
-    func objects<OT: JVDatabaseModel>(_ type: OT.Type, options: JVDatabaseRequestOptions?) -> [OT] {
+    func objects<OT: DatabaseEntity>(_ type: OT.Type, options: JVDatabaseRequestOptions?) -> [OT] {
         return context.objects(type, options: options)
     }
     
-    func object<OT: JVDatabaseModel>(_ type: OT.Type, internalId: NSManagedObjectID) -> OT? {
+    func object<OT: DatabaseEntity>(_ type: OT.Type, internalId: NSManagedObjectID) -> OT? {
         return context.object(type, internalId: internalId)
     }
     
-    func object<OT: JVDatabaseModel, VT: Hashable>(_ type: OT.Type, primaryId: VT) -> OT? {
+    func object<OT: DatabaseEntity, VT: Hashable>(_ type: OT.Type, primaryId: VT) -> OT? {
         if let key = primaryId as? String {
             return context.object(type, primaryId: key)
         }
@@ -149,11 +149,11 @@ class JVDatabaseDriver: JVIDatabaseDriver {
         }
     }
     
-    func object<OT: JVDatabaseModel, VT: Hashable>(_ type: OT.Type, customId: JVDatabaseModelCustomId<VT>) -> OT? {
+    func object<OT: DatabaseEntity, VT: Hashable>(_ type: OT.Type, customId: JVDatabaseModelCustomId<VT>) -> OT? {
         return context.object(type, customId: customId)
     }
     
-    final class SubscriptionManyDelegate<OT: JVDatabaseModel>: NSObject, NSFetchedResultsControllerDelegate {
+    final class SubscriptionManyDelegate<OT: DatabaseEntity>: NSObject, NSFetchedResultsControllerDelegate {
         private let debugging: String
         private let feedHandler: ([OT]) -> Void
         
@@ -183,7 +183,7 @@ class JVDatabaseDriver: JVIDatabaseDriver {
         }
     }
     
-    func subscribe<OT: JVDatabaseModel>(_ type: OT.Type, options: JVDatabaseRequestOptions?, callback: @escaping ([OT]) -> Void) -> JVDatabaseListener {
+    func subscribe<OT: DatabaseEntity>(_ type: OT.Type, options: JVDatabaseRequestOptions?, callback: @escaping ([OT]) -> Void) -> JVDatabaseListener {
         let objects = context.getObjects(type, options: options)
         callback(objects)
         
@@ -219,7 +219,7 @@ class JVDatabaseDriver: JVIDatabaseDriver {
         return JVDatabaseListener(token: internalToken, coreDataDriver: self)
     }
     
-    final class SubscriptionSingleDelegate<OT: JVDatabaseModel> {
+    final class SubscriptionSingleDelegate<OT: DatabaseEntity> {
         private let threadContext: NSManagedObjectContext
         private let object: OT
         private let feedHandler: (OT?) -> Void
@@ -268,7 +268,7 @@ class JVDatabaseDriver: JVIDatabaseDriver {
         }
     }
     
-    func subscribe<OT: JVDatabaseModel>(object: OT, callback: @escaping (OT?) -> Void) -> JVDatabaseListener {
+    func subscribe<OT: DatabaseEntity>(object: OT, callback: @escaping (OT?) -> Void) -> JVDatabaseListener {
         let runner = SubscriptionSingleDelegate(
             context: context.context,
             object: object,
@@ -291,13 +291,13 @@ class JVDatabaseDriver: JVIDatabaseDriver {
         }
     }
     
-    func simpleRemove<OT: JVDatabaseModel>(objects: [OT]) -> Bool {
+    func simpleRemove<OT: DatabaseEntity>(objects: [OT]) -> Bool {
         return context.performTransaction { ctx in
             ctx.simpleRemove(objects: objects)
         }
     }
     
-    func customRemove<OT: JVDatabaseModel>(objects: [OT], recursive: Bool) {
+    func customRemove<OT: DatabaseEntity>(objects: [OT], recursive: Bool) {
         context.performTransaction { ctx in
             ctx.customRemove(objects: objects, recursive: recursive)
         }

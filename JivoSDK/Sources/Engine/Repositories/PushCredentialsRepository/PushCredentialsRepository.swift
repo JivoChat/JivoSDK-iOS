@@ -8,7 +8,7 @@
 import Foundation
 
 
-final class PushCredentialsRepository: PersistentRepository<String, SdkClientSubPusherCredentials, JVPushCredentialsChange, JVPushCredentials, String> {
+final class PushCredentialsRepository: PersistentRepository<String, SdkClientSubPusherCredentials, JVPushCredentialsChange, PushCredentialsEntity, String> {
     private let databaseDriver: JVIDatabaseDriver
     
     init(databaseDriver: JVIDatabaseDriver) {

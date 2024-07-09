@@ -12,15 +12,15 @@ import UIKit
 fileprivate let kTypingActiveTimeout = TimeInterval(5)
 
 protocol IChatCacheService: AnyObject {
-    func earliestMessage(for chat: JVChat) -> ChatCacheEarliestMeta?
-    func earliestMessageValid(for chat: JVChat) -> Bool
-    func cache(earliestMessage message: JVMessage, for chat: JVChat)
-    func resetEarliestMessage(for chat: JVChat)
+    func earliestMessage(for chat: ChatEntity) -> ChatCacheEarliestMeta?
+    func earliestMessageValid(for chat: ChatEntity) -> Bool
+    func cache(earliestMessage message: MessageEntity, for chat: ChatEntity)
+    func resetEarliestMessage(for chat: ChatEntity)
 
     var typingObservable: JVBroadcastTool<ChatCacheTypingMeta> { get }
-    func startTyping(chat: JVChat, human: JVDisplayable, text: String?)
-    func stopTyping(chat: JVChat, human: JVDisplayable)
-    func obtainTyping(chat: JVChat) -> (humans: [JVDisplayable], input: String)?
+    func startTyping(chat: ChatEntity, human: JVDisplayable, text: String?)
+    func stopTyping(chat: ChatEntity, human: JVDisplayable)
+    func obtainTyping(chat: ChatEntity) -> (humans: [JVDisplayable], input: String)?
 }
 
 struct ChatCachingKey: Hashable {
@@ -73,7 +73,7 @@ final class ChatCacheService: IChatCacheService {
     init() {
     }
 
-    func earliestMessage(for chat: JVChat) -> ChatCacheEarliestMeta? {
+    func earliestMessage(for chat: ChatEntity) -> ChatCacheEarliestMeta? {
         guard let key = cachingKey(chat: chat) else {
             return nil
         }
@@ -90,7 +90,7 @@ final class ChatCacheService: IChatCacheService {
         }
     }
     
-    func earliestMessageValid(for chat: JVChat) -> Bool {
+    func earliestMessageValid(for chat: ChatEntity) -> Bool {
         guard let key = cachingKey(chat: chat) else {
             return false
         }
@@ -103,7 +103,7 @@ final class ChatCacheService: IChatCacheService {
         }
     }
     
-    func cache(earliestMessage message: JVMessage, for chat: JVChat) {
+    func cache(earliestMessage message: MessageEntity, for chat: ChatEntity) {
         guard let key = cachingKey(chat: chat) else { return }
         guard message.jv_isValid else { return }
         
@@ -118,7 +118,7 @@ final class ChatCacheService: IChatCacheService {
         }
     }
     
-    func resetEarliestMessage(for chat: JVChat) {
+    func resetEarliestMessage(for chat: ChatEntity) {
         guard let key = cachingKey(chat: chat) else {
             return
         }
@@ -126,7 +126,7 @@ final class ChatCacheService: IChatCacheService {
         earliestMetas.removeValue(forKey: key)
     }
 
-    func startTyping(chat: JVChat, human: JVDisplayable, text: String?) {
+    func startTyping(chat: ChatEntity, human: JVDisplayable, text: String?) {
         func _adjust(meta: ChatCacheTypingMeta) {
             meta.addHuman(human)
             meta.text = text ?? meta.text
@@ -145,7 +145,7 @@ final class ChatCacheService: IChatCacheService {
         }
     }
 
-    func stopTyping(chat: JVChat, human: JVDisplayable) {
+    func stopTyping(chat: ChatEntity, human: JVDisplayable) {
         guard let meta = typingMetas[chat.ID] else { return }
         meta.removeHuman(human)
 
@@ -155,7 +155,7 @@ final class ChatCacheService: IChatCacheService {
         }
     }
 
-    func obtainTyping(chat: JVChat) -> (humans: [JVDisplayable], input: String)? {
+    func obtainTyping(chat: ChatEntity) -> (humans: [JVDisplayable], input: String)? {
         guard let meta = typingMetas[chat.ID] else { return nil }
         guard let input = meta.text else { return nil }
         guard !meta.humans.isEmpty else { return nil }
@@ -174,7 +174,7 @@ final class ChatCacheService: IChatCacheService {
         }
     }
     
-    private func cachingKey(chat: JVChat) -> ChatCachingKey? {
+    private func cachingKey(chat: ChatEntity) -> ChatCachingKey? {
         guard let chat = jv_validate(chat) else {
             return nil
         }

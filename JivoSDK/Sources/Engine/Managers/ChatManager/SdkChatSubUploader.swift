@@ -209,7 +209,7 @@ class SdkChatSubUploader: ISdkChatSubUploader {
                     journal {"Failed uploading"}
                         .nextLine {"Failed to upload the file"}
                     
-                    completion(.failure(.uploadDeniedByAServer(errorDescription: loc["media_uploading_common_error"])))
+                    completion(.failure(.uploadDeniedByAServer(errorDescription: loc["JV_FileTransfer_Status_FailedUploading", "media_uploading_common_error"])))
                     #endif
                     
                 case .failure(let error):
@@ -219,7 +219,7 @@ class SdkChatSubUploader: ISdkChatSubUploader {
                     journal {"Failed uploading"}
                         .nextLine {"Failed to upload the file"}
                     
-                    completion(.failure(.uploadDeniedByAServer(errorDescription: loc["media_uploading_common_error"])))
+                    completion(.failure(.uploadDeniedByAServer(errorDescription: loc["JV_FileTransfer_Status_FailedUploading", "media_uploading_common_error"])))
                     #endif
                 }
                 

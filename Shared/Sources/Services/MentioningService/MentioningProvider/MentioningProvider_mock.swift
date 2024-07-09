@@ -10,9 +10,9 @@ import Foundation
 @testable import App
 
 class MentioningProviderMock: IMentioningProvider {
-    let agents: [JVAgent]
+    let agents: [AgentEntity]
     
-    init(agents: [JVAgent]) {
+    init(agents: [AgentEntity]) {
         self.agents = agents
     }
     

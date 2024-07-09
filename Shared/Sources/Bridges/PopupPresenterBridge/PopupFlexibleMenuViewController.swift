@@ -37,10 +37,15 @@ final class PopupFlexibleMenuViewController: UITableViewController {
         super.viewDidLayoutSubviews()
         tableView.frame.size = CGSize(
             width: 290.0,
-            height: tableView.estimatedSectionHeaderHeight + tableView.estimatedSectionFooterHeight + tableView.contentSize.height
+            height: tableView.contentSize.height
         )
         
         preferredContentSize = tableView.frame.size
+    }
+    
+    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
+        super.traitCollectionDidChange(previousTraitCollection)
+        view.setNeedsDisplay()
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -55,9 +60,9 @@ final class PopupFlexibleMenuViewController: UITableViewController {
             let cell = PopupFlexibleMenuTitleCell()
             cell.configure(title: text)
             return cell
-        case .action(let title, let icon,let options, _):
+        case .action(let title, let icon, let detail, let options, _):
             let cell = PopupFlexibleMenuItemCell()
-            cell.configure(icon: icon, title: title, options: options)
+            cell.configure(icon: icon, title: title, detail: detail, options: options)
             return cell
         }
     }
@@ -87,7 +92,7 @@ final class PopupFlexibleMenuViewController: UITableViewController {
         
         let item = items[indexPath.row]
         
-        if case .action(_, _, _, let handler) = item {
+        if case .action(_, _, _, _, let handler) = item {
             handler?()
         }
         

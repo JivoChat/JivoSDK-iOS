@@ -23,7 +23,7 @@ fileprivate class JMTimelineHistoryContext {
 }
 
 final class ChatHistory {
-    var messages: [JVMessage] = [] // First elements is the earliest messages, last elements is the latest messages
+    var messages: [MessageEntity] = [] // First elements is the earliest messages, last elements is the latest messages
     
     var updateHistoryHandler: ((Bool) -> Void)?
     var needScrollHandler: (() -> Void)?
@@ -32,13 +32,13 @@ final class ChatHistory {
     private let databaseDriver: JVIDatabaseDriver
     private let factory: ChatTimelineFactory
     private let collectionViewManager: DTCollectionViewManager
-    private let chatRef: JVDatabaseModelRef<JVChat>?
+    private let chatRef: DatabaseEntityRef<ChatEntity>?
     private let chatCacheService: IChatCacheService
     private let workerThread: JVIDispatchThread
     
     private var currentBottomItem: JMTimelineItem?
     private var itemsCounter = 0
-    private var cachedUnreadPosition: JVChat.UnreadMarkPosition
+    private var cachedUnreadPosition: ChatEntity.UnreadMarkPosition
     private var recentTimepointItem: JMTimelineItem?
     private var uncachableUUIDs = Set<String>()
     private var recentUid: String?
@@ -49,7 +49,7 @@ final class ChatHistory {
         databaseDriver: JVIDatabaseDriver,
         factory: ChatTimelineFactory,
         collectionViewManager: DTCollectionViewManager,
-        chat: JVChat?,
+        chat: ChatEntity?,
         chatCacheService: IChatCacheService,
         timelineCache: JMTimelineCache,
         workerThread: JVIDispatchThread
@@ -99,7 +99,7 @@ final class ChatHistory {
         informHistoryHandler()
     }
     
-    func fill(with messages: [JVMessage], partialLoaded: Bool, unreadPosition: JVChat.UnreadMarkPosition) {
+    func fill(with messages: [MessageEntity], partialLoaded: Bool, unreadPosition: ChatEntity.UnreadMarkPosition) {
         collectionViewManager.memoryStorage.performUpdates { [weak self] in
             let messages = messages.filter { !$0.isHidden }
             
@@ -125,7 +125,7 @@ final class ChatHistory {
         collectionViewManager.collectionViewUpdater?.storageNeedsReloading()
     }
     
-    func populate(withMessages insertingMessages: [JVMessage]) {
+    func populate(withMessages insertingMessages: [MessageEntity]) {
         if insertingMessages.jv_hasElements {
             self.messages.append(contentsOf: insertingMessages)
             self.messages.sort { $0.date < $1.date }
@@ -150,7 +150,7 @@ final class ChatHistory {
         }
     }
     
-    func append(messages: [JVMessage]) {
+    func append(messages: [MessageEntity]) {
         guard !messages.isEmpty
         else {
             return
@@ -191,11 +191,11 @@ final class ChatHistory {
         needScrollHandler?()
     }
     
-    func append(message: JVMessage) {
+    func append(message: MessageEntity) {
         append(messages: [message])
     }
     
-    func remove(message: JVMessage) {
+    func remove(message: MessageEntity) {
         messages.removeAll { $0.UUID == message.UUID }
         
         timelineHistory.removeItem(byUUID: message.UUID)
@@ -203,7 +203,7 @@ final class ChatHistory {
         needScrollHandler?()
     }
     
-    func prepend(messages: [JVMessage], resetCache: Bool) {
+    func prepend(messages: [MessageEntity], resetCache: Bool) {
         let messages = messages.filter { !$0.isHidden }
         
         self.messages.insert(contentsOf: Array(messages.reversed()), at: 0) // Try to not forget! To respect current chatHistory messages order prepending messages must be reversed!
@@ -222,7 +222,7 @@ final class ChatHistory {
         informHistoryHandler(true)
     }
     
-    func update(message: JVMessage) {
+    func update(message: MessageEntity) {
         let item = factory.generateItem(for: message, position: (message.UUID == recentUid ? .recent : .history))
         
 //        if message.UUID == recentUid, !item.logicOptions.contains(.enableSizeCaching) {
@@ -247,7 +247,7 @@ final class ChatHistory {
         }
     }
     
-    func reloadMessages(selectedBy messageSelection: @escaping (JVMessage) -> Bool) {
+    func reloadMessages(selectedBy messageSelection: @escaping (MessageEntity) -> Bool) {
         let messageReferences = messages.map { databaseDriver.reference(to: $0) }
         
         var identifiedItemsUids = Set<String>()
@@ -308,7 +308,7 @@ final class ChatHistory {
         }
     }
     
-    private func feedItems(forMessages messages: [JVMessage], unreadPosition: JVChat.UnreadMarkPosition, partialLoaded: Bool, callback: ([JMTimelineItem]) -> Void) {
+    private func feedItems(forMessages messages: [MessageEntity], unreadPosition: ChatEntity.UnreadMarkPosition, partialLoaded: Bool, callback: ([JMTimelineItem]) -> Void) {
         let recentItems = messages.prefix(1).map { factory.generateItem(for: $0, position: .recent) }
         let historyItems = messages.dropFirst(1).map { factory.generateItem(for: $0, position: .history) }
         let items = recentItems + historyItems
@@ -380,7 +380,7 @@ final class ChatHistory {
     }
     
     private func generateTimepointItem(date: Date) -> JMTimelineItem {
-        return factory.generateTimepointItem(date: date, caption: loc["Chat.System.NewMessages"])
+        return factory.generateTimepointItem(date: date, caption: loc["JV_ChatTimeline_SystemIndicator_NewMessages", "Chat.System.NewMessages"])
     }
 
     private func informHistoryHandler(_ value: Bool? = nil) {

@@ -18,14 +18,14 @@ final class UserManager {
     
     private func configureJivoSession() {
         if let user {
-            let info = JVSessionContactInfo(
+            let info = JVClientContactInfo(
                 name: user.fullName,
                 email: user.email,
                 phone: user.phoneNumber
             )
             
-            Jivo.session.startUp(channelID: "YOUR_CHANNEL_ID", userToken: user.supportJwt)
-            Jivo.session.setContactInfo(info)
+            let client = Jivo.session.setup(widgetID: "YOUR_CHANNEL_ID", clientIdentity: .jwt(user.supportJwt))
+            client.setContactInfo(info)
         }
         else {
             Jivo.session.shutDown()

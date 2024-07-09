@@ -89,7 +89,7 @@ extension JMRepicView {
                 break
                 
             case .agent:
-                guard let agent = attendee as? JVAgent else { return }
+                guard let agent = attendee as? AgentEntity else { return }
 
                 if agent.onCall {
                     setActivity(agent.onCall ? .calling : nil, context: repicContext)
@@ -102,7 +102,7 @@ extension JMRepicView {
                 break
 
             case .client:
-                guard let client = attendee as? JVClient else { return }
+                guard let client = attendee as? ClientEntity else { return }
                 
                 if client.hasActiveCall {
                     setActivity(.calling, context: repicContext)

@@ -227,8 +227,8 @@ class SdkChatSubOffline: ISdkChatSubOffline {
         }
     }
     
-    private func detectActionTiming(for messages: [JVMessage]) -> OfflineActionTiming {
-        func _isDelivered(message: JVMessage) -> Bool {
+    private func detectActionTiming(for messages: [MessageEntity]) -> OfflineActionTiming {
+        func _isDelivered(message: MessageEntity) -> Bool {
             return
                 message.status != nil &&
                 message.status != .sent &&

@@ -13,7 +13,7 @@ import SwiftMime
 protocol ISdkChatProto {
     func requestRecentActivity(endpoint: String?, siteId: Int, channelId: String, clientId: String) -> INetworking
     func requestMessageHistory(before anchorMessageId: Int?)
-    func sendMessage(_ message: JVMessage, mime: String)
+    func sendMessage(_ message: MessageEntity, mime: String)
     func sendRateInfo(chatID: String, rate: String, comment: String?)
     func sendMessageAck(id: Int, date: Date)
     func sendTyping(text: String)
@@ -170,7 +170,7 @@ final class SdkChatProto: BaseProto, ISdkChatProto {
             caching: .enabled)
     }
     
-    func sendMessage(_ message: JVMessage, mime: String) {
+    func sendMessage(_ message: MessageEntity, mime: String) {
         networking.send(
             output: .atom(
                 type: mime,

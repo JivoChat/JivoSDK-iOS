@@ -18,27 +18,27 @@ struct APIChatDetailsContext {
 }
 
 struct APIChatRequestContext {
-    let agentRef: JVDatabaseModelRef<JVAgent>
+    let agentRef: DatabaseEntityRef<AgentEntity>
     
-    init(agentRef: JVDatabaseModelRef<JVAgent>) {
+    init(agentRef: DatabaseEntityRef<AgentEntity>) {
         self.agentRef = agentRef
     }
 }
 
 struct APISendMessageContext {
     let chatID: Int
-    let outmessageRef: JVDatabaseModelRef<JVMessage>
+    let outmessageRef: DatabaseEntityRef<MessageEntity>
     
-    init(chatID: Int, outmessageRef: JVDatabaseModelRef<JVMessage>) {
+    init(chatID: Int, outmessageRef: DatabaseEntityRef<MessageEntity>) {
         self.chatID = chatID
         self.outmessageRef = outmessageRef
     }
 }
 
 struct APISendMediaContext {
-    let outmessageRef: JVDatabaseModelRef<JVMessage>
+    let outmessageRef: DatabaseEntityRef<MessageEntity>
     
-    init(outmessageRef: JVDatabaseModelRef<JVMessage>) {
+    init(outmessageRef: DatabaseEntityRef<MessageEntity>) {
         self.outmessageRef = outmessageRef
     }
 }

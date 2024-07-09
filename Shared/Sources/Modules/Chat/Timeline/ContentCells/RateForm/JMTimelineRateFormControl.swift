@@ -200,20 +200,20 @@ final class JMTimelineRateFormControl: UIView, UITextFieldDelegate {
         switch sizing {
         case .initial:
             titleLabel.text = rateFormPreSubmitTitle
-            descriptionLabel.text = config?.customRateTitle ?? loc["rate_form.description"]
+            descriptionLabel.text = config?.customRateTitle ?? loc["JV_RateForm_HeaderSubtitle_BeforeSubmission", "rate_form.description"]
         case .rated:
             titleLabel.text = rateFormPreSubmitTitle
-            descriptionLabel.text = config?.customRateTitle ?? loc["rate_form.description"]
+            descriptionLabel.text = config?.customRateTitle ?? loc["JV_RateForm_HeaderSubtitle_BeforeSubmission", "rate_form.description"]
             commentTextField.title = rateFormCommentPlaceholder
             commentTextField.text = lastComment.jv_orEmpty
-            sendButton.caption = rateFormSubmitCaption ?? loc["rate_form.send"]
+            sendButton.caption = rateFormSubmitCaption ?? loc["JV_RateForm_SubmitButton_Caption", "rate_form.send"]
         case .sent:
             titleLabel.text = rateFormPostSubmitTitle
             if let rate = rate, let config = config {
                 if config.scale.shouldTakeAsPositive(choice: rate) {
-                    descriptionLabel.text = config.goodRateTitle ?? loc["rate_form.finish_description_good"]
+                    descriptionLabel.text = config.goodRateTitle ?? loc["JV_RateForm_HeaderSubtitle_PositiveSubmission", "rate_form.finish_description_good"]
                 } else {
-                    descriptionLabel.text = config.badRateTitle ?? loc["rate_form.finish_description_bad"]
+                    descriptionLabel.text = config.badRateTitle ?? loc["JV_RateForm_HeaderSubtitle_NegativeSubmission", "rate_form.finish_description_bad"]
                 }
             }
         case .dismissed:

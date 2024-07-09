@@ -76,7 +76,7 @@ final class SdkEngine: ISdkEngine {
         urlSession: URLSession,
         schedulingCore: ISchedulingCore
     ) {
-        setJournalLevel(.silent)
+        setJournalLevel(.full)
         
         loc.searchingRulesProvider = { lang in
             return [
@@ -99,7 +99,7 @@ final class SdkEngine: ISdkEngine {
             ]
         }
         
-        JVAgent.registerDefaultDisplayName(value: loc["agent_name_default"])
+        AgentEntity.registerDefaultDisplayName(value: loc["JV_DisplayName_Agent_Default", "agent_name_default"])
 
         JVDesign.attachTo(
             application: .shared,

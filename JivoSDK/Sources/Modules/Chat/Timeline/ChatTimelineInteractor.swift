@@ -25,18 +25,26 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
     private let popupPresenterBridge: IPopupPresenterBridge
     private let databaseDriver: JVIDatabaseDriver
     private let preferencesDriver: IPreferencesDriver
-    private let endpointAccessor: IKeychainAccessor
+    private let endpointAccessorProvider: () -> IKeychainAccessor
     
     private var interactedItemUUID: String?
     
-    init(clientManager: ISdkClientManager, chatManager: ISdkChatManager, remoteStorageService: IRemoteStorageService, popupPresenterBridge: IPopupPresenterBridge, databaseDriver: JVIDatabaseDriver, preferencesDriver: IPreferencesDriver, endpointAccessor: IKeychainAccessor) {
+    init(
+        clientManager: ISdkClientManager,
+        chatManager: ISdkChatManager,
+        remoteStorageService: IRemoteStorageService,
+        popupPresenterBridge: IPopupPresenterBridge,
+        databaseDriver: JVIDatabaseDriver,
+        preferencesDriver: IPreferencesDriver,
+        endpointAccessorProvider: @escaping () -> IKeychainAccessor
+    ) {
         self.clientManager = clientManager
         self.chatManager = chatManager
         self.remoteStorageService = remoteStorageService
         self.popupPresenterBridge = popupPresenterBridge
         self.databaseDriver = databaseDriver
         self.preferencesDriver = preferencesDriver
-        self.endpointAccessor = endpointAccessor
+        self.endpointAccessorProvider = endpointAccessorProvider
     }
     
     func playCall(item: URL) {
@@ -79,7 +87,7 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
     }
     
     func requestMedia(url: URL, kind: RemoteStorageFileKind?, mime: String?, completion: @escaping (JMTimelineMediaStatus) -> Void) {
-        let endpoint = endpointAccessor.string
+        let endpoint = endpointAccessorProvider().string
         remoteStorageService.retrieveMeta(endpoint: endpoint, originURL: url, caching: .enabled, on: .main) { [weak self] result in
             switch result {
             case .success:
@@ -92,11 +100,11 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
                             self?.requestMediaHandler?(url, mime)
                             
                         case .unauthorized:
-                            completion(.accessDenied(loc["file_download_expired"]))
+                            completion(.accessDenied(loc["JV_FileAttachment_LinkStatus_Expired", "file_download_expired"]))
                             self?.mediaBecameUnavailableHandler?(url, mime)
                             
                         default:
-                            completion(.unknownError(loc["file_download_unavailable"]))
+                            completion(.unknownError(loc["JV_FileAttachment_LinkStatus_Unavailable", "file_download_unavailable"]))
                             self?.mediaBecameUnavailableHandler?(url, mime)
                         }
                     }
@@ -109,10 +117,10 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
                     self?.requestMediaHandler?(url, mime)
                     
                 case .unauthorized:
-                    completion(.accessDenied(loc["file_download_expired"]))
+                    completion(.accessDenied(loc["JV_FileAttachment_LinkStatus_Expired", "file_download_expired"]))
                     
                 default:
-                    completion(.unknownError(loc["file_download_unavailable"]))
+                    completion(.unknownError(loc["JV_FileAttachment_LinkStatus_Unavailable", "file_download_unavailable"]))
                 }
             }
         }
@@ -239,13 +247,13 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
             title: nil,
             message: nil,
             items: [
-                !canPerformCopy() ? .omit : .action(loc["options_copy"], .icon(.copy), .regular { [weak self] _ in
+                !canPerformCopy() ? .omit : .action(loc["JV_ChatTimeline_MessageAction_Copy", "options_copy"], .icon(.copy), .regular { [weak self] _ in
                     self?.performCopy()
                 }),
-                !canPerformResend() ? .omit : .action(loc["options_resend"], .icon(.again), .regular { [weak self] _ in
+                !canPerformResend() ? .omit : .action(loc["JV_ChatTimeline_MessageAction_Resend", "options_resend"], .icon(.again), .regular { [weak self] _ in
                     self?.performResend()
                 }),
-                !canPerformDelete() ? .omit : .action(loc["options_delete"], .icon(.delete), .regular { [weak self] _ in
+                !canPerformDelete() ? .omit : .action(loc["JV_ChatTimeline_MessageAction_Delete", "options_delete"], .icon(.delete), .regular { [weak self] _ in
                     self?.performDelete()
                 }),
                 .dismiss(.cancel)
@@ -266,7 +274,7 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
         guard let resultedURL = URL(string: (url.absoluteString + "?width=512&thumb")) else { return }
         
         remoteStorageService.retrieveFile(
-            endpoint: endpointAccessor.string,
+            endpoint: endpointAccessorProvider().string,
             originURL: resultedURL,
             quality: .original,
             caching: .disabled,
@@ -293,21 +301,21 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
         return false
     }
     
-    private func messageToCopy() -> JVMessage? {
+    private func messageToCopy() -> MessageEntity? {
         guard let uuid = interactedItemUUID else { return nil }
         guard let message = databaseDriver.message(for: uuid), !(message.isDeleted) else { return nil }
         guard let _ = message.obtainObjectToCopy() else { return nil }
         return message
     }
     
-    private func messageToResend() -> JVMessage? {
+    private func messageToResend() -> MessageEntity? {
         guard let uuid = interactedItemUUID else { return nil }
         guard let message = databaseDriver.message(for: uuid), !(message.isDeleted) else { return nil }
         guard case .failed = message.delivery else { return nil }
         return message
     }
     
-    private func messageToDelete() -> JVMessage? {
+    private func messageToDelete() -> MessageEntity? {
         guard let uuid = interactedItemUUID else { return nil }
         guard let message = databaseDriver.message(for: uuid), !(message.isDeleted) else { return nil }
         guard case .failed = message.delivery else { return nil }

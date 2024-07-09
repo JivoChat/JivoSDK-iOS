@@ -13,14 +13,16 @@ protocol IPopupPresenterBridge: AnyObject {
     func take(window: UIWindow?)
     func displayAlert(within container: PopupPresenterDisplayContainer, title: String?, message: String?, items: [PopupPresenterItem])
     func displayMenu(within container: PopupPresenterDisplayContainer, anchor: UIView?, title: String?, message: String?, items: [PopupPresenterItem])
+    func displayFlexibleMenu(within container: PopupPresenterDisplayContainer, source: FlexibleMenuTriggerButton?, items: [PopupPresenterFlexibleMenuItem])
     func informShortly(message: String)
     func informShortly(message: String?, icon: UIImage?, options: PopupPresenterShortlyOptions)
     func attachMenu(to button: UIButton, location: PopupPresenterMenuLocation, items: [PopupPresenterItem])
     func detachMenu(from button: UIButton)
     func attachMenu(to barButtonItem: UIBarButtonItem, location: PopupPresenterMenuLocation, items: [PopupPresenterItem]) -> UIBarButtonItem
     func detachMenu(from barButtonItem: UIBarButtonItem)
-    func attachFlexibleMenu(to button: FlexibleMenuTriggerButton, location: PopupPresenterMenuLocation, items: [PopupPresenterFlexibleMenuItem])
+    func attachFlexibleMenu(to button: FlexibleMenuTriggerButton, items: [PopupPresenterFlexibleMenuItem])
     func detachFlexibleMenu(from button: UIButton)
+    func share(within container: PopupPresenterDisplayContainer, items: [Any], performCleanup: Bool)
 }
 
 struct PopupPresenterContext {
@@ -71,6 +73,7 @@ enum PopupPresenterFlexibleMenuItem {
     case action(
         title: String,
         icon: UIImage?,
+        detail: String?,
         options: PopupFlexibleMenuItemOptions,
         handler: (() -> Void)?
     )

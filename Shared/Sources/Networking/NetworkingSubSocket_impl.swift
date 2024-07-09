@@ -37,7 +37,7 @@ final class NetworkingSubSocket: INetworkingSubSocket {
         decodingThread = JVDispatchThread(caption: "\(namespace).networking.parser.queue")
         
         driver.openHandler = { [unowned self] chain in
-            chain?.journal {"WebSocket: event opened"}
+            chain?.journal(layer: .api) {"WebSocket: event opened"}
             
             let event = NetworkingSubSocketEvent.open(identifier: identifier)
             notity(event: event)
@@ -56,7 +56,7 @@ final class NetworkingSubSocket: INetworkingSubSocket {
         }
         
         driver.closeHandler = { [unowned self] chain, code, reason, error in
-            chain?.journal {"WebSocket: event closed code=\(code) reason=\(reason) error=\(error)"}
+            chain?.journal {"WebSocket: event closed code=\(code) reason=\(reason) error=\(String(describing: error))"}
             
             let event = NetworkingSubSocketEvent.close(identifier: identifier, code: code, reason: reason, error: error)
             notity(event: event)
@@ -154,7 +154,7 @@ final class NetworkingSubSocket: INetworkingSubSocket {
                     return
                 }
                 
-                chain?.journal { [p = jsonPrivacyTool] in "WebSocket: event message body=\(p.filter(json: json))"}
+                chain?.journal(layer: .api) { [p = jsonPrivacyTool] in "WebSocket: event message body=\(p.filter(json: json))"}
                 
                 if let name = json["name"].string {
                     let event = NetworkingSubSocketEvent.payload(.legacy(name, json))

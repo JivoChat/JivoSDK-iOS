@@ -23,8 +23,8 @@ public final class JivoSDKSession: NSObject, JVSessionDelegate {
     }
     
     @objc(startUpWithChannelID:userToken:)
-    public func startUp(channelID: String, userToken: String) {
-        Jivo.session.startUp(channelID: channelID, userToken: userToken)
+    public func startUp(channelID: String, userToken: String) -> JVClient {
+        return Jivo.session.setup(widgetID: channelID, clientIdentity: .jwt(userToken))
     }
     
     @available(*, deprecated, message: "Renamed to setClientInfo:")
@@ -180,7 +180,7 @@ fileprivate extension JivoSDKSessionClientInfo {
 
 @available(*, deprecated)
 fileprivate extension JivoSDKSessionCustomDataField {
-    func toNewAPI() -> JVSessionCustomDataField {
-        return JVSessionCustomDataField(title: title, key: key, content: content, link: link)
+    func toNewAPI() -> JVClientCustomDataField {
+        return JVClientCustomDataField(title: title, key: key, content: content, link: link)
     }
 }

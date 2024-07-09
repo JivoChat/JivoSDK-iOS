@@ -21,6 +21,7 @@ extension Notification.Name {
 enum JVLocalizedMetaMode {
     case key(String)
     case format(String)
+    case formatAny([String])
     case exact(String)
 }
 
@@ -56,7 +57,64 @@ final class JVLocalizer {
     }
     
     public subscript(_ keys: String...) -> String {
+        return performLooking(keys: keys).result
+    }
+    
+    public subscript(key key: String) -> String {
+        let original = performLooking(keys: [key]).result
+        
+        if original.contains("%"), let regexp = regexpStrToObj {
+            let range = NSMakeRange(0, original.utf16.count)
+            return regexp.stringByReplacingMatches(in: original, range: range, withTemplate: "%$1@")
+        }
+        else {
+            return original
+        }
+    }
+    
+    public subscript(keys keys: [String]) -> String {
+        let original = performLooking(keys: keys).result
+        
+        if original.contains("%"), let regexp = regexpStrToObj {
+            let range = NSMakeRange(0, original.utf16.count)
+            return regexp.stringByReplacingMatches(in: original, range: range, withTemplate: "%$1@")
+        }
+        else {
+            return original
+        }
+    }
+    
+    public subscript(format key: String, _ arguments: CVarArg...) -> String {
+        let locale = JVLocaleProvider.activeLocale
+        let format = self[key: key]
+        
+        if format.hasPrefix("%#@"), format.hasSuffix("@"), let value = arguments.first {
+            return String.localizedStringWithFormat(
+                NSLocalizedString(key, comment: .jv_empty),
+                value)
+        }
+        else {
+            return String(format: format, locale: locale, arguments: arguments)
+        }
+    }
+    
+    public subscript(format keys: [String], _ arguments: CVarArg...) -> String {
+        let locale = JVLocaleProvider.activeLocale
+        let (key, format) = performLooking(keys: keys)
+        
+        if format.hasPrefix("%#@"), format.hasSuffix("@"), let value = arguments.first {
+            return String.localizedStringWithFormat(
+                NSLocalizedString(key, comment: .jv_empty),
+                value)
+        }
+        else {
+            return String(format: format, locale: locale, arguments: arguments)
+        }
+    }
+    
+    private func performLooking(keys: [String]) -> (key: String, result: String) {
         let langId = (JVLocaleProvider.activeLocale ?? Locale.current).jv_langId
+        
         var result = String()
         
         let searchingRules: [JVLocalizerSearchingRule<Bundle>]
@@ -80,44 +138,18 @@ final class JVLocalizer {
         
         for key in keys {
             if let value = searchingRules.jv_findTranslation(key: key) {
-                return value
+                return (key, value)
             }
             else {
                 result = key
             }
             
             if result != key {
-                break
+                return (key, result)
             }
         }
         
-        return result
-    }
-    
-    public subscript(key key: String) -> String {
-        let original = self[key]
-        
-        if original.contains("%"), let regexp = regexpStrToObj {
-            let range = NSMakeRange(0, original.utf16.count)
-            return regexp.stringByReplacingMatches(in: original, range: range, withTemplate: "%$1@")
-        }
-        else {
-            return original
-        }
-    }
-    
-    public subscript(format key: String, _ arguments: CVarArg...) -> String {
-        let locale = JVLocaleProvider.activeLocale
-        let format = self[key: key]
-        
-        if format.hasPrefix("%#@"), format.hasSuffix("@"), let value = arguments.first {
-            return String.localizedStringWithFormat(
-                NSLocalizedString(key, comment: .jv_empty),
-                value)
-        }
-        else {
-            return String(format: format, locale: locale, arguments: arguments)
-        }
+        return (result, result)
     }
 }
 

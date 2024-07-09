@@ -9,7 +9,7 @@
 import Foundation
 
 protocol IAgentsRepo: AnyObject {
-    func retrieve(id: Int, lookup: AgentRepoRetrievalLookup) -> JVAgent?
-    func retrieveAll(listing: AgentRepoRetrievalListing) -> [JVAgent]
+    func retrieve(id: Int, lookup: AgentRepoRetrievalLookup) -> AgentEntity?
+    func retrieveAll(listing: AgentRepoRetrievalListing) -> [AgentEntity]
     func updateDraft(id: Int, currentText: String?)
 }

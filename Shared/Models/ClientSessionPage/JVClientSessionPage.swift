@@ -9,7 +9,7 @@
 import Foundation
 
 @objc(JVClientSessionPage)
-class JVClientSessionPage: JVPage {
+class JVClientSessionPage: PageEntity {
     override func apply(context: JVIDatabaseContext, change: JVDatabaseModelChange) {
         super.apply(context: context, change: change)
         performApply(context: context, environment: context.environment, change: change)

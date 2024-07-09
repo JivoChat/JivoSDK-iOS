@@ -7,6 +7,8 @@
 
 import Foundation
 
+public typealias JVClientCustomDataField = JVSessionCustomDataField
+
 /**
  Custom Data Field for user
  */

@@ -10,43 +10,43 @@ import Foundation
 import JMTimelineKit
 
 protocol ISystemMessagingService: AnyObject {
-    func register(context: JVIDatabaseContext, change: JVMessageGeneralSystemChange, meta: LocalizedMeta, discardable: Bool) -> JVMessage
+    func register(context: JVIDatabaseContext, change: JVMessageGeneralSystemChange, meta: LocalizedMeta, discardable: Bool) -> MessageEntity
     func discard(context: JVIDatabaseContext, clientID: Int)
     func generateChatCancelled() -> LocalizedMeta
     func generateChatAccepted() -> LocalizedMeta
     func generateChatHasGone() -> LocalizedMeta
-    func generateChatAlreadyTaken(agent: JVAgent) -> LocalizedMeta
+    func generateChatAlreadyTaken(agent: AgentEntity) -> LocalizedMeta
     func generateChatHasBeenArchived() -> LocalizedMeta
     func generateChatCouldNotLoad() -> LocalizedMeta
-    func generateTransferringRequest(to agent: JVAgent, comment: String?) -> LocalizedMeta
-    func generateTransferringComplete(to agent: JVAgent, comment: String?) -> LocalizedMeta
-    func generateTransferringRequest(to department: JVDepartment, comment: String?) -> LocalizedMeta
-    func generateTransferringComplete(to department: JVDepartment, comment: String?) -> LocalizedMeta
-    func generateTransferringMeta(inviter: JVAgent, comment: String?) -> LocalizedMeta
-    func generateTransferMeta(inviter: JVAgent, assistant: JVAgent, comment: String?) -> LocalizedMeta
-    func generateTransferMeta(inviter: JVAgent, department: JVDepartment, assistant: JVAgent, comment: String?) -> LocalizedMeta
-    func generateTransferCancelMeta(inviter: JVAgent) -> LocalizedMeta
-    func generateInvitingRequest(to agent: JVAgent, comment: String?) -> LocalizedMeta
-    func generateInvitingComplete(to agent: JVAgent, comment: String?) -> LocalizedMeta
-    func generateInvitingMeta(inviter: JVAgent, comment: String?) -> LocalizedMeta
-    func generateInviteMeta(inviter: JVAgent?, assistant: JVAgent, comment: String?) -> LocalizedMeta
-    func generateInviteCancelMeta(inviter: JVAgent) -> LocalizedMeta
-    func generateGroupJoinMeta(inviter: JVAgent?, assistant: JVAgent, comment: String?) -> LocalizedMeta
+    func generateTransferringRequest(to agent: AgentEntity, comment: String?) -> LocalizedMeta
+    func generateTransferringComplete(to agent: AgentEntity, comment: String?) -> LocalizedMeta
+    func generateTransferringRequest(to department: DepartmentEntity, comment: String?) -> LocalizedMeta
+    func generateTransferringComplete(to department: DepartmentEntity, comment: String?) -> LocalizedMeta
+    func generateTransferringMeta(inviter: AgentEntity, comment: String?) -> LocalizedMeta
+    func generateTransferMeta(inviter: AgentEntity, assistant: AgentEntity, comment: String?) -> LocalizedMeta
+    func generateTransferMeta(inviter: AgentEntity, department: DepartmentEntity, assistant: AgentEntity, comment: String?) -> LocalizedMeta
+    func generateTransferCancelMeta(inviter: AgentEntity) -> LocalizedMeta
+    func generateInvitingRequest(to agent: AgentEntity, comment: String?) -> LocalizedMeta
+    func generateInvitingComplete(to agent: AgentEntity, comment: String?) -> LocalizedMeta
+    func generateInvitingMeta(inviter: AgentEntity, comment: String?) -> LocalizedMeta
+    func generateInviteMeta(inviter: AgentEntity?, assistant: AgentEntity, comment: String?) -> LocalizedMeta
+    func generateInviteCancelMeta(inviter: AgentEntity) -> LocalizedMeta
+    func generateGroupJoinMeta(inviter: AgentEntity?, assistant: AgentEntity, comment: String?) -> LocalizedMeta
     func generateStartMeta() -> LocalizedMeta
-    func generateAgentLeftFromClient(agent: JVAgent) -> LocalizedMeta
-    func generateAgentLeftFromGroup(agent: JVAgent, kicker: JVAgent?) -> LocalizedMeta
-    func generatePageMeta(previousPage: JVPage?, currentPage: JVPageGeneralChange?) -> LocalizedMeta?
+    func generateAgentLeftFromClient(agent: AgentEntity) -> LocalizedMeta
+    func generateAgentLeftFromGroup(agent: AgentEntity, kicker: AgentEntity?) -> LocalizedMeta
+    func generatePageMeta(previousPage: PageEntity?, currentPage: JVPageGeneralChange?) -> LocalizedMeta?
     func generateMediaUploading(comment: String?) -> LocalizedMeta
     func generateClientWithEmailLeft() -> LocalizedMeta
     func generateClientWithoutEmailLeft() -> LocalizedMeta
     func generateCloseBecauseFinished(date: Date) -> LocalizedMeta
     func generateCloseBecauseAlreadyTaken(date: Date) -> LocalizedMeta
-    func generateMentionNotPresented(agents: [JVAgent]) -> LocalizedMeta
+    func generateMentionNotPresented(agents: [AgentEntity]) -> LocalizedMeta
     func generateCallPreview(call: JVMessageBodyCall) -> String
-    func generateTaskPreview(task: JVMessageBodyTask, by creatorAgent: JVAgent, status: JVMessageBodyTaskStatus) -> String
-    func generatePreviewMeta(isGroup: Bool, message: JVMessage) -> LocalizedMeta
-    func generatePreviewPlain(isGroup: Bool, message: JVMessage) -> String
-    func generateTransferringMeta(chat: JVChat) -> LocalizedMeta?
+    func generateTaskPreview(task: JVMessageBodyTask, by creatorAgent: AgentEntity, status: JVMessageBodyTaskStatus) -> String
+    func generatePreviewMeta(isGroup: Bool, message: MessageEntity) -> LocalizedMeta
+    func generatePreviewPlain(isGroup: Bool, message: MessageEntity) -> String
+    func generateTransferringMeta(chat: ChatEntity) -> LocalizedMeta?
 }
 
 final class SystemMessagingService: ISystemMessagingService {
@@ -81,7 +81,7 @@ final class SystemMessagingService: ISystemMessagingService {
         NotificationCenter.default.removeObserver(self)
     }
     
-    func register(context: JVIDatabaseContext, change: JVMessageGeneralSystemChange, meta: LocalizedMeta, discardable: Bool) -> JVMessage {
+    func register(context: JVIDatabaseContext, change: JVMessageGeneralSystemChange, meta: LocalizedMeta, discardable: Bool) -> MessageEntity {
         var item = SystemMessagingService.Item(change: change, meta: meta, discardable: discardable, messageUUID: nil)
         let message = process(context: context, item: &item)
         items.append(item)
@@ -125,7 +125,7 @@ final class SystemMessagingService: ISystemMessagingService {
         )
     }
     
-    func generateChatAlreadyTaken(agent: JVAgent) -> LocalizedMeta {
+    func generateChatAlreadyTaken(agent: AgentEntity) -> LocalizedMeta {
         return LocalizedMeta(
             mode: .format("Chat.System.Invitation.CancelByAgent"),
             args: [
@@ -154,7 +154,7 @@ final class SystemMessagingService: ISystemMessagingService {
         )
     }
 
-    func generateTransferringRequest(to agent: JVAgent, comment: String?) -> LocalizedMeta {
+    func generateTransferringRequest(to agent: AgentEntity, comment: String?) -> LocalizedMeta {
         return LocalizedMeta(
             mode: .format("Chat.System.Transfer.Requested_v2"),
             args: [
@@ -165,7 +165,7 @@ final class SystemMessagingService: ISystemMessagingService {
         )
     }
     
-    func generateTransferringComplete(to agent: JVAgent, comment: String?) -> LocalizedMeta {
+    func generateTransferringComplete(to agent: AgentEntity, comment: String?) -> LocalizedMeta {
         return LocalizedMeta(
             mode: .format("Chat.System.Transfer.Completed"),
             args: [
@@ -176,7 +176,7 @@ final class SystemMessagingService: ISystemMessagingService {
         )
     }
     
-    func generateTransferringRequest(to department: JVDepartment, comment: String?) -> LocalizedMeta {
+    func generateTransferringRequest(to department: DepartmentEntity, comment: String?) -> LocalizedMeta {
         return LocalizedMeta(
             mode: .format("Chat.System.Transfer.Requested.Group_v2"),
             args: [
@@ -187,7 +187,7 @@ final class SystemMessagingService: ISystemMessagingService {
         )
     }
     
-    func generateTransferringComplete(to department: JVDepartment, comment: String?) -> LocalizedMeta {
+    func generateTransferringComplete(to department: DepartmentEntity, comment: String?) -> LocalizedMeta {
         return LocalizedMeta(
             mode: .format("Chat.System.Transfer.Completed"),
             args: [
@@ -198,7 +198,7 @@ final class SystemMessagingService: ISystemMessagingService {
         )
     }
     
-    func generateTransferringMeta(inviter: JVAgent, comment: String?) -> LocalizedMeta {
+    func generateTransferringMeta(inviter: AgentEntity, comment: String?) -> LocalizedMeta {
         return LocalizedMeta(
             mode: .format("Chat.System.Transfer.AgentToYouRequest"),
             args: [
@@ -209,7 +209,7 @@ final class SystemMessagingService: ISystemMessagingService {
         )
     }
     
-    func generateTransferMeta(inviter: JVAgent, assistant: JVAgent, comment: String?) -> LocalizedMeta {
+    func generateTransferMeta(inviter: AgentEntity, assistant: AgentEntity, comment: String?) -> LocalizedMeta {
         if !inviter.isMe, !assistant.isMe {
             return LocalizedMeta(
                 mode: .format("Chat.System.Transfer.AgentToAgent_v2"),
@@ -243,7 +243,7 @@ final class SystemMessagingService: ISystemMessagingService {
         }
     }
     
-    func generateTransferMeta(inviter: JVAgent, department: JVDepartment, assistant: JVAgent, comment: String?) -> LocalizedMeta {
+    func generateTransferMeta(inviter: AgentEntity, department: DepartmentEntity, assistant: AgentEntity, comment: String?) -> LocalizedMeta {
         if !inviter.isMe, !assistant.isMe {
             return LocalizedMeta(
                 mode: .format("Chat.System.Transfer.AgentToDepartment"),
@@ -280,7 +280,7 @@ final class SystemMessagingService: ISystemMessagingService {
         }
     }
     
-    func generateTransferCancelMeta(inviter: JVAgent) -> LocalizedMeta {
+    func generateTransferCancelMeta(inviter: AgentEntity) -> LocalizedMeta {
         return LocalizedMeta(
             mode: .format("Chat.System.Transfer.AgentToYouCancelled"),
             args: [
@@ -291,7 +291,7 @@ final class SystemMessagingService: ISystemMessagingService {
         )
     }
     
-    func generateInvitingRequest(to agent: JVAgent, comment: String?) -> LocalizedMeta {
+    func generateInvitingRequest(to agent: AgentEntity, comment: String?) -> LocalizedMeta {
         return LocalizedMeta(
             mode: .format("Chat.System.Assist.Requested"),
             args: [
@@ -302,7 +302,7 @@ final class SystemMessagingService: ISystemMessagingService {
         )
     }
     
-    func generateInvitingComplete(to agent: JVAgent, comment: String?) -> LocalizedMeta {
+    func generateInvitingComplete(to agent: AgentEntity, comment: String?) -> LocalizedMeta {
         return LocalizedMeta(
             mode: .format("Chat.System.Assist.Completed"),
             args: [
@@ -313,7 +313,7 @@ final class SystemMessagingService: ISystemMessagingService {
         )
     }
     
-    func generateInvitingMeta(inviter: JVAgent, comment: String?) -> LocalizedMeta {
+    func generateInvitingMeta(inviter: AgentEntity, comment: String?) -> LocalizedMeta {
         return LocalizedMeta(
             mode: .format("Chat.System.Assist.AgentToYouRequest"),
             args: [
@@ -324,7 +324,7 @@ final class SystemMessagingService: ISystemMessagingService {
         )
     }
     
-    func generateInviteMeta(inviter: JVAgent?, assistant: JVAgent, comment: String?) -> LocalizedMeta {
+    func generateInviteMeta(inviter: AgentEntity?, assistant: AgentEntity, comment: String?) -> LocalizedMeta {
         guard let inviter = inviter, inviter.ID != assistant.ID else {
             return LocalizedMeta(
                 mode: .format("Chat.System.JoinedGroup"),
@@ -369,7 +369,7 @@ final class SystemMessagingService: ISystemMessagingService {
         }
     }
     
-    func generateInviteCancelMeta(inviter: JVAgent) -> LocalizedMeta {
+    func generateInviteCancelMeta(inviter: AgentEntity) -> LocalizedMeta {
         return LocalizedMeta(
             mode: .format("Chat.System.Assist.AgentToYouCancelled"),
             args: [
@@ -380,7 +380,7 @@ final class SystemMessagingService: ISystemMessagingService {
         )
     }
     
-    func generateGroupJoinMeta(inviter: JVAgent?, assistant: JVAgent, comment: String?) -> LocalizedMeta {
+    func generateGroupJoinMeta(inviter: AgentEntity?, assistant: AgentEntity, comment: String?) -> LocalizedMeta {
         if let inviter = inviter, inviter.ID != assistant.ID {
             if inviter.ID == assistant.ID {
                 return LocalizedMeta(
@@ -425,7 +425,7 @@ final class SystemMessagingService: ISystemMessagingService {
         )
     }
     
-    func generateAgentLeftFromClient(agent: JVAgent) -> LocalizedMeta {
+    func generateAgentLeftFromClient(agent: AgentEntity) -> LocalizedMeta {
         if agent.isMe {
             return LocalizedMeta(
                 mode: .format("Chat.System.Assist.MeLeft"),
@@ -446,7 +446,7 @@ final class SystemMessagingService: ISystemMessagingService {
         }
     }
 
-    func generateAgentLeftFromGroup(agent: JVAgent, kicker: JVAgent?) -> LocalizedMeta {
+    func generateAgentLeftFromGroup(agent: AgentEntity, kicker: AgentEntity?) -> LocalizedMeta {
         if let kicker = kicker {
             return LocalizedMeta(
                 mode: .format("Chat.System.Group.LeaveKicked"),
@@ -470,7 +470,7 @@ final class SystemMessagingService: ISystemMessagingService {
         }
     }
     
-    func generatePageMeta(previousPage: JVPage?, currentPage: JVPageGeneralChange?) -> LocalizedMeta? {
+    func generatePageMeta(previousPage: PageEntity?, currentPage: JVPageGeneralChange?) -> LocalizedMeta? {
         guard let currentPage = currentPage else { return nil }
         
         let previousLink = previousPage?.URL?.absoluteString
@@ -492,7 +492,7 @@ final class SystemMessagingService: ISystemMessagingService {
     
     func generateMediaUploading(comment: String?) -> LocalizedMeta {
         return LocalizedMeta(
-            mode: .format("Chat.System.Media.Uploading"),
+            mode: .formatAny(["JV_ChatTimeline_SystemMessage_MediaUploading" ,"Chat.System.Media.Uploading"]),
             args: [],
             suffix: wrapCommentIfNeeded(comment, separated: false),
             interactiveID: nil
@@ -551,7 +551,7 @@ final class SystemMessagingService: ISystemMessagingService {
         )
     }
 
-    func generateMentionNotPresented(agents: [JVAgent]) -> LocalizedMeta {
+    func generateMentionNotPresented(agents: [AgentEntity]) -> LocalizedMeta {
         return LocalizedMeta(
             mode: .format(
                 agents.count > 1
@@ -595,7 +595,7 @@ final class SystemMessagingService: ISystemMessagingService {
         }
     }
     
-    func generateTaskPreview(task: JVMessageBodyTask, by creatorAgent: JVAgent, status: JVMessageBodyTaskStatus) -> String {
+    func generateTaskPreview(task: JVMessageBodyTask, by creatorAgent: AgentEntity, status: JVMessageBodyTaskStatus) -> String {
         let formula: String
         switch status {
         case .created: formula = loc["Reminder.Created.Formula"]
@@ -626,9 +626,9 @@ final class SystemMessagingService: ISystemMessagingService {
         return result
     }
     
-    func generatePreviewMeta(isGroup: Bool, message: JVMessage) -> LocalizedMeta {
+    func generatePreviewMeta(isGroup: Bool, message: MessageEntity) -> LocalizedMeta {
         guard !(message.wasDeleted) else {
-            return .init(exact: loc["Message.Deleted"])
+            return .init(exact: loc["JV_ChatTimeline_MessageStatus_Deleted", "Message.Deleted"])
         }
         
         switch message.content {
@@ -736,7 +736,7 @@ final class SystemMessagingService: ISystemMessagingService {
             return .init(exact: value)
 
         case .line:
-            let value = loc["Message.Preview.Line"].jv_plain()
+            let value = loc["JV_ChatTimeline_SystemMessage_SecondLine", "Message.Preview.Line"].jv_plain()
             return .init(exact: value)
 
         case .task(let task):
@@ -763,11 +763,11 @@ final class SystemMessagingService: ISystemMessagingService {
         }
     }
     
-    func generatePreviewPlain(isGroup: Bool, message: JVMessage) -> String {
+    func generatePreviewPlain(isGroup: Bool, message: MessageEntity) -> String {
         return generatePreviewMeta(isGroup: isGroup, message: message).localized()
     }
     
-    func generateTransferringMeta(chat: JVChat) -> LocalizedMeta? {
+    func generateTransferringMeta(chat: ChatEntity) -> LocalizedMeta? {
         guard let attendee = chat.attendee else { return nil }
         
         if case let .invitedByAgent(agent, toAssist, comment) = attendee.relation {
@@ -798,7 +798,7 @@ final class SystemMessagingService: ISystemMessagingService {
         return comment?.jv_valuable.map { return "\(separator)\n«\($0)»" }
     }
     
-    private func process(context: JVIDatabaseContext, item: inout Item) -> JVMessage {
+    private func process(context: JVIDatabaseContext, item: inout Item) -> MessageEntity {
         let message = context.createMessage(with: item.change)
         item.messageUUID = message.UUID
         localizedMetas[message.UUID] = item.meta
@@ -814,7 +814,7 @@ final class SystemMessagingService: ISystemMessagingService {
                     text: item.value.localized()
                 )
                 
-                if context.update(of: JVMessage.self, with: change) == nil {
+                if context.update(of: MessageEntity.self, with: change) == nil {
                     self.localizedMetas.removeValue(forKey: item.key)
                 }
             }

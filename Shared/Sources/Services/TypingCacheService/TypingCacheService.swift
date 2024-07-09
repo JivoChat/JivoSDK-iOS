@@ -45,6 +45,7 @@ protocol ITypingCacheService: AnyObject {
     func cache(text: String?)
     func cache(attachment: ChatPhotoPickerObject) -> TypingCacheAttachmentReaction
     func uncache(attachmentAt index: Int)
+    func uncacheAll()
     func canUseAiSummarize(for chatID: Int?) -> Bool
     func incSummarizeCount(for chatID: Int?)
     func saveInput(context: TypingContext, flush: Bool)
@@ -111,6 +112,10 @@ final class TypingCacheService: ITypingCacheService {
     
     func uncache(attachmentAt index: Int) {
         currentAttachments.remove(at: index)
+    }
+    
+    func uncacheAll() {
+        currentAttachments = []
     }
     
     func incSummarizeCount(for chatID: Int?) {
@@ -185,7 +190,7 @@ final class TypingCacheService: ITypingCacheService {
             currentText = nil
             currentAttachments = []
         }
-
+        
         return currentInput
     }
 

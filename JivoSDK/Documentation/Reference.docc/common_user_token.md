@@ -17,17 +17,15 @@ Below, we explain how to do that.
 First, you need to create your global `secret` which you'll use for generating JWT tokens.  
 Please create it accordingly to RFC 7519, with length of 256 bit.
 
-Then, share this secret with us by sending it to [info@jivosite.com](info@jivosite.com) from e-mail address of your account's administrator,  
-and tell us your Mobile SDK Channel ID so we can configure our JWT environment for you.
+Then, place this secret into "JWT Settings" screen of your Mobile SDK channel options.
 
 > Tip: You may found this resource useful to generate, sign, and check JWT tokens: [jwt.io](https://jwt.io/)
 
 ## #2: Generate token
 
-JWT tokens you will generate for your clients, must be:
-- unique across your account
-- constant for individual client
-- encrypted using your `secret`
+JWT tokens you will generate for your clients, must:
+- contain unique "id" field for each individual client
+- be encrypted using your `secret`
 
 Minimal JWT payload must contain "id" field which acts like a client identifier, so here is example of such JWT payload:
 ```

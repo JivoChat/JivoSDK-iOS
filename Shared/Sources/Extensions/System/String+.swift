@@ -180,6 +180,23 @@ extension String {
         return "\"\(self)\""
     }
     
+    func jv_getWidth(using font: UIFont) -> CGFloat {
+        let fontAttributes = [NSAttributedString.Key.font: font]
+        let size = self.size(withAttributes: fontAttributes)
+        return size.width
+    }
+    
+    func jv_getHeight(using font: UIFont) -> CGFloat {
+        let fontAttributes = [NSAttributedString.Key.font: font]
+        let size = self.size(withAttributes: fontAttributes)
+        return size.height
+    }
+    
+    func jv_getSize(using font: UIFont) -> CGSize {
+        let fontAttributes = [NSAttributedString.Key.font: font]
+        return self.size(withAttributes: fontAttributes)
+    }
+    
     func jv_convertToEmojis() -> String {
         return String(
             String.UnicodeScalarView(

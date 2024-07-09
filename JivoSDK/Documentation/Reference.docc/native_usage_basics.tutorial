@@ -46,7 +46,7 @@
     
     @Section(title: "How to display SDK") {
         @ContentAndMedia {
-            Next thing is to display the JivoSDK UI onscreen
+            Next thing is to display the JivoSDK UI onscreen: we support both UIKit and SwiftUI
         }
         
         @Steps {
@@ -74,6 +74,12 @@
                 As an alternative, you may want to present JivoSDK modally over the screen
                 
                 @Code(name: "ProfileViewController.swift", file: native.profile_view_controller_03.swift.sample)
+            }
+            
+            @Step {
+                Also, here is a SwiftUI way
+                
+                @Code(name: "ProfileView.swift", file: native.profile_view_01.swift.sample)
             }
         }
     }

@@ -24,7 +24,12 @@ extension PreferencesToken {
     static let activeLocale = PreferencesToken(key: "activeLocale", hint: Locale.self)
     static let vibroEnabled = PreferencesToken(key: "vibroEnabled", hint: Bool.self)
     static let cannedPhrasesEnabled = PreferencesToken(key: "cannedPhrasesEnabled", hint: Bool.self)
-    static let aiRephraseToggleEnabled = PreferencesToken(key: "aiRephraseToggleEnabled", hint: Bool.self)
+    static let isAIToggleEnabled = PreferencesToken(key: "isAIToggleEnabled", hint: Bool.self)
+    static let aiAssistantAccountToggleEnabled = PreferencesToken(key: "aiAssistantAccountToggleEnabled", hint: Bool.self)
+    static let aiCopilotAccountToggleEnabled = PreferencesToken(key: "aiCopilotAccountToggleEnabled", hint: Bool.self)
+    static let aiСopilotToggleEnabled = PreferencesToken(key: "aiСopilotToggleEnabled", hint: Bool.self)
+    static let aiСopilotOnPause = PreferencesToken(key: "aiСopilotOnPause", hint: Bool.self)
+    static let selectedCopilotSkill = PreferencesToken(key: "selectedCopilotSkill", hint: Int.self)
 }
 
 protocol IPreferencesDriver: AnyObject {

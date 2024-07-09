@@ -69,7 +69,7 @@ final class ChatModuleCore
     private let uiConfig: SdkChatModuleVisualConfig
     private let maxImageDiskCacheSize: UInt
     
-    private var chat: JVChat?
+    private var chat: ChatEntity?
     private var channelAgents: MemoryRepository<Int, ChatModuleAgent>
     private var chatAgents: MemoryRepository<Int, ChatModuleAgent>
     
@@ -88,7 +88,7 @@ final class ChatModuleCore
     
     private var filePickerCallback: ((URL?) -> Void)?
     
-    private var selectedMessage: JVMessage?
+    private var selectedMessage: MessageEntity?
     private var isHistoryPerformingUpdates = false
     private var allHistoryLoaded = false
     
@@ -246,7 +246,7 @@ final class ChatModuleCore
             case .askRequired:
                 self?.pipeline?.notify(event: .inputUpdate(.update(.init(
                     input: .inactive(
-                        reason: loc["chat_input.status.contact_info"]
+                        reason: loc["JV_ChatInput_Status_FillContactForm", "chat_input.status.contact_info"]
                     ),
                     submit: nil))))
             case .sent:
@@ -272,6 +272,12 @@ final class ChatModuleCore
             self,
             selector: #selector(handleAppDidEnterBackground),
             name: UIApplication.didEnterBackgroundNotification,
+            object: nil)
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(handleAppWillEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
             object: nil)
     }
 
@@ -376,8 +382,7 @@ final class ChatModuleCore
     }
     
     private func reconnectIfNeeded() {
-        guard !(networking.isConnected)
-        else {
+        guard !(networking.isConnected) else {
             return
         }
         
@@ -434,6 +439,7 @@ final class ChatModuleCore
                     ChatPhotoPickerImageMeta(
                         image: image,
                         url: url,
+                        assetLocalId: nil,
                         date: nil,
                         name: url.lastPathComponent.uppercased()
                     )
@@ -516,11 +522,11 @@ final class ChatModuleCore
         }
     }
     
-    private func handleChatObtainedEvent(chat: JVDatabaseModelRef<JVChat>) {
+    private func handleChatObtainedEvent(chat: DatabaseEntityRef<ChatEntity>) {
         self.chat = chat.resolved
     }
     
-    private func handleMessagesUpserted(messages: [JVMessage]) {
+    private func handleMessagesUpserted(messages: [MessageEntity]) {
         let currentUids = chatHistory.messages.map(\.UUID)
         let messagesToUpdate = messages.filter { currentUids.contains($0.UUID) }
         let messagesToPopulate = messages.filter { !currentUids.contains($0.UUID) }
@@ -540,7 +546,7 @@ final class ChatModuleCore
         chatHistory.populate(withMessages: messagesToPopulate)
     }
     
-    private func handleMessagesRemoved(messages: [JVMessage]) {
+    private func handleMessagesRemoved(messages: [MessageEntity]) {
         messages.forEach { message in
             chatHistory.remove(message: message)
         }
@@ -565,7 +571,7 @@ final class ChatModuleCore
         }
     }
     
-    private func handleMessageResending(_ messageRef: JVDatabaseModelRef<JVMessage>) {
+    private func handleMessageResending(_ messageRef: DatabaseEntityRef<MessageEntity>) {
         guard let message = messageRef.resolved
         else {
             return
@@ -588,12 +594,12 @@ final class ChatModuleCore
         chatHistory.fill(with: [], partialLoaded: false, unreadPosition: .null)
     }
     
-    private func handleLocalHistoryLoadedEvent(messages: [JVDatabaseModelRef<JVMessage>]) {
+    private func handleLocalHistoryLoadedEvent(messages: [DatabaseEntityRef<MessageEntity>]) {
         let messages = messages.compactMap(\.resolved)
         
         agentsTimelineCache.append(agents: messages.compactMap(\.senderAgent))
         
-        chatHistory.messages = Array<JVMessage>(messages.reversed())
+        chatHistory.messages = Array<MessageEntity>(messages.reversed())
         chatHistory.fill(with: messages, partialLoaded: false, unreadPosition: .null)
         pipeline?.notify(event: .historyLoaded)
     }
@@ -626,7 +632,7 @@ final class ChatModuleCore
         pipeline?.notify(event: .mediaUploadFailure(error: error))
     }
     
-    private func handleChannelAgentsUpdated(agents: [JVAgent]) {
+    private func handleChannelAgentsUpdated(agents: [AgentEntity]) {
         let channelAgents: [ChatModuleAgent] = agents
             .compactMap {
                 guard let agent = jv_validate($0) else { return nil }
@@ -656,7 +662,7 @@ final class ChatModuleCore
         }
     }
     
-    private func handleChatAgentsUpdated(agents: [JVAgent]) {
+    private func handleChatAgentsUpdated(agents: [AgentEntity]) {
         let chatAgents: [ChatModuleAgent] = agents
             .compactMap {
                 guard let agent = jv_validate($0) else { return nil }
@@ -799,11 +805,17 @@ final class ChatModuleCore
     }
     
     @objc private func handleAppDidBecomeActive() {
+        state.isForeground = true
         reconnectIfNeeded()
     }
     
     @objc private func handleAppDidEnterBackground() {
+        state.isForeground = false
         managerPipeline.notify(event: .turnInactive(.connection))
+    }
+    
+    @objc private func handleAppWillEnterForeground() {
+        state.isForeground = true
     }
     
     private func mediaBecameUnavailableHandler(url: URL, mime: String?) {
@@ -885,6 +897,7 @@ final class ChatModuleCore
                                     ChatPhotoPickerImageMeta(
                                         image: image,
                                         url: url,
+                                        assetLocalId: nil,
                                         date: date,
                                         name: name
                                     )
@@ -918,6 +931,7 @@ final class ChatModuleCore
                         ChatPhotoPickerImageMeta(
                             image: image,
                             url: nil,
+                            assetLocalId: nil,
                             date: nil,
                             name: nil
                         )
@@ -971,12 +985,12 @@ final class ChatModuleCore
 //        }
     }
     
-//    private func buildActiveMessage(withText text: String) -> JVMessage {
-//        var message: JVMessage!
+//    private func buildActiveMessage(withText text: String) -> MessageEntity {
+//        var message: MessageEntity!
 //
 //        databaseDriver.readwrite { context in
-//            let entityName = String(describing: JVMessage.self)
-//            message = NSEntityDescription.insertNewObject(forEntityName: entityName, into: context.context) as? JVMessage
+//            let entityName = String(describing: MessageEntity.self)
+//            message = NSEntityDescription.insertNewObject(forEntityName: entityName, into: context.context) as? MessageEntity
 //            message.m_uid = "activeMessage"
 //            message.m_text = text
 //            message.m_date = Date()
@@ -994,19 +1008,19 @@ fileprivate final class AgentsTimelineCache {
         cache = Dictionary()
     }
     
-    func append(agents: [JVAgent]) {
+    func append(agents: [AgentEntity]) {
         let agentsMap = Dictionary(grouping: agents, by: \.ID)
         for (agentId, agents) in agentsMap {
             cache[agentId] = agents.first?.calculateTimelineHash()
         }
     }
     
-    func find(agent: JVAgent, within customCache: [Int: Int]? = nil) -> Int? {
+    func find(agent: AgentEntity, within customCache: [Int: Int]? = nil) -> Int? {
         return (customCache ?? cache)[agent.ID]
     }
 }
 
-fileprivate extension JVAgent {
+fileprivate extension AgentEntity {
     func calculateTimelineHash() -> Int {
         return displayName(kind: .original).hash ^ repicItem(transparent: false, scale: nil).hashValue
     }

@@ -136,6 +136,12 @@ public final class JVDisplayController: NSObject {
     }
     
     #if canImport(SwiftUI)
+    /**
+     Builds module UI for use within SwiftUI context
+     
+     - Parameter presentation:
+     Determines how module will be presented onscreen
+     */
     @available(iOS 13.0, *)
     public func makeScreen(_ presentation: JVDisplayScreenPresentation) -> JVDisplayWrapper {
         return _makeScreen(presentation)

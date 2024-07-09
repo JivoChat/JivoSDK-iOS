@@ -10,17 +10,17 @@ import Foundation
 @testable import App
 
 class AgentsRepoMock: IAgentsRepo {
-    let agents: [JVAgent]
+    let agents: [AgentEntity]
     
-    init(agents: [JVAgent]) {
+    init(agents: [AgentEntity]) {
         self.agents = agents
     }
     
-    func retrieve(id: Int, lookup: AgentRepoRetrievalLookup) -> JVAgent? {
+    func retrieve(id: Int, lookup: AgentRepoRetrievalLookup) -> AgentEntity? {
         return agents.first(where: { $0.m_id == id })
     }
     
-    func retrieveAll(listing: AgentRepoRetrievalListing) -> [JVAgent] {
+    func retrieveAll(listing: AgentRepoRetrievalListing) -> [AgentEntity] {
         return agents
     }
     

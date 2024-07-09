@@ -9,7 +9,7 @@
 import JMTimelineKit
 
 struct JMTimelineMessagePlainInfo: JMTimelineInfo {
-    let quotedMessage: JVMessage?
+    let quotedMessage: MessageEntity?
     let text: String
     let style: JMTimelineCompositePlainStyle
 }

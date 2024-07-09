@@ -158,7 +158,7 @@ fileprivate func constructTuple() -> (IMentioningService, IAgentsRepo) {
 }
 
 fileprivate extension MentionsItem {
-    var storedAgent: JVAgent? {
+    var storedAgent: AgentEntity? {
         switch self {
         case .agent(let agent):
             return agent

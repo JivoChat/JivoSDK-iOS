@@ -7,6 +7,8 @@
 
 import Foundation
 
+public typealias JVClientContactInfo = JVSessionContactInfo
+
 /**
  Contact Info for user
  */

@@ -199,10 +199,10 @@ public final class JVNotificationsController: NSObject {
 extension JVNotificationsController: SdkEngineAccessing {
     private func _delegateHookDidSet() {
         if let _ = delegate {
-            journal {"FACADE[notifications] set the delegate"}
+            journal(layer: .facade) {"FACADE[notifications] set the delegate"}
         }
         else {
-            journal {"FACADE[notifications] remove the delegate"}
+            journal(layer: .facade) {"FACADE[notifications] remove the delegate"}
         }
         
         engine.services.apnsService.notificationsDelegate = delegate
@@ -210,17 +210,17 @@ extension JVNotificationsController: SdkEngineAccessing {
     }
     
     private func _setPermissionAsking(at moment: JVNotificationsPermissionAskingMoment) {
-        journal {"FACADE[notifications] ask for permission at @moment[\(moment)]"}
+        journal(layer: .facade) {"FACADE[notifications] ask for permission at @moment[\(moment)]"}
         
         engine.services.apnsService.setAsking(moment: moment)
     }
     
     private func _setPushToken(data: Data?) {
         if let data = data {
-            journal {"FACADE[notifications] set the push token\n@data[\(data.jv_toHex())]"}
+            journal(layer: .facade) {"FACADE[notifications] set the push token\n@data[\(data.jv_toHex())]"}
         }
         else {
-            journal {"FACADE[notifications] remove the push token by data"}
+            journal(layer: .facade) {"FACADE[notifications] remove the push token by data"}
         }
         
         engine.managers.clientManager.apnsDeviceLiveToken = data?.jv_toHex()
@@ -228,23 +228,23 @@ extension JVNotificationsController: SdkEngineAccessing {
     
     private func _setPushToken(hex: String?) {
         if let hex = hex {
-            journal {"FACADE[notifications] set the push token @hex[\(hex)]"}
+            journal(layer: .facade) {"FACADE[notifications] set the push token @hex[\(hex)]"}
         }
         else {
-            journal {"FACADE[notifications] remove the push token by hex"}
+            journal(layer: .facade) {"FACADE[notifications] remove the push token by hex"}
         }
 
         engine.managers.clientManager.apnsDeviceLiveToken = hex
     }
     
     private func _setPushToken(error: Error) {
-        journal {"FACADE[notifications] failed getting token: \(error as NSError)"}
+        journal(layer: .facade) {"FACADE[notifications] failed getting token: \(error as NSError)"}
         
         engine.managers.clientManager.apnsDeviceLiveToken = nil
     }
     
     private func _handleLaunch(options: [UIApplication.LaunchOptionsKey : Any]?) -> Bool {
-        journal {"FACADE[notifications] handle the launch @options[\(String(describing: options))]"}
+        journal(layer: .facade) {"FACADE[notifications] handle the launch @options[\(String(describing: options))]"}
         
         if let userInfo = options?[.remoteNotification] as? [AnyHashable: Any] {
             return handleIncoming(userInfo: userInfo, completionHandler: nil)
@@ -255,7 +255,7 @@ extension JVNotificationsController: SdkEngineAccessing {
     }
     
     private func _didReceiveRemoteNotification(userInfo: [AnyHashable : Any]) -> UIBackgroundFetchResult? {
-        journal {"FACADE[notifications] didReceiveRemoteNotification @userInfo[\(userInfo)]"}
+        journal(layer: .facade) {"FACADE[notifications] didReceiveRemoteNotification @userInfo[\(userInfo)]"}
         
         if engine.managers.chatManager.handleNotification(userInfo: userInfo) {
             return .noData
@@ -266,7 +266,7 @@ extension JVNotificationsController: SdkEngineAccessing {
     }
     
     private func _handleIncoming(userInfo: [AnyHashable : Any], completionHandler: ((UIBackgroundFetchResult) -> Void)?) -> Bool {
-        journal {"FACADE[notifications] handle the notification @userInfo[\(userInfo)]"}
+        journal(layer: .facade) {"FACADE[notifications] handle the notification @userInfo[\(userInfo)]"}
         
         if engine.managers.chatManager.handleNotification(userInfo: userInfo) {
             completionHandler?(.noData)
@@ -282,7 +282,7 @@ extension JVNotificationsController: SdkEngineAccessing {
         case .nonrelated:
             return nil
         case .technical:
-            journal {"FACADE[notifications] determine options @userInfo[\(notification.request.content.userInfo)]"}
+            journal(layer: .facade) {"FACADE[notifications] determine options @userInfo[\(notification.request.content.userInfo)]"}
             return .jv_empty
         case .presentable:
             return preferableOptions
@@ -290,7 +290,7 @@ extension JVNotificationsController: SdkEngineAccessing {
     }
     
     private func _configurePresentation(notification: UNNotification, proxyTo handler: @escaping JVNotificationsOptionsOutput, resolver: @escaping JVNotificationsOptionsResolver) {
-        journal {"FACADE[notifications] configure presentation @userInfo[\(notification.request.content.userInfo)]"}
+        journal(layer: .facade) {"FACADE[notifications] configure presentation @userInfo[\(notification.request.content.userInfo)]"}
         
         engine.managers.chatManager.prepareToPresentNotification(notification, completionHandler: handler) { target, event in
             return resolver(target, event)
@@ -298,7 +298,7 @@ extension JVNotificationsController: SdkEngineAccessing {
     }
     
     private func _didReceive(response: UNNotificationResponse) -> Bool {
-        journal {"FACADE[notifications] didReceive @response[\(response)]"}
+        journal(layer: .facade) {"FACADE[notifications] didReceive @response[\(response)]"}
         
         return engine.managers.chatManager.handleNotification(response: response)
     }

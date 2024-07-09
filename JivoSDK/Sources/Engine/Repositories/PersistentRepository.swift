@@ -10,7 +10,7 @@ import Foundation
 
 //#warning("TODO: Anton Karpushko, 26.11.2021 – Make PersistentRepository thread-safe.")
 
-class PersistentRepository<Index: Hashable, Item, Change: JVDatabaseModelChange, Model: JVDatabaseModel, MainKey: Hashable>: Repository<Index, Item> {
+class PersistentRepository<Index: Hashable, Item, Change: JVDatabaseModelChange, Model: DatabaseEntity, MainKey: Hashable>: Repository<Index, Item> {
     private var semaphore = CountingSemaphore(value: 1)
     
     private var internalRepository: MemoryRepository<Index, Item>

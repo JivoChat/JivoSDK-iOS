@@ -143,7 +143,7 @@ extension JVDisplayController {
     }
     
     private func _setLocale(_ locale: Locale?) {
-        journal {"FACADE[display] set @locale[\(String(describing: locale))]"}
+        journal(layer: .facade) {"FACADE[display] set @locale[\(String(describing: locale))]"}
         
         joint.modifyConfig { config in
             config.locale = locale
@@ -169,7 +169,7 @@ extension JVDisplayController {
     }
     
     private func _setExtraItems(menu: JVDisplayMenu, captions: [String], handler: @escaping (Int) -> Void) {
-        journal {"FACADE[display] set extra items for @menu[\(menu)] with @captions[\(captions)]"}
+        journal(layer: .facade) {"FACADE[display] set extra items for @menu[\(menu)] with @captions[\(captions)]"}
         
         joint.modifyConfig { config in
             config.extraMenuItems[menu] = captions
@@ -177,8 +177,10 @@ extension JVDisplayController {
         }
     }
     
-    private func _push(into navigationController: UINavigationController) -> JVSessionHandle? {
-        journal {"FACADE[display] push into navigationController"}
+    private func _push(into navigationController: UINavigationController, funcname: String = #function) -> JVSessionHandle? {
+        journal(layer: .facade) {"FACADE[display] push into navigationController"}
+        assert(Thread.isMainThread, "Please call on Main Thread")
+        _ensureShowingOnExclusiveRun(funcname: funcname)
         
         guard !joint.isDisplaying else {
             return nil
@@ -189,9 +191,11 @@ extension JVDisplayController {
             displayDelegate: delegate)
     }
     
-    private func _place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton) -> JVSessionHandle? {
-        journal {"FACADE[display] place within navigationController @closeButton[\(closeButton)]"}
-        
+    private func _place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton, funcname: String = #function) -> JVSessionHandle? {
+        journal(layer: .facade) {"FACADE[display] place within navigationController @closeButton[\(closeButton)]"}
+        assert(Thread.isMainThread, "Please call on Main Thread")
+        _ensureShowingOnExclusiveRun(funcname: funcname)
+
         guard !joint.isDisplaying else {
             return nil
         }
@@ -202,9 +206,11 @@ extension JVDisplayController {
             displayDelegate: delegate)
     }
     
-    private func _present(over viewController: UIViewController) -> JVSessionHandle? {
-        journal {"FACADE[display] present over viewController"}
-        
+    private func _present(over viewController: UIViewController, funcname: String = #function) -> JVSessionHandle? {
+        journal(layer: .facade) {"FACADE[display] present over viewController"}
+        assert(Thread.isMainThread, "Please call on Main Thread")
+        _ensureShowingOnExclusiveRun(funcname: funcname)
+
         guard !joint.isDisplaying else {
             return nil
         }
@@ -216,5 +222,30 @@ extension JVDisplayController {
     
     private func _close(animated: Bool) {
         joint.close(animated: animated)
+    }
+    
+    private func _ensureShowingOnExclusiveRun(funcname: String = #function) {
+        if let depname = Thread.current.threadDictionary[JVSessionController.setupFuncKey] as? String {
+            assertionFailure("""
+            
+            ----------------------
+            | Please don't worry!
+            |
+            | This assertion anyway won't be fired outside of Xcode run,
+            | because we use assertionFailure() instead of preconditionFailure()
+            |
+            | To avoid this assertion,
+            | please don't call Jivo.display.\(funcname)
+            | immediately after Jivo.session.\(depname)
+            |
+            | Instead, call Jivo.session.setup()
+            | as soon as you have received your client's identity
+            | during your app authorization logic
+            |
+            | And then, after a while, call Jivo.display.\(funcname),
+            | when you're going to show our SDK onscreen
+            ----------------------
+            """)
+        }
     }
 }

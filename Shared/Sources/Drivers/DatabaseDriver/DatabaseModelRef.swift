@@ -1,5 +1,5 @@
 //
-//  DatabaseModelRef.swift
+//  DatabaseEntityRef.swift
 //  App
 //
 //  Created by Stan Potemkin on 20.01.2023.
@@ -9,7 +9,7 @@
 import Foundation
 import CoreData
 
-final class JVDatabaseModelRef<Value: JVDatabaseModel> {
+final class DatabaseEntityRef<Value: DatabaseEntity> {
     private weak var coreDataDriver: JVIDatabaseDriver?
     let objectId: NSManagedObjectID?
     

@@ -17,6 +17,6 @@ final class ChatsRepo: IChatsRepo {
     
     func updateDraft(id: Int, currentText: String?) {
         let change = JVChatDraftChange(ID: id, draft: currentText)
-        _ = databaseDriver.update(of: JVChat.self, with: change)
+        _ = databaseDriver.update(of: ChatEntity.self, with: change)
     }
 }

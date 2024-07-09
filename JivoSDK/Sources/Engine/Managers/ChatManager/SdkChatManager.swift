@@ -41,9 +41,9 @@ enum SdkChatManagerError: Error {
 
 enum SdkChatEvent {
     case sessionInitialized(isFirst: Bool)
-    case chatObtained(_ chat: JVDatabaseModelRef<JVChat>)
-    case chatAgentsUpdated(_ agents: [JVDatabaseModelRef<JVAgent>])
-    case channelAgentsUpdated(_ agents: [JVDatabaseModelRef<JVAgent>])
+    case chatObtained(_ chat: DatabaseEntityRef<ChatEntity>)
+    case chatAgentsUpdated(_ agents: [DatabaseEntityRef<AgentEntity>])
+    case channelAgentsUpdated(_ agents: [DatabaseEntityRef<AgentEntity>])
     case attachmentsStartedToUpload
     case attachmentsUploadSucceded
     case mediaUploadFailure(withError: SdkMediaUploadError)
@@ -67,17 +67,17 @@ protocol ISdkChatManager: ISdkManager, ChatTimelineFactoryHistoryDelegate {
     func makeAllAgentsOffline()
     func sendTyping(text: String)
     func sendMessage(trigger: SdkManagerTrigger, text: String, attachments: [ChatPhotoPickerObject]) throws
-    func copy(message: JVMessage)
+    func copy(message: MessageEntity)
     func resendMessage(uuid: String)
     func deleteMessage(uuid: String)
     func requestMessageHistory(before anchorMessageId: Int?, behavior: SdkChatHistoryRequestBehavior)
-    func markSeen(message: JVMessage)
+    func markSeen(message: MessageEntity)
     
     func identifyContactFormBehavior() -> SdkChatContactFormBehavior
     func informContactInfoStatus()
-    func toggleContactForm(message: JVMessage)
+    func toggleContactForm(message: MessageEntity)
     
-    func toggleRateForm(message: JVMessage, action: SdkChatManagerRateFormAction)
+    func toggleRateForm(message: MessageEntity, action: SdkChatManagerRateFormAction)
     
     func handleNotification(_ notification: UNNotification) -> SdkNotificationsEventNature
     func handleNotification(userInfo: [AnyHashable : Any]) -> Bool
@@ -115,8 +115,6 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     
     // MARK: - Constants
     
-    let AGENT_DEFAULT_DISPLAY_NAME_LOC_KEY = "agent_name_default"
-    
     let subOffline: ISdkChatSubOffline
     let subHello: ISdkChatSubHello
     
@@ -129,7 +127,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     
     // MARK: - Private properties
     
-    private var chatMessages: [JVDatabaseModelRef<JVMessage>] = []
+    private var chatMessages: [DatabaseEntityRef<MessageEntity>] = []
     private var isFirstSessionInitialization = true
     private var userDataReceivingMode: AgentDataReceivingMode = .channel {
         didSet {
@@ -265,7 +263,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         
         sessionContext.eventSignal.attachObserver { [unowned self] event in
             switch event {
-            case .userIdentityChanged(let identity):
+            case .userIdentityChanged:
                 restoreChat()
             default:
                 break
@@ -311,7 +309,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             return nil
         }
         
-        return loc["chat_input.status.contact_info"]
+        return loc["JV_ChatInput_Status_FillContactForm", "chat_input.status.contact_info"]
     }
     
     private var unreadNumber: Int? = 0 {
@@ -334,7 +332,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             text: text)
     }
     
-    func presentRateForm(id: String, chat: JVChat?) {
+    func presentRateForm(id: String, chat: ChatEntity?) {
         guard let chat = chat else { return }
         
         currentRateFormId = id
@@ -384,7 +382,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
     }
     
-    private func _sendMessage_process(chat: JVChat, text: String) {
+    private func _sendMessage_process(chat: ChatEntity, text: String) {
         guard !text.isEmpty
         else {
             journal {"Cannot send message because its text is empty"}
@@ -412,7 +410,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
     }
     
-    private func _sendMessage_removeContactForm(chat: JVChat) {
+    private func _sendMessage_removeContactForm(chat: ChatEntity) {
         guard let message = subStorage.message(withLocalId: MESSAGE_CONTACT_FORM_LOCAL_ID) else {
             return
         }
@@ -428,15 +426,15 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         messagingContext.broadcast(event: .messagesRemoved(pairedMessagesRefs), onQueue: .main)
     }
     
-    private func _sendMessage_appendContactForm(chat: JVChat, pairedMessage: JVMessage, behavior: SdkChatContactFormBehavior) {
+    private func _sendMessage_appendContactForm(chat: ChatEntity, pairedMessage: MessageEntity, behavior: SdkChatContactFormBehavior) {
         let systemText: String
         switch behavior {
         case .omit:
             return
         case .regular:
-            systemText = loc["chat.system.contact_form.introduce_in_chat"]
+            systemText = loc["JV_ContactForm_Legend_FillDesired", "chat.system.contact_form.introduce_in_chat"]
         case .blocking:
-            systemText = loc["chat.system.contact_form.must_fill"]
+            systemText = loc["JV_ContactForm_Legend_FillRequired", "chat.system.contact_form.must_fill"]
         }
         
         let systemMessage = subStorage.storeOutgoingMessage(
@@ -474,7 +472,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             case .omit, .regular:
                 break
             case .blocking:
-                notifyObservers(event: .disableReplying(reason: loc["chat_input.status.contact_info"]), onQueue: .main)
+                notifyObservers(event: .disableReplying(reason: loc["JV_ChatInput_Status_FillContactForm", "chat_input.status.contact_info"]), onQueue: .main)
             }
         }
         
@@ -516,7 +514,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         )
     }
 
-    func copy(message: JVMessage) {
+    func copy(message: MessageEntity) {
         let messageRef = subStorage.reference(to: message)
         thread.async { [unowned self] in
             guard let message = messageRef.resolved else { return }
@@ -524,7 +522,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
     }
     
-    private func _copy(message: JVMessage) {
+    private func _copy(message: MessageEntity) {
         guard let object = message.obtainObjectToCopy()
         else {
             return
@@ -621,7 +619,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
     }
     
-    func markSeen(message: JVMessage) {
+    func markSeen(message: MessageEntity) {
         let messageRef = subStorage.reference(to: message)
         thread.async { [unowned self] in
             guard let message = messageRef.resolved else { return }
@@ -629,7 +627,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
     }
     
-    private func _markSeen(message: JVMessage) {
+    private func _markSeen(message: MessageEntity) {
         proto.sendMessageAck(id: message.ID, date: message.date)
     }
     
@@ -676,7 +674,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
     }
     
-    private func checkRateformStatusChanged(message: JVMessage, newState: JVMessageBodyRateFormStatus) -> Bool {
+    private func checkRateformStatusChanged(message: MessageEntity, newState: JVMessageBodyRateFormStatus) -> Bool {
         let details = message.rawDetails
         let oldState = JsonCoder().decode(raw: details)?.ordictValue["status"]?.stringValue
         
@@ -685,14 +683,14 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         return true
     }
     
-    func toggleRateForm(message: JVMessage, action: SdkChatManagerRateFormAction) {
+    func toggleRateForm(message: MessageEntity, action: SdkChatManagerRateFormAction) {
         let messageRef = subStorage.reference(to: message)
         guard let message = messageRef.resolved else { return }
         
         _toggleRateForm(message: message, action: action)
     }
     
-    func _toggleRateForm(message: JVMessage, action: SdkChatManagerRateFormAction) {
+    func _toggleRateForm(message: MessageEntity, action: SdkChatManagerRateFormAction) {
         let ref = subStorage.reference(to: message)
         
         thread.async { [unowned self] in
@@ -760,7 +758,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
     }
     
-    func toggleContactForm(message: JVMessage) {
+    func toggleContactForm(message: MessageEntity) {
         let messageRef = subStorage.reference(to: message)
         thread.async { [unowned self] in
             guard let message = messageRef.resolved else { return }
@@ -768,7 +766,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
     }
     
-    private func _toggleContactForm(message: JVMessage) {
+    private func _toggleContactForm(message: MessageEntity) {
         subStorage.turnContactForm(
             message: message,
             status: .editable,
@@ -904,7 +902,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             if let chat = obtainChat() {
                 let chatID = chat.ID
                 let history = subStorage.history(chatId: chat.ID, after: nil, limit: 30)
-                journal {"Chat: found and activate\nchat-id[\(chatID)]"}
+                journal(layer: .logic) {"Chat: found and activate\nchat-id[\(chatID)]"}
                 
                 chatContext.chatRef = subStorage.reference(to: chat)
                 chatMessages = subStorage.reference(to: history)
@@ -1085,7 +1083,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         let persistentIds = Set(subStorage.historyIdsBetween(chatId: chat.ID, firstId: inmemoryFirstId, lastId: inmemoryLastId))
         var shouldSendMessageAck = false
         
-        var upsertedMessages = OrderedMap<String, JVMessage>()
+        var upsertedMessages = OrderedMap<String, MessageEntity>()
         transaction.forEach { bundle in
             guard let subject = bundle.payload.subject as? SdkChatProtoMessageSubject else {
                 return
@@ -1116,7 +1114,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
                     }
                 }
 
-            case .becamePermanent(let entireId, _):
+            case .becamePermanent:
                 guard let message = handleMessageTransaction_upsertMessage(messageIdentifier: bundle.payload.id, subject: subject) else {
                     return
                 }
@@ -1168,7 +1166,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     private func handleMessageTransaction_upsertMessage(
         messageIdentifier: AnyHashable?,
         subject: SdkChatProtoMessageSubject
-    ) -> JVMessage? {
+    ) -> MessageEntity? {
         guard let chat = chatContext.chatRef?.resolved else {
             return nil
         }
@@ -1184,8 +1182,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     private func handleMessageTransaction_joinPairTimepoints(
-        message: JVMessage
-    ) -> [JVMessage] {
+        message: MessageEntity
+    ) -> [MessageEntity] {
         guard let linkedMessageIds = outgoingPairedMessagesIds.removeValue(forKey: message.UUID) else {
             return .jv_empty
         }
@@ -1210,7 +1208,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     private func handleMessageTransaction_detectMissingRanges(
-        incomingMessages: [JVMessage],
+        incomingMessages: [MessageEntity],
         persistentIds: Set<Int>,
         inmemoryRange: ClosedRange<Int>
     ) {
@@ -1227,7 +1225,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
 //        chain.journal {"D/LMH persistent[\(persistentIds.min().jv_orZero)...\(persistentIds.max().jv_orZero)]"}
 
         let conjointIds: Set<Int>
-        let edgeMessage: JVMessage?
+        let edgeMessage: MessageEntity?
         
         if let latestPersistentId = guaranteedPersistentIds.last {
             if incomingIds.isSubset(of: guaranteedPersistentIds) {
@@ -1273,7 +1271,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
     }
     
-    private func markMessagesAsSeen(including messageId: Int) -> [JVMessage] {
+    private func markMessagesAsSeen(including messageId: Int) -> [MessageEntity] {
         guard let chat = chatContext.chatRef?.resolved else {
             return .jv_empty
         }
@@ -1490,7 +1488,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         eventObservable.broadcast(event, async: queue)
     }
     
-    private func obtainChat() -> JVChat? {
+    private func obtainChat() -> ChatEntity? {
         guard let crc32EncryptedClientToken = sessionContext.localChatId else {
             return nil
         }
@@ -1505,7 +1503,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
     }
     
-    private func storeChatAgents(_ agents: [JVAgent], exclusive: Bool) {
+    private func storeChatAgents(_ agents: [AgentEntity], exclusive: Bool) {
         guard let chatId = sessionContext.localChatId else {
             journal {"Failed getting a chat: something went wrong"}
             return
@@ -1528,7 +1526,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     }
     
     func identifyContactFormBehavior() -> SdkChatContactFormBehavior {
-        guard let chat = chatContext.chatRef?.resolved else {
+        guard let _ = chatContext.chatRef?.resolved else {
             return .omit
         }
             
@@ -1669,7 +1667,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
                     clientID: userContext.clientHash,
                     chatID: chatId,
                     type: .system,
-                    content: .text(message: loc["chat.system.contact_form.status_sent"]),
+                    content: .text(message: loc["JV_ChatTimeline_SystemMessage_ContactInfoSent", "chat.system.contact_form.status_sent"]),
                     status: nil,
                     timing: .regular,
                     orderingIndex: 0))

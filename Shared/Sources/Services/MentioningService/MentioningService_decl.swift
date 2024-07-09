@@ -19,5 +19,5 @@ protocol IMentioningService: AnyObject {
     /// Preprocess the textual content of sending message to convert mentions like <@12345> into markup like @alex
     func convertMarkupToPlain(text: String) -> String
     /// With the markup provided, detect the unknown/missing agents accordingly to list of members within specific chat
-    func detectMissingAgents(markup: String, chat: JVChat) -> [JVAgent]
+    func detectMissingAgents(markup: String, chat: ChatEntity) -> [AgentEntity]
 }

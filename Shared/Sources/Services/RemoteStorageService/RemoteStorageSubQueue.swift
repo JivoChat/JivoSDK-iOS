@@ -27,21 +27,6 @@ struct RemoteStorageUploadedMeta {
     let item: RemoteStorageItem
     let key: String
     let link: String
-//    case cannotExtractData
-//    case sizeLimitExceeded
-//    case exportingFailed
-//    case possible
-//    case unknownError
-    
-    init(
-        item: RemoteStorageItem,
-        key: String,
-        link: String
-    ) {
-        self.item = item
-        self.key = key
-        self.link = link
-    }
 }
 
 final class RemoteStorageSubQueue: IRemoteStorageSubQueue {

@@ -136,7 +136,7 @@ final class PopupPresenterBridge: NSObject, IPopupPresenterBridge {
         configurator.reset(barButtonItem: barButtonItem)
     }
     
-    func attachFlexibleMenu(to button: FlexibleMenuTriggerButton, location: PopupPresenterMenuLocation, items: [PopupPresenterFlexibleMenuItem]) {
+    func attachFlexibleMenu(to button: FlexibleMenuTriggerButton, items: [PopupPresenterFlexibleMenuItem]) {
         let gesture = FlexibleContextMenuGesture(
             target: self,
             action: #selector(handleFlexibleContextMenuGesture),
@@ -156,6 +156,23 @@ final class PopupPresenterBridge: NSObject, IPopupPresenterBridge {
             .first(where: { $0 is FlexibleContextMenuGesture }) {
             button.removeGestureRecognizer(gesture)
         }
+    }
+    
+    func share(within container: PopupPresenterDisplayContainer, items: [Any], performCleanup: Bool) {
+        let panel = UIActivityViewController(activityItems: items, applicationActivities: nil)
+        
+        panel.completionWithItemsHandler = not(performCleanup) ? nil : { type, completed, objects, error in
+            for item in items {
+                switch item {
+                case let url as URL:
+                    try? FileManager.default.removeItem(at: url)
+                default:
+                    break
+                }
+            }
+        }
+        
+        displayAsModal(within: container, viewController: panel)
     }
     
     private func constructAlert(title: String?, about: String?) -> UIAlertController {

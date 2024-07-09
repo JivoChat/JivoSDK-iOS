@@ -11,53 +11,53 @@ import Foundation
 
 protocol ICommonSubStorage: IBaseSubStorage {
     @discardableResult
-    func storeAgents(changes: [JVDatabaseModelChange], exclusive: Bool) -> [JVAgent]
+    func storeAgents(changes: [JVDatabaseModelChange], exclusive: Bool) -> [AgentEntity]
     
     func updateAgent(change: JVDatabaseModelChange)
     func removeAgent(agentId: Int)
-    func agents(withMe: Bool) -> [JVAgent]
-    func agent(for agentID: Int, provideDefault: Bool) -> JVAgent?
+    func agents(withMe: Bool) -> [AgentEntity]
+    func agent(for agentID: Int, provideDefault: Bool) -> AgentEntity?
     
     @discardableResult
-    func storeDepartments(changes: [JVDatabaseModelChange], exclusive: Bool) -> [JVDepartment]
+    func storeDepartments(changes: [JVDatabaseModelChange], exclusive: Bool) -> [DepartmentEntity]
     
     @discardableResult
-    func storeBots(changes: [JVDatabaseModelChange], exclusive: Bool) -> [JVBot]
+    func storeBots(changes: [JVDatabaseModelChange], exclusive: Bool) -> [BotEntity]
     
     @discardableResult
-    func storeTopics(changes: [JVDatabaseModelChange], exclusive: Bool) -> [JVTopic]
+    func storeTopics(changes: [JVDatabaseModelChange], exclusive: Bool) -> [TopicEntity]
     
     func storeClients(changes: [JVDatabaseModelChange])
     func updateClient(change: JVDatabaseModelChange)
-    func storeChat(change: JVDatabaseModelChange) -> JVChat?
+    func storeChat(change: JVDatabaseModelChange) -> ChatEntity?
     func updateChat(change: JVDatabaseModelChange)
-    func clientWithID(_ clientID: Int, needsDefault: Bool) -> JVClient?
-    func chatWithID(_ chatID: Int) -> JVChat?
-    func chatsWithClientID(_ clientID: Int, evenArchived: Bool) -> [JVChat]
-    func chatForMessage(_ message: JVMessage, evenArchived: Bool) -> JVChat?
-    func topicWithID(_ topicID: Int) -> JVTopic?
+    func clientWithID(_ clientID: Int, needsDefault: Bool) -> ClientEntity?
+    func chatWithID(_ chatID: Int) -> ChatEntity?
+    func chatsWithClientID(_ clientID: Int, evenArchived: Bool) -> [ChatEntity]
+    func chatForMessage(_ message: MessageEntity, evenArchived: Bool) -> ChatEntity?
+    func topicWithID(_ topicID: Int) -> TopicEntity?
     func unlink(chatId: Int)
-    func unlink(chat: JVChat)
+    func unlink(chat: ChatEntity)
     func remove(chatID: Int, cleanup: Bool)
-    func remove(chat: JVChat, cleanup: Bool)
-    func storeMessage(change: JVDatabaseModelChange) -> JVMessage?
-    func updateMessage(change: JVDatabaseModelChange) -> JVMessage?
-    func messageWithID(_ messageID: Int) -> JVMessage?
-    func messageWithUUID(_ messageUUID: String) -> JVMessage?
-    func taskWithID(_ taskID: Int) -> JVTask?
+    func remove(chat: ChatEntity, cleanup: Bool)
+    func storeMessage(change: JVDatabaseModelChange) -> MessageEntity?
+    func updateMessage(change: JVDatabaseModelChange) -> MessageEntity?
+    func messageWithID(_ messageID: Int) -> MessageEntity?
+    func messageWithUUID(_ messageUUID: String) -> MessageEntity?
+    func taskWithID(_ taskID: Int) -> TaskEntity?
     func updateChatTermination(chatID: Int, delay: Int)
 }
 
 class CommonSubStorage: BaseSubStorage {
-    func storeAgents(changes: [JVDatabaseModelChange], exclusive: Bool) -> [JVAgent] {
-        var agents = [JVAgent]()
+    func storeAgents(changes: [JVDatabaseModelChange], exclusive: Bool) -> [AgentEntity] {
+        var agents = [AgentEntity]()
         
         databaseDriver.readwrite { context in
-            agents = context.upsert(of: JVAgent.self, with: changes)
+            agents = context.upsert(of: AgentEntity.self, with: changes)
             
             if exclusive {
                 let keepAgentIDs = changes.map(\.primaryValue)
-                let removalObjects = context.objects(JVAgent.self, options: nil).filter { agent in
+                let removalObjects = context.objects(AgentEntity.self, options: nil).filter { agent in
                     guard !(agent.isMe) else { return false }
                     guard !(keepAgentIDs.contains(agent.ID)) else { return false }
                     return true
@@ -72,7 +72,7 @@ class CommonSubStorage: BaseSubStorage {
     
     func updateAgent(change: JVDatabaseModelChange) {
         databaseDriver.readwrite { context in
-            _ = context.update(of: JVAgent.self, with: change)
+            _ = context.update(of: AgentEntity.self, with: change)
         }
     }
     
@@ -87,23 +87,23 @@ class CommonSubStorage: BaseSubStorage {
         }
     }
     
-    func agents(withMe: Bool) -> [JVAgent] {
+    func agents(withMe: Bool) -> [AgentEntity] {
         return databaseDriver.agents(withMe: withMe)
     }
     
-    func agent(for agentID: Int, provideDefault: Bool) -> JVAgent? {
+    func agent(for agentID: Int, provideDefault: Bool) -> AgentEntity? {
         return databaseDriver.agent(for: agentID, provideDefault: provideDefault)
     }
     
-    func storeDepartments(changes: [JVDatabaseModelChange], exclusive: Bool) -> [JVDepartment] {
-        var departments = [JVDepartment]()
+    func storeDepartments(changes: [JVDatabaseModelChange], exclusive: Bool) -> [DepartmentEntity] {
+        var departments = [DepartmentEntity]()
         
         databaseDriver.readwrite { context in
-            departments = context.upsert(of: JVDepartment.self, with: changes)
+            departments = context.upsert(of: DepartmentEntity.self, with: changes)
             
             if exclusive {
                 let keepDepartmentsIds = changes.map(\.primaryValue)
-                let removalObjects = context.objects(JVDepartment.self, options: nil).filter { department in
+                let removalObjects = context.objects(DepartmentEntity.self, options: nil).filter { department in
                     guard !(keepDepartmentsIds.contains(department.ID)) else { return false }
                     return true
                 }
@@ -115,15 +115,15 @@ class CommonSubStorage: BaseSubStorage {
         return departments
     }
     
-    func storeBots(changes: [JVDatabaseModelChange], exclusive: Bool) -> [JVBot] {
-        var bots = [JVBot]()
+    func storeBots(changes: [JVDatabaseModelChange], exclusive: Bool) -> [BotEntity] {
+        var bots = [BotEntity]()
         
         databaseDriver.readwrite { context in
-            bots = context.upsert(of: JVBot.self, with: changes)
+            bots = context.upsert(of: BotEntity.self, with: changes)
             
             if exclusive {
                 let keepBotsIds = changes.map(\.primaryValue)
-                let removalObjects = context.objects(JVBot.self, options: nil).filter { bot in
+                let removalObjects = context.objects(BotEntity.self, options: nil).filter { bot in
                     guard !(keepBotsIds.contains(bot.id)) else { return false }
                     return true
                 }
@@ -135,15 +135,15 @@ class CommonSubStorage: BaseSubStorage {
         return bots
     }
     
-    func storeTopics(changes: [JVDatabaseModelChange], exclusive: Bool) -> [JVTopic] {
-        var topics = [JVTopic]()
+    func storeTopics(changes: [JVDatabaseModelChange], exclusive: Bool) -> [TopicEntity] {
+        var topics = [TopicEntity]()
         
         databaseDriver.readwrite { context in
-            topics = context.upsert(of: JVTopic.self, with: changes)
+            topics = context.upsert(of: TopicEntity.self, with: changes)
             
             if exclusive {
                 let keepTopicsIds = changes.map(\.primaryValue)
-                let removalObjects = context.objects(JVTopic.self, options: nil).filter { bot in
+                let removalObjects = context.objects(TopicEntity.self, options: nil).filter { bot in
                     guard !(keepTopicsIds.contains(bot.id)) else { return false }
                     return true
                 }
@@ -156,31 +156,31 @@ class CommonSubStorage: BaseSubStorage {
     }
 
     func storeClients(changes: [JVDatabaseModelChange]) {
-        _ = databaseDriver.upsert(of: JVClient.self, with: changes)
+        _ = databaseDriver.upsert(of: ClientEntity.self, with: changes)
     }
     
     func updateClient(change: JVDatabaseModelChange) {
-        _ = databaseDriver.update(of: JVClient.self, with: change)
+        _ = databaseDriver.update(of: ClientEntity.self, with: change)
     }
     
-    func storeChat(change: JVDatabaseModelChange) -> JVChat? {
-        return databaseDriver.upsert(of: JVChat.self, with: change)
+    func storeChat(change: JVDatabaseModelChange) -> ChatEntity? {
+        return databaseDriver.upsert(of: ChatEntity.self, with: change)
     }
     
     func updateChat(change: JVDatabaseModelChange) {
-        _ = databaseDriver.update(of: JVChat.self, with: change)
+        _ = databaseDriver.update(of: ChatEntity.self, with: change)
     }
     
-    func clientWithID(_ clientID: Int, needsDefault: Bool) -> JVClient? {
+    func clientWithID(_ clientID: Int, needsDefault: Bool) -> ClientEntity? {
         return databaseDriver.client(for: clientID, needsDefault: needsDefault)
     }
     
-    func chatWithID(_ chatID: Int) -> JVChat? {
+    func chatWithID(_ chatID: Int) -> ChatEntity? {
         return databaseDriver.chatWithID(chatID)
     }
     
-    func chatsWithClientID(_ clientID: Int, evenArchived: Bool) -> [JVChat] {
-        var chats = [JVChat]()
+    func chatsWithClientID(_ clientID: Int, evenArchived: Bool) -> [ChatEntity] {
+        var chats = [ChatEntity]()
         
         databaseDriver.read { context in
             guard let client = context.client(for: clientID, needsDefault: false) else { return }
@@ -190,11 +190,11 @@ class CommonSubStorage: BaseSubStorage {
         return chats
     }
     
-    func chatForMessage(_ message: JVMessage, evenArchived: Bool) -> JVChat? {
+    func chatForMessage(_ message: MessageEntity, evenArchived: Bool) -> ChatEntity? {
         return databaseDriver.chatForMessage(message, evenArchived: false)
     }
     
-    func topicWithID(_ topicID: Int) -> JVTopic? {
+    func topicWithID(_ topicID: Int) -> TopicEntity? {
         return databaseDriver.topic(for: topicID, needsDefault: false)
     }
     
@@ -205,7 +205,7 @@ class CommonSubStorage: BaseSubStorage {
         }
     }
 
-    func unlink(chat: JVChat) {
+    func unlink(chat: ChatEntity) {
         guard chat.jv_isValid else { return }
         
         databaseDriver.readwrite { context in
@@ -220,7 +220,7 @@ class CommonSubStorage: BaseSubStorage {
         }
     }
     
-    func remove(chat: JVChat, cleanup: Bool) {
+    func remove(chat: ChatEntity, cleanup: Bool) {
         guard chat.jv_isValid else { return }
         
         databaseDriver.readwrite { context in
@@ -228,32 +228,32 @@ class CommonSubStorage: BaseSubStorage {
         }
     }
     
-    func storeMessage(change: JVDatabaseModelChange) -> JVMessage? {
-        let message = databaseDriver.upsert(of: JVMessage.self, with: change)
+    func storeMessage(change: JVDatabaseModelChange) -> MessageEntity? {
+        let message = databaseDriver.upsert(of: MessageEntity.self, with: change)
         return message
     }
     
-    func updateMessage(change: JVDatabaseModelChange) -> JVMessage? {
-        return databaseDriver.update(of: JVMessage.self, with: change)
+    func updateMessage(change: JVDatabaseModelChange) -> MessageEntity? {
+        return databaseDriver.update(of: MessageEntity.self, with: change)
     }
     
-    func messageWithID(_ messageID: Int) -> JVMessage? {
+    func messageWithID(_ messageID: Int) -> MessageEntity? {
         let key = JVDatabaseModelCustomId(key: "m_id", value: messageID)
-        return databaseDriver.object(JVMessage.self, customId: key)
+        return databaseDriver.object(MessageEntity.self, customId: key)
     }
     
-    func messageWithUUID(_ messageUUID: String) -> JVMessage? {
+    func messageWithUUID(_ messageUUID: String) -> MessageEntity? {
         let key = JVDatabaseModelCustomId(key: "m_uid", value: messageUUID)
-        return databaseDriver.object(JVMessage.self, customId: key)
+        return databaseDriver.object(MessageEntity.self, customId: key)
     }
 
-    func taskWithID(_ taskID: Int) -> JVTask? {
-        return databaseDriver.object(JVTask.self, primaryId: taskID)
+    func taskWithID(_ taskID: Int) -> TaskEntity? {
+        return databaseDriver.object(TaskEntity.self, primaryId: taskID)
     }
     
     func updateChatTermination(chatID: Int, delay: Int) {
         _ = databaseDriver.update(
-            of: JVChat.self,
+            of: ChatEntity.self,
             with: JVChatTerminationChange(ID: chatID, delay: TimeInterval(delay)))
     }
 }

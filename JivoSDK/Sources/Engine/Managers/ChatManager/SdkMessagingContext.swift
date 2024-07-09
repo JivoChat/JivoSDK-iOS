@@ -15,11 +15,11 @@ protocol ISdkMessagingContext: AnyObject {
 }
 
 enum SdkMessagingEvent {
-    case messagesUpserted(_ messages: [JVDatabaseModelRef<JVMessage>])
-    case messagesRemoved(_ messages: [JVDatabaseModelRef<JVMessage>])
-    case messageSending(_ message: JVDatabaseModelRef<JVMessage>)
-    case messageResend(_ message: JVDatabaseModelRef<JVMessage>)
-    case historyLoaded(history: [JVDatabaseModelRef<JVMessage>])
+    case messagesUpserted(_ messages: [DatabaseEntityRef<MessageEntity>])
+    case messagesRemoved(_ messages: [DatabaseEntityRef<MessageEntity>])
+    case messageSending(_ message: DatabaseEntityRef<MessageEntity>)
+    case messageResend(_ message: DatabaseEntityRef<MessageEntity>)
+    case historyLoaded(history: [DatabaseEntityRef<MessageEntity>])
     case allHistoryLoaded
     case historyErased
 }

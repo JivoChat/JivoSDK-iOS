@@ -146,7 +146,7 @@ fileprivate struct ConfiguratorInputCommand: ConfiguratorCommand {
 @available(iOS 13.0, *)
 fileprivate struct ConfiguratorSettingsCommand: ConfiguratorCommand {
     func generateAction() -> UIMenuElement? {
-        return UIAction(title: loc["Common.Settings"]) { _ in
+        return UIAction(title: loc["JV_Common_Captions_Settings", "Common.Settings"]) { _ in
             guard let url = URL(string: UIApplication.openSettingsURLString) else { return }
             UIApplication.shared.open(url)
         }

@@ -12,7 +12,7 @@ import JMCodingKit
 protocol ISdkClientProto: IProto {
     func registerDevice(endpoint: String?, deviceId: String, deviceLiveToken: String, shouldUseSandbox: Bool, siteId: Int, channelId: String, clientId: String)
     func setContactInfo(clientId: String, name: String?, email: String?, phone: String?, brief: String?)
-    func setCustomData(fields: [JVSessionCustomDataField])
+    func setCustomData(fields: [JVClientCustomDataField])
 }
 
 final class SdkClientProto: BaseProto, ISdkClientProto {
@@ -73,7 +73,7 @@ final class SdkClientProto: BaseProto, ISdkClientProto {
         }
     }
     
-    func setCustomData(fields: [JVSessionCustomDataField]) {
+    func setCustomData(fields: [JVClientCustomDataField]) {
         let array = fields.map { field -> [String: String] in
             var dict = [String: String]()
             dict["title"] = field.title

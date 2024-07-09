@@ -17,7 +17,7 @@ final class JMTimelineMessageLoadingIndicator: UIView {
         
         layer.needsDisplayOnBoundsChange = true
         
-        button.caption = loc["Chat.History.LoadMore"]
+        button.caption = loc["JV_ChatTimeline_SystemButton_LoadMore", "Chat.History.LoadMore"]
         button.isHidden = true
         addSubview(button)
         

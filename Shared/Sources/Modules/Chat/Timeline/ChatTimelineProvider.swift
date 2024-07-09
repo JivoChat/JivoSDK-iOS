@@ -19,19 +19,19 @@ protocol JVChatTimelineProvider: JMTimelineProvider {
 }
 
 final class ChatTimelineProvider: JVChatTimelineProvider {
-    private let client: JVClient?
-    private let endpointAccessor: IKeychainAccessor
+    private let client: ClientEntity?
+    private let endpointAccessorProvider: () -> IKeychainAccessor
     private let formattingProvider: IFormattingProvider
     private let remoteStorageService: IRemoteStorageService
     private let mentionProviderBridge: JMMarkdownMentionProvider
     
-    init(client: JVClient?,
-         endpointAccessor: IKeychainAccessor,
+    init(client: ClientEntity?,
+         endpointAccessorProvider: @escaping () -> IKeychainAccessor,
          formattingProvider: IFormattingProvider,
          remoteStorageService: IRemoteStorageService,
          mentionProvider: @escaping JMMarkdownMentionProvider) {
         self.client = client
-        self.endpointAccessor = endpointAccessor
+        self.endpointAccessorProvider = endpointAccessorProvider
         self.formattingProvider = formattingProvider
         self.remoteStorageService = remoteStorageService
         self.mentionProviderBridge = mentionProvider
@@ -65,7 +65,7 @@ final class ChatTimelineProvider: JVChatTimelineProvider {
     
     func retrieveResource(from url: URL, canvasWidth: CGFloat, completion: @escaping (RemoteStorageFileResource?) -> Void) {
         remoteStorageService.retrieveFile(
-            endpoint: endpointAccessor.string,
+            endpoint: endpointAccessorProvider().string,
             originURL: url,
             quality: .preview(width: canvasWidth),
             caching: .enabled,
@@ -75,7 +75,7 @@ final class ChatTimelineProvider: JVChatTimelineProvider {
     
     func requestWaveformPoints(from url: URL, completion: @escaping (RemoteStorageFileResource?) -> Void) {
         remoteStorageService.retrieveFile(
-            endpoint: endpointAccessor.string,
+            endpoint: endpointAccessorProvider().string,
             originURL: url,
             quality: .preview(width: CGFloat(1024)),
             caching: .enabled,
@@ -86,7 +86,7 @@ final class ChatTimelineProvider: JVChatTimelineProvider {
     
     func retrieveMeta(forFileWithURL fileURL: URL, completion: @escaping (JMTimelineMediaMetaResult) -> Void) {
         remoteStorageService.retrieveMeta(
-            endpoint: endpointAccessor.string,
+            endpoint: endpointAccessorProvider().string,
             originURL: fileURL,
             caching: .enabled,
             on: .main,
@@ -95,11 +95,11 @@ final class ChatTimelineProvider: JVChatTimelineProvider {
                 case let .success(fileMeta):
                     completion(.meta(fileName: fileMeta.name))
                 case .failure(.unauthorized):
-                    completion(.accessDenied(description: loc["file_download_expired"]))
+                    completion(.accessDenied(description: loc["JV_FileAttachment_LinkStatus_Expired", "file_download_expired"]))
                 case .failure(.notFromCloudStorage):
                     completion(.metaIsNotNeeded())
                 default:
-                    completion(.unknownError(description: loc["file_download_unavailable"]))
+                    completion(.unknownError(description: loc["JV_FileAttachment_LinkStatus_Unavailable", "file_download_unavailable"]))
                 }
             }
         )

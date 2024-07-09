@@ -28,8 +28,8 @@ final class SdkChatSubSender: ISdkChatSubSender {
     private let subStorage: ISdkChatSubStorage
     private let systemMessagingService: ISystemMessagingService
     private let scheduledActionTool: ISchedulingDriver
-//    private let messageAddObservable = JVBroadcastTool<(message: JVMessage, animated: Bool)>()
-//    private let messageUpdateObservable = JVBroadcastTool<JVMessage>()
+//    private let messageAddObservable = JVBroadcastTool<(message: MessageEntity, animated: Bool)>()
+//    private let messageUpdateObservable = JVBroadcastTool<MessageEntity>()
 
     private var outgoingMessagesListener: JVDatabaseListener?
 
@@ -53,7 +53,7 @@ final class SdkChatSubSender: ISdkChatSubSender {
     
     func reactToActiveConnection() {
         outgoingMessagesListener = databaseDriver.subscribe(
-            JVMessage.self,
+            MessageEntity.self,
             options: JVDatabaseRequestOptions(
                 filter: NSPredicate(format: "m_can_be_sent == true"),
                 sortBy: [JVDatabaseResponseSort(keyPath: "m_date", ascending: true)]
@@ -70,7 +70,7 @@ final class SdkChatSubSender: ISdkChatSubSender {
     
     private func markUnsentMessagesAsFailed() {
         let messages = databaseDriver.objects(
-            JVMessage.self,
+            MessageEntity.self,
             options: JVDatabaseRequestOptions(
                 filter: NSPredicate(format: "m_status == 'sent'"),
                 sortBy: [JVDatabaseResponseSort(keyPath: "m_date", ascending: true)]
@@ -82,9 +82,9 @@ final class SdkChatSubSender: ISdkChatSubSender {
         }
     }
     
-    private func handleMessagesToSend(_ outmessages: [JVMessage]) {
+    private func handleMessagesToSend(_ outmessages: [MessageEntity]) {
         for outmessage in outmessages {
-            guard let _ = databaseDriver.object(JVChat.self, primaryId: outmessage.chatID)
+            guard let _ = databaseDriver.object(ChatEntity.self, primaryId: outmessage.chatID)
             else {
                 let chatID = outmessage.chatID
                 journal {"Missing chat[\(chatID)] for outgoing message"}

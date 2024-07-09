@@ -138,11 +138,12 @@ class BaseButton: UIButton {
     }
     
     final func start(activity: ButtonActivityMode) {
+        isUserInteractionEnabled = false
+
         awaitingIndicator.startAnimating()
         awaitingIndicator.isHidden = false
 
         currentActivityMode = activity
-
         UIView.setAnimationsEnabled(false)
         adjustTitle()
         setNeedsLayout()
@@ -151,6 +152,8 @@ class BaseButton: UIButton {
     }
     
     final func stop() {
+        isUserInteractionEnabled = true
+
         awaitingIndicator.stopAnimating()
         awaitingIndicator.isHidden = true
         

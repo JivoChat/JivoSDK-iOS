@@ -45,7 +45,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
         return hasAddedObjects
     }
     
-    func createObject<OT: JVDatabaseModel>(_ type: OT.Type) -> OT {
+    func createObject<OT: DatabaseEntity>(_ type: OT.Type) -> OT {
         hasAddedObjects = true
         
         let entityName = String(describing: type)
@@ -57,7 +57,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
         }
     }
     
-    func add<OT: JVDatabaseModel>(_ objects: [OT]) {
+    func add<OT: DatabaseEntity>(_ objects: [OT]) {
         hasAddedObjects = true
         
         for object in objects {
@@ -67,7 +67,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
         }
     }
     
-    func observe<OT: JVDatabaseModel>(_ type: OT.Type) -> NSFetchedResultsController<OT> {
+    func observe<OT: DatabaseEntity>(_ type: OT.Type) -> NSFetchedResultsController<OT> {
         let entityName = String(describing: type)
         
         let fetchRequest = NSFetchRequest<OT>(entityName: entityName)
@@ -81,12 +81,12 @@ final class JVDatabaseContext: JVIDatabaseContext {
         )
     }
     
-    func objects<OT: JVDatabaseModel>(_ type: OT.Type, options: JVDatabaseRequestOptions?) -> [OT] {
+    func objects<OT: DatabaseEntity>(_ type: OT.Type, options: JVDatabaseRequestOptions?) -> [OT] {
         let objects = getObjects(type, options: options)
         return objects
     }
     
-    func object<OT: JVDatabaseModel>(_ type: OT.Type, internalId: NSManagedObjectID) -> OT? {
+    func object<OT: DatabaseEntity>(_ type: OT.Type, internalId: NSManagedObjectID) -> OT? {
         do {
             guard let value = try context.existingObject(with: internalId) as? OT
             else {
@@ -102,7 +102,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
         }
     }
     
-    func object<OT: JVDatabaseModel>(_ type: OT.Type, primaryId: Int) -> OT? {
+    func object<OT: DatabaseEntity>(_ type: OT.Type, primaryId: Int) -> OT? {
         let request = NSFetchRequest<OT>(entityName: String(describing: type))
         request.predicate = NSPredicate(format: "m_pk_num == %lld", primaryId)
         request.fetchLimit = 2
@@ -122,7 +122,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
         }
     }
     
-    func object<OT: JVDatabaseModel>(_ type: OT.Type, primaryId: String) -> OT? {
+    func object<OT: DatabaseEntity>(_ type: OT.Type, primaryId: String) -> OT? {
         let request = NSFetchRequest<OT>(entityName: String(describing: type))
         request.predicate = NSPredicate(format: "m_pk_str == %@", primaryId)
         request.fetchLimit = 2
@@ -142,7 +142,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
         }
     }
     
-    func object<OT: JVDatabaseModel, KT: Hashable>(_ type: OT.Type, customId: JVDatabaseModelCustomId<KT>) -> OT? {
+    func object<OT: DatabaseEntity, KT: Hashable>(_ type: OT.Type, customId: JVDatabaseModelCustomId<KT>) -> OT? {
         let entityName = String(describing: type)
         
         let request = NSFetchRequest<OT>(entityName: entityName)
@@ -164,7 +164,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
         }
     }
     
-    func simpleRemove<OT: JVDatabaseModel>(objects: [OT]) -> Bool {
+    func simpleRemove<OT: DatabaseEntity>(objects: [OT]) -> Bool {
         for object in objects {
             context.delete(object)
         }
@@ -172,7 +172,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
         return true
     }
     
-    func customRemove<OT: JVDatabaseModel>(objects: [OT], recursive: Bool) {
+    func customRemove<OT: DatabaseEntity>(objects: [OT], recursive: Bool) {
         for object in objects {
             context.delete(object)
         }
@@ -247,7 +247,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
 //        hasAddedObjects = false
 //    }
     
-    func getObjects<OT: JVDatabaseModel>(_ type: OT.Type, options: JVDatabaseRequestOptions?) -> [OT] {
+    func getObjects<OT: DatabaseEntity>(_ type: OT.Type, options: JVDatabaseRequestOptions?) -> [OT] {
         let entityName = String(describing: type)
         let request = NSFetchRequest<OT>(entityName: entityName)
         
@@ -271,7 +271,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
         }
     }
     
-    func find<OT: JVDatabaseModel>(of type: OT.Type, with change: JVDatabaseModelChange?) -> OT? {
+    func find<OT: DatabaseEntity>(of type: OT.Type, with change: JVDatabaseModelChange?) -> OT? {
         if let change = change, change.isValid {
             if let integerKey = change.integerKey {
                 let customId = JVDatabaseModelCustomId(key: integerKey.key, value: integerKey.value)
@@ -293,11 +293,11 @@ final class JVDatabaseContext: JVIDatabaseContext {
         }
     }
 
-    func insert<OT: JVDatabaseModel>(of type: OT.Type, with change: JVDatabaseModelChange?) -> OT? {
+    func insert<OT: DatabaseEntity>(of type: OT.Type, with change: JVDatabaseModelChange?) -> OT? {
         return insert(of: type, with: change, validOnly: false)
     }
     
-    func insert<OT: JVDatabaseModel>(of type: OT.Type, with change: JVDatabaseModelChange?, validOnly: Bool) -> OT? {
+    func insert<OT: DatabaseEntity>(of type: OT.Type, with change: JVDatabaseModelChange?, validOnly: Bool) -> OT? {
         guard let change = change else {
             return nil
         }
@@ -317,11 +317,11 @@ final class JVDatabaseContext: JVIDatabaseContext {
         }
     }
     
-    func insert<OT: JVDatabaseModel>(of type: OT.Type, with changes: [JVDatabaseModelChange]?) -> [OT] {
+    func insert<OT: DatabaseEntity>(of type: OT.Type, with changes: [JVDatabaseModelChange]?) -> [OT] {
         return insert(of: type, with: changes, validOnly: false)
     }
     
-    func insert<OT: JVDatabaseModel>(of type: OT.Type, with changes: [JVDatabaseModelChange]?, validOnly: Bool) -> [OT] {
+    func insert<OT: DatabaseEntity>(of type: OT.Type, with changes: [JVDatabaseModelChange]?, validOnly: Bool) -> [OT] {
         guard let changes = changes else {
             return []
         }
@@ -331,16 +331,16 @@ final class JVDatabaseContext: JVIDatabaseContext {
         }
     }
     
-    func upsert<OT: JVDatabaseModel>(of type: OT.Type, with change: JVDatabaseModelChange?) -> OT? {
+    func upsert<OT: DatabaseEntity>(of type: OT.Type, with change: JVDatabaseModelChange?) -> OT? {
         return upsert(of: type, with: change, validOnly: false)
     }
     
-    func upsert<OT: JVDatabaseModel>(of type: OT.Type, with change: JVDatabaseModelChange?, validOnly: Bool) -> OT? {
+    func upsert<OT: DatabaseEntity>(of type: OT.Type, with change: JVDatabaseModelChange?, validOnly: Bool) -> OT? {
         let (obj, _) = upsertCallback(of: type, with: change, validOnly: validOnly)
         return obj
     }
     
-    func upsertCallback<OT: JVDatabaseModel>(of type: OT.Type, with change: JVDatabaseModelChange?, validOnly: Bool = false) -> (OT?, Bool) {
+    func upsertCallback<OT: DatabaseEntity>(of type: OT.Type, with change: JVDatabaseModelChange?, validOnly: Bool = false) -> (OT?, Bool) {
         var newlyAdded = false
         
         if let change = change, change.isValid {
@@ -423,7 +423,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
         }
     }
     
-    func upsert<OT: JVDatabaseModel>(of type: OT.Type, with changes: [JVDatabaseModelChange]?) -> [OT] {
+    func upsert<OT: DatabaseEntity>(of type: OT.Type, with changes: [JVDatabaseModelChange]?) -> [OT] {
         if let changes = changes {
             return changes.compactMap { upsert(of: type, with: $0) }
         }
@@ -432,7 +432,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
         }
     }
     
-    func upsert<OT: JVDatabaseModel>(_ model: OT?, with change: JVDatabaseModelChange?) -> OT? {
+    func upsert<OT: DatabaseEntity>(_ model: OT?, with change: JVDatabaseModelChange?) -> OT? {
         guard let change = change else {
             return model
         }
@@ -446,7 +446,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
         }
     }
     
-    func update<OT: JVDatabaseModel>(of type: OT.Type, with change: JVDatabaseModelChange?) -> OT? {
+    func update<OT: DatabaseEntity>(of type: OT.Type, with change: JVDatabaseModelChange?) -> OT? {
         guard let change = change else {
             return nil
         }
@@ -492,42 +492,42 @@ final class JVDatabaseContext: JVIDatabaseContext {
         return obj
     }
     
-    func replaceAll<OT: JVDatabaseModel>(of type: OT.Type, with changes: [JVDatabaseModelChange]) -> [OT] {
+    func replaceAll<OT: DatabaseEntity>(of type: OT.Type, with changes: [JVDatabaseModelChange]) -> [OT] {
         objects(type, options: nil).forEach(context.delete)
         let values = upsert(of: type, with: changes)
         return values
     }
     
-    func models<MT: JVDatabaseModel>(for IDs: [Int]) -> [MT] {
+    func models<MT: DatabaseEntity>(for IDs: [Int]) -> [MT] {
         return IDs.compactMap { self.object(MT.self, primaryId: $0) }
     }
     
-    func agent(for agentID: Int, provideDefault: Bool) -> JVAgent? {
-        if let value = object(JVAgent.self, primaryId: agentID) {
+    func agent(for agentID: Int, provideDefault: Bool) -> AgentEntity? {
+        if let value = object(AgentEntity.self, primaryId: agentID) {
             return value
         }
         else if provideDefault {
-            return upsert(of: JVAgent.self, with: JVAgentGeneralChange(placeholderID: agentID))
+            return upsert(of: AgentEntity.self, with: JVAgentGeneralChange(placeholderID: agentID))
         }
         else {
             return nil
         }
     }
     
-    func bot(for botID: Int, provideDefault: Bool) -> JVBot? {
-        if let value = object(JVBot.self, primaryId: botID) {
+    func bot(for botID: Int, provideDefault: Bool) -> BotEntity? {
+        if let value = object(BotEntity.self, primaryId: botID) {
             return value
         }
         else if provideDefault {
-            return upsert(of: JVBot.self, with: JVBotGeneralChange(placeholderID: botID))
+            return upsert(of: BotEntity.self, with: JVBotGeneralChange(placeholderID: botID))
         }
         else {
             return nil
         }
     }
     
-    func department(for departmentID: Int) -> JVDepartment? {
-        if let value = object(JVDepartment.self, primaryId: departmentID) {
+    func department(for departmentID: Int) -> DepartmentEntity? {
+        if let value = object(DepartmentEntity.self, primaryId: departmentID) {
             return value
         }
         else {
@@ -535,12 +535,12 @@ final class JVDatabaseContext: JVIDatabaseContext {
         }
     }
     
-    func client(for clientID: Int, needsDefault: Bool) -> JVClient? {
-        if let value = object(JVClient.self, primaryId: clientID) {
+    func client(for clientID: Int, needsDefault: Bool) -> ClientEntity? {
+        if let value = object(ClientEntity.self, primaryId: clientID) {
             return value
         }
         else if needsDefault {
-            return upsert(of: JVClient.self, with: JVClientGeneralChange(clientID: clientID))
+            return upsert(of: ClientEntity.self, with: JVClientGeneralChange(clientID: clientID))
         }
         else {
             return nil
@@ -556,36 +556,36 @@ final class JVDatabaseContext: JVIDatabaseContext {
         }
     }
     
-    func chatWithID(_ ID: Int) -> JVChat? {
-        return object(JVChat.self, primaryId: ID)
+    func chatWithID(_ ID: Int) -> ChatEntity? {
+        return object(ChatEntity.self, primaryId: ID)
     }
     
-    func message(for messageId: Int, provideDefault: Bool) -> JVMessage? {
-        if let value = object(JVMessage.self, primaryId: messageId) {
+    func message(for messageId: Int, provideDefault: Bool) -> MessageEntity? {
+        if let value = object(MessageEntity.self, primaryId: messageId) {
             return value
         }
         else if provideDefault {
-            return upsert(of: JVMessage.self, with: JVMessageEmptyChange(ID: messageId))
+            return upsert(of: MessageEntity.self, with: JVMessageEmptyChange(ID: messageId))
         }
         else {
             return nil
         }
     }
     
-    func messageWithCallID(_ callID: String?) -> JVMessage? {
+    func messageWithCallID(_ callID: String?) -> MessageEntity? {
         guard let callID = callID else { return nil }
 
         let filter = NSPredicate(format: "m_body.m_call_id == %@", callID)
         let options = JVDatabaseRequestOptions(filter: filter)
-        return objects(JVMessage.self, options: options).last
+        return objects(MessageEntity.self, options: options).last
     }
     
-    func topic(for topicId: Int, needsDefault: Bool) -> JVTopic? {
-        if let value = object(JVTopic.self, primaryId: topicId) {
+    func topic(for topicId: Int, needsDefault: Bool) -> TopicEntity? {
+        if let value = object(TopicEntity.self, primaryId: topicId) {
             return value
         }
         else if needsDefault {
-            return upsert(of: JVTopic.self, with: JVTopicEmptyChange(id: topicId))
+            return upsert(of: TopicEntity.self, with: JVTopicEmptyChange(id: topicId))
         }
         else {
             return nil

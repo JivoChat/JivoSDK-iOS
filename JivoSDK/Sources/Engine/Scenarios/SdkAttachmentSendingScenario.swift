@@ -15,11 +15,11 @@ struct SdkAttachmentSendingScenarioEnv: OptionSet {
 
 final class SdkAttachmentSendingScenario: BaseWorkflow<SdkAttachmentSendingScenarioEnv> {
     private let chatManager: ISdkChatManager
-    private let chatRef: JVDatabaseModelRef<JVChat>
+    private let chatRef: DatabaseEntityRef<ChatEntity>
     private let object: ChatPhotoPickerObject
     
     init(chatManager: ISdkChatManager,
-         chatRef: JVDatabaseModelRef<JVChat>,
+         chatRef: DatabaseEntityRef<ChatEntity>,
          object: ChatPhotoPickerObject) {
         self.chatManager = chatManager
         self.chatRef = chatRef

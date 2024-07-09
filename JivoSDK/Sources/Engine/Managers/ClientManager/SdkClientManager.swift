@@ -10,8 +10,8 @@ import Foundation
 
 protocol ISdkClientManager: ISdkManager {
     var apnsDeviceLiveToken: String? { get set }
-    func setContactInfo(info: JVSessionContactInfo?, allowance: SdkSessionManagerContactInfoAllowance)
-    func setCustomData(fields: [JVSessionCustomDataField])
+    func setContactInfo(info: JVClientContactInfo?, allowance: SdkSessionManagerContactInfoAllowance)
+    func setCustomData(fields: [JVClientCustomDataField])
 }
 
 class SdkClientManager: SdkManager, ISdkClientManager {
@@ -23,7 +23,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     private var keychainDriver: IKeychainDriver
     
     private var isKeychainStoringEnabled = true
-    private var customFields: [JVSessionCustomDataField]?
+    private var customFields: [JVClientCustomDataField]?
     private var shouldSynchronizeData = false
     
     init(pipeline: SdkManagerPipeline,
@@ -94,13 +94,13 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         }
     }
     
-    func setContactInfo(info: JVSessionContactInfo?, allowance: SdkSessionManagerContactInfoAllowance) {
+    func setContactInfo(info: JVClientContactInfo?, allowance: SdkSessionManagerContactInfoAllowance) {
         thread.async { [unowned self] in
             _setContactInfo(info: info, allowance: allowance)
         }
     }
     
-    private func _setContactInfo(info: JVSessionContactInfo?, allowance: SdkSessionManagerContactInfoAllowance) {
+    private func _setContactInfo(info: JVClientContactInfo?, allowance: SdkSessionManagerContactInfoAllowance) {
         guard let info = info
         else {
             clientContext.contactInfo = .init()
@@ -140,13 +140,13 @@ class SdkClientManager: SdkManager, ISdkClientManager {
                 brief: clientContext.contactInfo.brief)
     }
     
-    func setCustomData(fields: [JVSessionCustomDataField]) {
+    func setCustomData(fields: [JVClientCustomDataField]) {
         thread.async { [unowned self] in
             _setCustomData(fields: fields)
         }
     }
     
-    private func _setCustomData(fields: [JVSessionCustomDataField]) {
+    private func _setCustomData(fields: [JVClientCustomDataField]) {
         customFields = fields
         flushCustomDataIfNeeded()
     }
@@ -165,7 +165,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     }
     
     private func restoreClientContext() {
-        journal {"Restoring the ClientContext" }
+        journal(layer: .logic) {"Restoring the ClientContext" }
         
         withoutKeychainStoring {
             let clientId = keychainDriver.userScope().retrieveAccessor(forToken: .clientId).string
@@ -261,7 +261,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
     private func handleConnectionConfig(meta: ProtoEventSubjectPayload.ConnectionConfig, context: ProtoEventContext?) {
         guard meta.status == .success
         else {
-            journal {"Failed getting the connection config with @status[\(meta.status)]"}
+            journal(layer: .network) {"Failed getting the connection config with @status[\(meta.status)]"}
             return
         }
         
@@ -339,7 +339,7 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         }
         
         let deviceId = uuidProvider.currentDeviceID
-        journal {"APNS: going to subscribe\ndeviceId[\(deviceId)]"}
+        journal(layer: .notifications) {"APNS: going to subscribe\ndeviceId[\(deviceId)]"}
         
         let credentials = SdkClientSubPusherCredentials(
             endpoint: keychainDriver.userScope().retrieveAccessor(forToken: .endpoint).string,
@@ -368,27 +368,27 @@ class SdkClientManager: SdkManager, ISdkClientManager {
         case let .success(credentials):
             switch action {
             case .subscribing:
-                journal {"APNS: subscribed with credentials\n\(credentials)\n"}
+                journal(layer: .notifications) {"APNS: subscribed with credentials\n\(credentials)\n"}
             case .unsubscribing:
-                journal {"APNS: unsubscribed with credentials\n\(credentials)\n"}
+                journal(layer: .notifications) {"APNS: unsubscribed with credentials\n\(credentials)\n"}
             }
             
         case let .failure(error):
             switch error {
             case let .repositoryInternalError(credentials):
-                journal {"APNS: failed unsubscribing, repository internal error for credentials\n\(credentials)\n"}
+                journal(layer: .notifications) {"APNS: failed unsubscribing, repository internal error for credentials\n\(credentials)\n"}
                 
             case let .unregisterRequestFailure(status, credentials):
-                journal {"APNS: failed unsubscribing, request status[\(status)] for credentials\n\(credentials)\n"}
+                journal(layer: .notifications) {"APNS: failed unsubscribing, request status[\(status)] for credentials\n\(credentials)\n"}
                 
             case let .registerRequestFailure(status, credentials):
-                journal {"APNS: failed subscribing, request status[\(status)] for credentials\n\(credentials)\n"}
+                journal(layer: .notifications) {"APNS: failed subscribing, request status[\(status)] for credentials\n\(credentials)\n"}
                 
             case .subscriptionIsAlreadyExists(credentials: let credentials):
-                journal {"APNS: already subscribed with credentials\n\(credentials)\n"}
+                journal(layer: .notifications) {"APNS: already subscribed with credentials\n\(credentials)\n"}
                 
             case .noCredentialsToUnregister:
-                journal {"APNS: no credentials in unsubscribing queue"}
+                journal(layer: .notifications) {"APNS: no credentials in unsubscribing queue"}
             }
         }
     }

@@ -38,6 +38,7 @@ struct SdkEngineNetworkingFactory: ISdkEngineNetworkingFactory {
         )
         
         return Networking(
+            defaultHost: nil,
             subSocket: networkSubSocket,
             subRest: networkSubRest,
             subApns: nil,

@@ -8,10 +8,9 @@
 import Foundation
 
 /**
- Entry Point to communicate with SDK
- 
- > Tip: You can find the full documentation at:  
- > https://jivochat.github.io/JivoSDK-iOS/
+ For quick access the Documentation,
+ please call the context menu on "Jivo" namespace below,
+ and click "Show Quick Help"
  */
 @objc extension Jivo {
     /**

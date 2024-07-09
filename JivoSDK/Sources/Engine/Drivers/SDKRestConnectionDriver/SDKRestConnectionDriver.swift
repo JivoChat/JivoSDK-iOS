@@ -141,7 +141,7 @@ class SDKRestConnectionDriver: IRestConnectionDriver {
             task.resume()
         }
         
-        journal {"Network: requesting\n\((request.url?.absoluteString).jv_orEmpty)"}
+        journal(layer: .network) {"Network: requesting\n\((request.url?.absoluteString).jv_orEmpty)"}
         
         activeMutex.lock()
         activeRequests[url] = operation

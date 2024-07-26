@@ -88,7 +88,7 @@ extension IPopupPresenterBridge {
             title: loc["JV_SystemAccess_Gallery_NoPermission", "Media.Access.Missing"],
             message: loc["JV_SystemAccess_Gallery_RequestReason", "Media.Access.Suggestion"],
             items: [
-                .action(loc["JV_Common_Captions_Open", "Common.Open"], .icon(.safari), .regular { _ in
+                .action(loc["JV_Common_Captions_Settings", "Common.Open"], .noicon, .regular { _ in
                     guard let url = URL.jv_privacy() else { return }
                     UIApplication.shared.open(url)
                 }),

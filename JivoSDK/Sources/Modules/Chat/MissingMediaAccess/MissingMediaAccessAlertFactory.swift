@@ -77,7 +77,7 @@ extension MissingMediaAccessAlertFactory {
                 preferredStyle: .alert
             )
             alertController.addAction(UIAlertAction(
-                title: loc["JV_Common_Captions_Open", "Common.Open"],
+                title: loc["JV_Common_Captions_Settings", "Common.Open"],
                 style: .default,
                 handler: { _ in
                     guard let url = URL.jv_privacy() else { return }

@@ -116,7 +116,6 @@ import Foundation
     - [UI customization](https://jivochat.github.io/JivoSDK-iOS/documentation/jivosdk/jvdisplaycontroller)
     - [Notifications localization](https://jivochat.github.io/JivoSDK-iOS/documentation/jivosdk/common_project_config/#Localization)
  */
-@objc(Jivo)
 public final class Jivo: NSObject {
     static let shared = Jivo()
     let session = JVSessionController()

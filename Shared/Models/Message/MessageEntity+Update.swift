@@ -366,6 +366,10 @@ extension MessageEntity {
             }
 
             switch c.contents {
+            case .chatResolved:
+                m_text = "chat_resolved"
+                m_must_be_sent = false
+                
             case .text(let text):
                 m_text = text.jv_trimmed()
                 
@@ -425,6 +429,9 @@ extension MessageEntity {
                 
             case .rateForm(let status):
                 m_text = status.rawValue
+                
+            case .location:
+                m_text = "🌍 " + loc["Message.Preview.Location"]
             }
             
             _adjustSender(type: c.senderType, ID: c.senderID, body: nil)

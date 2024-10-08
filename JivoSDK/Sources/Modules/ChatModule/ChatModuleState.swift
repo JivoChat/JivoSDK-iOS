@@ -11,9 +11,9 @@ enum ChatModuleInputUpdate {
     case update(SdkChatReplyControl.Update)
 //    case enable
 //    case disable(placeholder: String)
-    case fill(text: String, attachments: [ChatPhotoPickerObject])
+    case fill(text: String, attachments: [PickedAttachmentObject])
 //    case updateText(String)
-    case updateAttachment(ChatPhotoPickerObject)
+    case updateAttachment(PickedAttachmentObject)
     case failedAttachments
     case shakeAttachments
 //    case validationStatus(Bool)

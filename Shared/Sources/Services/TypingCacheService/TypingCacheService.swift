@@ -5,16 +5,14 @@
 
 import Foundation
 
-
-struct TypingContext: Codable, Equatable {
+struct TypingContext: Hashable, Equatable, Codable {
     enum Kind: String, Codable { case chat, agent }
     let kind: Kind
     let ID: Int
-    
-    init(kind: Kind, ID: Int) {
-        self.kind = kind
-        self.ID = ID
-    }
+}
+
+extension TypingContext {
+    static let standard = Self.init(kind: .chat, ID: 0)
 }
 
 enum TypingCacheAttachmentReaction {
@@ -32,27 +30,24 @@ enum InputMode: Int, Codable {
     case email
 }
 
-struct TypingCacheInput {
-    let text: String?
-    let attachments: [ChatPhotoPickerObject]
-    let mode: InputMode?
-}
-
 protocol ITypingCacheService: AnyObject {
-    var currentInput: TypingCacheInput { get }
-    var canAttachMore: Bool { get }
-    func cache(mode: InputMode)
-    func cache(text: String?)
-    func cache(attachment: ChatPhotoPickerObject) -> TypingCacheAttachmentReaction
-    func uncache(attachmentAt index: Int)
-    func uncacheAll()
-    func canUseAiSummarize(for chatID: Int?) -> Bool
-    func incSummarizeCount(for chatID: Int?)
-    func saveInput(context: TypingContext, flush: Bool)
-    func obtainInput(context: TypingContext) -> TypingCacheRecord?
-    func activateInput(context: TypingContext) -> TypingCacheInput?
+    func currentInput(context: TypingContext) -> TypingCacheInput
+    func canAttachMore(context: TypingContext) -> Bool
+    func cache(context: TypingContext, mode: InputMode)
+    func cache(context: TypingContext, text: String?)
+    func cache(context: TypingContext, attachment: PickedAttachmentObject) -> TypingCacheAttachmentReaction
+    func discardAttachment(context: TypingContext, index: Int)
+    func discardAllAttachments(context: TypingContext)
+    func canUseAiSummarize(context: TypingContext) -> Bool
+    func incSummarizeCount(context: TypingContext)
+    func cacheWhatsAppTarget(context: TypingContext, number: String)
+    func activateInput(context: TypingContext) -> TypingCacheInput
+    func saveInput(context: TypingContext)
+    func findInput(context: TypingContext) -> TypingCacheInput?
     func resetInput(context: TypingContext)
 }
+
+fileprivate let kAmountOfDaysToStoreRecords = 2
 
 final class TypingCacheService: ITypingCacheService {
     private let fileURL: URL?
@@ -60,11 +55,8 @@ final class TypingCacheService: ITypingCacheService {
     private let agentsRepo: IAgentsRepo
     private let chatsRepo: IChatsRepo
 
-    private var records = [TypingCacheRecord]()
-    private var currentText: String?
-    private var currentAttachments = [ChatPhotoPickerObject]()
-    private var currentMode: InputMode?
-    private var summarizeCount = Int()
+    private var mutex = NSRecursiveLock()
+    private var records = [TypingContext: TypingCacheRecord]()
     private var lastChatID = Int()
     
     init(fileURL: URL?, attachmentsNumberLimit: Int, agentsRepo: IAgentsRepo, chatsRepo: IChatsRepo) {
@@ -76,167 +68,206 @@ final class TypingCacheService: ITypingCacheService {
         read()
     }
     
-    var currentInput: TypingCacheInput {
-        return TypingCacheInput(
-            text: currentText,
-            attachments: currentAttachments,
-            mode: currentMode
-        )
-    }
-    
-    var canAttachMore: Bool {
-        return (currentAttachments.count < attachmentsNumberLimit)
-    }
-    
-    func cache(mode: InputMode) {
-        currentMode = mode
-    }
-    
-    func cache(text: String?) {
-        currentText = text?.jv_valuable
-    }
-
-    func cache(attachment: ChatPhotoPickerObject) -> TypingCacheAttachmentReaction {
-        if let index = findAttachmentIndex(uuid: attachment.uuid) {
-            currentAttachments[index] = attachment
-            return .ignore
-        }
-        else if !canAttachMore {
-            return .reject
+    func currentInput(context: TypingContext) -> TypingCacheInput {
+        if let record = findOptionalRecord(context: context) {
+            return record
         }
         else {
-            currentAttachments.append(attachment)
-            return .accept
+            return TypingCacheRecord.init(
+                context: context,
+                text: .jv_empty,
+                attachments: .jv_empty,
+                mode: .regular,
+                aiSummarizeNumber: 0,
+                whatsappTarget: nil,
+                actualityTimestamp: Date())
         }
     }
     
-    func uncache(attachmentAt index: Int) {
-        currentAttachments.remove(at: index)
-    }
-    
-    func uncacheAll() {
-        currentAttachments = []
-    }
-    
-    func incSummarizeCount(for chatID: Int?) {
-        guard let chatID = chatID else { return }
-        if chatID == lastChatID {
-            summarizeCount += 1
-        } else {
-            lastChatID = chatID
-            summarizeCount = 1
+    func canAttachMore(context: TypingContext) -> Bool {
+        if let record = findOptionalRecord(context: context) {
+            return (record.attachments.count < attachmentsNumberLimit)
         }
-    }
-    
-    func canUseAiSummarize(for chatID: Int?) -> Bool {
-        if chatID != lastChatID {
+        else {
             return true
         }
-        return summarizeCount < 3
     }
     
-    func saveInput(context: TypingContext, flush: Bool) {
-        let record = TypingCacheRecord(
-            context: context,
-            text: currentText,
-            attachments: currentAttachments,
-            mode: currentMode,
-            lastChatID: lastChatID,
-            aiSummarizeCount: summarizeCount
-        )
-        
-        if let index = recordIndex(context: context) {
-            if record != records[index] {
-                records[index] = record
-                applyDraft(currentText, to: context)
-                save()
+    func cache(context: TypingContext, mode: InputMode) {
+        requirePatchRecord(context: context) { record in
+            record.mode = mode
+        }
+    }
+    
+    func cache(context: TypingContext, text: String?) {
+        requirePatchRecord(context: context) { record in
+            record.text = text?.jv_valuable
+        }
+    }
+    
+    func cacheWhatsAppTarget(context: TypingContext, number: String) {
+        requirePatchRecord(context: context) { record in
+            record.whatsappTarget = number.jv_valuable
+        }
+    }
+
+    func cache(context: TypingContext, attachment: PickedAttachmentObject) -> TypingCacheAttachmentReaction {
+        return requirePatchRecord(context: context) { record in
+            if let index = record.attachments.firstIndex(where: { $0.uuid == attachment.uuid }) {
+                record.attachments[index] = attachment
+                return .ignore
             }
-            else if record.isEmpty {
-                records.remove(at: index)
-                applyDraft(nil, to: context)
-                save()
+            else if !canAttachMore(context: context) {
+                return .reject
+            }
+            else {
+                record.attachments.append(attachment)
+                return .accept
             }
         }
-        else if !record.isEmpty {
-            records.append(record)
-            applyDraft(currentText, to: context)
+    }
+    
+    func discardAttachment(context: TypingContext, index: Int) {
+        requirePatchRecord(context: context) { record in
+            record.attachments.remove(at: index)
+        }
+    }
+    
+    func discardAllAttachments(context: TypingContext) {
+        requirePatchRecord(context: context) { record in
+            record.attachments.removeAll()
+        }
+    }
+    
+    func incSummarizeCount(context: TypingContext) {
+        requirePatchRecord(context: context) { record in
+            record.aiSummarizeNumber += 1
+        }
+    }
+    
+    func canUseAiSummarize(context: TypingContext) -> Bool {
+        if let record = findOptionalRecord(context: context) {
+            return (record.aiSummarizeNumber < 3)
+        }
+        else {
+            return true
+        }
+    }
+    
+    func activateInput(context: TypingContext) -> TypingCacheInput {
+        return findRequiredRecord(context: context)
+    }
+    
+    func saveInput(context: TypingContext) {
+        guard let record = findOptionalRecord(context: context) else {
+            return
+        }
+        
+        if record.isEmpty {
+            resetInput(context: context)
+        }
+        else {
+            applyDraft(record.text, to: context)
             save()
         }
-        
-        if flush {
-            currentText = nil
-            currentAttachments = []
-        }
-    }
-
-    func obtainInput(context: TypingContext) -> TypingCacheRecord? {
-        if let index = recordIndex(context: context) {
-            return records[index]
-        }
-        else {
-            return nil
-        }
     }
     
-    func activateInput(context: TypingContext) -> TypingCacheInput? {
-        if let input = obtainInput(context: context) {
-            currentText = input.text
-            currentAttachments = input.attachments
-            currentMode = input.mode
-            lastChatID = input.lastChatID
-            summarizeCount = input.aiSummarizeCount
-        }
-        else {
-            currentText = nil
-            currentAttachments = []
-        }
-        
-        return currentInput
+    func findInput(context: TypingContext) -> TypingCacheInput? {
+        return findOptionalRecord(context: context)
     }
-
+    
     func resetInput(context: TypingContext) {
-        currentText = nil
-        currentAttachments = []
+        mutex.lock()
+        records.removeValue(forKey: context)
+        mutex.unlock()
         
-        if let index = recordIndex(context: context) {
-            records.remove(at: index)
-            applyDraft(nil, to: context)
-            save()
+        applyDraft(nil, to: context)
+        save()
+    }
+    
+    private func findOptionalRecord(context: TypingContext) -> TypingCacheRecord? {
+        let record = records.jv_value(forKey: context, locking: mutex)
+        return record
+    }
+    
+    private func findRequiredRecord(context: TypingContext) -> TypingCacheRecord {
+        if let record = findOptionalRecord(context: context) {
+            return record
+        }
+        else {
+            let record = TypingCacheRecord(context: context)
+            
+            mutex.lock()
+            records[context] = record
+            mutex.unlock()
+            
+            return record
         }
     }
-
-    private func findAttachmentIndex(uuid: UUID) -> Int? {
-        return currentAttachments.firstIndex { $0.uuid == uuid }
+    
+    @discardableResult
+    private func requirePatchRecord<Value>(context: TypingContext, block: (inout TypingCacheRecord) -> Value) -> Value {
+        var record = findRequiredRecord(context: context)
+        let value = block(&record)
+        
+        mutex.lock()
+        records[context] = record
+        mutex.unlock()
+        
+        return value
     }
-
+    
     private func read() {
-        guard let url = fileURL else { return }
-        guard let data = try? Data(contentsOf: url) else { return }
-        guard let records = try? JSONDecoder().decode([TypingCacheRecord].self, from: data) else { return }
-        self.records = records
+        guard let url = fileURL else {
+            return
+        }
+        
+        guard FileManager.default.isReadableFile(atPath: url.path) else {
+            self.records = .jv_empty
+            return
+        }
+        
+        do {
+            let data = try Data(contentsOf: url)
+            let allRecords = try JSONDecoder().decode([TypingContext:TypingCacheRecord].self, from: data)
+            
+            let recentRecords = allRecords.filter {
+                let days = $0.value.actualityTimestamp.getInterval(toDate: nil, component: .day)
+                return (days < kAmountOfDaysToStoreRecords)
+            }
+            
+            self.records = recentRecords
+        }
+        catch let exc {
+            debugPrint(exc)
+        }
     }
 
     private func save() {
-        guard let url = fileURL else { return }
+        guard let url = fileURL else {
+            return
+        }
         
         do {
+            mutex.lock()
+            defer {
+                mutex.unlock()
+            }
+            
             let data = try JSONEncoder().encode(records)
             try data.write(to: url, options: .atomic)
         }
-        catch {
+        catch let exc {
+            debugPrint(exc)
         }
     }
 
-    private func recordIndex(context: TypingContext) -> Int? {
-        return records.firstIndex(where: { $0.context == context })
-    }
-    
     private func applyDraft(_ draft: String?, to context: TypingContext) {
         switch context.kind {
         case .chat:
-            chatsRepo.updateDraft(id: context.ID, currentText: currentText)
+            chatsRepo.updateDraft(id: context.ID, currentText: draft)
         case .agent:
-            agentsRepo.updateDraft(id: context.ID, currentText: currentText)
+            agentsRepo.updateDraft(id: context.ID, currentText: draft)
         }
     }
 }

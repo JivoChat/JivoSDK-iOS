@@ -12,7 +12,6 @@ protocol IBaseUserContext: AnyObject {
     var remoteStorageToken: String? { get }
     func havingAccess(callback: @escaping () -> Void)
     func isPerson(ofKind kind: String, withID ID: Int) -> Bool
-    func supportsRemoteMediaStorage() -> Bool
 }
 
 //protocol IUserContext: IBaseUserContext {

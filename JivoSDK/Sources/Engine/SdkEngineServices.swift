@@ -91,20 +91,12 @@ struct SdkEngineServicesFactory {
                 }
                 
                 switch purpose {
-                case .exchange where clientContext.supportsRemoteMediaStorage():
+                case .exchange:
                     return RemoteStorageCenter(
                         engine: .media,
                         path: "api/1.0/auth/media/sign/put",
                         auth: .omit
                     )
-                    
-                case .exchange:
-                    return RemoteStorageCenter(
-                        engine: .files,
-                        path: "api/1.0/sites/\(identity.siteId)/widgets/\(identity.channelId)/media/transfer/access/gain",
-                        auth: .apply
-                    )
-                    
                 default:
                     journal {"Unknown purpose for File Upload"}
                     return nil

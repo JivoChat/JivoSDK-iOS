@@ -14,7 +14,7 @@ final class JMTimelineVoiceMessageRegion: JMTimelineMessageCanvasRegion {
     private let audioBlock = JMTimelineCompositeAudioBlock(type: .voice(.standard))
     
     init() {
-        super.init(renderMode: .bubble(time: .compact))
+        super.init(renderMode: .content(time: .over, color: .standard))
         integrateBlocks([audioBlock], gap: 0)
         
         audioBlock.addGestureRecognizer(

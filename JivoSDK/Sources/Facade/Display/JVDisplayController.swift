@@ -24,24 +24,10 @@ public enum JVDisplayScreenPresentation {
 /**
  ``Jivo``.``Jivo/display`` namespace for SDK displaying
  */
-@objc(JVDisplayController)
-public final class JVDisplayController: NSObject {
-    private let joint = SdkJoint(engine: SdkEngine.shared)
-
-    /**
-     Object that controls displaying lifecycle
-     */
-    @objc(delegate)
-    public weak var delegate: JVDisplayDelegate? {
-        didSet {
-            _delegateHookDidSet()
-        }
-    }
-    
+public final class JVDisplayController {
     /**
      Determines whether SDK is currently in UI hierarchy
      */
-    @objc(isOnscreen)
     public var isOnscreen: Bool {
         return _isOnscreen()
     }
@@ -52,31 +38,42 @@ public final class JVDisplayController: NSObject {
      > Note: May be helpful in case you implement your own logic
      for changing a language locally within your app
      */
-    @objc(setLocale:)
     public func setLocale(_ locale: Locale?) {
         _setLocale(locale)
     }
     
     /**
      Here you can customize captions and texts for some elements
+     
+     - Parameter text:
+     Textual value you want to assign
+     - Parameter element:
+     UI Element you want to configure
      */
-    @objc(defineText:forElement:)
     public func define(text: String?, forElement element: JVDisplayElement) {
         _define(text: text, forElement: element)
     }
 
     /**
      Here you can customize colors for some elements
+     
+     - Parameter color:
+     Color value you want to assign
+     - Parameter element:
+     UI Element you want to configure
      */
-    @objc(defineColor:forElement:)
     public func define(color: UIColor?, forElement element: JVDisplayElement) {
         _define(color: color, forElement: element)
     }
 
     /**
      Here you can customize icons for some elements
+     
+     - Parameter image:
+     Image value you want to assign
+     - Parameter element:
+     UI Element you want to configure
      */
-    @objc(defineImage:forElement:)
     public func define(image: UIImage?, forElement element: JVDisplayElement) {
         _define(image: image, forElement: element)
     }
@@ -91,7 +88,6 @@ public final class JVDisplayController: NSObject {
      - Parameter handler:
      Callback that would be called when user taps your custom menu item in specified menu
      */
-    @objc(setExtraItemsForMenu:captions:handler:)
     public func setExtraItems(menu: JVDisplayMenu, captions: [String], handler: @escaping (Int) -> Void) {
         _setExtraItems(menu: menu, captions: captions, handler: handler)
     }
@@ -102,7 +98,6 @@ public final class JVDisplayController: NSObject {
      - Parameter navigationController:
      Your existing UINavigationController to push the JivoSDK into
      */
-    @objc(pushInto:)
     @discardableResult
     public func push(into navigationController: UINavigationController) -> JVSessionHandle? {
         return _push(into: navigationController)
@@ -117,7 +112,6 @@ public final class JVDisplayController: NSObject {
      - Parameter closeButton:
      Close Button look that mostly fits your needs in this case
      */
-    @objc(placeWithin:closeButton:)
     @discardableResult
     public func place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton) -> JVSessionHandle? {
         return _place(within: navigationController, closeButton: closeButton)
@@ -129,7 +123,6 @@ public final class JVDisplayController: NSObject {
      - Parameter viewController:
      Your UIViewController on top of which the JivoSDK will be displayed
      */
-    @objc(presentOver:)
     @discardableResult
     public func present(over viewController: UIViewController) -> JVSessionHandle? {
         return _present(over: viewController)
@@ -154,16 +147,46 @@ public final class JVDisplayController: NSObject {
      - Parameter animated:
      Whether SDK should be closed with animation or not
      */
-    @objc(closeAnimated:)
     public func close(animated: Bool) {
         _close(animated: animated)
     }
+    
+    /**
+     Handler will be called when SDK needs to display chat UI on screen
+     */
+    public func listenToAppearanceRequest(handler: @escaping () -> Void) {
+        callbacks.asksToAppearHandler = handler
+    }
+    
+    /**
+     Handler will be called before opening the SDK
+     */
+    public func listenToWillAppear(handler: @escaping () -> Void) {
+        callbacks.willAppearHandler = handler
+    }
+    
+    /**
+     Handler will be called after the SDK is closed
+     */
+    public func listenToDidDisappear(handler: @escaping () -> Void) {
+        callbacks.didDisappearHandler = handler
+    }
+    
+    /**
+     Handler will be called to customize Header Bar appearance
+     */
+    public func listenToNavigation(handler: @escaping (UINavigationBar, UINavigationItem) -> Void) {
+        callbacks.customizeHeaderHandler = handler
+    }
+    
+    /*
+     For private purposes
+     */
+    private let joint = SdkJoint(engine: SdkEngine.shared)
+    internal let callbacks = JVDisplayCallbacks()
 }
 
 extension JVDisplayController {
-    private func _delegateHookDidSet() {
-    }
-    
     private func _isOnscreen() -> Bool {
         return joint.isDisplaying
     }
@@ -214,7 +237,7 @@ extension JVDisplayController {
         
         return joint.push(
             into: navigationController,
-            displayDelegate: delegate)
+            displayCallbacks: callbacks)
     }
     
     private func _place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton, funcname: String = #function) -> JVSessionHandle? {
@@ -229,7 +252,7 @@ extension JVDisplayController {
         return joint.place(
             within: navigationController,
             closeButton: closeButton,
-            displayDelegate: delegate)
+            displayCallbacks: callbacks)
     }
     
     private func _present(over viewController: UIViewController, funcname: String = #function) -> JVSessionHandle? {
@@ -243,7 +266,7 @@ extension JVDisplayController {
         
         return joint.present(
             over: viewController,
-            displayDelegate: delegate)
+            displayCallbacks: callbacks)
     }
     
     #if canImport(SwiftUI)
@@ -253,7 +276,7 @@ extension JVDisplayController {
         
         return joint.makeScreen(
             presentation: presentation,
-            displayDelegate: delegate)
+            displayCallbacks: callbacks)
     }
     #endif
     

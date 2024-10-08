@@ -47,7 +47,7 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
         
         super.init()
         
-        layer.cornerRadius = 14
+        layer.cornerRadius = Self.defaultCornerRadius
         clipsToBounds = true
         accessibilityIgnoresInvertColors = true
 

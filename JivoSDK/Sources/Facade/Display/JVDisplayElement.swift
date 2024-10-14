@@ -10,8 +10,7 @@ import Foundation
 /**
  UI elements available for customization
  */
-@objc(JVDisplayElement)
-public enum JVDisplayElement: Int {
+public enum JVDisplayElement: String, CaseIterable {
     /// Support icon in Header Bar,
     /// customizable: image
     case headerIcon
@@ -28,9 +27,9 @@ public enum JVDisplayElement: Int {
     /// customizable: color
     case outgoingElements
     
-    /// Textual content of Hello Message in chat,
+    /// Textual content of Welcome Message in chat,
     /// customizable: text
-    case messageHello
+    case messageWelcome
     
     /// Textual content of Offline Message in chat,
     /// customizable: text

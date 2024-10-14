@@ -643,6 +643,9 @@ final class SystemMessagingService: ISystemMessagingService {
 
         case .text(let text):
             return .init(exact: text.jv_plain())
+            
+        case .location:
+            return .init(exact: loc["Message.Preview.Location"])
 
         case .comment(let text):
             return .init(exact: text.jv_plain())
@@ -759,6 +762,8 @@ final class SystemMessagingService: ISystemMessagingService {
         case .contactForm:
             return .init(exact: .jv_empty)
         case .rateForm:
+            return .init(exact: .jv_empty)
+        case .chatResolved:
             return .init(exact: .jv_empty)
         }
     }

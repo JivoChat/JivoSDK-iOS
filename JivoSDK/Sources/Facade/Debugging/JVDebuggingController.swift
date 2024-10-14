@@ -13,22 +13,16 @@ import Foundation
 @objc(JVDebuggingController)
 public final class JVDebuggingController: NSObject {
     /**
-     Object that controls debugging process
-     */
-    @objc(delegate)
-    public weak var delegate = JVDebuggingDelegate?.none {
-        didSet {
-            _delegateHookDidSet()
-        }
-    }
-    
-    /**
      Current level of logging verbosity
      */
-    @objc(level)
-    public var level = JVDebuggingLevel.full {
-        didSet {
-            _levelHookDidSet()
+    public func setLevel(_ level: JVDebuggingLevel) {
+        _setLevel(level)
+    }
+    
+    @objc(setLevel:)
+    private func setLevel(_ levelIndex: Int) {
+        if let level = JVDebuggingLevel.allCases.dropFirst(levelIndex).first {
+            _setLevel(level)
         }
     }
     
@@ -40,9 +34,15 @@ public final class JVDebuggingController: NSObject {
      - Parameter handler:
      The block that would be called when copying is finished
      */
-    @objc(copyLogsWithCompletionHandler:)
-    public func copyLogs(completion handler: @escaping (URL?, JVDebuggingArchiveStatus) -> Void) {
-        _copyLogs(completion: handler)
+    public func exportCopy(completion handler: @escaping (URL?, JVDebuggingExportStatus) -> Void) {
+        _exportCopy(completion: handler)
+    }
+
+    @objc(exportCopyWithCompletionHandler:)
+    private func exportCopy(completion handler: @escaping (URL?, Int) -> Void) {
+        _exportCopy { url, status in
+            handler(url, JVDebuggingExportStatus.allCases.firstIndex(of: status) ?? .zero)
+        }
     }
 
     /**
@@ -53,35 +53,49 @@ public final class JVDebuggingController: NSObject {
      - Parameter handler:
      The block that would be called when an archive is ready
      */
-    @objc(archiveLogsWithCompletionHandler:)
-    public func archiveLogs(completion handler: @escaping (URL?, JVDebuggingArchiveStatus) -> Void) {
-        _archiveLogs(completion: handler)
+    public func exportArchive(completion handler: @escaping (URL?, JVDebuggingExportStatus) -> Void) {
+        _exportArchive(completion: handler)
+    }
+    
+    @objc(exportArchiveWithCompletionHandler:)
+    private func exportArchive(completion handler: @escaping (URL?, Int) -> Void) {
+        _exportArchive { url, status in
+            handler(url, JVDebuggingExportStatus.allCases.firstIndex(of: status) ?? .zero)
+        }
     }
     
     /**
      Presents a sharing screen of local log entries
      */
-    @objc(exportLogsWithinParent:)
-    public func exportLogs(within parent: UIViewController?) {
-        _exportLogs(within: parent)
+    @objc(exportUIWithinParent:)
+    public func exportUI(within parent: UIViewController?) {
+        _exportUI(within: parent)
+    }
+    
+    /**
+     Assign a listener for each time SDK is going to log event,
+     here you are able to replace the standard behavior with your own implementation
+     */
+    public func listenToRecord(original behavior: JVDebuggingOriginalRecordBehavior, callback: @escaping (_ entry: String) -> Void) {
+        _listenToEvents { entry in
+            callback(entry)
+            return behavior
+        }
+    }
+    
+    @objc(listenToRecordWithOriginalBehavior:handler:)
+    private func listenToRecord(original behaviorIndex: Int, handler: @escaping (_ entry: String) -> Void) {
+        if let behavior = JVDebuggingOriginalRecordBehavior.allCases.dropFirst(behaviorIndex).first {
+            _listenToEvents { entry in
+                handler(entry)
+                return behavior
+            }
+        }
     }
 }
 
 extension JVDebuggingController: SdkEngineAccessing {
-    private func _delegateHookDidSet() {
-        setJournalCustomHandler { [unowned self] text in
-            switch self.delegate?.jivoDebugging(catchEvent: .shared, text: text) {
-            case nil:
-                return true
-            case .keep:
-                return true
-            case .ignore:
-                return false
-            }
-        }
-    }
-    
-    private func _levelHookDidSet() {
+    private func _setLevel(_ level: JVDebuggingLevel) {
         switch level {
         case .silent:
             setJournalLevel(.silent)
@@ -90,7 +104,18 @@ extension JVDebuggingController: SdkEngineAccessing {
         }
     }
     
-    private func _copyLogs(completion handler: @escaping (URL?, JVDebuggingArchiveStatus) -> Void) {
+    private func _listenToEvents(callback: @escaping (_ text: String) -> JVDebuggingOriginalRecordBehavior) {
+        setJournalCustomHandler { text in
+            switch callback(text) {
+            case .store:
+                return true
+            case .ignore:
+                return false
+            }
+        }
+    }
+    
+    private func _exportCopy(completion handler: @escaping (URL?, JVDebuggingExportStatus) -> Void) {
         let drivers = engine.drivers
         
         guard let tmpFile = drivers.cacheDriver.url(item: .accumulatedLogs) else {
@@ -113,7 +138,7 @@ extension JVDebuggingController: SdkEngineAccessing {
         }
     }
     
-    private func _archiveLogs(completion handler: @escaping (URL?, JVDebuggingArchiveStatus) -> Void) {
+    private func _exportArchive(completion handler: @escaping (URL?, JVDebuggingExportStatus) -> Void) {
         let drivers = engine.drivers
         
         let formatter = DateFormatter()
@@ -144,8 +169,8 @@ extension JVDebuggingController: SdkEngineAccessing {
         }
     }
     
-    private func _exportLogs(within parent: UIViewController?) {
-        _archiveLogs { [unowned self] url, status in
+    private func _exportUI(within parent: UIViewController?) {
+        _exportArchive { [unowned self] url, status in
             guard let url else {
                 return
             }
@@ -159,5 +184,5 @@ extension JVDebuggingController: SdkEngineAccessing {
 }
 
 extension CacheDriverItem {
-    static let accumulatedLogs = CacheDriverItem(fileName: "support.txt.gz")
+    static let accumulatedLogs = CacheDriverItem(fileName: "support.txt")
 }

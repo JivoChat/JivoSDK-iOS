@@ -149,14 +149,24 @@ extension MessageMediaEntity {
     }
     
     var caption: String? {
-        let firstLine = (m_title == m_name ? nil : m_title)
-        let secondLine = m_text
+        let isTelegram = b_message?.m_channel?.isTelegram == true
         
-        return [firstLine, secondLine]
-            .jv_flatten()
-            .compactMap(\.jv_valuable)
-            .joined(separator: .jv_newline)
-            .jv_valuable
+        if isTelegram {
+            if let title = m_title, !title.isEmpty {
+                return type == .photo ? title + .jv_newline : title
+            } else {
+                return nil
+            }
+        } else {
+            let firstLine = (m_title == m_name ? nil : m_title)
+            let secondLine = m_text
+            
+            return [firstLine, secondLine]
+                .jv_flatten()
+                .compactMap(\.jv_valuable)
+                .joined(separator: .jv_newline)
+                .jv_valuable
+        }
     }
     
     var originalSize: CGSize {

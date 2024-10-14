@@ -45,18 +45,16 @@ open class JVAppDelegate: UIResponder
     }
     
     open func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        Jivo.notifications.configurePresentation(notification: notification, proxyTo: completionHandler) { [weak self] target, event in
-            if let handler = self?.bannerPresentingDelegate {
-                return handler.jivoApp(bannerPresentation: .shared, target: target, event: event, notification: notification)
-            }
-            else {
-                return .jv_empty
-            }
+        if let options = Jivo.notifications.willPresent(notification: notification, preferableOptions: .jv_banner) {
+            completionHandler(options)
+        }
+        else {
+            completionHandler(.jv_empty)
         }
     }
     
     open func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        Jivo.notifications.handleUser(response: response)
+        Jivo.notifications.didReceive(response: response)
         completionHandler()
     }
     

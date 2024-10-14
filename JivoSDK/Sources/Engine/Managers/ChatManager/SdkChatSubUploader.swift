@@ -28,8 +28,8 @@ enum ChatMediaUploadingError: Error {
 }
 
 protocol ISdkChatSubUploader {
-    var uploadingAttachments: [ChatPhotoPickerObject] { get }
-    func upload(endpoint: String?, attachments: [ChatPhotoPickerObject], clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void)
+    var uploadingAttachments: [PickedAttachmentObject] { get }
+    func upload(endpoint: String?, attachments: [PickedAttachmentObject], clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void)
 }
 
 class SdkChatSubUploader: ISdkChatSubUploader {
@@ -37,7 +37,7 @@ class SdkChatSubUploader: ISdkChatSubUploader {
     private let JPEG_DATA_COMPRESSION_QUALITY = CGFloat(1.0)
     private let UNTITLED_IMAGE_NAME = "Untitled image"
 
-    var uploadingAttachments: [ChatPhotoPickerObject] = []
+    var uploadingAttachments: [PickedAttachmentObject] = []
     
     private let semaphore = CountingSemaphore(value: 0)
     
@@ -55,7 +55,7 @@ class SdkChatSubUploader: ISdkChatSubUploader {
         semaphore.setCounter(to: 0)
     }
     
-    func upload(endpoint: String?, attachments: [ChatPhotoPickerObject], clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void) {
+    func upload(endpoint: String?, attachments: [PickedAttachmentObject], clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void) {
         uploadingQueue.async { [unowned self] in
             for attachment in attachments {
                 uploadingAttachments.append(attachment)
@@ -94,7 +94,7 @@ class SdkChatSubUploader: ISdkChatSubUploader {
         }
     }
     
-    private func uploadImage(endpoint: String?, uuid: UUID, meta: ChatPhotoPickerImageMeta, clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void) {
+    private func uploadImage(endpoint: String?, uuid: UUID, meta: PickedImageMeta, clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void) {
         guard let imageData = meta.image.jpegData(compressionQuality: JPEG_DATA_COMPRESSION_QUALITY)
         else {
             journal {"Failed uploading the media: cannot extract the image data"}
@@ -122,7 +122,7 @@ class SdkChatSubUploader: ISdkChatSubUploader {
             completion: completion)
     }
     
-    private func uploadFile(endpoint: String?, uuid: UUID, meta: ChatPhotoPickerFileMeta, clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void) {
+    private func uploadFile(endpoint: String?, uuid: UUID, meta: PickedFileMeta, clientId: Int, channelId: String, siteId: Int, completion: @escaping (Result<JVMessageContent, ChatMediaUploadingError>) -> Void) {
         guard let fileSize = meta.url.jv_fileSize, fileSize <= SdkConfig.uploadingLimit.bytes
         else {
             journal {"Failed uploading the media: file size limit exceeded"}
@@ -174,13 +174,13 @@ class SdkChatSubUploader: ISdkChatSubUploader {
                 let attachmentToRemoveIndex = uploadingAttachments.firstIndex {
                     $0.uuid.uuidString == uuid.uuidString
                 }
-                let chatPhotoPickerObject = attachmentToRemoveIndex.flatMap { uploadingAttachments.remove(at: $0) }
+                let PickedAttachmentObject = attachmentToRemoveIndex.flatMap { uploadingAttachments.remove(at: $0) }
                 
                 switch result {
                 case let .success(url):
-                    if let chatPhotoPickerObject = chatPhotoPickerObject,
+                    if let PickedAttachmentObject = PickedAttachmentObject,
                        let content = messageContentFor(
-                        chatPhotoPickerObject: chatPhotoPickerObject,
+                        PickedAttachmentObject: PickedAttachmentObject,
                         fileName: fileName,
                         mimeType: mimeType ?? String(),
                         dataSize: data.count,
@@ -228,8 +228,8 @@ class SdkChatSubUploader: ISdkChatSubUploader {
         }
     }
     
-    private func messageContentFor(chatPhotoPickerObject: ChatPhotoPickerObject, fileName: String, mimeType: String, dataSize: Int, andURL url: URL) -> JVMessageContent? {
-        switch chatPhotoPickerObject.payload {
+    private func messageContentFor(PickedAttachmentObject: PickedAttachmentObject, fileName: String, mimeType: String, dataSize: Int, andURL url: URL) -> JVMessageContent? {
+        switch PickedAttachmentObject.payload {
         case .image:
             return JVMessageContent.photo(
                 mime: mimeType,

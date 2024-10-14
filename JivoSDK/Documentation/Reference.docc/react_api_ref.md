@@ -18,7 +18,7 @@ Same as ``Jivo``.``Jivo/session``.``JVSessionController/setPreferredServer(_:)``
 ```
 Jivo.startUp(channelID, userToken)
 ```
-Same as ``Jivo``.``Jivo/session``.``JVSessionController/startUp(channelID:userToken:)``
+Same as ``Jivo``.``Jivo/session``.``JVSessionController/setup(widgetID:clientIdentity:)``
 
 ```
 Jivo.setContactInfo(info)

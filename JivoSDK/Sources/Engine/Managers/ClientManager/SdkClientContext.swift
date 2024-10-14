@@ -114,10 +114,6 @@ final class SdkClientContext: ISdkClientContext {
         return true
     }
     
-    internal func supportsRemoteMediaStorage() -> Bool {
-        return true
-    }
-    
     func reset(async thread: JVIDispatchThread) {
         storeClientId(nil, async: thread)
         personalNamespace = nil

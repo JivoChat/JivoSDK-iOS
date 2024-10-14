@@ -42,8 +42,10 @@ final class JMTimelineDeliveryView: UIView {
         }
         
         if icons.count == channelsImages.count {
-            zip(channelsImages, icons).forEach { image, icon in
-                image.image = icon.withRenderingMode(.alwaysTemplate)
+            zip(channelsImages, icons).forEach { imageView, icon in
+                let image: UIImage = icon.withRenderingMode(.alwaysTemplate)
+                imageView.image = image
+                imageView.contentMode = .scaleAspectFit
             }
         }
         else {
@@ -52,7 +54,9 @@ final class JMTimelineDeliveryView: UIView {
             }
             
             channelsImages = icons.map {
-                UIImageView(image: $0.withRenderingMode(.alwaysTemplate))
+                let iv = UIImageView(image: $0.withRenderingMode(.alwaysTemplate))
+                iv.contentMode = .scaleAspectFit
+                return iv
             }
             
             channelsImages.forEach {

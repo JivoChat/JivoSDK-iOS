@@ -9,6 +9,14 @@
 import Foundation
 import JMRepicKit
 
+enum RosterBox: String {
+    case inbox
+    case my
+    case team
+    case groups
+    case archive
+}
+
 enum JVChatInvitationState {
     case none
     case activeBySystem
@@ -118,6 +126,19 @@ extension ChatEntity: JVPresentable {
         }
     }
     
+    var isIncomingAppeal: Bool {
+        guard let relation = attendee?.relation else {
+            return false
+        }
+        
+        if case .invitedBySystem = relation {
+            return true
+        }
+        else {
+            return false
+        }
+    }
+    
     var invitationState: JVChatInvitationState {
         if m_request_cancelled_by_system {
             return .cancelBySystem
@@ -154,6 +175,10 @@ extension ChatEntity: JVPresentable {
         case .cancelByAgent:
             return true
         }
+    }
+    
+    var isResolved: Bool {
+        return m_is_resolved
     }
     
     var agents: [AgentEntity] {
@@ -301,6 +326,55 @@ extension ChatEntity: JVPresentable {
         return .teamchat
     }
     
+    var supportsQuoting: Bool {
+        switch attendee?.relation {
+        case .attendee:
+            return true
+        case .team:
+            return true
+        default:
+            return false
+        }
+    }
+    
+    func doesRelateTo(box: RosterBox) -> Bool {
+        switch box {
+        case .inbox:
+            switch attendee?.relation {
+            case _ where client == nil:
+                return false
+            case _ where isGroup:
+                return false
+            case .invitedByAgent, .invitedBySystem:
+                return true
+            default:
+                return false
+            }
+        case .my:
+            switch attendee?.relation {
+            case _ where client == nil:
+                return false
+            case _ where isGroup:
+                return false
+            case .attendee:
+                return true
+            default:
+                return false
+            }
+        case .team:
+            if case .team = attendee?.relation { return true }
+            return false
+        case .groups:
+            return isGroup
+        case .archive:
+            return attendee == nil
+        }
+    }
+    
+    func typingContext() -> TypingContext {
+        return .init(kind: .chat, ID: ID)
+    }
+    
     func transferredFrom() -> (agent: AgentEntity, comment: String?)? {
         guard let attendee = attendee else { return nil }
         guard case let .attendee(agent, toAssist, comment) = attendee.relation else { return nil }
@@ -402,10 +476,6 @@ extension ChatEntity: JVPresentable {
         else {
             return .assignedToAnother
         }
-    }
-    
-    var isArchived: Bool {
-        return (m_attendee == nil)
     }
 
     var recipient: JVSenderData? {

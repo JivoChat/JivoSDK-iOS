@@ -30,7 +30,9 @@ final class JMTimelineMessageLocationRegion: JMTimelineMessageCanvasRegion {
                 coordinate: info.coordinate,
                 style: JMTimelineCompositeLocationBlockStyle(
                     ratio: JVDesign.layout.defaultMediaRatio
-                ))
+                ),
+                provider: provider,
+                interactor: interactor)
         }
     }
     

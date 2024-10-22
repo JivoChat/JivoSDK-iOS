@@ -45,7 +45,7 @@ final class ChatReplyAttachmentBar: UIScrollView {
         return false
     }
     
-    func update(attachment: ChatPhotoPickerObject) {
+    func update(attachment: PickedAttachmentObject) {
         if let control = controls[attachment.uuid] {
             control.payload = attachment.payload
         }

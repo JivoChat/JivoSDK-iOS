@@ -10,6 +10,7 @@ import Foundation
 import JMRepicKit
 
 enum JMRepicActivity {
+    case chatResolved
     case calling
     case taskActive
     case taskFired
@@ -138,22 +139,33 @@ extension JMRepicView {
                 icon: UIImage(named: "activity_oncall")?.withRenderingMode(.alwaysTemplate),
                 config: .activityIndicatorConfig(context: context)
             )
-
         case .taskActive?:
             setIndicator(
                 fillColor: JVDesign.colors.resolve(usage: .activityActiveTask),
                 icon: UIImage(named: "activity_reminder")?.withRenderingMode(.alwaysTemplate),
                 config: .activityIndicatorConfig(context: context)
             )
-            
         case .taskFired?:
             setIndicator(
                 fillColor: JVDesign.colors.resolve(usage: .activityFiredTask),
                 icon: UIImage(named: "activity_reminder")?.withRenderingMode(.alwaysTemplate),
                 config: .activityIndicatorConfig(context: context)
             )
-            
-        default:
+        case .chatResolved?:
+            if #available(iOS 13.0, *) {
+                setIndicator(
+                    fillColor: JVDesign.colors.resolve(alias: .systemGreen),
+                    icon: UIImage(named: "chat_resolved_icon_mini"),
+                    config: JMRepicIndicatorConfig(
+                        sideProvider: { max(16, $0 * 0.3) },
+                        borderWidthProvider: { max(2, $0 * 0.035) },
+                        borderColor: context.resolvedColor,
+                        contentMarginProvider: { $0 * 0.031 },
+                        contentTintColor: JVDesign.colors.resolve(usage: .white)
+                    )
+                )
+            }
+        case nil:
             setIndicator(
                 fillColor: .clear,
                 icon: nil,

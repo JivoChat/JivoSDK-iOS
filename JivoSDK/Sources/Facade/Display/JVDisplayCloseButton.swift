@@ -10,8 +10,7 @@ import Foundation
 /**
  Close Button look
  */
-@objc(JVDisplayCloseButton)
-public enum JVDisplayCloseButton: Int {
+public enum JVDisplayCloseButton: String, CaseIterable {
     /// No symbol
     case omit
     

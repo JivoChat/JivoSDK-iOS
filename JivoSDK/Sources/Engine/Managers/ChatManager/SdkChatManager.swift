@@ -54,7 +54,7 @@ enum SdkChatEvent {
 
 protocol ISdkChatManager: ISdkManager, ChatTimelineFactoryHistoryDelegate {
     var sessionDelegate: JVSessionDelegate? { get set }
-    var notificationsDelegate: JVNotificationsDelegate? { get set }
+    var notificationsCallbacks: JVNotificationsCallbacks? { get set }
     var eventObservable: JVBroadcastTool<SdkChatEvent> { get }
     var contactInfoStatusObservable: JVBroadcastTool<SdkChatContactInfoStatus> { get }
     var subOffline: ISdkChatSubOffline { get }
@@ -66,7 +66,7 @@ protocol ISdkChatManager: ISdkManager, ChatTimelineFactoryHistoryDelegate {
     func restoreChat()
     func makeAllAgentsOffline()
     func sendTyping(text: String)
-    func sendMessage(trigger: SdkManagerTrigger, text: String, attachments: [ChatPhotoPickerObject]) throws
+    func sendMessage(trigger: SdkManagerTrigger, text: String, attachments: [PickedAttachmentObject]) throws
     func copy(message: MessageEntity)
     func resendMessage(uuid: String)
     func deleteMessage(uuid: String)
@@ -104,7 +104,7 @@ extension RemoteStorageTarget.Purpose {
 
 final class SdkChatManager: SdkManager, ISdkChatManager {
     var sessionDelegate: JVSessionDelegate?
-    var notificationsDelegate: JVNotificationsDelegate?
+    var notificationsCallbacks: JVNotificationsCallbacks?
     let contactInfoStatusObservable = JVBroadcastTool<SdkChatContactInfoStatus>()
     
     private enum HistoryLoadingStrategy {
@@ -354,17 +354,38 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
     }
     
-    func sendMessage(trigger: SdkManagerTrigger, text: String, attachments: [ChatPhotoPickerObject]) throws {
+    func presentChatResolved(chat: ChatEntity?) {
+        guard let chat = chat else { return }
+        
+        let message = subStorage.storeOutgoingMessage(
+            localID: UUID().uuidString.lowercased(),
+            clientID: userContext.clientHash,
+            chatID: chat.ID,
+            type: .chatResolved,
+            content: .chatResolved,
+            status: nil,
+            timing: .regular,
+            orderingIndex: 1
+        )
+        
+        if let message = message {
+            let messageRef = subStorage.reference(to: message)
+            messagingContext.broadcast(event: .messagesUpserted([messageRef]), onQueue: .main)
+        }
+    }
+    
+    
+    func sendMessage(trigger: SdkManagerTrigger, text: String, attachments: [PickedAttachmentObject]) throws {
         thread.async { [unowned self] in
             _sendMessage(trigger: trigger, text: text, attachments: attachments)
         }
     }
     
-    private func _sendMessage(trigger: SdkManagerTrigger, text: String, attachments: [ChatPhotoPickerObject]) {
+    private func _sendMessage(trigger: SdkManagerTrigger, text: String, attachments: [PickedAttachmentObject]) {
         journal {"Sending the message"}
         
         DispatchQueue.main.async { [apnsService] in
-            apnsService.requestForPermission(at: .onSend)
+            apnsService.requestForPermission(at: .clientAction)
         }
         
         guard let chat = chatContext.chatRef?.resolved else {
@@ -482,7 +503,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         ].jv_flatten()
     }
     
-    private func _sendMessage_process(attachments: [ChatPhotoPickerObject]) {
+    private func _sendMessage_process(attachments: [PickedAttachmentObject]) {
         guard jv_not(attachments.isEmpty)
         else {
             return
@@ -879,11 +900,17 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             content.userInfo = userInfo
         }
         
-        if let delegate = notificationsDelegate {
-            if let result = delegate.jivoNotifications(prepareBanner: .shared, content: content, sender: sender, text: text) {
+        if let transformer = notificationsCallbacks?.notificationContentTransformer {
+            let event = JVNotificationsEvent(
+                content: content,
+                sender: sender,
+                text: text
+            )
+            
+            if let newContent = transformer(event) {
                 UNUserNotificationCenter.current().add(UNNotificationRequest(
                     identifier: notificationPrefix + UUID().uuidString,
-                    content: result,
+                    content: newContent,
                     trigger: nil
                 ))
             }
@@ -1035,6 +1062,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             isFirstSessionInitialization = true
             chatContext.chatRef = nil
             globalRateConfig = nil
+            typingCacheService.resetInput(context: .standard)
         }
     }
 
@@ -1148,7 +1176,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         handleMessageTransaction_detectMissingRanges(
             incomingMessages: upsertedMessages.map(\.value).sorted { $0.date < $1.date },
             persistentIds: persistentIds,
-            inmemoryRange: (inmemoryFirstId ... inmemoryLastId))
+            inmemoryRange: (inmemoryFirstId ... inmemoryLastId)
+        )
         
         requestedHistoryPastUids.subtract(upsertedMessages.orderedKeys)
         
@@ -1552,7 +1581,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     private func notificationDidTap(_ sender: SdkClientSubPusherNotification) {
         switch sender {
         case .message where jv_not(Jivo.display.isOnscreen):
-            Jivo.display.delegate?.jivoDisplay(asksToAppear: .shared)
+            Jivo.display.callbacks.asksToAppearHandler()
         default:
             break
         }

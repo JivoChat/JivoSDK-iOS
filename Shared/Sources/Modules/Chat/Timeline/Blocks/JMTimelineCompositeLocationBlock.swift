@@ -23,12 +23,12 @@ final class JMTimelineCompositeLocationBlock: JMTimelineBlock {
     private let internalControl = InternalControl()
     
     private var coordinate: CLLocationCoordinate2D?
-    private var ratio = CGFloat(0)
 
     override init() {
         super.init()
         
         addSubview(internalControl)
+        layer.cornerRadius = Self.defaultCornerRadius
         clipsToBounds = true
         isUserInteractionEnabled = true
         
@@ -45,11 +45,11 @@ final class JMTimelineCompositeLocationBlock: JMTimelineBlock {
         return internalControl.sizeThatFits(size)
     }
     
-    func configure(coordinate value: CLLocationCoordinate2D, style: JMTimelineCompositeLocationBlockStyle) {
-        coordinate = value
-        ratio = style.ratio
+    func configure(coordinate value: CLLocationCoordinate2D, style: JMTimelineCompositeLocationBlockStyle, provider: JVChatTimelineProvider, interactor: JVChatTimelineInteractor) {
+        linkTo(provider: provider, interactor: interactor)
         
-        internalControl.configure(coordinate: value)
+        coordinate = value
+        internalControl.configure(coordinate: value, ratio: style.ratio)
     }
     
     override func layoutSubviews() {
@@ -90,7 +90,9 @@ fileprivate final class InternalControl: MKMapView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(coordinate: CLLocationCoordinate2D) {
+    func configure(coordinate: CLLocationCoordinate2D, ratio: CGFloat) {
+        self.ratio = ratio
+        
         mapType = .standard
         
         region = MKCoordinateRegion(

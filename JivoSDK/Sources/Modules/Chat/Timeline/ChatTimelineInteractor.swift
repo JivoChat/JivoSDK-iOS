@@ -14,6 +14,8 @@ import JMTimelineKit
 import JMMarkdownKit
 
 final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
+    func resolveCurrentChat() { }
+    
     weak var timelineView: UIView?
     var requestMediaHandler: ((URL, String?) -> Void)?
     var tapHandler: ((String, ChatTimelineTap) -> Void)?

@@ -37,6 +37,7 @@ enum APIConnectionCloseCode {
     case sessionEnd
     case blacklist
     case deleted
+    case sanctions
     case missingConnection
     case invalidConnection
     case invalidToken
@@ -46,8 +47,9 @@ enum APIConnectionCloseCode {
         switch self {
         case .connectionBreak: return "connection-break"
         case .sessionEnd: return "session-end"
-        case .blacklist: return "blacklisted"
+        case .blacklist: return "blacklist"
         case .deleted: return "deleted"
+        case .sanctions: return "sanctions"
         case .missingConnection: return "missing-connection"
         case .invalidToken: return "invalid-token"
         case .invalidConnection: return "invalid-connection"
@@ -119,7 +121,7 @@ struct APIAlreadyKeptSet {
     }
 }
 
-struct APICallInvite {
+struct TelephonyCallInvite {
     let ID: String
     let direction: PhoneCallDirection?
     let webhookLink: String
@@ -146,14 +148,14 @@ struct APICallInvite {
         self.phone = phone
     }
     
-    static func parse(json: JsonElement) -> APICallInvite? {
+    static func parse(json: JsonElement) -> TelephonyCallInvite? {
         guard let callID = json["call_id"].string else { return nil }
         guard let webhookLink = json["webhook_url"].string else { return nil }
         guard let token = json["token"].string else { return nil }
         guard let phone = json["phone"].string else { return nil }
         guard let clientID = json["client_id"].int else { return nil }
         
-        return APICallInvite(
+        return TelephonyCallInvite(
             ID: callID,
             direction: .incoming,
             webhookLink: webhookLink,
@@ -164,8 +166,8 @@ struct APICallInvite {
         )
     }
     
-    func copy(phone: String, displayName: String) -> APICallInvite {
-        return APICallInvite(
+    func copy(phone: String, displayName: String) -> TelephonyCallInvite {
+        return TelephonyCallInvite(
             ID: ID,
             direction: direction,
             webhookLink: webhookLink,
@@ -177,7 +179,7 @@ struct APICallInvite {
     }
 }
 
-struct APICallReject {
+struct TelephonyCallReject {
     let callID: String
     let agentID: Int?
     
@@ -186,11 +188,11 @@ struct APICallReject {
         self.agentID = agentID
     }
     
-    static func parse(json: JsonElement) -> APICallReject? {
+    static func parse(json: JsonElement) -> TelephonyCallReject? {
         guard let callID = json["call_id"].string else { return nil }
         let agentID = json["agent_id"].int
 
-        return APICallReject(
+        return TelephonyCallReject(
             callID: callID,
             agentID: agentID
         )
@@ -198,8 +200,8 @@ struct APICallReject {
 }
 
 enum APICallEvent {
-    case invite(APICallInvite, () -> Void)
-    case reject(APICallReject)
+    case invite(TelephonyCallInvite, () -> Void)
+    case reject(TelephonyCallReject)
 }
 
 enum APITaskType: String, APISelectableType {
@@ -256,7 +258,7 @@ struct APIAccount {
     }
 }
 
-struct APIBalance {
+struct TelephonyBalance {
     let amount: Double
     let currency: String
     
@@ -266,7 +268,7 @@ struct APIBalance {
     }
 }
 
-struct APIPhone {
+struct TelephonyPhone {
     let ID: Int
     let active: Bool
     let number: String
@@ -282,62 +284,10 @@ struct APIPhone {
     let sipURI: String?
     let autoChange: Bool?
     let sipStatus: String?
-    
-    init(
-        ID: Int,
-        active: Bool,
-        number: String,
-        countryCode: String,
-        channelID: Int,
-        type: String,
-        status: String,
-        price: Float,
-        nextRenewalDate: String,
-        isSmsSupported: Bool,
-        purchasePrice: Float,
-        ivrAvailable: Bool,
-        sipURI: String?,
-        autoChange: Bool?,
-        sipStatus: String?
-    ) {
-            self.ID = ID
-            self.active = active
-            self.number = number
-            self.countryCode = countryCode
-            self.channelID = channelID
-            self.type = type
-            self.status = status
-            self.price = price
-            self.nextRenewalDate = nextRenewalDate
-            self.isSmsSupported = isSmsSupported
-            self.purchasePrice = purchasePrice
-            self.ivrAvailable = ivrAvailable
-            self.sipURI = sipURI
-            self.autoChange = autoChange
-            self.sipStatus = sipStatus
-        }
 }
 
-struct APITelephony {
-    let phones: [APIPhone]
-    let balance: APIBalance?
-    
-    init(phones: [APIPhone], balance: APIBalance?) {
-        self.phones = phones
-        self.balance = balance
-    }
-}
-
-struct APIPromo {
-    let demoDuration: Int?
-    let callsCount: Int?
-    let minutesCount: Int?
-    let agentsCount: Int?
-
-    init(json: JsonElement) {
-        demoDuration = json["demo_duration"].int
-        callsCount = json["calls_count"].int
-        minutesCount = json["minutes_count"].int
-        agentsCount = json["agents"].int
-    }
+struct TelephonyConfig {
+    let voxNode: String?
+    let phones: [TelephonyPhone]
+    let balance: TelephonyBalance?
 }

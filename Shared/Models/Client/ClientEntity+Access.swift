@@ -127,7 +127,7 @@ extension ClientEntity: JVDisplayable {
         case .none:
             return m_active_session
         case .some(let joint):
-            return joint.isStandalone ? nil : m_active_session
+            return joint.values.isStandalone ? nil : m_active_session
         }
     }
     
@@ -235,5 +235,9 @@ extension ClientEntity: JVDisplayable {
             channelID: channel?.ID,
             task: nil
         )
+    }
+    
+    func typingContext() -> TypingContext {
+        return .standard
     }
 }

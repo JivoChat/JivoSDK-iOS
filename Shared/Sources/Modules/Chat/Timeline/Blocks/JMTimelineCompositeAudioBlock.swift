@@ -26,7 +26,7 @@ struct JMTimelineCompositeAudioStyle: JMTimelineStyle {
 }
 
 struct JMTimelineCompositeAudioStyleExtended: JMTimelineStyle {
-    let backViewColor: UIColor
+    let underlayColor: UIColor
     let buttonTintColor: UIColor
     let buttonBorderColor: UIColor
     let buttonBackgroundColor: UIColor
@@ -37,7 +37,7 @@ struct JMTimelineCompositeAudioStyleExtended: JMTimelineStyle {
 }
 
 final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
-    private let backView = UIView()
+    private let underlay = UIView()
     private let playButton = UIButton()
     private let pauseButton = UIButton()
     private let sliderControl = PlaybackSlider()
@@ -67,9 +67,10 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
         
         clipsToBounds = false
         
-        addSubview(backView)
+        addSubview(underlay)
+        
         addSubview(waveFormView)
-
+        
         let resumeIcon = UIImage(named: "player_resume", in: Bundle(for: JVDesign.self), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
         playButton.setImage(resumeIcon, for: .normal)
         playButton.setImage(resumeIcon, for: .highlighted)
@@ -176,7 +177,7 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
         
         guard let style = extendedStyle else { return }
         
-        backView.backgroundColor = style.backViewColor
+        underlay.backgroundColor = style.underlayColor
         
         playButton.tintColor = style.buttonTintColor
         playButton.layer.borderWidth = 1
@@ -218,16 +219,19 @@ final class JMTimelineCompositeAudioBlock: JMTimelineBlock {
         super.layoutSubviews()
         
         let layout = getLayout(size: bounds.size, type: type)
-        backView.frame = layout.backFrame
+        
+        underlay.frame = bounds
+        underlay.layer.cornerRadius = underlay.frame.height * 0.5
         
         switch type {
         case .audio:
-            backView.layer.cornerRadius = 0
+            underlay.layer.cornerRadius = 0
             waveFormView.isHidden = true
         case .voice(.preview):
-            backView.layer.cornerRadius = layout.backCornerRadius
+            underlay.layer.cornerRadius = layout.buttonCornerRadius
         case .voice(.standard):
-            backView.layer.cornerRadius = 0
+            layer.cornerRadius = self.frame.height * 0.5
+            clipsToBounds = true
         }
         
         playButton.frame = layout.buttonFrame
@@ -454,25 +458,25 @@ fileprivate struct Layout {
     let durationLabel: UILabel
     let type: JMTimelineCompositePlayableItem
     
-    var backFrame: CGRect {
-        return CGRect(x: 5, y: 0, width: buttonSize.width, height: buttonSize.height)
-    }
-    
-    var backCornerRadius: CGFloat {
-        return backFrame.width * 0.5
-    }
-    
     var buttonFrame: CGRect {
-        return backFrame
+        switch type {
+        case .audio, .voice(type: .standard):
+            let size = CGSize(width: 38, height: 38)
+            let buttonSize = JVDesign.fonts.scaled(size, category: .title1)
+            
+            return CGRect(x: 5, y: 5, width: buttonSize.width, height: buttonSize.height)
+        case .voice:
+            return CGRect(x: 0, y: 0, width: bounds.height, height: bounds.height)
+        }
     }
     
     var buttonCornerRadius: CGFloat {
-        return buttonFrame.width * 0.5
+        return buttonFrame.height * 0.5
     }
     
     var sliderControlFrame: CGRect {
         let horizontalPadding = CGFloat(12)
-        let leftX = backFrame.maxX + horizontalPadding
+        let leftX = buttonFrame.maxX + horizontalPadding
         
         switch type {
         case .audio, .voice(type: .standard):
@@ -480,27 +484,30 @@ fileprivate struct Layout {
                 let width = bounds.width - leftX
                 let height = CGFloat(15)
                 let topY = buttonFrame.minY
-                return CGRect(x: leftX,
-                              y: topY,
-                              width: width,
-                              height: height
+                return CGRect(
+                    x: leftX,
+                    y: topY,
+                    width: width - horizontalPadding,
+                    height: height
                 )
             } else {
                 let width = bounds.width - leftX - horizontalPadding
                 let height = CGFloat(15)
-                let topY = backFrame.midY - height + 2
-                return CGRect(x: leftX,
-                              y: topY,
-                              width: width,
-                              height: height
+                let topY = buttonFrame.midY - height + 2
+                return CGRect(
+                    x: leftX,
+                    y: topY,
+                    width: width,
+                    height: height
                 )
             }
         case .voice:
-            let width = durationLabelFrame.minX - backFrame.maxX - horizontalPadding
-            return CGRect(x: backFrame.maxX,
-                          y: bounds.origin.y,
-                          width: width,
-                          height: bounds.height
+            let width = durationLabelFrame.minX - buttonFrame.maxX - (horizontalPadding * 2)
+            return CGRect(
+                x: leftX,
+                y: bounds.origin.y,
+                width: width,
+                height: bounds.height
             )
         }
     }
@@ -512,7 +519,7 @@ fileprivate struct Layout {
             let topY = sliderControlFrame.maxY + 15
             
             if durationLabel.jv_hasText {
-                let leftX = backFrame.maxX + 12.0
+                let leftX = buttonFrame.maxX + 12.0
                 return CGRect(x: leftX,
                               y: buttonFrame.maxY - size.height,
                               width: size.width,
@@ -527,7 +534,7 @@ fileprivate struct Layout {
             label.text = "0:00/0:00"
             label.font = label.font
             let size = label.sizeThatFits(.zero)
-            let topY = backFrame.minY + (backFrame.height - size.height) * 0.5
+            let topY = buttonFrame.minY + (buttonFrame.height - size.height) * 0.5
             let paddingRight = 12.0
             if durationLabel.jv_hasText {
                 return CGRect(
@@ -544,7 +551,7 @@ fileprivate struct Layout {
     }
     
     var totalSize: CGSize {
-        let height = max(buttonSize.height, durationLabelFrame.maxY)
+        let height = max(buttonFrame.maxY + 5, durationLabelFrame.maxY)
         return CGSize(width: bounds.width, height: height)
     }
     
@@ -556,15 +563,9 @@ fileprivate struct Layout {
             height: bounds.height
         )
     }
-    
-    private var buttonSize: CGSize {
-        let size = CGSize(width: 38, height: 38)
-        return JVDesign.fonts.scaled(size, category: .title1)
-    }
 }
 
 fileprivate final class PlaybackSlider: ChatTimelineObservableSlider {
-    
     var inset: CGFloat = -0.5
     
     override func trackRect(forBounds bounds: CGRect) -> CGRect {

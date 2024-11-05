@@ -59,4 +59,6 @@ protocol JVChatTimelineInteractor: JMTimelineInteractor {
     
     func requestHistoryPast(item: JMTimelineItem)
     func requestHistoryFuture(item: JMTimelineItem)
+    
+    func resolveCurrentChat()
 }

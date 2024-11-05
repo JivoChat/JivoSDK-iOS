@@ -45,6 +45,7 @@ protocol ICommonSubStorage: IBaseSubStorage {
     func messageWithID(_ messageID: Int) -> MessageEntity?
     func messageWithUUID(_ messageUUID: String) -> MessageEntity?
     func taskWithID(_ taskID: Int) -> TaskEntity?
+    func obtainChatResolvedMessage() -> MessageEntity?
     func updateChatTermination(chatID: Int, delay: Int)
 }
 
@@ -244,6 +245,11 @@ class CommonSubStorage: BaseSubStorage {
     
     func messageWithUUID(_ messageUUID: String) -> MessageEntity? {
         let key = JVDatabaseModelCustomId(key: "m_uid", value: messageUUID)
+        return databaseDriver.object(MessageEntity.self, customId: key)
+    }
+    
+    func obtainChatResolvedMessage() -> MessageEntity? {
+        let key = JVDatabaseModelCustomId(key: "m_text", value: "chat_resolved")
         return databaseDriver.object(MessageEntity.self, customId: key)
     }
 

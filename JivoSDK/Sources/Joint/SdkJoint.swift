@@ -16,14 +16,14 @@ import SwiftUI
 protocol ISdkJoint {
     var isDisplaying: Bool { get }
     func modifyConfig(block: (inout SdkInputConfig) -> Void)
-    func push(into navigationController: UINavigationController, displayDelegate: JVDisplayDelegate?) -> JVSessionHandle
-    func place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton, displayDelegate: JVDisplayDelegate?) -> JVSessionHandle
-    func present(over viewController: UIViewController, displayDelegate: JVDisplayDelegate?) -> JVSessionHandle
+    func push(into navigationController: UINavigationController, displayCallbacks: JVDisplayCallbacks?) -> JVSessionHandle
+    func place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton, displayCallbacks: JVDisplayCallbacks?) -> JVSessionHandle
+    func present(over viewController: UIViewController, displayCallbacks: JVDisplayCallbacks?) -> JVSessionHandle
     func close(animated: Bool)
     
     #if canImport(SwiftUI)
     @available(iOS 13.0, *)
-    func makeScreen(presentation: JVDisplayScreenPresentation, displayDelegate: JVDisplayDelegate?) -> JVDisplayWrapper
+    func makeScreen(presentation: JVDisplayScreenPresentation, displayCallbacks: JVDisplayCallbacks?) -> JVDisplayWrapper
     #endif
 }
 
@@ -41,7 +41,7 @@ class SdkJoint: ISdkJoint {
     
     private let navigator: IRTNavigator
     private var config = SdkInputConfig()
-    private lazy var uiConfig = buildChatModuleVisualConfig(from: SdkInputConfig(), displayDelegate: nil)
+    private lazy var uiConfig = buildChatModuleVisualConfig(from: SdkInputConfig(), displayCallbacks: nil)
     private weak var chatModuleJoint: ChatModuleJoint?
     private var navigationBarSnapshot: UINavigationController.BarSnapshot?
     private var tabBarSnapshot: UITabBarController.BarSnapshot?
@@ -79,24 +79,25 @@ class SdkJoint: ISdkJoint {
         block(&config)
     }
     
-    func push(into navigationController: UINavigationController, displayDelegate: JVDisplayDelegate?) -> JVSessionHandle {
-        adjustUI(displayDelegate: displayDelegate)
+    func push(into navigationController: UINavigationController, displayCallbacks: JVDisplayCallbacks?) -> JVSessionHandle {
+        let reducer = generateReducer(displayCallbacks: displayCallbacks) { [weak self] in
+            if let snapshot = self?.navigationBarSnapshot {
+                navigationController.restoreBarConfiguration(snapshot: snapshot)
+            }
+        }
         
         let module = navigator.push(into: .native(navigationController), animate: true) {
-            ChatModuleBuilder(
+            adjustUI(displayCallbacks: displayCallbacks)
+            return ChatModuleBuilder(
                 uiConfig: uiConfig,
-                timelineConfig: makeTimelineConfig(input: config, displayDelegate: displayDelegate),
+                timelineConfig: makeTimelineConfig(input: config, displayCallbacks: displayCallbacks),
                 closeButton: .back,
-                reducer: generateReducer(displayDelegate: displayDelegate) { [weak self] in
-                    if let snapshot = self?.navigationBarSnapshot {
-                        navigationController.restoreBarConfiguration(snapshot: snapshot)
-                    }
-                }
+                reducer: reducer
             )
         }
     
         navigationBarSnapshot = navigationController.configureBar()
-        displayDelegate.jv_customizeHeader(
+        displayCallbacks.jv_customizeHeader(
             navigationBar: navigationController.navigationBar,
             navigationItem: module.view.navigationItem)
 
@@ -112,21 +113,24 @@ class SdkJoint: ISdkJoint {
         return prepareTemporarySessionHandle()
     }
     
-    func place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton, displayDelegate: JVDisplayDelegate?) -> JVSessionHandle {
-        adjustUI(displayDelegate: displayDelegate)
+    func place(within navigationController: UINavigationController, closeButton: JVDisplayCloseButton, displayCallbacks: JVDisplayCallbacks?) -> JVSessionHandle {
+        let reducer = generateReducer(displayCallbacks: displayCallbacks) {
+            // dismissal
+        }
         
         let module = navigator.replace(inside: .native(navigationController)) {
-            ChatModuleBuilder(
+            adjustUI(displayCallbacks: displayCallbacks)
+            return ChatModuleBuilder(
                 uiConfig: uiConfig,
-                timelineConfig: makeTimelineConfig(input: config, displayDelegate: displayDelegate),
+                timelineConfig: makeTimelineConfig(input: config, displayCallbacks: displayCallbacks),
                 closeButton: closeButton,
-                reducer: generateReducer(displayDelegate: displayDelegate, dismissalHandler: nil)
+                reducer: reducer
             )
         }
         
         //        navigationController.configureTabBarItem()
         navigationController.configureModality()
-        displayDelegate.jv_customizeHeader(
+        displayCallbacks.jv_customizeHeader(
             navigationBar: navigationController.navigationBar,
             navigationItem: module.view.navigationItem)
         
@@ -138,21 +142,24 @@ class SdkJoint: ISdkJoint {
         return prepareTemporarySessionHandle()
     }
     
-    func present(over viewController: UIViewController, displayDelegate: JVDisplayDelegate?) -> JVSessionHandle {
-        adjustUI(displayDelegate: displayDelegate)
+    func present(over viewController: UIViewController, displayCallbacks: JVDisplayCallbacks?) -> JVSessionHandle {
+        let reducer = generateReducer(displayCallbacks: displayCallbacks) {
+            // dismissal
+        }
         
         let built = navigator.build {
-            ChatModuleBuilder(
+            adjustUI(displayCallbacks: displayCallbacks)
+            return ChatModuleBuilder(
                 uiConfig: uiConfig,
-                timelineConfig: makeTimelineConfig(input: config, displayDelegate: displayDelegate),
+                timelineConfig: makeTimelineConfig(input: config, displayCallbacks: displayCallbacks),
                 closeButton: .dismiss,
-                reducer: generateReducer(displayDelegate: displayDelegate, dismissalHandler: nil)
+                reducer: reducer
             )
         }
         
         let container = JVNavigationContainer(rootViewController: built.view)
         container.configureModality()
-        displayDelegate.jv_customizeHeader(
+        displayCallbacks.jv_customizeHeader(
             navigationBar: container.navigationBar,
             navigationItem: built.view.navigationItem)
         
@@ -169,25 +176,28 @@ class SdkJoint: ISdkJoint {
     
     #if canImport(SwiftUI)
     @available(iOS 13.0, *)
-    func makeScreen(presentation: JVDisplayScreenPresentation, displayDelegate: JVDisplayDelegate?) -> JVDisplayWrapper {
-        adjustUI(displayDelegate: displayDelegate)
+    func makeScreen(presentation: JVDisplayScreenPresentation, displayCallbacks: JVDisplayCallbacks?) -> JVDisplayWrapper {
+        let reducer = generateReducer(displayCallbacks: displayCallbacks) {
+            // dismissal
+        }
         
         let closeButton: JVDisplayCloseButton = switch presentation {
             case .modal: .dismiss
         }
         
         let built = navigator.build {
-            ChatModuleBuilder(
+            adjustUI(displayCallbacks: displayCallbacks)
+            return ChatModuleBuilder(
                 uiConfig: uiConfig,
-                timelineConfig: makeTimelineConfig(input: config, displayDelegate: displayDelegate),
+                timelineConfig: makeTimelineConfig(input: config, displayCallbacks: displayCallbacks),
                 closeButton: closeButton,
-                reducer: generateReducer(displayDelegate: displayDelegate, dismissalHandler: nil)
+                reducer: reducer
             )
         }
         
         let container = JVNavigationContainer(rootViewController: built.view)
         container.configureModality()
-        displayDelegate.jv_customizeHeader(
+        displayCallbacks.jv_customizeHeader(
             navigationBar: container.navigationBar,
             navigationItem: built.view.navigationItem)
         
@@ -219,9 +229,9 @@ class SdkJoint: ISdkJoint {
         }
     }
     
-    private func adjustUI(displayDelegate: JVDisplayDelegate?) {
+    private func adjustUI(displayCallbacks: JVDisplayCallbacks?) {
         engine.providers.localeProvider.activeLocale = config.locale ?? .autoupdatingCurrent
-        uiConfig = buildChatModuleVisualConfig(from: config, displayDelegate: displayDelegate)
+        uiConfig = buildChatModuleVisualConfig(from: config, displayCallbacks: displayCallbacks)
         engine.managers.chatManager.subOffline.customText = uiConfig.offlineMessage.jv_valuable
         engine.managers.chatManager.subHello.customText = uiConfig.helloMessage.jv_valuable
     }
@@ -237,89 +247,113 @@ class SdkJoint: ISdkJoint {
         return sessionHandle
     }
     
-    private func buildChatModuleVisualConfig(from config: SdkInputConfig, displayDelegate: JVDisplayDelegate?) -> SdkChatModuleVisualConfig {
+    private func buildChatModuleVisualConfig(from config: SdkInputConfig, displayCallbacks: JVDisplayCallbacks?) -> SdkChatModuleVisualConfig {
         return SdkChatModuleVisualConfig(
-            icon: displayDelegate.jv_defineImage(
-                forElement: .headerIcon,
-                fallback: config.customizationImageMapping[.headerIcon] ?? JVDesign.icons.find(asset: .agentAvatarIcon, rendering: .original).jv_orEmpty),
-            titleCaption: displayDelegate.jv_defineText(
-                forElement: .headerTitle,
-                fallback: config.customizationTextMapping[.headerTitle] ?? loc["JV_ChatNavigation_HeaderTitle_Default", "chat_title_placeholder"]),
-            titleColor: displayDelegate.jv_defineColor(
-                forElement: .headerTitle,
-                fallback: config.customizationColorMapping[.headerTitle] ?? .dynamicTitle),
-            subtitleCaption: displayDelegate.jv_defineText(
-                forElement: .headerSubtitle,
-                fallback: config.customizationTextMapping[.headerSubtitle] ?? loc["JV_ChatNavigation_HeaderSubtitle_Default", "chat_subtitle_placeholder"]),
-            subtitleColor: displayDelegate.jv_defineColor(
-                forElement: .headerSubtitle,
-                fallback: config.customizationColorMapping[.headerSubtitle] ?? .dynamicSubtitle),
-            inputPlaceholder: displayDelegate.jv_defineText(
-                forElement: .replyPlaceholder,
-                fallback: config.customizationTextMapping[.replyPlaceholder] ?? loc["JV_ChatInput_Message_Placeholder", "input_message_placeholder"]),
-            inputPrefill: displayDelegate.jv_defineText(
-                forElement: .replyPrefill,
-                fallback: config.customizationTextMapping[.replyPrefill] ?? String()),
-            helloMessage: displayDelegate.jv_defineText(
-                forElement: .messageHello,
-                fallback: config.customizationTextMapping[.messageHello] ?? String()),
-            offlineMessage: displayDelegate.jv_defineText(
-                forElement: .messageOffline,
-                fallback: config.customizationTextMapping[.messageOffline] ?? loc["JV_ChatTimeline_SystemMessage_OfflineDefault", "offline_message_placeholder"]),
-            attachCamera: displayDelegate.jv_defineText(
-                forElement: .attachCamera,
-                fallback: config.customizationTextMapping[.attachCamera] ?? loc["JV_ChatInput_MenuAttach_Camera", "Media.Picker.Camera"]),
-            attachLibrary: displayDelegate.jv_defineText(
-                forElement: .attachLibrary,
-                fallback: config.customizationTextMapping[.attachLibrary] ?? loc["JV_ChatInput_MenuAttach_Gallery", "media_upload_attachment_type_selecting_photo"]),
-            attachFile: displayDelegate.jv_defineText(
-                forElement: .attachFile,
-                fallback: config.customizationTextMapping[.attachFile] ?? loc["JV_ChatInput_MenuAttach_Document", "media_upload_attachment_type_selecting_document"]),
-            replyMenuExtraItems: config.extraMenuItems[.attach, default: Array()],
+            icon: config.customizationImageMapping[
+                .headerIcon,
+                default: JVDesign.icons.find(asset: .agentAvatarIcon, rendering: .original).jv_orEmpty
+            ],
+            titleCaption: config.customizationTextMapping[
+                .headerTitle,
+                default: loc["JV_ChatNavigation_HeaderTitle_Default", "chat_title_placeholder"]
+            ],
+            titleColor: config.customizationColorMapping[
+                .headerTitle,
+                default: .dynamicTitle
+            ],
+            subtitleCaption: config.customizationTextMapping[
+                .headerSubtitle,
+                default: loc["JV_ChatNavigation_HeaderSubtitle_Default", "chat_subtitle_placeholder"]
+            ],
+            subtitleColor: config.customizationColorMapping[
+                .headerSubtitle,
+                default: .dynamicSubtitle
+            ],
+            inputPlaceholder: config.customizationTextMapping[
+                .replyPlaceholder,
+                default: loc["JV_ChatInput_Message_Placeholder", "input_message_placeholder"]
+            ],
+            inputPrefill: config.customizationTextMapping[
+                .replyPrefill,
+                default: .jv_empty
+            ],
+            helloMessage: config.customizationTextMapping[
+                .messageWelcome,
+                default: .jv_empty
+            ],
+            offlineMessage: config.customizationTextMapping[
+                .messageOffline,
+                default: loc["JV_ChatTimeline_SystemMessage_OfflineDefault", "offline_message_placeholder"]
+            ],
+            attachCamera: config.customizationTextMapping[
+                .attachCamera,
+                default: loc["JV_ChatInput_MenuAttach_Camera", "Media.Picker.Camera"]
+            ],
+            attachLibrary: config.customizationTextMapping[
+                .attachLibrary,
+                default: loc["JV_ChatInput_MenuAttach_Gallery", "media_upload_attachment_type_selecting_photo"]
+            ],
+            attachFile: config.customizationTextMapping[
+                .attachFile,
+                default: loc["JV_ChatInput_MenuAttach_Document", "media_upload_attachment_type_selecting_document"]
+            ],
+            replyMenuExtraItems: config.extraMenuItems[
+                .attach,
+                default: .jv_empty
+            ],
             replyMenuCustomHandler: { index in
                 config.extraMenuHandlers[.attach]?(index)
             },
-            replyCursorColor: displayDelegate.jv_defineColor(
-                forElement: .outgoingElements,
-                fallback: config.customizationColorMapping[.outgoingElements] ?? JVDesign.colors.resolve(usage: .accentGreen))
+            replyCursorColor: config.customizationColorMapping[
+                .outgoingElements,
+                default: JVDesign.colors.resolve(usage: .accentGreen)
+            ]
         )
     }
     
-    private func makeTimelineConfig(input config: SdkInputConfig, displayDelegate: JVDisplayDelegate?) -> ChatTimelineVisualConfig {
+    private func makeTimelineConfig(input config: SdkInputConfig, displayCallbacks: JVDisplayCallbacks?) -> ChatTimelineVisualConfig {
         return ChatTimelineVisualConfig(
             outcomingPalette: .init(
-                backgroundColor: displayDelegate.jv_defineColor(
-                    forElement: .outgoingElements,
-                    fallback: config.customizationColorMapping[.outgoingElements] ?? JVDesign.colors.resolve(usage: .accentGreen)),
+                backgroundColor: config.customizationColorMapping[
+                    .outgoingElements,
+                    default: JVDesign.colors.resolve(usage: .accentGreen)
+                ],
                 foregroundColor: .white,
-                buttonsTintColor: displayDelegate.jv_defineColor(
-                    forElement: .outgoingElements,
-                    fallback: config.customizationColorMapping[.outgoingElements] ?? JVDesign.colors.resolve(usage: .accentGreen))
+                buttonsTintColor: config.customizationColorMapping[
+                    .outgoingElements,
+                    default: JVDesign.colors.resolve(usage: .accentGreen)
+                ]
             ),
             rateForm: .init(
-                preSubmitTitle: displayDelegate.jv_defineText(
-                    forElement: .rateFormPreSubmitTitle,
-                    fallback: config.customizationTextMapping[.rateFormPreSubmitTitle] ?? loc["JV_RateForm_HeaderTitle_BeforeSubmission", "rate_form.title"]),
-                postSubmitTitle: displayDelegate.jv_defineText(
-                    forElement: .rateFormPostSubmitTitle,
-                    fallback: config.customizationTextMapping[.rateFormPostSubmitTitle] ?? loc["JV_RateForm_HeaderTitle_AfterSubmission", "rate_form.finish_title"]),
-                commentPlaceholder: displayDelegate.jv_defineText(
-                    forElement: .rateFormCommentPlaceholder,
-                    fallback: config.customizationTextMapping[.rateFormCommentPlaceholder] ?? loc["JV_RateForm_CommentField_Legend", "rate_form.comment_title"]),
-                submitCaption: displayDelegate.jv_defineText(
-                    forElement: .rateFormSubmitCaption,
-                    fallback: config.customizationTextMapping[.rateFormSubmitCaption] ?? loc["JV_RateForm_SubmitButton_Caption", "rate_form.send"])
+                preSubmitTitle: config.customizationTextMapping[
+                    .rateFormPreSubmitTitle,
+                    default: loc["JV_RateForm_HeaderTitle_BeforeSubmission", "rate_form.title"]
+                ],
+                postSubmitTitle: config.customizationTextMapping[
+                    .rateFormPostSubmitTitle,
+                    default: loc["JV_RateForm_HeaderTitle_AfterSubmission", "rate_form.finish_title"]
+                ],
+                commentPlaceholder: config.customizationTextMapping[
+                    .rateFormCommentPlaceholder,
+                    default: loc["JV_RateForm_CommentField_Legend", "rate_form.comment_title"]
+                ],
+                submitCaption: config.customizationTextMapping[
+                    .rateFormSubmitCaption,
+                    default: loc["JV_RateForm_SubmitButton_Caption", "rate_form.send"]
+                ]
             )
         )
     }
     
-    private func generateReducer(displayDelegate: JVDisplayDelegate?, dismissalHandler: (() -> Void)?) -> RTNavigatorDestination<ChatModule>.Reducer<ChatModuleJointOutput> {
-        return { [weak displayDelegate] output in
+    private func generateReducer(displayCallbacks: JVDisplayCallbacks?, dismissalHandler: (() -> Void)?) -> RTNavigatorDestination<ChatModule>.Reducer<ChatModuleJointOutput> {
+        displayCallbacks?.willAppearHandler()
+        
+        return { [weak displayCallbacks] output in
             switch output {
             case .started:
-                displayDelegate?.jivoDisplay(willAppear: .shared)
+                break
             case .finished:
-                displayDelegate?.jivoDisplay(didDisappear: .shared)
+                displayCallbacks?.didDisappearHandler()
             case .dismiss:
                 dismissalHandler?()
             }
@@ -391,9 +425,9 @@ fileprivate extension UITabBarController {
     }
 }
 
-fileprivate extension Optional where Wrapped == JVDisplayDelegate {
+fileprivate extension Optional where Wrapped == JVDisplayCallbacks {
     func jv_customizeHeader(navigationBar: UINavigationBar, navigationItem: UINavigationItem) {
-        if let _ = self?.jivoDisplay?(customizeHeader: .shared, navigationBar: navigationBar, navigationItem: navigationItem) {
+        if let _ = self?.customizeHeaderHandler(navigationBar, navigationItem) {
             return
         }
         else if #available(iOS 13.0, *) {
@@ -408,18 +442,6 @@ fileprivate extension Optional where Wrapped == JVDisplayDelegate {
                 navigationItem.compactScrollEdgeAppearance = config
             }
         }
-    }
-    
-    func jv_defineText(forElement element: JVDisplayElement, fallback: String) -> String {
-        return self?.jivoDisplay?(defineText: .shared, forElement: element) ?? fallback
-    }
-    
-    func jv_defineColor(forElement element: JVDisplayElement, fallback: UIColor) -> UIColor {
-        return self?.jivoDisplay?(defineColor: .shared, forElement: element) ?? fallback
-    }
-    
-    func jv_defineImage(forElement element: JVDisplayElement, fallback: UIImage) -> UIImage {
-        return self?.jivoDisplay?(defineImage: .shared, forElement: element) ?? fallback
     }
 }
 

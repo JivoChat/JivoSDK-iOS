@@ -302,7 +302,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     }
     
     private func _startUp_perform() {
-        apnsService.requestForPermission(at: .onConnect)
+        apnsService.requestForPermission(at: .sessionSetup)
         
         if sessionContext.raise(connectionState: .identifying) {
             _requestConfig()
@@ -644,6 +644,8 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
 //        case (.connectionBreak, .unknown):
 //            sessionContext.authorizationState = .unavailable
         case (.blacklist, _):
+            sessionContext.authorizationState = .unavailable
+        case (.sanctions, _):
             sessionContext.authorizationState = .unavailable
         default:
             break

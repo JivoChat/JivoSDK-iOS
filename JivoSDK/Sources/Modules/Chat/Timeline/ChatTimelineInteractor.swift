@@ -14,6 +14,8 @@ import JMTimelineKit
 import JMMarkdownKit
 
 final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
+    func resolveCurrentChat() { }
+    
     weak var timelineView: UIView?
     var requestMediaHandler: ((URL, String?) -> Void)?
     var tapHandler: ((String, ChatTimelineTap) -> Void)?
@@ -69,6 +71,9 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
     }
     
     func stopPlayingAllMedias() {
+    }
+    
+    func toggleTranslation(uuid: String) {
     }
     
     func toggleMessageReaction(uuid: String, emoji: String) {
@@ -295,6 +300,11 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
     }
     
     func requestHistoryFuture(item: JMTimelineItem) {
+    }
+    
+    func activatePrechat(caption: String) {
+        chatManager.dismissPrechat()
+        try? chatManager.sendMessage(trigger: .ui, text: caption, attachments: .jv_empty)
     }
     
     override func canPerformAction(_ action: Selector, withSender sender: Any?) -> Bool {

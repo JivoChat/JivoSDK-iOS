@@ -41,10 +41,12 @@ extension UIView {
         }
     }
     
-    func jv_addShadow(shadowColor: CGColor = JVDesign.colors.resolve(usage: .dimmingShadow).cgColor,
-                      shadowOffset: CGSize = CGSize.zero,
-                      shadowOpacity: Float = 1.0,
-                      shadowRadius: CGFloat = 8.0) {
+    func jv_addShadow(
+        shadowColor: CGColor = JVDesign.colors.resolve(usage: .dimmingShadow).cgColor,
+        shadowOffset: CGSize = CGSize.zero,
+        shadowOpacity: Float = 1.0,
+        shadowRadius: CGFloat = 8.0
+    ) {
         layer.shadowColor = shadowColor
         layer.shadowOffset = shadowOffset
         layer.shadowOpacity = shadowOpacity

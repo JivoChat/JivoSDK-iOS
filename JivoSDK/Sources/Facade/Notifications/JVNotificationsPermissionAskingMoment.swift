@@ -10,18 +10,17 @@ import Foundation
 /**
  Moment to request access to Push Notifications
  */
-@objc(JVNotificationsPermissionAskingMoment)
-public enum JVNotificationsPermissionAskingMoment: Int {
+public enum JVNotificationsPermissionAskingMoment: String, CaseIterable {
     /// Don't ask ever
     case never
     
     /// Ask when connected to Jivo
-    /// in ``JivoSDKSession/startUp(channelID:userToken:)`` call
-    case onConnect
+    /// in ``JVSessionController/setup(widgetID:clientIdentity:)`` call
+    case sessionSetup // previously "onConnect"
     
     /// Ask when JivoSDK becomes onscreen
-    case onAppear
+    case displayOnscreen // previously "onAppear"
     
-    /// Ask when user sends a message
-    case onSend
+    /// Ask when user performs any action (like sending a message)
+    case clientAction // previously "onSend"
 }

@@ -12,6 +12,15 @@ extension Dictionary {
     static var jv_empty: Self {
         return .init()
     }
+    
+    func jv_value(forKey key: Key, locking mutex: NSRecursiveLock) -> Value? {
+        mutex.lock()
+        defer {
+            mutex.unlock()
+        }
+        
+        return self[key]
+    }
 }
 
 func +<K, V>(first: Dictionary<K, V>, second: Dictionary<K, V>) -> Dictionary<K, V> {

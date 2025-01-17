@@ -95,6 +95,10 @@ extension GuestEntity: JVDisplayable {
         return m_source_ip?.jv_valuable
     }
     
+    func typingContext() -> TypingContext {
+        return .standard
+    }
+    
     func displayName(kind: JVDisplayNameKind) -> String {
         switch kind {
         case .original where m_name.jv_orEmpty.isEmpty:

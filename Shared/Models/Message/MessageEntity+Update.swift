@@ -199,6 +199,7 @@ extension MessageEntity {
             m_text = c.text.jv_trimmed()
             m_body = context.insert(of: MessageBodyEntity.self, with: c.body, validOnly: true)
             m_media = context.insert(of: MessageMediaEntity.self, with: c.media, validOnly: true)
+            m_referral_source = context.insert(of: ReferralSourceEntity.self, with: c.referralSource, validOnly: true)
             m_quoted_message = context.upsert(of: MessageEntity.self, with: c.quote)
 
             let updatedReactions = try? PropertyListEncoder().encode(c.reactions)
@@ -228,6 +229,7 @@ extension MessageEntity {
             m_is_markdown = false
             m_text = c.text.jv_trimmed()
             m_media = context.insert(of: MessageMediaEntity.self, with: c.media, validOnly: true)
+            m_referral_source = context.insert(of: ReferralSourceEntity.self, with: c.referralSource, validOnly: true)
 
             if let date = c.time.jv_parseDateUsingFullFormat() {
                 m_date = m_date_freezed ? m_date : date
@@ -265,6 +267,7 @@ extension MessageEntity {
             m_is_markdown = c.isMarkdown
             m_body = context.insert(of: MessageBodyEntity.self, with: c.body, validOnly: true)
             m_media = context.insert(of: MessageMediaEntity.self, with: c.media, validOnly: true)
+            m_referral_source = context.insert(of: ReferralSourceEntity.self, with: c.referralSource, validOnly: true)
             m_is_offline = c.isOffline
             m_updated_agent = c.updatedBy.flatMap { context.agent(for: $0, provideDefault: false) }
             m_updated_timepoint = c.updatedTs ?? 0
@@ -288,6 +291,7 @@ extension MessageEntity {
             m_text = c.text.jv_trimmed()
             m_sender_client = context.object(ClientEntity.self, primaryId: c.clientID)
             m_media = context.insert(of: MessageMediaEntity.self, with: c.media, validOnly: true)
+            m_referral_source = context.insert(of: ReferralSourceEntity.self, with: c.referralSource, validOnly: true)
             m_quoted_message = context.upsert(of: MessageEntity.self, with: c.quote)
 
             _adjustBotMeta(text: c.text)
@@ -366,6 +370,10 @@ extension MessageEntity {
             }
 
             switch c.contents {
+            case .chatResolved:
+                m_text = "chat_resolved"
+                m_must_be_sent = false
+                
             case .text(let text):
                 m_text = text.jv_trimmed()
                 
@@ -425,6 +433,9 @@ extension MessageEntity {
                 
             case .rateForm(let status):
                 m_text = status.rawValue
+                
+            case .location:
+                m_text = "🌍 " + loc["Message.Preview.Location"]
             }
             
             _adjustSender(type: c.senderType, ID: c.senderID, body: nil)
@@ -786,6 +797,7 @@ class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
     public let text: String
     public let status: String
     public let media: JVMessageMediaGeneralChange?
+    public let referralSource: ReferralSourceGeneralChange?
     public let updatedBy: Int?
     public let updatedTs: TimeInterval?
     public let reactions: [JVMessageReaction]
@@ -808,6 +820,7 @@ class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
          status: String,
          body: JVMessageBodyGeneralChange?,
          media: JVMessageMediaGeneralChange?,
+         referralSource: ReferralSourceGeneralChange?,
          quote: JVMessageQuoteChange?,
          updatedBy: Int?,
          updatedTs: TimeInterval?,
@@ -820,6 +833,7 @@ class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
         self.text = text
         self.status = status
         self.media = media
+        self.referralSource = referralSource
         self.updatedBy = updatedBy
         self.updatedTs = updatedTs
         self.reactions = reactions
@@ -844,6 +858,7 @@ class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
         text = json["text"].stringValue
         status = extractStatus(primary: json["statuses"].arrayValue, secondary: json["status"])
         media = json["media"].parse()
+        referralSource = json["media"].parse()
         updatedBy = json["updated_by"].int
         updatedTs = json["updated_ts"].double
         reactions = parseReactions(json["reactions"])
@@ -878,6 +893,7 @@ class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
             status: status,
             body: body,
             media: media,
+            referralSource: referralSource,
             quote: quote,
             updatedBy: updatedBy,
             updatedTs: updatedTs,
@@ -900,6 +916,7 @@ class JVMessageGeneralChange: JVMessageExtendedGeneralChange {
             status: status,
             body: body,
             media: media,
+            referralSource: referralSource,
             quote: quote,
             updatedBy: updatedBy,
             updatedTs: updatedTs,
@@ -928,6 +945,7 @@ final class JVMessageQuoteChange: JVMessageGeneralChange {
             status: status,
             body: body,
             media: media,
+            referralSource: referralSource,
             quote: quote,
             updatedBy: updatedBy,
             updatedTs: updatedTs,
@@ -946,6 +964,7 @@ final class JVMessageShortChange: JVDatabaseModelChange {
     public let isMarkdown: Bool
     public let time: String
     public let media: JVMessageMediaGeneralChange?
+    public let referralSource: ReferralSourceGeneralChange?
 
     override var primaryValue: Int {
         abort()
@@ -968,7 +987,8 @@ final class JVMessageShortChange: JVDatabaseModelChange {
          text: String,
          isMarkdown: Bool,
          time: String,
-         media: JVMessageMediaGeneralChange?) {
+         media: JVMessageMediaGeneralChange?,
+         referralSource: ReferralSourceGeneralChange?) {
         self.ID = ID
         self.clientID = clientID
         self.chatID = chatID
@@ -978,6 +998,7 @@ final class JVMessageShortChange: JVDatabaseModelChange {
         self.isMarkdown = isMarkdown
         self.time = time
         self.media = media
+        self.referralSource = referralSource
         super.init()
     }
 
@@ -991,6 +1012,7 @@ final class JVMessageShortChange: JVDatabaseModelChange {
         isMarkdown = json["is_markdown"].boolValue
         time = json["time"].stringValue
         media = json["media"].parse()
+        referralSource = json["media"].parse()
         super.init(json: json)
     }
     
@@ -1004,7 +1026,8 @@ final class JVMessageShortChange: JVDatabaseModelChange {
             text: text,
             isMarkdown: isMarkdown,
             time: time,
-            media: media)
+            media: media,
+            referralSource: referralSource)
     }
 }
 
@@ -1014,6 +1037,7 @@ final class JVMessageLocalChange: JVMessageExtendedGeneralChange {
     public let senderID: Int
     public let text: String
     public let media: JVMessageMediaGeneralChange?
+    public let referralSource: ReferralSourceGeneralChange?
     public let updatedBy: Int?
     public let updatedTs: TimeInterval?
     public let isDeleted: Bool
@@ -1033,6 +1057,7 @@ final class JVMessageLocalChange: JVMessageExtendedGeneralChange {
          creationTS: TimeInterval,
          body: JVMessageBodyGeneralChange?,
          media: JVMessageMediaGeneralChange?,
+         referralSource: ReferralSourceGeneralChange?,
          quote: JVMessageQuoteChange?,
          isOffline: Bool,
          updatedBy: Int?,
@@ -1043,6 +1068,7 @@ final class JVMessageLocalChange: JVMessageExtendedGeneralChange {
         self.senderID = senderID
         self.text = text
         self.media = media
+        self.referralSource = referralSource
         self.updatedBy = updatedBy
         self.updatedTs = updatedTs
         self.isDeleted = isDeleted
@@ -1064,6 +1090,7 @@ final class JVMessageLocalChange: JVMessageExtendedGeneralChange {
         senderID = json["from_id"].intValue
         text = json["text"].stringValue
         media = json["media"].parse()
+        referralSource = json["media"].parse()
         updatedBy = json["updated_by"].int
         updatedTs = json["updated_ts"].double
         isDeleted = json["deleted"].boolValue
@@ -1083,6 +1110,7 @@ final class JVMessageLocalChange: JVMessageExtendedGeneralChange {
             creationTS: creationTS,
             body: body,
             media: media,
+            referralSource: referralSource,
             quote: quote,
             isOffline: isOffline,
             updatedBy: updatedBy,
@@ -1103,6 +1131,7 @@ final class JVMessageLocalChange: JVMessageExtendedGeneralChange {
             creationTS: creationTS,
             body: body,
             media: media,
+            referralSource: referralSource,
             quote: quote,
             isOffline: isOffline,
             updatedBy: updatedBy,
@@ -1118,6 +1147,7 @@ final class JVMessageFromClientChange: JVDatabaseModelChange {
     public let chatID: Int
     public let text: String
     public let media: JVMessageMediaGeneralChange?
+    let referralSource: ReferralSourceGeneralChange?
     let quote: JVMessageQuoteChange?
 
     override var primaryValue: Int {
@@ -1128,13 +1158,14 @@ final class JVMessageFromClientChange: JVDatabaseModelChange {
         return JVDatabaseModelCustomId(key: "m_id", value: ID)
     }
     
-    init(ID: Int, channelID: Int, clientID: Int, chatID: Int, text: String, media: JVMessageMediaGeneralChange?, quote: JVMessageQuoteChange?) {
+    init(ID: Int, channelID: Int, clientID: Int, chatID: Int, text: String, media: JVMessageMediaGeneralChange?, referralSource: ReferralSourceGeneralChange?, quote: JVMessageQuoteChange?) {
         self.ID = ID
         self.channelID = channelID
         self.clientID = clientID
         self.chatID = chatID
         self.text = text
         self.media = media
+        self.referralSource = referralSource
         self.quote = quote
         super.init()
     }
@@ -1146,6 +1177,7 @@ final class JVMessageFromClientChange: JVDatabaseModelChange {
         chatID = json["chat_id"].intValue
         text = json["message"].stringValue
         media = json["media"].parse()
+        referralSource = json["media"].parse()
         quote = json["replied_message"].parse(model: JVMessageQuoteChange.self)?.copy(nesting: json)
         super.init(json: json)
     }
@@ -1158,6 +1190,7 @@ final class JVMessageFromClientChange: JVDatabaseModelChange {
             chatID: chatID,
             text: text,
             media: media,
+            referralSource: referralSource,
             quote: quote
         )
     }

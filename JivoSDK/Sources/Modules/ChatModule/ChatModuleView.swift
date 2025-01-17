@@ -40,7 +40,7 @@ final class JVChatModuleNavigationController
     init(
         pipeline: RTEModulePipelineViewNotifier<ChatModuleViewIntent>,
         keyboardAnchorControl: KeyboardAnchorControl,
-        timelineController: JMTimelineController<ChatTimelineInteractor>,
+        timelineController: JMTimelineController<ChatHistoryConfig, ChatTimelineInteractor>,
         timelineInteractor: ChatTimelineInteractor,
         timelineLoaderItem: JMTimelineItem,
         uiConfig: SdkChatModuleVisualConfig,
@@ -77,7 +77,7 @@ final class JVChatModuleViewController
     private lazy var replyControl = SdkChatReplyControl()
     
     private let keyboardAnchorControl: KeyboardAnchorControl
-    private let timelineController: JMTimelineController<ChatTimelineInteractor>
+    private let timelineController: JMTimelineController<ChatHistoryConfig, ChatTimelineInteractor>
     private let timelineInteractor: ChatTimelineInteractor
     private let timelineLoaderItem: JMTimelineItem
     private let uiConfig: SdkChatModuleVisualConfig
@@ -91,7 +91,7 @@ final class JVChatModuleViewController
     init(
         pipeline: RTEModulePipelineViewNotifier<ChatModuleViewIntent>,
         keyboardAnchorControl: KeyboardAnchorControl,
-        timelineController: JMTimelineController<ChatTimelineInteractor>,
+        timelineController: JMTimelineController<ChatHistoryConfig, ChatTimelineInteractor>,
         timelineInteractor: ChatTimelineInteractor,
         timelineLoaderItem: JMTimelineItem,
         uiConfig: SdkChatModuleVisualConfig,
@@ -408,8 +408,6 @@ fileprivate struct Layout {
     let bottomGap: CGFloat
     let keyboardHeight: CGFloat
 
-    private let copyrightHeight = CGFloat(30)
-    
     var safeAreaFrame: CGRect {
         return bounds.jv_reduceBy(insets: safeAreaInsets)
     }
@@ -427,9 +425,8 @@ fileprivate struct Layout {
     }
     
     var collectionViewContentInsets: UIEdgeInsets {
-        let headerHeight = (Bundle.main.jv_ID == Bundle.identifier(preset: .rmo) ? copyrightHeight : 0)
         let replyingHeight = max(safeAreaInsets.bottom, keyboardHeight) + replyControlBounds.height + bottomGap
-        return UIEdgeInsets(top: replyingHeight, left: 0, bottom: headerHeight, right: 0)
+        return UIEdgeInsets(top: replyingHeight, left: 0, bottom: 0, right: 0)
     }
     
     var collectionViewIndicatorInsets: UIEdgeInsets {
@@ -456,10 +453,6 @@ fileprivate struct Layout {
     var replyControlBounds: CGRect {
         let height = replyControl.jv_height(forWidth: bounds.width)
         return CGRect(x: 0, y: 0, width: bounds.width, height: height)
-    }
-    
-    var copyrightControlSize: CGSize {
-        return CGSize(width: bounds.width, height: copyrightHeight)
     }
 }
 

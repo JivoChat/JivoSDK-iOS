@@ -87,6 +87,7 @@ enum RemoteStorageCaching {
 enum RemoteStorageFileKind {
     case image(UIImage)
     case lottie
+    case svg
     case video
     case binary
 }

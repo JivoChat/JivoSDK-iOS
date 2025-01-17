@@ -47,12 +47,12 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
         
         super.init()
         
-        layer.cornerRadius = 14
+        layer.cornerRadius = Self.defaultCornerRadius
         clipsToBounds = true
         accessibilityIgnoresInvertColors = true
 
         underlayView.backgroundColor = JVDesign.colors.resolve(usage: .chattingBackground)
-        underlayView.layer.cornerRadius = 13
+        underlayView.layer.cornerRadius = Self.defaultCornerRadius
         underlayView.clipsToBounds = true
         addSubview(underlayView)
         
@@ -102,6 +102,8 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
             self.resource = resource
             
             switch resource {
+            case .value(let meta, .svg):
+                self.ensureRenderer(SvgRenderer.self).configure(url: meta.localUrl)
             case .value(_, .image(let image)):
                 self.ensureRenderer(NativeRenderer.self).configure(image: image)
             case .value(let meta, .video):
@@ -114,20 +116,6 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
             default:
                 break
             }
-            
-//            switch resource {
-//            case .raw(let data) where NSData.sd_imageFormat(forImageData: data) == .undefined:
-//                self.ensureRenderer(VideoRenderer.self).configure(data: data)
-////                self.ensureRenderer(NativeRenderer.self).configure(data: data)
-//            case .raw(let data):
-//                self.ensureRenderer(UniversalRenderer.self).configure(data: data)
-//            case .lottie(let animation):
-//                self.ensureRenderer(LottieRenderer.self).configure(animation: animation)
-//            case let .failure(errorDescription):
-//                let style = ErrorRenderer.Style(backgroundColor: self.style.errorStubBackgroundColor, errorDescriptionColor: self.style.errorStubDescriptionColor)
-//                let image = UIImage(named: "unavailable_image_stub", in: .auto, compatibleWith: nil)
-//                self.ensureRenderer(ErrorRenderer.self).configure(image: image, errorDescription: errorDescription, style: style)
-//            }
             
             self.waitingIndicator.stopAnimating()
         }
@@ -212,13 +200,6 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
         renderer?.frame = bounds
         renderer?.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         
-//        let decoration = DecorativeBorder()
-//        decoration.frame = bounds
-//        decoration.tintColor = decorationColor
-//        decoration.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-//        renderer?.addSubview(decoration)
-//        self.decoration = decoration
-
         return newElement
     }
     

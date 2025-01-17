@@ -23,10 +23,12 @@ struct JMTimelineMediaVideoInfo: JMTimelineMediaInfo {
     let duration: TimeInterval?
     let style: JMTimelineMediaStyle
     
-    init(URL: URL,
-                title: String?,
-                duration: TimeInterval?,
-                style: JMTimelineMediaStyle) {
+    init(
+        URL: URL,
+        title: String?,
+        duration: TimeInterval?,
+        style: JMTimelineMediaStyle
+    ) {
         self.URL = URL
         self.title = title
         self.duration = duration
@@ -39,15 +41,23 @@ struct JMTimelineMediaDocumentInfo: JMTimelineMediaInfo {
     let title: String?
     let dataSize: Int64?
     let style: JMTimelineMediaStyle
+    let caption: String?
+    let plainStyle: JMTimelineCompositePlainStyle?
     
-    init(URL: URL,
-                title: String?,
-                dataSize: Int64?,
-                style: JMTimelineMediaStyle) {
+    init(
+        URL: URL,
+        title: String?,
+        dataSize: Int64?,
+        style: JMTimelineMediaStyle,
+        caption: String?,
+        plainStyle: JMTimelineCompositePlainStyle?
+    ) {
         self.URL = URL
         self.title = title
         self.dataSize = dataSize
         self.style = style
+        self.caption = caption
+        self.plainStyle = plainStyle
     }
 }
 

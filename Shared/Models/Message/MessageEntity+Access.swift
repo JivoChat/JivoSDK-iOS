@@ -9,6 +9,7 @@
 import Foundation
 import JMCodingKit
 import JMRepicKit
+import CoreLocation
 
 struct JVMessageContentHash {
     let ID: Int
@@ -53,23 +54,121 @@ enum JVMessageDelivery {
     case status(JVMessageStatus)
 }
 
-enum WaComponent: Codable {
-    case bodyVariable(String)
-    case headerVariable(String)
+enum WaTemplateTextPlacement: Codable {
+    case headline
+    case body
 }
 
-struct WaTemplateOutput: Codable {
+struct WaTemplateVariable: Codable, Equatable {
+    let id: Int
     let name: String
-    let languageCode: String
-    let resultedMessage: String
-    let components: [WaComponent]
+    let value: String
+    
+    init(_ id: Int, _ name: String, _ value: String = "") {
+        self.id = id
+        self.name = name
+        self.value = value
+    }
+    
+    init(id: Int, name: String, value: String) {
+        self.id = id
+        self.name = name
+        self.value = value
+    }
+}
+
+enum WaTemplateContentPart: Codable {
+    case plainText(String)
+    case variable(WaTemplateVariable)
+}
+
+struct WaTemplateTextComponent: Codable {
+    let placement: WaTemplateTextPlacement
+    let content: WaTemplateContentPart
+}
+
+struct _ChannelByPhone: Codable {
+    let channelId: Int
+    let phoneNumber: String
+    let jointId: String?
+    let templatesEnabled: Bool
+}
+
+enum WaTemplateHeaderType: Codable {
+    case image
+    case document
+    case video
+    case none
+}
+
+struct WaTemplatePayload : Codable {
+    let toPhoneValue: String
+    let fromPhoneValue: _ChannelByPhone
+    
+    var name: String?
+    var languageCode: String?
+    var resultedMessage: String?
+    
+    var headerType: WaTemplateHeaderType?
+    
+    var components: [WaTemplateTextComponent]?
+    
+    init(
+        toPhoneValue: String,
+        fromPhoneValue: _ChannelByPhone,
+        name: String? = nil,
+        languageCode: String? = nil,
+        resultedMessage: String? = nil,
+        headerType: WaTemplateHeaderType? = nil,
+        components: [WaTemplateTextComponent]? = nil
+    ) {
+        self.toPhoneValue = toPhoneValue
+        self.fromPhoneValue = fromPhoneValue
+        self.name = name
+        self.languageCode = languageCode
+        self.resultedMessage = resultedMessage
+        self.headerType = headerType
+        self.components = components
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        toPhoneValue = try container.decode(String.self, forKey: .toPhoneValue)
+        fromPhoneValue = try container.decode(_ChannelByPhone.self, forKey: .fromPhoneValue)
+        name = try container.decodeIfPresent(String.self, forKey: .name)
+        languageCode = try container.decodeIfPresent(String.self, forKey: .languageCode)
+        resultedMessage = try container.decodeIfPresent(String.self, forKey: .resultedMessage)
+        headerType = try container.decodeIfPresent(WaTemplateHeaderType.self, forKey: .headerType)
+        components = try container.decodeIfPresent([WaTemplateTextComponent].self, forKey: .components)
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        try container.encode(toPhoneValue, forKey: .toPhoneValue)
+        try container.encode(fromPhoneValue, forKey: .fromPhoneValue)
+        try container.encodeIfPresent(name, forKey: .name)
+        try container.encodeIfPresent(languageCode, forKey: .languageCode)
+        try container.encodeIfPresent(headerType, forKey: .headerType)
+        try container.encodeIfPresent(resultedMessage, forKey: .resultedMessage)
+        try container.encodeIfPresent(components, forKey: .components)
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case toPhoneValue
+        case fromPhoneValue
+        case name
+        case languageCode
+        case resultedMessage
+        case headerType
+        case components
+    }
 }
 
 enum JVMessageTarget: Codable {
     case regular
     case email(fromEmail: String, toEmail: String)
     case sms(fromChannel: Int, toPhone: String)
-    case whatsapp(fromChannelName: String, fromPhone: Int, toPhone: String, templateData: WaTemplateOutput?)
+    case whatsapp(fromChannelName: String, fromPhone: Int, toPhone: String, templateData: WaTemplatePayload?)
     case comment
     
     var supportsFileExchange: Bool {
@@ -104,6 +203,8 @@ enum JVMessageContent {
     case line
     case contactForm(status: JVMessageBodyContactFormStatus)
     case rateForm(status: JVMessageBodyRateFormStatus)
+    case location(CLLocation)
+    case chatResolved
     
     public static func makeWith(text: String) -> Self {
         if let url = URL(string: text), let host = url.host, (host.hasPrefix("media") || host.hasPrefix("files")) {
@@ -158,6 +259,10 @@ enum JVMessageContent {
             return false
         case .rateForm:
             return false
+        case .chatResolved:
+            return false
+        case .location:
+            return false
         }
     }
     
@@ -205,6 +310,10 @@ enum JVMessageContent {
             return false
         case .rateForm:
             return false
+        case .chatResolved:
+            return false
+        case .location:
+            return true
         }
     }
 }
@@ -243,12 +352,16 @@ extension MessageEntity {
     }
     
     var anchorDate: Date {
-        let virtualDate = date.dateBySet(hour: nil, min: nil, secs: nil, ms: ID % 1000)
+        let virtualDate = date.dateBySet(hour: nil, min: nil, secs: nil, ms: self.ID % 1000)
         return virtualDate ?? date
     }
     
     var clientID: Int {
         return Int(m_client_id)
+    }
+    
+    var referralSource: ReferralSourceEntity? {
+        return m_referral_source
     }
     
     var client: ClientEntity? {
@@ -322,6 +435,10 @@ extension MessageEntity {
                     title: media.m_title,
                     text: media.m_text
                 )
+            }
+            else if media.type == .location {
+                let location = CLLocation(latitude: media.m_latitude, longitude: media.m_longitude)
+                return .location(location)
             }
             else if let conference = media.conference {
                 return .conference(
@@ -478,6 +595,8 @@ extension MessageEntity {
             let status = JVMessageBodyRateFormStatus(rawValue: rawDetails) ?? .initial
             return .rateForm(status: status)
             
+        case .chatResolved:
+            return .chatResolved
         default:
             break
         }
@@ -550,8 +669,16 @@ extension MessageEntity {
             return loc["JV_ChatTimeline_MessageStatus_Deleted", "Message.Deleted"]
         }
         
+        if case .whatsapp(_, _, _, let payload) = target, let payload = payload, let media = m_media {
+            return "[wb_media](" + (media.fullURL?.absoluteString ?? "") + ")\n" + payload.resultedMessage.jv_orEmpty
+        }
+
+        
         if let media = m_media {
-            if let name = media.name {
+            if media.type == .location {
+                return loc["Message.Preview.Location"]
+            }
+            else if let name = media.name {
                 return name
             }
             else if let link = media.fullURL?.absoluteString {
@@ -623,18 +750,18 @@ extension MessageEntity {
              .photo,
              .file,
              .line,
+             .task,
              .bot,
+             .location,
              .order,
              .contactForm,
-             .rateForm:
+             .rateForm,
+             .chatResolved:
             return nil
-            
         case .story:
             return UIImage(named: "preview_ig")
-
         case .email:
             return UIImage(named: "preview_email")
-
         case .call(let call):
             switch call.type {
             case .callback:
@@ -646,10 +773,6 @@ extension MessageEntity {
             case .unknown:
                 return nil
             }
-
-        case .task:
-            return nil
-            
         case .conference:
             return UIImage(named: "preview_conf")
         }
@@ -772,7 +895,7 @@ extension MessageEntity {
     }
     
     var hasIdentity: Bool {
-        return (ID > 0 || !(localID.isEmpty))
+        return (self.ID > 0 || !(localID.isEmpty))
     }
     
     func obtainObjectToCopy() -> Any? {
@@ -796,6 +919,27 @@ extension MessageEntity {
             let selfChatId = _correspondsTo_getSelfChatId()
             let chatId = _correspondsTo_getChat(chat: chat)?.ID
             return (selfChatId == chatId)
+        }
+    }
+    
+    var isUnsent: Bool {
+        guard direction == .outgoing else { return false }
+        guard self.ID == 0 else { return false }
+        return true
+    }
+    
+    var isQuotable: Bool {
+        if wasDeleted {
+            return false
+        }
+        
+        switch content {
+        case .comment:
+            return false
+        case _ where isUnsent:
+            return false
+        default:
+            return true
         }
     }
     

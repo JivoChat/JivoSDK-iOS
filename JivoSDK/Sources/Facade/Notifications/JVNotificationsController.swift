@@ -10,30 +10,70 @@ import Foundation
 import UIKit
 import UserNotifications
 
+@objc(JVNotificationsEvent)
+public final class JVNotificationsEvent: NSObject {
+    public let content: UNMutableNotificationContent
+    public let sender: String
+    public let text: String
+    
+    internal init(content: UNMutableNotificationContent, sender: String, text: String) {
+        self.content = content
+        self.sender = sender
+        self.text = text
+    }
+}
+
 /**
  ``Jivo``.``Jivo/notifications`` namespace for Push Notifications
  */
 @objc(JVNotificationsController)
 public final class JVNotificationsController: NSObject {
     /**
-     Object that handles notifications events
-     */
-    @objc(delegate)
-    public weak var delegate = JVNotificationsDelegate?.none {
-        didSet {
-            _delegateHookDidSet()
-        }
-    }
-    
-    /**
      Specifies when SDK should request access to Push Notifications
      
      - Parameter moment:
      The moment of requesting access to Push Notifications
      */
-    @objc(setPermissionAskingAt:)
     public func setPermissionAsking(at moment: JVNotificationsPermissionAskingMoment) {
         _setPermissionAsking(at: moment)
+    }
+    
+    @objc(__setPermissionAsking:)
+    public func __setPermissionAsking(at momentName: String) {
+        if let moment = JVNotificationsPermissionAskingMoment(rawValue: momentName) {
+            _setPermissionAsking(at: moment)
+        }
+    }
+    
+    /**
+     Handler will be called when SDK wants to access Push Notifications
+     
+     The callback you call when it's time
+     to present the System Request for Push Notifications
+     
+     > Tip: You may want to present your custom UI
+     > to inform user about accessing to Push Notifications,
+     > before SDK will trigger System Request
+     */
+    @objc(setPermissionIntroProvider:)
+    public func setPermissionIntro(provider: @escaping (@escaping () -> Void) -> Void) {
+        callbacks.accessIntroHandler = { callback in
+            provider(callback)
+        }
+    }
+    
+    /**
+     Handler will be called when SDK is going to present Push Notification banner
+     
+     Call the block with adjusted content (if you wish to modify the banner),
+     or original content (if you wish to keep things as is),
+     or nil (if you wish to avoid showing banner)
+     
+     > Tip: Here you can prepare banner for displaying
+     */
+    @objc(setContentTransformerBlock:)
+    public func setContentTransformer(block: @escaping (JVNotificationsEvent) -> UNNotificationContent?) {
+        callbacks.notificationContentTransformer = block
     }
     
     /**
@@ -84,8 +124,8 @@ public final class JVNotificationsController: NSObject {
      
      > Important: Call this method from `application(_:didFinishLaunchingWithOptions:)`
      */
+    @objc(handleLaunchWithOptions:)
     @discardableResult
-    @objc(handleLaunchOptions:)
     public func handleLaunch(options: [UIApplication.LaunchOptionsKey : Any]?) -> Bool {
         return _handleLaunch(options: options)
     }
@@ -109,6 +149,11 @@ public final class JVNotificationsController: NSObject {
         return _didReceiveRemoteNotification(userInfo: userInfo)
     }
     
+    @objc(didReceiveRemoteNotificationWithUserInfo:)
+    private func didReceiveRemoteNotification(userInfo: [AnyHashable : Any]) -> UIBackgroundFetchResult {
+        return _didReceiveRemoteNotification(userInfo: userInfo) ?? .noData
+    }
+    
     /**
      Processes userInfo of Push Notification
      For ObjC code
@@ -126,7 +171,7 @@ public final class JVNotificationsController: NSObject {
      > Note: The ``JVDisplayDelegate/jivoDisplay(asksToAppear:)`` method might be called
      > if Push Notification is related to JivoSDK
      */
-    @objc(handleIncomingUserInfo:completionHandler:)
+    @objc(handleIncomingWithUserInfo:completionHandler:)
     public func handleIncoming(userInfo: [AnyHashable : Any], completionHandler: ((UIBackgroundFetchResult) -> Void)?) -> Bool {
         return _handleIncoming(userInfo: userInfo, completionHandler: completionHandler)
     }
@@ -146,20 +191,9 @@ public final class JVNotificationsController: NSObject {
         return _willPresent(notification: notification, preferableOptions: preferableOptions)
     }
     
-    /**
-     Determines the presentation options for Push Notification
-     For ObjC code
-
-     - Parameter notification:
-     Incoming Notification
-     - Parameter completionHandler:
-     System handler to call when processing is done
-     
-     > Important: Call this method from `userNotificationCenter(_:willPresent:withCompletionHandler:)`
-     */
-    @objc(configurePresentationForNotification:proxyToHandler:resolver:)
-    public func configurePresentation(notification: UNNotification, proxyTo handler: @escaping JVNotificationsOptionsOutput, resolver: @escaping JVNotificationsOptionsResolver) {
-        _configurePresentation(notification: notification, proxyTo: handler, resolver: resolver)
+    @objc(willPresentNotification:withPreferableOptions:)
+    private func willPresent(notification: UNNotification, preferableOptions: UNNotificationPresentationOptions) -> UNNotificationPresentationOptions {
+        return _willPresent(notification: notification, preferableOptions: preferableOptions) ?? .jv_empty
     }
     
     /**
@@ -172,43 +206,25 @@ public final class JVNotificationsController: NSObject {
      
      > Important: Call this method from `userNotificationCenter(_:didReceive:withCompletionHandler:)`
      */
-    @discardableResult
     @objc(didReceiveResponse:)
+    @discardableResult
     public func didReceive(response: UNNotificationResponse) -> Bool {
         return _didReceive(response: response)
     }
     
-    /**
-     Processes the User Response
-     
-     - Parameter response:
-     User's response
-     - Returns:
-     Whether the response was handled by JivoSDK
-     
-     > Important: Call this method from `userNotificationCenter(_:didReceive:withCompletionHandler:)`
+    /*
+     For private purposes
      */
-    @available(*, deprecated, renamed: "didReceiveResponse")
-    @discardableResult
-    @objc(handleUserResponse:)
-    public func handleUser(response: UNNotificationResponse) -> Bool {
-        return didReceive(response: response)
+    private let callbacks = JVNotificationsCallbacks()
+    
+    internal override init() {
+        super.init()
+        engine.services.apnsService.notificationsCallbacks = callbacks
+        engine.managers.chatManager.notificationsCallbacks = callbacks
     }
 }
 
 extension JVNotificationsController: SdkEngineAccessing {
-    private func _delegateHookDidSet() {
-        if let _ = delegate {
-            journal(layer: .facade) {"FACADE[notifications] set the delegate"}
-        }
-        else {
-            journal(layer: .facade) {"FACADE[notifications] remove the delegate"}
-        }
-        
-        engine.services.apnsService.notificationsDelegate = delegate
-        engine.managers.chatManager.notificationsDelegate = delegate
-    }
-    
     private func _setPermissionAsking(at moment: JVNotificationsPermissionAskingMoment) {
         journal(layer: .facade) {"FACADE[notifications] ask for permission at @moment[\(moment)]"}
         
@@ -286,14 +302,6 @@ extension JVNotificationsController: SdkEngineAccessing {
             return .jv_empty
         case .presentable:
             return preferableOptions
-        }
-    }
-    
-    private func _configurePresentation(notification: UNNotification, proxyTo handler: @escaping JVNotificationsOptionsOutput, resolver: @escaping JVNotificationsOptionsResolver) {
-        journal(layer: .facade) {"FACADE[notifications] configure presentation @userInfo[\(notification.request.content.userInfo)]"}
-        
-        engine.managers.chatManager.prepareToPresentNotification(notification, completionHandler: handler) { target, event in
-            return resolver(target, event)
         }
     }
     

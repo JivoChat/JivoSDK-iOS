@@ -37,6 +37,16 @@ extension IPopupPresenterBridge {
             ])
     }
     
+    func informFeatureAvailableSincePro() {
+        displayAlert(
+            within: .auto,
+            title: loc["Dialog.FeatureForPro.Description"],
+            message: nil,
+            items: [
+                .dismiss(.close)
+            ])
+    }
+    
     #if ENV_APP
     func warnFeatureNeedsPro(telemeteryService: ITelemetryService?) {
         displayAlert(

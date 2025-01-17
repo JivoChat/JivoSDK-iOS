@@ -12,7 +12,7 @@ Same as ``Jivo``.``Jivo/session``.``JVSessionController/setPreferredServer(_:)``
 ```
 Future<void> Jivo.session.startUp({required String channelID, required String userToken}) async
 ```
-Same as ``Jivo``.``Jivo/session``.``JVSessionController/startUp(channelID:userToken:)``
+Same as ``Jivo``.``Jivo/session``.``JVSessionController/setup(widgetID:clientIdentity:)``
 
 ```
 Future<void> Jivo.session.setContactInfo({String? name, String? email, String? phone, String? brief}) async

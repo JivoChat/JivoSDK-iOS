@@ -42,6 +42,10 @@ extension BotEntity: JVDisplayable {
         return "bot:\(id)"
     }
     
+    func typingContext() -> TypingContext {
+        return .standard
+    }
+    
     func repicItem(transparent: Bool, scale: CGFloat?) -> JMRepicItem? {
         let url = m_avatar_link.flatMap(URL.init)
         let icon = UIImage(named: "avatar_bot", in: .jv_shared, compatibleWith: nil)

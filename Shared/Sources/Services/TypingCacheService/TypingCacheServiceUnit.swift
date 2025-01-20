@@ -99,8 +99,8 @@ final class TypingCacheServiceUnit: XCTestCase {
         )
     }
     
-    private func createAttachment() -> ChatPhotoPickerObject {
-        return ChatPhotoPickerObject(
+    private func createAttachment() -> PickedAttachmentObject {
+        return PickedAttachmentObject(
             uuid: UUID(),
             payload: .file(.init(url: URL(fileURLWithPath: "test"), name: "test", size: 32, duration: 0)))
     }

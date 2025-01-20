@@ -10,8 +10,7 @@ import Foundation
 /**
  Menus available for customization
  */
-@objc(JVDisplayMenu)
-public enum JVDisplayMenu: Int {
+public enum JVDisplayMenu: String, CaseIterable {
     /// Attach Menu in replying area
     case attach
 }

@@ -36,6 +36,15 @@ final class JMTimelineCompositeRichBlock: UILabel, JMTimelineBlockCallable {
     
     func updateDesign() {
     }
+    
+    override func sizeThatFits(_ size: CGSize) -> CGSize {
+        if (attributedText?.string).jv_orEmpty.isEmpty {
+            return .zero
+        } 
+        else {
+            return super.sizeThatFits(size)
+        }
+    }
 
     func handleLongPressGesture(recognizer: UILongPressGestureRecognizer) -> Bool {
         return false

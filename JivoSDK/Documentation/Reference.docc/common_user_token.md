@@ -4,7 +4,7 @@ Required for keeping chat history alive
 
 ## Overview
 
-For security reasons, chat history by default has a temporary nature and gets killed when providing another credentials into ``Jivo``.``Jivo/session``.``JVSessionController/startUp(channelID:userToken:)``, or by calling ``Jivo``.``Jivo/session``.``JVSessionController/shutDown()``.
+For security reasons, chat history by default has a temporary nature and gets killed when providing another credentials into ``Jivo``.``Jivo/session``.``JVSessionController/setup(widgetID:clientIdentity:)``, or by calling ``Jivo``.``Jivo/session``.``JVSessionController/shutDown()``.
 
 It means, for example, if your client logs-out and then logs-in again, you may see him as entirely new client.  
 Even in case he uses the same login credentials, and even in case you provide the same user_token for him into SDK.
@@ -35,7 +35,7 @@ Minimal JWT payload must contain "id" field which acts like a client identifier,
 ```
 
 Finally, you should feed your JWT as userToken parameter into:  
-``Jivo``.``Jivo/session``.``JVSessionController/startUp(channelID:userToken:)``
+``Jivo``.``Jivo/session``.``JVSessionController/setup(widgetID:clientIdentity:)``
 
 > Important: For security reasons, you'd better generate JWT tokens on your back-end,  
 > rather than doing it directly in the mobile app (because your `secret` might be stolen)

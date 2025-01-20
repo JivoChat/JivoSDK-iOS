@@ -286,6 +286,10 @@ extension AgentEntity: JVDisplayable {
         }
     }
 
+    func typingContext() -> TypingContext {
+        return .init(kind: .agent, ID: ID)
+    }
+    
     var onCall: Bool {
         return Int(m_calling_options).jv_hasBit(1 << JVAgentCallingOptions.onCall.rawValue)
     }

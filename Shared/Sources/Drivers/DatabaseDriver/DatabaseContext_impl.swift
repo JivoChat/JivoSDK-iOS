@@ -35,7 +35,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
             object: nil,
             queue: nil,
             using: { [weak self] notification in
-                dispatcher.addOperation { [weak self] in
+                dispatcher.enqueueOperation { [weak self] in
                     self?.handleUpdates(notification: notification)
                 }
             })

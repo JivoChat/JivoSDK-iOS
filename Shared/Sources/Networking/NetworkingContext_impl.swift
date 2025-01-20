@@ -17,16 +17,31 @@ final class NetworkingContext: INetworkingContext {
     private let settingsTypeKey = "jivo:connectivity.connection_type"
     private let settingsHostKey = "jivo:connectivity.connection_host"
 
+    private let argumentalHost: String?
     private var domain = NetworkingDomain.auto
     
     init(defaultHost: String?, localeProvider: JVILocaleProvider) {
         self.defaultHost = defaultHost?.jv_valuable
         self.localeProvider = localeProvider
+        
+        argumentalHost = ProcessInfo.processInfo.jv_detectHostArgument()
     }
     
     var primaryDomain: String {
         if let host = UserDefaults.standard.string(forKey: settingsHostKey)?.jv_valuable {
             return host
+        }
+        
+        if let host = argumentalHost {
+            if host == "localhost" {
+                return host
+            }
+            else if let _ = host.firstIndex(of: Character(.jv_dot)) {
+                return host
+            }
+            else {
+                return "\(host).dev.\(mGlobalDomain)"
+            }
         }
         
         if let defaultHost {

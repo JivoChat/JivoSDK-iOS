@@ -53,29 +53,12 @@ struct JMTimelineRenderOptions: OptionSet {
 struct JMTimelineMessagePayload {
     let kindID: String
     let sender: JMTimelineItemSender
+    let footer: ChatTimelineMessageExtras
     let renderOptions: JMTimelineMessageRenderOptions
     let provider: JVChatTimelineProvider
     let interactor: JVChatTimelineInteractor
-    let contentGenerator: () -> [JMTimelineMessageCanvasRegion]
-    let contentPopulator: ([JMTimelineMessageCanvasRegion]) -> Void
-    
-    init(
-            kindID: String,
-            sender: JMTimelineItemSender,
-            renderOptions: JMTimelineMessageRenderOptions,
-            provider: JVChatTimelineProvider,
-            interactor: JVChatTimelineInteractor,
-            regionsGenerator: @escaping () -> [JMTimelineMessageCanvasRegion],
-            regionsPopulator: @escaping ([JMTimelineMessageCanvasRegion]) -> Void
-    ) {
-        self.kindID = kindID
-        self.sender = sender
-        self.renderOptions = renderOptions
-        self.provider = provider
-        self.interactor = interactor
-        self.contentGenerator = regionsGenerator
-        self.contentPopulator = regionsPopulator
-    }
+    let regionsGenerator: () -> [JMTimelineMessageCanvasRegion]
+    let regionsPopulator: ([JMTimelineMessageCanvasRegion]) -> Void
 }
 
 class JMTimelineMessageItem: JMTimelinePayloadItem<JMTimelineMessagePayload> {

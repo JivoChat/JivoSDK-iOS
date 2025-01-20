@@ -74,4 +74,8 @@ extension DepartmentEntity: JVDisplayable {
             clipping: .external
         )
     }
+    
+    func typingContext() -> TypingContext {
+        return .standard
+    }
 }

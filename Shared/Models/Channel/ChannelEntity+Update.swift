@@ -80,7 +80,7 @@ final class JVChannelGeneralChange: JVDatabaseModelChange, Codable {
         jointType = info["joint_type"].string
         jointAlias = info["joint_alias"].string
         jointURL = info["prepared_joint_options"]["url"].stringValue
-        jointID = info["prepared_joint_options"]["id"].stringValue
+        jointID = info["prepared_joint_options"]["waba_id"].string ?? info["prepared_joint_options"]["id"].stringValue
         phone = info["prepared_joint_options"]["phone"].stringValue
         verifiedName = info["prepared_joint_options"]["verified_name"].stringValue
         agentIDs = json["agents"].intArray ?? []

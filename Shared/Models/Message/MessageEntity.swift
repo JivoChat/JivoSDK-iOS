@@ -8,6 +8,10 @@
 
 import Foundation
 
+extension MessageEntity {
+    typealias ID = Int
+}
+
 @objc(MessageEntity)
 class MessageEntity: DatabaseEntity {
     override func apply(context: JVIDatabaseContext, change: JVDatabaseModelChange) {

@@ -84,6 +84,7 @@ func ChatModuleAssembly(
         userContext: engine.clientContext,
         databaseDriver: engine.drivers.databaseDriver,
         systemMessagingService: engine.services.systemMessagingService,
+        translatorService: engine.services.translatorService,
         provider: timelineProvider,
         interactor: timelineInteractor,
         isGroup: false,
@@ -97,7 +98,7 @@ func ChatModuleAssembly(
         historyDelegate: engine.managers.chatManager
     )
     
-    let timelineController = JMTimelineController<ChatTimelineInteractor>(
+    let timelineController = JMTimelineController<ChatHistoryConfig, ChatTimelineInteractor>(
         factory: timelineFactory,
         cache: engine.timelineCache,
         maxImageDiskCacheSize: (50 * 1024 * 1024)

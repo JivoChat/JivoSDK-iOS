@@ -37,7 +37,7 @@ struct JMTimelineCompositeStyle: JMTimelineStyle {
     let timeOverlayForegroundColor: UIColor
     let timeFont: UIFont
     let deliveryViewTintColor: UIColor
-    let reactionStyle: JMTimelineReactionStyle
+    let reactionStyle: ChatTimelineMessageExtrasReactionStyle
     let contentStyle: JMTimelineStyle
 }
 
@@ -101,7 +101,7 @@ class JMTimelineMessageCanvas: JMTimelineCanvas {
     let senderIcon = JMRepicView.standard()
     let senderCaption = JMTimelineCompositeSenderLabel()
     let senderMark = JMTimelineCompositeSenderLabel()
-    let footer = JMTimelineContainerFooter()
+    let footer = ChatTimelineContainerFooter()
 
     private var topEdge: JMTimelineMessageLoadingIndicator?
     private var bottomEdge: JMTimelineMessageLoadingIndicator?
@@ -159,11 +159,11 @@ class JMTimelineMessageCanvas: JMTimelineCanvas {
                 cachedRegions[kindID] = list
             }
             else {
-                currentRegions = item.payload.contentGenerator()
+                currentRegions = item.payload.regionsGenerator()
             }
         }
         
-        item.payload.contentPopulator(currentRegions)
+        item.payload.regionsPopulator(currentRegions)
         currentRegions.forEach {
             $0.setNeedsLayout()
         }
@@ -215,16 +215,21 @@ class JMTimelineMessageCanvas: JMTimelineCanvas {
         }
 
         footer.configure(
-            reactions: item.extraActions.reactions,
-            actions: item.extraActions.actions)
+            caption: item.payload.footer.caption,
+            reactions: item.payload.footer.reactions,
+            actions: item.payload.footer.actions)
+        
+        footer.captionHandler = {
+            item.payload.interactor.toggleTranslation(uuid: item.uid)
+        }
         
         footer.reactionHandler = { index in
-            let reaction = item.extraActions.reactions[index]
+            let reaction = item.payload.footer.reactions[index]
             item.payload.interactor.toggleMessageReaction(uuid: item.uid, emoji: reaction.emoji)
         }
         
         footer.actionHandler = { index in
-            let action = item.extraActions.actions[index]
+            let action = item.payload.footer.actions[index]
             item.payload.interactor.performMessageSubaction(uuid: item.uid, actionID: action.ID)
         }
         
@@ -371,7 +376,7 @@ fileprivate struct Layout {
     let senderMark: UILabel
     let regions: [UIView]
     let regionsGap: CGFloat
-    let footer: JMTimelineContainerFooter
+    let footer: ChatTimelineContainerFooter
     let layoutOptions: JMTimelineLayoutOptions
     let renderOptions: JMTimelineMessageRenderOptions
     let logicOptions: JMTimelineLogicOptions

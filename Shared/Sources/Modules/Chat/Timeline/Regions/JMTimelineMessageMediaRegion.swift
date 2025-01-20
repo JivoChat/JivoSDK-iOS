@@ -18,14 +18,13 @@ struct JMTimelineMediaTriggerContactPayload: Hashable {
 
 final class JMTimelineMessageMediaRegion: JMTimelineMessageCanvasRegion {
     private let mediaBlock = JMTimelineCompositeMediaBlock()
+    private let plainBlock = JMTimelineCompositePlainBlock(sideOffset: 0)
     
     init() {
         super.init(renderMode: .bubble(time: .inline))
-        integrateBlocks([mediaBlock], gap: 0)
+        integrateBlocks([mediaBlock, plainBlock], gap: 0)
         
-        mediaBlock.addGestureRecognizer(
-            UITapGestureRecognizer(target: self, action: #selector(handleTap))
-        )
+        mediaBlock.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(handleTap)))
     }
     
     required init?(coder aDecoder: NSCoder) {
@@ -53,6 +52,18 @@ final class JMTimelineMessageMediaRegion: JMTimelineMessageCanvasRegion {
                     interactor: interactor)
                 
             case let object as JMTimelineMediaDocumentInfo:
+                if let textContent = object.caption, let plainStyle = object.plainStyle {
+                    plainBlock.configure(
+                        content: textContent,
+                        style: plainStyle,
+                        provider: provider,
+                        interactor: interactor
+                    )
+                    plainBlock.isHidden = false
+                } else {
+                    plainBlock.isHidden = true
+                }
+                
                 let formatter = ByteCountFormatter()
                 formatter.allowedUnits = [.useGB, .useMB, .useKB, .useBytes]
                 formatter.countStyle = .binary

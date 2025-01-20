@@ -13,7 +13,7 @@ final class NativeRenderer: UIImageView, Renderer {
         super.init(frame: .zero)
         
         contentMode = .scaleAspectFill
-        isUserInteractionEnabled = true
+        isUserInteractionEnabled = false
     }
     
     required init?(coder: NSCoder) {

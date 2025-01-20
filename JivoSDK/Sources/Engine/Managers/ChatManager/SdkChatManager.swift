@@ -50,11 +50,12 @@ enum SdkChatEvent {
     case exception(payload: IProtoEventSubjectPayloadAny)
     case enableReplying
     case disableReplying(reason: String)
+    case prechatButtons(captions: [String])
 }
 
 protocol ISdkChatManager: ISdkManager, ChatTimelineFactoryHistoryDelegate {
     var sessionDelegate: JVSessionDelegate? { get set }
-    var notificationsDelegate: JVNotificationsDelegate? { get set }
+    var notificationsCallbacks: JVNotificationsCallbacks? { get set }
     var eventObservable: JVBroadcastTool<SdkChatEvent> { get }
     var contactInfoStatusObservable: JVBroadcastTool<SdkChatContactInfoStatus> { get }
     var subOffline: ISdkChatSubOffline { get }
@@ -66,12 +67,13 @@ protocol ISdkChatManager: ISdkManager, ChatTimelineFactoryHistoryDelegate {
     func restoreChat()
     func makeAllAgentsOffline()
     func sendTyping(text: String)
-    func sendMessage(trigger: SdkManagerTrigger, text: String, attachments: [ChatPhotoPickerObject]) throws
+    func sendMessage(trigger: SdkManagerTrigger, text: String, attachments: [PickedAttachmentObject]) throws
     func copy(message: MessageEntity)
     func resendMessage(uuid: String)
     func deleteMessage(uuid: String)
     func requestMessageHistory(before anchorMessageId: Int?, behavior: SdkChatHistoryRequestBehavior)
     func markSeen(message: MessageEntity)
+    func dismissPrechat()
     
     func identifyContactFormBehavior() -> SdkChatContactFormBehavior
     func informContactInfoStatus()
@@ -104,7 +106,7 @@ extension RemoteStorageTarget.Purpose {
 
 final class SdkChatManager: SdkManager, ISdkChatManager {
     var sessionDelegate: JVSessionDelegate?
-    var notificationsDelegate: JVNotificationsDelegate?
+    var notificationsCallbacks: JVNotificationsCallbacks?
     let contactInfoStatusObservable = JVBroadcastTool<SdkChatContactInfoStatus>()
     
     private enum HistoryLoadingStrategy {
@@ -132,20 +134,24 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     private var userDataReceivingMode: AgentDataReceivingMode = .channel {
         didSet {
             subOffline.userDataReceivingMode = userDataReceivingMode
+            autorunPrechat()
         }
     }
     
     private var historyState = HistoryState()
     private struct HistoryState {
         enum Activity { case initial, requested, synced }
+        var hasPointer = false
         var activity = Activity.initial
         var requestDate = Date.distantPast
+        var responseDate = Date.distantFuture
         var localEarliestMessageId: Int?
         var localLatestMessageId: Int?
         var localLatestMessageDate: Date?
         var remoteHasContent = false
         var remoteEarliestMessageId: Int?
         var remoteLatestMessageId: Int?
+        var hasNewerMessagesSinceConnection = false
     }
     
     let eventObservable: JVBroadcastTool<SdkChatEvent>
@@ -354,17 +360,38 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         }
     }
     
-    func sendMessage(trigger: SdkManagerTrigger, text: String, attachments: [ChatPhotoPickerObject]) throws {
+    func presentChatResolved(chat: ChatEntity?) {
+        guard let chat = chat else { return }
+        
+        let message = subStorage.storeOutgoingMessage(
+            localID: UUID().uuidString.lowercased(),
+            clientID: userContext.clientHash,
+            chatID: chat.ID,
+            type: .chatResolved,
+            content: .chatResolved,
+            status: nil,
+            timing: .regular,
+            orderingIndex: 1
+        )
+        
+        if let message = message {
+            let messageRef = subStorage.reference(to: message)
+            messagingContext.broadcast(event: .messagesUpserted([messageRef]), onQueue: .main)
+        }
+    }
+    
+    
+    func sendMessage(trigger: SdkManagerTrigger, text: String, attachments: [PickedAttachmentObject]) throws {
         thread.async { [unowned self] in
             _sendMessage(trigger: trigger, text: text, attachments: attachments)
         }
     }
     
-    private func _sendMessage(trigger: SdkManagerTrigger, text: String, attachments: [ChatPhotoPickerObject]) {
+    private func _sendMessage(trigger: SdkManagerTrigger, text: String, attachments: [PickedAttachmentObject]) {
         journal {"Sending the message"}
         
         DispatchQueue.main.async { [apnsService] in
-            apnsService.requestForPermission(at: .onSend)
+            apnsService.requestForPermission(at: .clientAction)
         }
         
         guard let chat = chatContext.chatRef?.resolved else {
@@ -482,7 +509,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         ].jv_flatten()
     }
     
-    private func _sendMessage_process(attachments: [ChatPhotoPickerObject]) {
+    private func _sendMessage_process(attachments: [PickedAttachmentObject]) {
         guard jv_not(attachments.isEmpty)
         else {
             return
@@ -629,6 +656,16 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     
     private func _markSeen(message: MessageEntity) {
         proto.sendMessageAck(id: message.ID, date: message.date)
+    }
+    
+    func dismissPrechat() {
+        thread.async { [unowned self] in
+            _dismissPrechat()
+        }
+    }
+    
+    private func _dismissPrechat() {
+        
     }
     
     func informContactInfoStatus() {
@@ -879,11 +916,17 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             content.userInfo = userInfo
         }
         
-        if let delegate = notificationsDelegate {
-            if let result = delegate.jivoNotifications(prepareBanner: .shared, content: content, sender: sender, text: text) {
+        if let transformer = notificationsCallbacks?.notificationContentTransformer {
+            let event = JVNotificationsEvent(
+                content: content,
+                sender: sender,
+                text: text
+            )
+            
+            if let newContent = transformer(event) {
                 UNUserNotificationCenter.current().add(UNNotificationRequest(
                     identifier: notificationPrefix + UUID().uuidString,
-                    content: result,
+                    content: newContent,
                     trigger: nil
                 ))
             }
@@ -899,31 +942,39 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     
     func restoreChat() {
         thread.async { [unowned self] in
-            if let chat = obtainChat() {
-                let chatID = chat.ID
-                let history = subStorage.history(chatId: chat.ID, after: nil, limit: 30)
-                journal(layer: .logic) {"Chat: found and activate\nchat-id[\(chatID)]"}
-                
-                chatContext.chatRef = subStorage.reference(to: chat)
-                chatMessages = subStorage.reference(to: history)
-                
-                let messagesIds = history.map(\.ID).filter { $0 > .zero }
-                historyState.activity = .synced
-                historyState.localEarliestMessageId = messagesIds.min()
-                historyState.localLatestMessageId = messagesIds.max()
-                historyState.localLatestMessageDate = history.last?.date
-
-                messagingContext.broadcast(event: .historyLoaded(history: chatMessages), onQueue: .main)
-                notifyObservers(event: .chatObtained(subStorage.reference(to: chat)), onQueue: .main)
-                
-                chat.agents.forEach { agent in
-                    chatContext.chatAgents[agent.ID] = subStorage.reference(to: agent)
-                }
-                
-                let agentsRefs = chat.agents.map { subStorage.reference(to: $0) }
-                notifyObservers(event: .chatAgentsUpdated(agentsRefs), onQueue: .main)
-            }
+            _restoreChat()
         }
+    }
+    
+    private func _restoreChat() {
+        guard let chat = obtainChat() else {
+            return
+        }
+        
+        let chatID = chat.ID
+        let history = subStorage.history(chatId: chat.ID, after: nil, limit: 30)
+        journal(layer: .logic) {"Chat: found and activate\nchat-id[\(chatID)]"}
+        
+        chatContext.chatRef = subStorage.reference(to: chat)
+        chatMessages = subStorage.reference(to: history)
+        
+        let messagesIds = history.map(\.ID).filter { $0 > .zero }
+        historyState.activity = .synced
+        historyState.localEarliestMessageId = messagesIds.min()
+        historyState.localLatestMessageId = messagesIds.max()
+        historyState.localLatestMessageDate = history.last?.date
+
+        messagingContext.broadcast(event: .historyLoaded(history: chatMessages), onQueue: .main)
+        notifyObservers(event: .chatObtained(subStorage.reference(to: chat)), onQueue: .main)
+        
+        chat.agents.forEach { agent in
+            chatContext.chatAgents[agent.ID] = subStorage.reference(to: agent)
+        }
+        
+        historyState.hasNewerMessagesSinceConnection = false
+        
+        let agentsRefs = chat.agents.map { subStorage.reference(to: $0) }
+        notifyObservers(event: .chatAgentsUpdated(agentsRefs), onQueue: .main)
     }
     
     func makeAllAgentsOffline() {
@@ -1035,6 +1086,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             isFirstSessionInitialization = true
             chatContext.chatRef = nil
             globalRateConfig = nil
+            typingCacheService.resetInput(context: .standard)
         }
     }
 
@@ -1044,13 +1096,19 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
             case SdkSessionProtoMeSubject.id:
                 historyState.remoteHasContent = true
             case SdkSessionProtoMeSubject.history(.some(let messageId)):
+                historyState.hasPointer = true
+                historyState.responseDate = Date()
                 historyState.remoteHasContent = true
                 historyState.remoteLatestMessageId = messageId
+                autorunPrechat()
                 notifyUnreadCounter()
             case SdkSessionProtoMeSubject.history(.none):
+                historyState.hasPointer = true
+                historyState.responseDate = Date()
                 historyState.remoteEarliestMessageId = historyState.localEarliestMessageId
                 historyState.activity = .synced
-                handleMeTransaction_contactFormAutorun()
+                handleMeTransaction_autorunContactForm()
+                autorunPrechat()
                 messagingContext.broadcast(event: .allHistoryLoaded, onQueue: .main)
             default:
                 break
@@ -1060,7 +1118,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         _flushSilentMessages()
     }
     
-    private func handleMeTransaction_contactFormAutorun() {
+    private func handleMeTransaction_autorunContactForm() {
         informContactInfoStatus()
         
         switch detectContactInfoStatus() {
@@ -1148,7 +1206,8 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         handleMessageTransaction_detectMissingRanges(
             incomingMessages: upsertedMessages.map(\.value).sorted { $0.date < $1.date },
             persistentIds: persistentIds,
-            inmemoryRange: (inmemoryFirstId ... inmemoryLastId))
+            inmemoryRange: (inmemoryFirstId ... inmemoryLastId)
+        )
         
         requestedHistoryPastUids.subtract(upsertedMessages.orderedKeys)
         
@@ -1158,6 +1217,11 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         
         let messageReferences = subStorage.reference(to: Array(upsertedMessages.orderedValues))
         messagingContext.broadcast(event: .messagesUpserted(messageReferences), onQueue: .main)
+        
+        if let localId = historyState.localLatestMessageId, let remoteId = historyState.remoteLatestMessageId, localId > remoteId {
+            historyState.hasNewerMessagesSinceConnection = true
+            autorunPrechat()
+        }
         
         notifyUnreadCounter()
         _flushSilentMessages()
@@ -1289,6 +1353,29 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
                 .markMessagesAsSeen(chat: chat, till: messageId)
                 .filter { !$0.m_is_incoming }
         }
+    }
+    
+    private func autorunPrechat() {
+//        //  ОПЕРАТОР ПОДКЛЮЧИЛСЯ К ДИАЛОГУ = СКРЫВАТЬ
+//        if userDataReceivingMode != .channel {
+//            eventObservable.broadcast(.prechatButtons(captions: .jv_empty), async: .main)
+//        }
+//        // ИСТОРИЯ НЕИЗВЕСТНА = СКРЫВАТЬ
+//        else if !historyState.hasPointer {
+//            eventObservable.broadcast(.prechatButtons(captions: .jv_empty), async: .main)
+//        }
+//        // ПОЯВИЛИСЬ НОВЫЕ СООБЩЕНИЯ С МОМЕНТА ПОДКЛЮЧЕНИЯ = СКРЫВАТЬ
+//        else if historyState.hasNewerMessagesSinceConnection {
+//            eventObservable.broadcast(.prechatButtons(captions: .jv_empty), async: .main)
+//        }
+//        // С ПОСЛЕДНЕГО СООБЩЕНИЯ ПРОШЛО МЕНЬШЕ 5 МИНУТ = СКРЫВАТЬ
+//        else if let latestDate = historyState.localLatestMessageDate, Date().timeIntervalSince(latestDate) < 300 {
+//            eventObservable.broadcast(.prechatButtons(captions: .jv_empty), async: .main)
+//        }
+//        else {
+//            let captions = ["one", "two", "three", "four"]
+//            eventObservable.broadcast(.prechatButtons(captions: captions), async: .main)
+//        }
     }
     
     private func handleUserTransaction(_ transaction: [NetworkingEventBundle]) {
@@ -1552,7 +1639,7 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
     private func notificationDidTap(_ sender: SdkClientSubPusherNotification) {
         switch sender {
         case .message where jv_not(Jivo.display.isOnscreen):
-            Jivo.display.delegate?.jivoDisplay(asksToAppear: .shared)
+            Jivo.display.callbacks.asksToAppearHandler()
         default:
             break
         }

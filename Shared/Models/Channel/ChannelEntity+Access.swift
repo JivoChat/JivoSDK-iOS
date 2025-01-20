@@ -6,8 +6,13 @@
 //  Copyright © 2023 JivoSite. All rights reserved.
 //
 
-import Foundation
 import UIKit
+
+struct JVJointBundledValues {
+    var channelTitle: String?
+    var isStandalone: Bool
+    var isContiguous: Bool
+}
 
 enum JVChannelJoint: String {
     case fb = "fb"
@@ -28,94 +33,119 @@ enum JVChannelJoint: String {
     case ig = "ig"
     case drom = "drom"
     case ali = "ali"
+    case avito = "av"
     case unknown
     
-    var localizedChannelTitle: String? {
+    var values: JVJointBundledValues {
         switch self {
-        case .fb: return loc["Client.Integration.FB"]
-        case .vk: return loc["Client.Integration.VK"]
-        case .ok: return loc["Client.Integration.OK"]
-        case .tg: return loc["Client.Integration.TG"]
-        case .vb: return loc["Client.Integration.VB"]
-        case .wa, .wb, .tw: return loc["Client.Integration.WA"]
-        case .email: return loc["Client.Integration.Email"]
-        case .sdk: return loc["Client.Integration.SDK"]
-        case .ya: return loc["Client.Integration.YA"]
-        case .tel: return loc["Client.Integration.Tel"]
-        case .webhook: return loc["Client.Integration.Bot"]
-        case .salute: return loc["Client.Integration.Salute"]
-        case .abc: return loc["Channel.Title.iMessage"]
-        case .ig: return loc["Client.Integration.Instagram"]
-        case .drom: return loc["Client.Integration.Drom"]
-        case .ali: return loc["Client.Integration.Aliexpress"]
+        case .fb:
+            return .init(
+                channelTitle: loc["Client.Integration.FB"],
+                isStandalone: true,
+                isContiguous: true
+            )
+        case .vk:
+            return .init(
+                channelTitle: loc["Client.Integration.VK"],
+                isStandalone: true,
+                isContiguous: true
+            )
+        case .ok:
+            return .init(
+                channelTitle: loc["Client.Integration.OK"],
+                isStandalone: true,
+                isContiguous: true
+            )
+        case .tg:
+            return .init(
+                channelTitle: loc["Client.Integration.TG"],
+                isStandalone: true,
+                isContiguous: true
+            )
+        case .vb:
+            return .init(
+                channelTitle: loc["Client.Integration.VB"],
+                isStandalone: true,
+                isContiguous: true
+            )
+        case .wa, .tw, .wb:
+            return .init(
+                channelTitle: loc["Client.Integration.WA"],
+                isStandalone: true,
+                isContiguous: true
+            )
+        case .email:
+            return .init(
+                channelTitle: loc["Client.Integration.Email"],
+                isStandalone: true,
+                isContiguous: true
+            )
+        case .sdk:
+            return .init(
+                channelTitle: loc["Client.Integration.SDK"],
+                isStandalone: true,
+                isContiguous: true
+            )
+        case .ya:
+            return .init(
+                channelTitle: loc["Client.Integration.YA"],
+                isStandalone: false,
+                isContiguous: false
+            )
+        case .tel:
+            return .init(
+                channelTitle: loc["Client.Integration.Tel"],
+                isStandalone: true,
+                isContiguous: true
+            )
+        case .webhook:
+            return .init(
+                channelTitle: loc["Client.Integration.Bot"],
+                isStandalone: true,
+                isContiguous: true
+            )
+        case .salute:
+            return .init(
+                channelTitle: loc["Client.Integration.Salute"],
+                isStandalone: false,
+                isContiguous: true
+            )
+        case .abc:
+            return .init(
+                channelTitle: loc["Channel.Title.iMessage"],
+                isStandalone: true,
+                isContiguous: true
+            )
+        case .ig:
+            return .init(
+                channelTitle: loc["Client.Integration.Instagram"],
+                isStandalone: true,
+                isContiguous: true
+            )
+        case .drom:
+            return .init(
+                channelTitle: loc["Client.Integration.Drom"],
+                isStandalone: false,
+                isContiguous: false
+            )
+        case .ali:
+            return .init(
+                channelTitle: loc["Client.Integration.Aliexpress"],
+                isStandalone: false,
+                isContiguous: false
+            )
+        case .avito:
+            return .init(
+                channelTitle: loc["Client.Integration.Avito"],
+                isStandalone: false,
+                isContiguous: false
+            )
         case .unknown:
-            return nil
-        }
-    }
-    
-    var localizedContactTitle: String? {
-        switch self {
-        case .fb: return loc["Client.Integration.FB"]
-        case .vk: return loc["Client.Integration.VK"]
-        case .ok: return loc["Client.Integration.OK"]
-        case .tg: return loc["Client.Integration.TG"]
-        case .vb: return loc["Client.Integration.VB"]
-        case .wa, .wb, .tw: return loc["Client.Integration.WA"]
-        case .email: return loc["Client.Integration.Email"]
-        case .sdk: return loc["Client.Integration.SDK"]
-        case .ya: return loc["Client.Integration.YA"]
-        case .webhook: return loc["Client.Integration.Bot"]
-        case .tel: return loc["Channel.Title.Phone"]
-        case .salute: return loc["Client.Integration.Salute"]
-        case .abc: return loc["Channel.Title.iMessage"]
-        case .ig: return loc["Client.Integration.Instagram"]
-        case .drom: return loc["Channel.Title.Drom"]
-        case .ali: return loc["Channel.Title.Aliexpress"]
-        case .unknown: return nil
-        }
-    }
-    
-    var isStandalone: Bool {
-        switch self {
-        case .fb: return true
-        case .vk: return true
-        case .ok: return true
-        case .tg: return true
-        case .vb: return true
-        case .wa, .wb, .tw: return true
-        case .email: return true
-        case .sdk: return true
-        case .ya: return false
-        case .webhook: return true
-        case .tel: return true
-        case .salute: return false
-        case .abc: return true
-        case .ig: return true
-        case .drom: return false
-        case .ali: return false
-        case .unknown: return false
-        }
-    }
-    
-    var isContiguous: Bool {
-        switch self {
-        case .fb: return true
-        case .vk: return true
-        case .ok: return true
-        case .tg: return true
-        case .vb: return true
-        case .wa, .wb, .tw: return true
-        case .email: return true
-        case .sdk: return true
-        case .ya: return false
-        case .webhook: return true
-        case .tel: return true
-        case .salute: return true
-        case .abc: return true
-        case .ig: return true
-        case .drom: return false
-        case .ali: return false
-        case .unknown: return true
+            return .init(
+                channelTitle: nil,
+                isStandalone: false,
+                isContiguous: true
+            )
         }
     }
 }
@@ -123,6 +153,10 @@ enum JVChannelJoint: String {
 extension ChannelEntity {
     var ID: Int {
         return Int(m_id)
+    }
+    
+    var jointID: String {
+        return m_joint_id.jv_orEmpty
     }
     
     var publicID: String {
@@ -197,6 +231,11 @@ extension ChannelEntity {
         return false
     }
     
+    var isTelegram: Bool {
+        if jointType == .tg { return true }
+        return false
+    }
+    
     func hasAttachedAgent(ID agentID: Int) -> Bool {
         let query = ",\(agentID),"
         return m_agents_ids.jv_orEmpty.contains(query)
@@ -241,6 +280,8 @@ extension ChannelEntity {
             return UIImage(named: "preview_drom")
         case .ali:
             return UIImage(named: "preview_ecomm")
+        case .avito:
+            return UIImage(named: "preview_avito")
         case .unknown:
             return UIImage(named: "preview_chat")
         }

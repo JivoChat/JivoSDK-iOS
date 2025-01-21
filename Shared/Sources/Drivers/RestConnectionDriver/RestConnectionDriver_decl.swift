@@ -8,7 +8,7 @@
 
 import Foundation
 import JMCodingKit
-import SwiftGraylog
+//import SwiftGraylog
 
 protocol IRestConnectionDriver: AnyObject {
     var failureCallback: ((HTTPURLResponse, TimeInterval?) -> Void)? { get set }

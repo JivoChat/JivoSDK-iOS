@@ -115,6 +115,10 @@ final class JMTimelineCompositeButtonsBlock: UIView, JMTimelineBlockCallable {
         buttons.forEach { addSubview($0) }
     }
     
+    func reset() {
+        buttons.removeAll()
+    }
+    
     func updateDesign() {
         if let style = style {
             for button in buttons {
@@ -172,7 +176,15 @@ fileprivate struct Layout {
     let shadowDistance: CGFloat
 
     var buttonFrames: [CGRect] {
-        var rect = CGRect.zero
+        let letterDiff: CGFloat
+        if let font = buttons.first?.titleLabel?.font {
+            letterDiff = max(0, font.lineHeight - font.capHeight) 
+        }
+        else {
+            letterDiff = 0
+        }
+        
+        var rect = CGRect(x: 0, y: letterDiff, width: 0, height: 0)
         return buttons.map { button in
             let size = normalize(
                 buttonSize: button
@@ -199,15 +211,25 @@ fileprivate struct Layout {
     }
     
     var totalSize: CGSize {
-        let width = buttonFrames.map(\.maxX).max() ?? 0
-        let height = buttonFrames.last?.maxY ?? 0
-        return CGSize(width: width, height: height + shadowDistance * 1.5)
+        switch behavior {
+        case _ where buttons.isEmpty:
+            return .zero
+        case .horizontal:
+            let width = buttonFrames.map(\.maxX).max() ?? 0
+            let height = buttonFrames.last?.maxY ?? 0
+            return CGSize(width: width, height: height + shadowDistance * 1.5)
+        case .vertical:
+            let height = buttonFrames.last?.maxY ?? 0
+            return CGSize(width: 0, height: height + shadowDistance * 1.5)
+        }
     }
     
     private func normalize(buttonSize size: CGSize) -> CGSize {
         switch behavior {
-        case .horizontal: return size
-        case .vertical: return CGSize(width: bounds.width, height: size.height)
+        case .horizontal:
+            return size
+        case .vertical:
+            return CGSize(width: bounds.width, height: size.height)
         }
     }
 }

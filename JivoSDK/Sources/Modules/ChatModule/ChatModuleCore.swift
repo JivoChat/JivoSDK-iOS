@@ -63,7 +63,7 @@ final class ChatModuleCore
     private let databaseDriver: JVIDatabaseDriver
     private let mentionRetriever: JMMarkdownMentionProvider
     private let timelineFactory: ChatTimelineFactory
-    private let timelineController: JMTimelineController<ChatTimelineInteractor>
+    private let timelineController: JMTimelineController<ChatHistoryConfig, ChatTimelineInteractor>
     private let timelineInteractor: ChatTimelineInteractor
     private let timelineCache: JMTimelineCache
     private let uiConfig: SdkChatModuleVisualConfig
@@ -91,6 +91,7 @@ final class ChatModuleCore
     private var selectedMessage: MessageEntity?
     private var isHistoryPerformingUpdates = false
     private var allHistoryLoaded = false
+    private var recentPrechatCaptions = [String]()
     
     private let agentsTimelineCache = AgentsTimelineCache()
     
@@ -115,7 +116,7 @@ final class ChatModuleCore
          databaseDriver: JVIDatabaseDriver,
          mentionRetriever: @escaping JMMarkdownMentionProvider,
          timelineFactory: ChatTimelineFactory,
-         timelineController: JMTimelineController<ChatTimelineInteractor>,
+         timelineController: JMTimelineController<ChatHistoryConfig, ChatTimelineInteractor>,
          timelineInteractor: ChatTimelineInteractor,
          timelineCache: JMTimelineCache,
          uiConfig: SdkChatModuleVisualConfig,
@@ -289,7 +290,7 @@ final class ChatModuleCore
     }
     
     override func run() {
-        typingCacheService.cache(text: uiConfig.inputPrefill.jv_valuable)
+        typingCacheService.cache(context: .standard, text: uiConfig.inputPrefill.jv_valuable)
         
         chatEventObserver = chatManager.eventObservable.addObserver { [weak self] event in
             self?.handleChatEvent(event)
@@ -303,7 +304,7 @@ final class ChatModuleCore
         chatManager.restoreChat()
         
         managerPipeline.notify(event: .turnActive)
-        apnsService.requestForPermission(at: .onAppear)
+        apnsService.requestForPermission(at: .displayOnscreen)
         
         notifyMenuState(licensing: clientContext.licensing)
     }
@@ -362,7 +363,7 @@ final class ChatModuleCore
     }
     
     private func handleWillAppear() {
-        let input = typingCacheService.currentInput
+        let input = typingCacheService.currentInput(context: .standard)
         let text = input.text.jv_orEmpty
         pipeline?.notify(event: .inputUpdate(.fill(text: text, attachments: input.attachments)))
         
@@ -376,7 +377,7 @@ final class ChatModuleCore
     }
     
     private func handleTextInput(text: String) {
-        typingCacheService.cache(text: text.jv_valuable)
+        typingCacheService.cache(context: .standard, text: text.jv_valuable)
         chatManager.sendTyping(text: text)
         notifyReplyingState()
     }
@@ -396,7 +397,7 @@ final class ChatModuleCore
                 return
             }
             
-            switch typingCacheService.cache(attachment: object) {
+            switch typingCacheService.cache(context: .standard, attachment: object) {
             case .accept:
                 self?.pipeline?.notify(event: .inputUpdate(.updateAttachment(object)))
             case .reject:
@@ -410,7 +411,7 @@ final class ChatModuleCore
     }
     
     private func performJournalRequest() {
-        Jivo.debugging.archiveLogs { [weak self] url, status in
+        Jivo.debugging.exportArchive { [weak self] status, url in
             switch status {
             case .success:
                 if let url = url, let data = try? Data(contentsOf: url) {
@@ -431,12 +432,12 @@ final class ChatModuleCore
     
 
     private func handleDocument(url: URL) {
-        let object: ChatPhotoPickerObject
+        let object: PickedAttachmentObject
         if let image = UIImage(contentsOfFile: url.path) {
-            object = ChatPhotoPickerObject(
+            object = PickedAttachmentObject(
                 uuid: UUID(),
                 payload: .image(
-                    ChatPhotoPickerImageMeta(
+                    PickedImageMeta(
                         image: image,
                         url: url,
                         assetLocalId: nil,
@@ -447,10 +448,10 @@ final class ChatModuleCore
             )
         }
         else {
-            object = ChatPhotoPickerObject(
+            object = PickedAttachmentObject(
                 uuid: UUID(),
                 payload: .file(
-                    ChatPhotoPickerFileMeta(
+                    PickedFileMeta(
                         url: url,
                         name: url.lastPathComponent,
                         size: url.jv_fileSize ?? 0,
@@ -460,7 +461,7 @@ final class ChatModuleCore
             )
         }
         
-        switch typingCacheService.cache(attachment: object) {
+        switch typingCacheService.cache(context: .standard, attachment: object) {
         case .accept:
             pipeline?.notify(event: .inputUpdate(.updateAttachment(object)))
         case .reject:
@@ -498,6 +499,11 @@ final class ChatModuleCore
             pipeline?.notify(event: .inputUpdate(.update(.init(input: .active(placeholder: uiConfig.inputPlaceholder, text: nil, menu: nil), submit: nil))))
         case .disableReplying(let reason):
             pipeline?.notify(event: .inputUpdate(.update(.init(input: .inactive(reason: reason), submit: nil))))
+        case .prechatButtons(recentPrechatCaptions):
+            break
+        case .prechatButtons(let captions):
+            chatHistory.setPrechat(captions: captions)
+            recentPrechatCaptions = captions
         default:
             break
         }
@@ -732,7 +738,7 @@ final class ChatModuleCore
             return
         }
         
-        let attachments = typingCacheService.currentInput.attachments
+        let attachments = typingCacheService.currentInput(context: .standard).attachments
         guard validateSendingMessageContent(text: message, attachments: attachments) else {
             journal {"Failed validating the message content"}
             return
@@ -760,7 +766,7 @@ final class ChatModuleCore
         }
     }
     
-    private func validateSendingMessageContent(text: String?, attachments: [ChatPhotoPickerObject]) -> Bool {
+    private func validateSendingMessageContent(text: String?, attachments: [PickedAttachmentObject]) -> Bool {
         return text?.jv_trimmed().count ?? 0 > 0 || attachments.count > 0
     }
     
@@ -775,7 +781,7 @@ final class ChatModuleCore
     }
     
     private func handleAttachmentDismissButtonTapRequest(index: Int) {
-        typingCacheService.uncache(attachmentAt: index)
+        typingCacheService.discardAttachment(context: .standard, index: index)
     }
     
     private func performMessageCopy() {
@@ -823,7 +829,7 @@ final class ChatModuleCore
     }
     
     private func handleAttachmentDismiss(index: Int) {
-        typingCacheService.uncache(attachmentAt: index)
+        typingCacheService.discardAttachment(context: .standard, index: index)
     }
     
     private func timelineFirstItemVisibleHandler(isVisible: Bool) {
@@ -851,7 +857,7 @@ final class ChatModuleCore
     }
     
     private func notifyReplyingState() {
-        let input = typingCacheService.currentInput
+        let input = typingCacheService.currentInput(context: .standard)
         state.inputText = input.text.jv_orEmpty
         
         pipeline?.notify(event: .inputUpdate(.update(.init(
@@ -864,7 +870,7 @@ final class ChatModuleCore
         ))))
     }
     
-    private func handleMeta(_ meta: ChatPickedMeta?, callback: @escaping (ChatPhotoPickerObject) -> Void) {
+    private func handleMeta(_ meta: ChatPickedMeta?, callback: @escaping (PickedAttachmentObject) -> Void) {
 //        guard let chat = chat, let recipient = chat.recipient else { return }
         let recipient = JVSenderData(type: .agent, ID: 0)
         
@@ -883,7 +889,7 @@ final class ChatModuleCore
                     switch response {
                     case .progress(let progress):
                         callback(
-                            ChatPhotoPickerObject(
+                            PickedAttachmentObject(
                                 uuid: uuid,
                                 payload: .progress(progress)
                             )
@@ -891,10 +897,10 @@ final class ChatModuleCore
                         
                     case .photo(let image, let url, let date, let name):
                         callback(
-                            ChatPhotoPickerObject(
+                            PickedAttachmentObject(
                                 uuid: uuid,
                                 payload: .image(
-                                    ChatPhotoPickerImageMeta(
+                                    PickedImageMeta(
                                         image: image,
                                         url: url,
                                         assetLocalId: nil,
@@ -907,10 +913,10 @@ final class ChatModuleCore
 
                     case .video(let url):
                         callback(
-                            ChatPhotoPickerObject(
+                            PickedAttachmentObject(
                                 uuid: uuid,
                                 payload: .file(
-                                    ChatPhotoPickerFileMeta(
+                                    PickedFileMeta(
                                         url: url,
                                         name: url.lastPathComponent,
                                         size: url.jv_fileSize ?? 0,
@@ -925,10 +931,10 @@ final class ChatModuleCore
             
         case .image(let image)?:
             callback(
-                ChatPhotoPickerObject(
+                PickedAttachmentObject(
                     uuid: UUID(),
                     payload: .image(
-                        ChatPhotoPickerImageMeta(
+                        PickedImageMeta(
                             image: image,
                             url: nil,
                             assetLocalId: nil,
@@ -941,10 +947,10 @@ final class ChatModuleCore
 
         case .url(let url)?:
             callback(
-                ChatPhotoPickerObject(
+                PickedAttachmentObject(
                     uuid: UUID(),
                     payload: .file(
-                        ChatPhotoPickerFileMeta(
+                        PickedFileMeta(
                             url: url,
                             name: url.lastPathComponent,
                             size: url.jv_fileSize ?? 0,

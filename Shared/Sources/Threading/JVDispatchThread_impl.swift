@@ -67,6 +67,10 @@ final class JVDispatchThread: NSObject, JVIDispatchThread {
         async(block: block)
     }
     
+    func enqueueOperation(_ block: @escaping () -> Void) {
+        async(block: block)
+    }
+    
     @objc private func handleTask(task: DispatchTask) {
         task.perform()
     }

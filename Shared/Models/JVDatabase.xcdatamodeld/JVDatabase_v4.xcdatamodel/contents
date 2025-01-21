@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22758" systemVersion="23F79" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22222" systemVersion="23E224" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="AgentEntity" representedClassName=".AgentEntity" parentEntity="ParticipantEntity" syncable="YES" codeGenerationType="category">
         <attribute name="m_avatar_link" optional="YES" attributeType="String"/>
         <attribute name="m_calling_destination" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -165,6 +165,8 @@
         <attribute name="m_inactive_since" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="m_is_group" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="m_is_main" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_is_resolved" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_is_resolved_before" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="m_last_activity_timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="m_last_message_valid" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
         <attribute name="m_loaded_entiry_history" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>

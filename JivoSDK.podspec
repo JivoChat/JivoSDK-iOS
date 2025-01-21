@@ -1,6 +1,6 @@
 Pod::Spec.new do |root|
     root.name = 'JivoSDK'
-    root.version = '4.5.2'
+    root.version = '5.0.0-rc.11'
     root.homepage = 'https://github.com/JivoChat'
     root.authors = { "Anton Karpushko" => "karpushko@jivosite.com", "Stan Potemkin" => "potemkin@jivosite.com" }
     root.summary = 'Jivo business chat Mobile SDK'
@@ -58,8 +58,8 @@ Pod::Spec.new do |root|
         spec.dependency 'JFEmojiPicker', '1.2'
         spec.dependency 'JFWebSocket', '2.9.5'
         spec.dependency 'JMCodingKit', '5.0.4'
-        spec.dependency 'JMRepicKit', '1.0.6'
-        spec.dependency 'JMTimelineKit', '4.3.5'
+        spec.dependency 'JMRepicKit', '1.0.7'
+        spec.dependency 'JMTimelineKit', '5.0.0'
         spec.dependency 'JMMarkdownKit', '1.2.4'
         spec.dependency 'JMDesignKit', '1.0.0'
         spec.dependency 'JMOnetimeCalculator', '1.0.0'
@@ -68,7 +68,6 @@ Pod::Spec.new do |root|
         spec.dependency 'TypedTextAttributes', '~> 1.4.0'
         spec.dependency 'PureParser', '~> 1.0.4'
         spec.dependency 'ReachabilitySwift', '~> 5.0'
-        spec.dependency 'SwiftGraylog', '~> 1.1.1'
         spec.dependency 'SwiftDate', '~> 6.0'
         spec.dependency 'SwiftMime', '~> 1.0.0'
         spec.dependency 'KeychainSwift', '>= 20.0', '< 23.0'

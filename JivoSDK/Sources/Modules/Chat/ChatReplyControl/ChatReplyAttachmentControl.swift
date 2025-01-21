@@ -16,7 +16,7 @@ final class ChatReplyAttachmentControl: UIView {
     private let dismissButton = ChatReplyAttachmentDismissButton()
     private var content = UIView()
     
-    init(payload: ChatPhotoPickerObjectPayload) {
+    init(payload: PickedAttachmentObjectPayload) {
         self.payload = payload
         
         super.init(frame: .zero)
@@ -39,7 +39,7 @@ final class ChatReplyAttachmentControl: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    var payload: ChatPhotoPickerObjectPayload {
+    var payload: PickedAttachmentObjectPayload {
         didSet {
             content.removeFromSuperview()
             content = generateContent(for: payload)
@@ -78,7 +78,7 @@ final class ChatReplyAttachmentControl: UIView {
         )
     }
     
-    private func generateContent(for payload: ChatPhotoPickerObjectPayload) -> UIView {
+    private func generateContent(for payload: PickedAttachmentObjectPayload) -> UIView {
         switch payload {
         case .progress(let progress):
             return ChatReplyAttachmentProgressContent(progress: progress)

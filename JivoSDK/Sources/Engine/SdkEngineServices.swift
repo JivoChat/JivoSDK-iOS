@@ -18,6 +18,7 @@ struct SdkEngineServices {
     let workflowsService: IWorkflowsService
     let remoteStorageService: IRemoteStorageService
     let apnsService: ISdkApnsService
+    let translatorService: ITranslatorService
 }
 
 struct SdkEngineServicesFactory {
@@ -31,20 +32,25 @@ struct SdkEngineServicesFactory {
     let providers: SdkEngineProviders
     
     func build() -> SdkEngineServices {
+        let translatorService = buildTranslatorService()
         return SdkEngineServices(
-            systemMessagingService: buildSystemMessagingService(workerThread: workerThread),
+            systemMessagingService: buildSystemMessagingService(
+                workerThread: workerThread,
+                translatorService: translatorService),
             chatCacheService: buildChatCacheService(),
             mediaRequestService: buildMediaRequestService(),
             typingCacheService: buildTypingCacheService(),
             workflowsService: buildWorkflowsService(),
             remoteStorageService: buildRemoteStorageService(),
-            apnsService: buildSdkApnsService()
+            apnsService: buildSdkApnsService(),
+            translatorService: translatorService
         )
     }
     
-    private func buildSystemMessagingService(workerThread: JVIDispatchThread) -> ISystemMessagingService {
+    private func buildSystemMessagingService(workerThread: JVIDispatchThread, translatorService: ITranslatorService) -> ISystemMessagingService {
         return SystemMessagingService(
             thread: workerThread,
+            translatorService: translatorService,
             databaseDriver: drivers.databaseDriver,
             formattingProvider: providers.formattingProvider)
     }
@@ -91,20 +97,12 @@ struct SdkEngineServicesFactory {
                 }
                 
                 switch purpose {
-                case .exchange where clientContext.supportsRemoteMediaStorage():
+                case .exchange:
                     return RemoteStorageCenter(
                         engine: .media,
                         path: "api/1.0/auth/media/sign/put",
                         auth: .omit
                     )
-                    
-                case .exchange:
-                    return RemoteStorageCenter(
-                        engine: .files,
-                        path: "api/1.0/sites/\(identity.siteId)/widgets/\(identity.channelId)/media/transfer/access/gain",
-                        auth: .apply
-                    )
-                    
                 default:
                     journal {"Unknown purpose for File Upload"}
                     return nil
@@ -123,14 +121,14 @@ struct SdkEngineServicesFactory {
         return SdkApnsService(apnsDriver: drivers.apnsDriver)
     }
     
-//    private func buildCloudStorageService() -> ICloudStorageService {
-//        let standartCloudStorageService = CloudStorageServiceFactory.standart(apiHostProvider: {
-//            return clientContext.connectionConfig?.apiHost ?? String()
-//        })
-//        .build()
-//
-//        return standartCloudStorageService
-//    }
+    private func buildTranslatorService() -> ITranslatorService {
+        return TranslatorService(
+            localeProvider: providers.localeProvider,
+            requestPerformer: { message, originalLang, desiredLang in
+                assertionFailure()
+            }
+        )
+    }
 }
 
 protocol INetworkServiceFactory {

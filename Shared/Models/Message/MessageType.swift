@@ -27,6 +27,7 @@ extension MessageType {
     static let hello = Predefined.hello
     static let contactForm = Predefined.contact_form
     static let chatRate = Predefined.chat_rate
+    static let chatResolved = Predefined.chat_resolved
     static let unknown = Predefined.unknown
 }
 
@@ -191,6 +192,11 @@ fileprivate struct _Predefined {
         belonging: .hidden,
         collectInto: &types)
 
+    let chat_resolved = MessageType(
+        name: .custom("chat_resolved"),
+        belonging: .hidden,
+        collectInto: &types)
+    
     let unknown = MessageType(
         name: .custom("unknown"),
         belonging: .shown,

@@ -12,7 +12,7 @@ Same as ``Jivo``.``Jivo/session``.``JVSessionController/setPreferredServer(_:)``
 ```
 Future<void> Jivo.session.startUp({required String channelID, required String userToken}) async
 ```
-Same as ``Jivo``.``Jivo/session``.``JVSessionController/startUp(channelID:userToken:)``
+Same as ``Jivo``.``Jivo/session``.``JVSessionController/setup(widgetID:clientIdentity:)``
 
 ```
 Future<void> Jivo.session.setContactInfo({String? name, String? email, String? phone, String? brief}) async
@@ -32,7 +32,7 @@ Same as ``Jivo``.``Jivo/session``.``JVSessionController/shutDown()``
 ```
 void Jivo.session.startWatchingUnreadCounter(Function watcher)
 ```
-Same as ``Jivo``.``Jivo/session``.``JVSessionController/delegate`` -> ``JVSessionDelegate/jivoSession(updateUnreadCounter:number:)``
+Same as ``Jivo``.``Jivo/session``.``JVSessionController/listenToUnreadCounter(callback:)``
 
 ## Display
 
@@ -54,7 +54,7 @@ Same as ``Jivo``.``Jivo/display``.``JVDisplayController/present(over:)`` calling
 ```
 void Jivo.display.executeWhenAsksToAppear(Function executor)
 ```
-Same as ``Jivo``.``Jivo/display``.``JVDisplayController/delegate`` -> ``JVDisplayDelegate/jivoDisplay(asksToAppear:)``
+Same as ``Jivo``.``Jivo/display``.``JVDisplayController/listenToWillAppear(handler:)``
 
 ## Notifications
 
@@ -68,9 +68,9 @@ Same as ``Jivo``.``Jivo/notifications``.``JVNotificationsController/setPermissio
 ```
 Future<void> Jivo.debugging.setLevel(JVDebuggingLevel level) async
 ```
-Same as ``Jivo``.``Jivo/debugging``.``JVDebuggingController/level``
+Same as ``Jivo``.``Jivo/debugging``.``JVDebuggingController/setLevel(_:)``
 
 ```
 Future<void> Jivo.debugging.archiveLogs({required Function completion}) async
 ```
-Same as ``Jivo``.``Jivo/debugging``.``JVDebuggingController/archiveLogs(completion:)``
+Same as ``Jivo``.``Jivo/debugging``.``JVDebuggingController/exportArchive(completion:)``

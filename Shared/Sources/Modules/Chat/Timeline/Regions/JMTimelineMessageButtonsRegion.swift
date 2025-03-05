@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import DTModelStorage
 
 final class JMTimelineMessageButtonsRegion: JMTimelineMessageCanvasRegion {

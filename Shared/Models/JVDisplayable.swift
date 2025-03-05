@@ -15,4 +15,5 @@ protocol JVDisplayable: JVPresentable {
     var hashedID: String { get }
     var isMe: Bool { get }
     var isAvailable: Bool { get }
+    func typingContext() -> TypingContext
 }

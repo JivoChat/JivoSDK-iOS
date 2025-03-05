@@ -34,7 +34,7 @@ final class PlaceholderBottomCaption: UIView {
         if let value = label.attributedText, chevron {
             let complexValue = NSMutableAttributedString(attributedString: value)
 
-            if let _ = tapHandler, let icon = UIImage(named: "ph_arrow") {
+            if let _ = tapHandler, let icon = UIImage.jv_named("ph_arrow") {
                 complexValue.append(NSAttributedString(string: " "))
                 complexValue.insertIcon(icon, for: font, offset: CGVector(dx: -4, dy: 3))
             }

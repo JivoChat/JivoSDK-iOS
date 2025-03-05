@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 class ChatGrowingSubmitControl<T>: UIView {
     var outputHandler: (ChatGrowingSubmitControlOutput<T>) -> Void = { _ in }
@@ -51,11 +52,8 @@ class ChatGrowingSubmitControl<T>: UIView {
         handleInputChange(text: text)
     }
     
-    func updateAttachments(objects: [ChatPhotoPickerObject]) {
-        guard jv_not(objects.isEmpty)
-        else {
-            return
-        }
+    func updateAttachments(objects: [PickedAttachmentObject]) {
+        guard jv_not(objects.isEmpty) else { return }
         
         attachmentBar.isHidden = false
         for object in objects {

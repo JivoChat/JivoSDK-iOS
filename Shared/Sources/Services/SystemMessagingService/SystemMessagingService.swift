@@ -58,14 +58,16 @@ final class SystemMessagingService: ISystemMessagingService {
     }
     
     private let thread: JVIDispatchThread
+    private let translatorService: ITranslatorService
     private let databaseDriver: JVIDatabaseDriver
     private let formattingProvider: IFormattingProvider
     
     private var items = [Item]()
     private var localizedMetas = [String: LocalizedMeta]()
     
-    init(thread: JVIDispatchThread, databaseDriver: JVIDatabaseDriver, formattingProvider: IFormattingProvider) {
+    init(thread: JVIDispatchThread, translatorService: ITranslatorService, databaseDriver: JVIDatabaseDriver, formattingProvider: IFormattingProvider) {
         self.thread = thread
+        self.translatorService = translatorService
         self.databaseDriver = databaseDriver
         self.formattingProvider = formattingProvider
         
@@ -642,13 +644,18 @@ final class SystemMessagingService: ISystemMessagingService {
             return .init(exact: text.jv_plain())
 
         case .text(let text):
-            return .init(exact: text.jv_plain())
+            let result = translatorService.findTranslation(for: message) ?? text
+            return .init(exact: result.jv_plain())
+            
+        case .location:
+            return .init(exact: loc["Message.Preview.Location"])
 
         case .comment(let text):
             return .init(exact: text.jv_plain())
 
         case .email(_, _, _, let text):
-            return .init(exact: text.jv_plain())
+            let result = translatorService.findTranslation(for: message) ?? text
+            return .init(exact: result.jv_plain())
 
         case .transfer(let agentFrom, let agentTo):
             let meta = generateTransferMeta(
@@ -759,6 +766,8 @@ final class SystemMessagingService: ISystemMessagingService {
         case .contactForm:
             return .init(exact: .jv_empty)
         case .rateForm:
+            return .init(exact: .jv_empty)
+        case .chatResolved:
             return .init(exact: .jv_empty)
         }
     }

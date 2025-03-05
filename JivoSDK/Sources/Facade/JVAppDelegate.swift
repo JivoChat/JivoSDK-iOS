@@ -45,22 +45,20 @@ open class JVAppDelegate: UIResponder
     }
     
     open func userNotificationCenter(_ center: UNUserNotificationCenter, willPresent notification: UNNotification, withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
-        Jivo.notifications.configurePresentation(notification: notification, proxyTo: completionHandler) { [weak self] target, event in
-            if let handler = self?.bannerPresentingDelegate {
-                return handler.jivoApp(bannerPresentation: .shared, target: target, event: event, notification: notification)
-            }
-            else {
-                return .jv_empty
-            }
+        if let options = Jivo.notifications.willPresent(notification: notification, preferableOptions: .jv_banner) {
+            completionHandler(options)
+        }
+        else {
+            completionHandler(.jv_empty)
         }
     }
     
     open func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        Jivo.notifications.handleUser(response: response)
+        Jivo.notifications.didReceive(response: response)
         completionHandler()
     }
     
-    open func jivoApp(bannerPresentation sdk: Jivo, target: JVNotificationsTarget, event: JVNotificationsEvent, notification: UNNotification) -> UNNotificationPresentationOptions {
+    open func jivoApp(bannerPresentation sdk: Jivo, target: JVNotificationsTarget, category: JVNotificationsCategory, notification: UNNotification) -> UNNotificationPresentationOptions {
         switch target {
         case .app:
             return []
@@ -84,11 +82,13 @@ public protocol JVAppBannerPresentingDelegate: AnyObject {
      Reference to JivoSDK
      - Parameter target:
      A target the notification is intended for
+     - Parameter category:
+     A category of incoming notification
      - Parameter notification:
      An original incoming notification
      - Returns:
      Presentation Options to be applied for notification
      */
-    @objc(jivoAppBannerPresentation:target:event:notification:)
-    func jivoApp(bannerPresentation sdk: Jivo, target: JVNotificationsTarget, event: JVNotificationsEvent, notification: UNNotification) -> UNNotificationPresentationOptions
+    @objc(jivoAppBannerPresentation:target:category:notification:)
+    func jivoApp(bannerPresentation sdk: Jivo, target: JVNotificationsTarget, category: JVNotificationsCategory, notification: UNNotification) -> UNNotificationPresentationOptions
 }

@@ -30,6 +30,53 @@ extension Bundle {
     }
 }
 
+fileprivate var f_foundResourcesBundle: Bundle?
+extension Bundle {
+    static var jv_resourcesBundle: Bundle {
+        if let bundle = f_foundResourcesBundle {
+            return bundle
+        }
+        
+        for subpath in Bundle.main.paths(forResourcesOfType: "bundle", inDirectory: nil) {
+            let subname = (subpath as NSString).lastPathComponent
+            guard subname.lowercased().contains("jivo") else {
+                continue
+            }
+            
+            if let bundle = Bundle(path: subpath) {
+                f_foundResourcesBundle = bundle
+                return bundle
+            }
+        }
+        
+        return Bundle.main
+    }
+    
+    func jv_findDatabaseScheme(basename: String) -> URL? {
+        if let fileUrl = url(forResource: basename, withExtension: "momd") {
+            return fileUrl
+        }
+        
+        for path in paths(forResourcesOfType: "omo", inDirectory: nil) {
+            guard path.contains(basename) else {
+                continue
+            }
+            
+            return URL(fileURLWithPath: path) 
+        }
+        
+        for path in Bundle.jv_resourcesBundle.paths(forResourcesOfType: "omo", inDirectory: nil) {
+            guard path.contains(basename) else {
+                continue
+            }
+            
+            return URL(fileURLWithPath: path) 
+        }
+        
+        return nil
+    }
+}
+
 extension Bundle {
     enum VersionFormat {
         case marketingShort // "1.2.3"

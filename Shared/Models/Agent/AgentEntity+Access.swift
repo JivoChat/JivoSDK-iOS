@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import JMRepicKit
 
 enum JVAgentState: Int {
@@ -125,23 +126,23 @@ extension AgentEntity: JVDisplayable {
     var statusImage: UIImage? {
         switch state {
         case .active where isWorktimeEnabled:
-            return UIImage(named: "status_def_online")
+            return UIImage.jv_named("status_def_online")
         case .active:
-            return UIImage(named: "status_def_online_sleep")
+            return UIImage.jv_named("status_def_online_sleep")
         case .away where isWorktimeEnabled:
-            return UIImage(named: "status_def_away")
+            return UIImage.jv_named("status_def_away")
         case .away:
-            return UIImage(named: "status_def_away_sleep")
+            return UIImage.jv_named("status_def_away_sleep")
         case .none where isWorktimeEnabled:
-            return UIImage(named: "status_def_offline")
+            return UIImage.jv_named("status_def_offline")
         case .none:
-            return UIImage(named: "status_def_offline_sleep")
+            return UIImage.jv_named("status_def_offline_sleep")
         }
     }
     
     func repicItem(transparent: Bool, scale: CGFloat?) -> JMRepicItem? {
         let url = m_avatar_link.flatMap(URL.init)
-        let icon = UIImage(named: "avatar_agent", in: .jv_shared, compatibleWith: nil)
+        let icon = UIImage.jv_named("avatar_agent")
         let image = JMRepicItemSource.avatar(URL: url, image: icon, color: nil, transparent: transparent)
         return JMRepicItem(backgroundColor: nil, source: image, scale: scale ?? 1.0, clipping: .dual)
     }
@@ -286,6 +287,10 @@ extension AgentEntity: JVDisplayable {
         }
     }
 
+    func typingContext() -> TypingContext {
+        return .init(kind: .agent, ID: ID)
+    }
+    
     var onCall: Bool {
         return Int(m_calling_options).jv_hasBit(1 << JVAgentCallingOptions.onCall.rawValue)
     }

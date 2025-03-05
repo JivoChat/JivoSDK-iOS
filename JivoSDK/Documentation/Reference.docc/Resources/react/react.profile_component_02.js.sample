@@ -1,6 +1,6 @@
 import React from 'react';
 import { SafeAreaView, Button } from 'react-native';
-import Jivo from './jivosdk_module'
+import Jivo from 'rtn-jivo-sdk';
 
 export default class ProfileComponent extends React.Component {
     render() {
@@ -9,7 +9,7 @@ export default class ProfileComponent extends React.Component {
             <Button
                 title="Contact Support"
                 onPress={() => {
-                    Jivo.present()
+                    Jivo.display.present()
                 }}
             />
             </SafeAreaView>

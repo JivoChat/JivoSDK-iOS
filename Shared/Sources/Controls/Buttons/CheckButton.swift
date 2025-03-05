@@ -19,9 +19,9 @@ final class CheckButton: UIButton {
     init() {
         super.init(frame: .zero)
         
-        setImage(UIImage(named: "check-mini-off"), for: .normal)
-        setImage(UIImage(named: "check-mini-on"), for: .selected)
-        setImage(UIImage(named: "check-mini-warn"), for: .application)
+        setImage(UIImage.jv_named("check-mini-off"), for: .normal)
+        setImage(UIImage.jv_named("check-mini-on"), for: .selected)
+        setImage(UIImage.jv_named("check-mini-warn"), for: .application)
         addTarget(self, action: #selector(handleTap), for: .touchUpInside)
     }
     

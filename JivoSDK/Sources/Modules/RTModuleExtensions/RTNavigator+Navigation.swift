@@ -7,7 +7,7 @@
 //
 
 import Foundation
-
+import UIKit
 
 enum ModuleNavigationParent {
     case root(isExclusive: Bool)

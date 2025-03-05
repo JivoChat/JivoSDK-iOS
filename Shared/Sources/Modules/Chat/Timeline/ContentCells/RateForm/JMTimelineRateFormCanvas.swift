@@ -6,6 +6,7 @@
 //
 
 import JMTimelineKit
+import UIKit
 
 final class JMTimelineRateFormCanvas: JMTimelineCanvas {
     private let control = JMTimelineRateFormControl()

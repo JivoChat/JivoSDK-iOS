@@ -144,7 +144,7 @@ final class ChatModulePresenter
                 _updateLoadableIcon(link: agent.avatarLink, defaultIcon: state.uiConfig.icon)
             }
             else {
-                let defaultIcon = UIImage(named: "avatar_bot", in: .jv_shared, compatibleWith: nil) ?? UIImage()
+                let defaultIcon = UIImage.jv_named("avatar_bot") ?? UIImage()
                 _updateLoadableIcon(link: agent.avatarLink, defaultIcon: defaultIcon)
             }
         }

@@ -14,10 +14,10 @@ class ToggleButton: UIButton {
         setImage(nil, for: .normal)
         setBackgroundImage(nil, for: .normal)
         
-        setImage(UIImage(named: "check-plain"), for: .highlighted)
+        setImage(UIImage.jv_named("check-plain"), for: .highlighted)
         setBackgroundImage(UIImage(jv_color: JVDesign.colors.resolve(usage: .checkmarkOnBackground)), for: .highlighted)
         
-        setImage(UIImage(named: "check-plain"), for: .selected)
+        setImage(UIImage.jv_named("check-plain"), for: .selected)
         setBackgroundImage(UIImage(jv_color: JVDesign.colors.resolve(usage: .checkmarkOnBackground)), for: .selected)
         
         layer.masksToBounds = true

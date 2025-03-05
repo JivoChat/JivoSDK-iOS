@@ -21,10 +21,6 @@ For necessary permissions, add these appropriate keys to your `Info.plist`:
 
 Make sure you have `Push Notifications` capability in your project settings under `Signing & Capabilities` tab.
 
-> Important: Push Notifications are sent __only in production environment__
->
-> In other words, they can only be tested when distributed via AdHoc, TestFlight, or App Store.
-
 #### Localization
 
 Our Push Notifications use client-side localization (read more in ["Localize Your Alert Messages"](https://developer.apple.com/documentation/usernotifications/setting_up_a_remote_notification_server/generating_a_remote_notification) by Apple), for which localization keys are specified as title and message, so you need to add following keys into localization files `Localizable.strings` of your project:

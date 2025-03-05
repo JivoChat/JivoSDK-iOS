@@ -100,6 +100,8 @@ protocol ChatTimelineFactoryHistoryDelegate: AnyObject {
 }
 
 final class ChatTimelineFactory: JMTimelineFactory {
+    var chatResolvedHandler: (() -> Void)?
+    
     fileprivate struct SystemButtonStyle {
         let backgroundColor: UIColor
         let textColor: UIColor
@@ -112,6 +114,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
     private let userContext: IBaseUserContext
     private let databaseDriver: JVIDatabaseDriver
     private let systemMessagingService: ISystemMessagingService
+    private let translatorService: ITranslatorService
     private let provider: JVChatTimelineProvider
     private let interactor: JVChatTimelineInteractor
     private let isGroup: Bool
@@ -130,6 +133,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
     init(userContext: IBaseUserContext,
          databaseDriver: JVIDatabaseDriver,
          systemMessagingService: ISystemMessagingService,
+         translatorService: ITranslatorService,
          provider: JVChatTimelineProvider,
          interactor: JVChatTimelineInteractor,
          isGroup: Bool,
@@ -145,6 +149,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         self.userContext = userContext
         self.databaseDriver = databaseDriver
         self.systemMessagingService = systemMessagingService
+        self.translatorService = translatorService
         self.provider = provider
         self.interactor = interactor
         self.isGroup = isGroup
@@ -168,6 +173,8 @@ final class ChatTimelineFactory: JMTimelineFactory {
         manager.register(JMTimelineTimepointCell.self)
         manager.register(JMTimelineContactFormCell.self)
         manager.register(JMTimelineRateFormCell.self)
+        manager.register(JMTimelineChatResolvedCell.self)
+        manager.register(ChatTimelinePrechatCell.self)
 
         manager.referenceSizeForFooterView(withItem: JMTimelineDateItem.self, providers.headerSizeProvider)
         manager.sizeForCell(withItem: JMTimelineLoaderItem.self, providers.cellSizeProvider)
@@ -176,6 +183,8 @@ final class ChatTimelineFactory: JMTimelineFactory {
         manager.sizeForCell(withItem: JMTimelineTimepointItem.self, providers.cellSizeProvider)
         manager.sizeForCell(withItem: JMTimelineContactFormItem.self, providers.cellSizeProvider)
         manager.sizeForCell(withItem: JMTimelineRateFormItem.self, providers.cellSizeProvider)
+        manager.sizeForCell(withItem: JMTimelineChatResolvedItem.self, providers.cellSizeProvider)
+        manager.sizeForCell(withItem: ChatTimelinePrechatItem.self, providers.cellSizeProvider)
 
         manager.willDisplay(JMTimelineLoaderCell.self, providers.willDisplayHandler)
         manager.willDisplay(JMTimelineMessageCell.self, providers.willDisplayHandler)
@@ -183,6 +192,8 @@ final class ChatTimelineFactory: JMTimelineFactory {
         manager.willDisplay(JMTimelineTimepointCell.self, providers.willDisplayHandler)
         manager.willDisplay(JMTimelineContactFormCell.self, providers.willDisplayHandler)
         manager.willDisplay(JMTimelineRateFormCell.self, providers.willDisplayHandler)
+        manager.willDisplay(JMTimelineChatResolvedCell.self, providers.willDisplayHandler)
+        manager.willDisplay(ChatTimelinePrechatCell.self, providers.willDisplayHandler)
 
         manager.didSelect(JMTimelineSystemCell.self, providers.didSelectHandler)
     }
@@ -196,7 +207,6 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 groupingCoef: 0
             ),
             logicOptions: [.enableSizeCaching, .isVirtual],
-            extraActions: JMTimelineExtraActions(),
             payload: JMTimelineDateInfo(
                 caption: provider.formattedDateForGroupHeader(date)
             )
@@ -212,7 +222,6 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 groupingCoef: 0
             ),
             logicOptions: [.enableSizeCaching, .isVirtual],
-            extraActions: JMTimelineExtraActions(),
             payload: JMTimelineLoaderInfo()
         )
     }
@@ -221,6 +230,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
         guard !(message.isDeleted) else {
             return generatePlainItem(for: message)
         }
+        
+        if message.text == "chat_resolved" { return generateChatResolvedItem() }
+        
+        if case .chatResolved = message.content { return generateChatResolvedItem() }
         
         switch message.content {
         case .left: return generateSystemItem(for: message)
@@ -238,18 +251,32 @@ final class ChatTimelineFactory: JMTimelineFactory {
 
         if let media = message.media, media.jv_isValid {
             switch media.type {
-            case .photo: return generatePhotoItem(for: message, contentMode: .scaleAspectFill)
-            case .video: return generateVideoItem(for: message)
-            case .audio: return generateAudioItem(for: message)
-            case .voice: return generateVoiceMessageItem(for: message)
-            case .sticker: return generateStickerItem(for: message)
-            case .document: return generateDocumentItem(for: message)
-            case .comment: return generatePlainItem(for: message)
-            case .location: return generateLocationItem(for: message)
-            case .contact: return generateContactItem(for: message)
-            case .conference: return generateConferenceItem(for: message)
-            case .story: return generateStoryItem(for: message)
-            case .unknown: return generatePlainItem(for: message)
+            case _ where message.referralSource.jv_hasValue:
+                return generateReferralSourceItem(for: message, contentMode: .scaleAspectFill)
+            case .photo:
+                return generatePhotoItem(for: message, contentMode: .scaleAspectFill)
+            case .video:
+                return generateVideoItem(for: message)
+            case .audio:
+                return generateAudioItem(for: message)
+            case .voice:
+                return generateVoiceMessageItem(for: message)
+            case .sticker:
+                return generateStickerItem(for: message)
+            case .document:
+                return generateDocumentItem(for: message)
+            case .comment:
+                return generatePlainItem(for: message)
+            case .location:
+                return generateLocationItem(for: message)
+            case .contact:
+                return generateContactItem(for: message)
+            case .conference:
+                return generateConferenceItem(for: message)
+            case .story:
+                return generateStoryItem(for: message)
+            case .unknown:
+                return generatePlainItem(for: message)
             }
         }
         else if let _ = message.call {
@@ -291,7 +318,6 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 ? [.enableSizeCaching]
                 : [.enableSizeCaching, .isVirtual]
             ),
-            extraActions: JMTimelineExtraActions(),
             payload: JMTimelineSystemInfo(
                 icon: icon,
                 text: meta.localized(),
@@ -318,7 +344,6 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 ? [.enableSizeCaching]
                 : [.enableSizeCaching, .isVirtual]
             ),
-            extraActions: JMTimelineExtraActions(),
             payload: JMTimelineSystemInfo(
                 icon: nil,
                 text: text,
@@ -335,6 +360,23 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
+    func generatePrechatButtons(captions: [String]) -> JMTimelineItem {
+        return ChatTimelinePrechatItem(
+            uid: #function,
+            date: Date(),
+            layoutValues: generateMessageLayoutValues(),
+            logicOptions: [
+                .isVirtual,
+                .enableSizeCaching
+            ],
+            payload: ChatTimelinePrechatInfo(
+                captions: captions,
+                provider: provider,
+                interactor: interactor
+            )
+        )
+    }
+    
     private func generateSystemItem(for message: MessageEntity) -> JMTimelineItem {
         return JMTimelineSystemItem(
             uid: message.UUID,
@@ -345,7 +387,6 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 ? [.enableSizeCaching]
                 : [.enableSizeCaching, .isVirtual]
             ),
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineSystemInfo(
                 icon: message.contextImageURL(transparent: false),
                 text: systemMessagingService.generatePreviewPlain(
@@ -398,7 +439,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         
         let font = JVDesign.fonts.resolve(.regular(16), scaling: .callout)
         
-        let text = NSAttributedString(
+        let base = NSAttributedString(
             string: text,
             attributes: TextAttributes()
                 .foregroundColor(basicColor)
@@ -422,26 +463,29 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
         
         let content = NSMutableAttributedString()
-        content.append(text)
+        content.append(base)
         content.append(separator)
         content.append(symbol)
         
-        let uid = UUID().uuidString
-        
+        let uid = #function
         return JMTimelineMessageItem(
             uid: uid,
             date: Date(),
             layoutValues: generateMessageLayoutValues(),
             logicOptions: [.enableSizeCaching, .isVirtual],
-            extraActions: JMTimelineExtraActions(),
             payload: JMTimelineMessagePayload(
-                kindID: #function,
+                kindID: uid,
                 sender: JMTimelineItemSender(
                     ID: sender?.hashedID ?? String(),
                     icon: sender?.repicItem(transparent: false, scale: nil),
                     name: nil,
                     mark: nil,
                     style: _obtainItemSender_style(contentKind: .neutral)
+                ),
+                footer: ChatTimelineMessageExtras(
+                    caption: nil,
+                    reactions: .jv_empty,
+                    actions: .jv_empty
                 ),
                 renderOptions: JMTimelineMessageRenderOptions(
                     position: .left
@@ -486,7 +530,6 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 groupingCoef: 0
             ),
             logicOptions: [.isVirtual],
-            extraActions: JMTimelineExtraActions(),
             payload: JMTimelineSystemInfo(
                 icon: nil,
                 text: systemMessagingService.generateTaskPreview(
@@ -541,7 +584,6 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 groupingCoef: 0
             ),
             logicOptions: [.enableSizeCaching],
-            extraActions: JMTimelineExtraActions(),
             payload: JMTimelineTimepointInfo(
                 caption: caption
             )
@@ -562,8 +604,12 @@ final class ChatTimelineFactory: JMTimelineFactory {
             return JMTimelineContactFormCanvas()
         case _ as JMTimelineRateFormItem:
             return JMTimelineRateFormCanvas()
+        case _ as JMTimelineChatResolvedItem:
+            return JMTimelineChatResolvedCanvas()
         case _ as JMTimelineTimepointItem:
             return JMTimelineTimepointCanvas()
+        case _ as ChatTimelinePrechatItem:
+            return ChatTimelinePrechatCanvas()
         default:
             assertionFailure()
             return JMTimelineMessageCanvas()
@@ -638,7 +684,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         
         let messageInfo = JMTimelineMessagePlainInfo(
             quotedMessage: message.quotedMessage,
-            text: message.text,
+            text: translatorService.findTranslation(for: message) ?? message.text,
             style: JMTimelineCompositePlainStyle(
                 textColor: _generatePlainItem_textColor(sender: sender, isDeleted: message.isDeleted),
                 identityColor: _generatePlainItem_identityColor(sender: sender),
@@ -665,10 +711,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
                 historyDelegate: historyDelegate),
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineMessagePayload(
                 kindID: #function,
                 sender: obtainItemSender(for: message),
+                footer: obtainItemExtra(for: message),
                 renderOptions: JMTimelineMessageRenderOptions(
                     position: position
                 ),
@@ -793,10 +839,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
                 historyDelegate: historyDelegate),
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineMessagePayload(
                 kindID: #function,
                 sender: obtainItemSender(for: message),
+                footer: obtainItemExtra(for: message),
                 renderOptions: JMTimelineMessageRenderOptions(
                     position: position
                 ),
@@ -875,10 +921,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 historyDelegate: historyDelegate) + (
                     message.hasIdentity ? .jv_empty : .isVirtual
                 ),
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineMessagePayload(
                 kindID: #function,
                 sender: obtainItemSender(for: message),
+                footer: obtainItemExtra(for: message),
                 renderOptions: JMTimelineMessageRenderOptions(
                     position: .left
                 ),
@@ -964,7 +1010,6 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 historyDelegate: historyDelegate) + (
                     message.hasIdentity ? .jv_empty : .isVirtual
                 ),
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineMessagePayload(
                 kindID: #function + (
                     String()
@@ -991,6 +1036,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
                         return obtainItemSender(for: message)
                     }
                 }(),
+                footer: obtainItemExtra(for: message),
                 renderOptions: JMTimelineMessageRenderOptions(
                     position: .left,
                     senderIconOffset: 1
@@ -1083,7 +1129,6 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 ? []
                 : [.isVirtual]
             ),
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineContactFormInfo(
                 fields: [
                     TimelineContactFormField(
@@ -1119,6 +1164,20 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
 
+    func generateChatResolvedItem() -> JMTimelineItem {
+        return JMTimelineChatResolvedItem(
+            uid: UUID().uuidString,
+            date: Date.distantPast,
+            layoutValues: generateSystemLayoutValues(),
+            logicOptions: [.enableSizeCaching, .isVirtual],
+            payload: .init(
+                keyboardAnchorControl: keyboardAnchorControl,
+                provider: provider,
+                interactor: interactor
+            )
+        )
+    }
+    
     private func generateRateFormItem(
         for message: MessageEntity,
         status: JVMessageBodyRateFormStatus
@@ -1143,7 +1202,6 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 ? []
                 : [.isVirtual]
             ),
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineRateFormInfo(
                 accentColor: uiConfig?.outcomingPalette.backgroundColor,
                 sizing: status,
@@ -1210,10 +1268,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 historyDelegate: historyDelegate) + (
                     message.hasIdentity ? .jv_empty : .isVirtual
                 ),
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineMessagePayload(
                 kindID: #function + (hasCaption ? "withCaption" : "withoutCaption"),
                 sender: obtainItemSender(for: message),
+                footer: obtainItemExtra(for: message),
                 renderOptions: JMTimelineMessageRenderOptions(
                     position: position
                 ),
@@ -1238,7 +1296,8 @@ final class ChatTimelineFactory: JMTimelineFactory {
                                 isFailure: isFailure
                             ),
                             provider: provider,
-                            interactor: interactor)
+                            interactor: interactor
+                        )
                     }
                 }
             )
@@ -1280,10 +1339,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 historyDelegate: historyDelegate) + (
                     message.hasIdentity ? .jv_empty : .isVirtual
                 ),
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineMessagePayload(
                 kindID: #function,
                 sender: obtainItemSender(for: message),
+                footer: obtainItemExtra(for: message),
                 renderOptions: JMTimelineMessageRenderOptions(
                     position: position
                 ),
@@ -1345,6 +1404,75 @@ final class ChatTimelineFactory: JMTimelineFactory {
         }
     }
     
+    private func generateReferralSourceItem(for message: MessageEntity, contentMode: UIView.ContentMode) -> JMTimelineItem {
+        guard let media = message.media, let referralSource = message.referralSource else {
+            return generatePlainItem(for: message)
+        }
+        
+        let uid = message.UUID
+        let position = obtainItemPosition(for: message)
+        let palette = obtainItemPalette(for: message)
+        let isFailure = message.delivery.isFailure
+        let contentKind = detectSenderType(for: message)
+        
+        let messageInfo = ChatTimelineReferralSourceInfo(
+            imageInfo: referralSource.imageUrl.flatMap { url in
+                ChatTimelineReferralSourceInfo.ImageInfo(
+                    url: url,
+                    width: Int(media.originalSize.width*0 + 200),
+                    height: Int(media.originalSize.height*0 + 150)
+                )
+            },
+            title: referralSource.title,
+            text: referralSource.text,
+            navigateUrl: referralSource.navigateUrl
+        )
+        
+        return JMTimelineMessageItem(
+            uid: uid,
+            date: message.anchorDate,
+            layoutValues: generateMessageLayoutValues(),
+            logicOptions: message.jv_logicOptions(
+                supportSizeCaching: true,
+                historyDelegate: historyDelegate) + (
+                    message.hasIdentity ? .jv_empty : .isVirtual
+                ),
+            payload: JMTimelineMessagePayload(
+                kindID: #function,
+                sender: obtainItemSender(for: message),
+                footer: obtainItemExtra(for: message),
+                renderOptions: JMTimelineMessageRenderOptions(
+                    position: position
+                ),
+                provider: provider,
+                interactor: interactor,
+                regionsGenerator: {
+                    let referralSourceRegion = ChatTimelineReferralSourceRegion()
+                    return [referralSourceRegion]
+                },
+                regionsPopulator: { [provider, interactor] regions in
+                    if let referralSourceRegion = regions.first as? ChatTimelineReferralSourceRegion {
+                        referralSourceRegion.setup(
+                            uid: uid,
+                            info: messageInfo,
+                            meta: nil,
+                            options: JMTimelineMessageRegionRenderOptions(
+                                position: position,
+                                contentKind: contentKind,
+                                outcomingPalette: palette,
+                                isQuote: true,
+                                entireCanvas: false,
+                                isFailure: isFailure
+                            ),
+                            provider: provider,
+                            interactor: interactor
+                        )
+                    }
+                }
+            )
+        )
+    }
+    
     private func generateAudioItem(for message: MessageEntity) -> JMTimelineItem {
         guard let media = message.media, let url = media.fullURL ?? media.thumbURL else {
             return generatePlainItem(for: message)
@@ -1376,10 +1504,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 historyDelegate: historyDelegate) + (
                     message.hasIdentity ? .jv_empty : .isVirtual
                 ),
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineMessagePayload(
                 kindID: #function,
                 sender: obtainItemSender(for: message),
+                footer: obtainItemExtra(for: message),
                 renderOptions: JMTimelineMessageRenderOptions(
                     position: position
                 ),
@@ -1442,10 +1570,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 historyDelegate: historyDelegate) + (
                     message.hasIdentity ? .jv_empty : .isVirtual
                 ),
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineMessagePayload(
                 kindID: #function,
                 sender: obtainItemSender(for: message),
+                footer: obtainItemExtra(for: message),
                 renderOptions: JMTimelineMessageRenderOptions(
                     position: position
                 ),
@@ -1481,7 +1609,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         switch contentKind {
         case .agent, .comment, .call, .info, .bot, .neutral:
             return JMTimelineCompositeAudioStyleExtended(
-                backViewColor: JVDesign.colors.resolve(usage: .audioPlayerBackground),
+                underlayColor: JVDesign.colors.resolve(usage: .audioPlayerBackground),
                 buttonTintColor: JVDesign.colors.resolve(usage: .audioPlayerButtonTint),
                 buttonBorderColor: JVDesign.colors.resolve(usage: .audioPlayerButtonBorder),
                 buttonBackgroundColor: JVDesign.colors.resolve(usage: .audioPlayerButtonBackground),
@@ -1492,7 +1620,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
             )
         case .client, .story:
             return JMTimelineCompositeAudioStyleExtended(
-                backViewColor: JVDesign.colors.resolve(usage: .clientBackground),
+                underlayColor: JVDesign.colors.resolve(usage: .clientBackground),
                 buttonTintColor: JVDesign.colors.resolve(alias: .white),
                 buttonBorderColor: JVDesign.colors.resolve(alias: .white),
                 buttonBackgroundColor: JVDesign.colors.resolve(usage: .clientBackground),
@@ -1508,7 +1636,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         switch contentKind {
         case .agent, .comment, .call, .info, .bot, .neutral:
             return JMTimelineCompositeAudioStyleExtended(
-                backViewColor: JVDesign.colors.resolve(usage: .audioPlayerBackground),
+                underlayColor: JVDesign.colors.resolve(usage: .audioPlayerBackground),
                 buttonTintColor: JVDesign.colors.resolve(usage: .audioPlayerButtonTint),
                 buttonBorderColor: JVDesign.colors.resolve(usage: .audioPlayerButtonBorder),
                 buttonBackgroundColor: JVDesign.colors.resolve(usage: .audioPlayerButtonBackground),
@@ -1519,7 +1647,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
             )
         case .client, .story:
             return JMTimelineCompositeAudioStyleExtended(
-                backViewColor: JVDesign.colors.resolve(usage: .clientBackground),
+                underlayColor: JVDesign.colors.resolve(usage: .clientBackground),
                 buttonTintColor: JVDesign.colors.resolve(alias: .white),
                 buttonBorderColor: JVDesign.colors.resolve(alias: .white),
                 buttonBackgroundColor: JVDesign.colors.resolve(usage: .clientBackground),
@@ -1564,10 +1692,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
                     historyDelegate: historyDelegate) + (
                         message.hasIdentity ? .jv_empty : .isVirtual
                     ),
-                extraActions: obtainItemExtra(for: message),
                 payload: JMTimelineMessagePayload(
                     kindID: #function,
                     sender: obtainItemSender(for: message),
+                    footer: obtainItemExtra(for: message),
                     renderOptions: JMTimelineMessageRenderOptions(
                         position: position
                     ),
@@ -1634,10 +1762,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
                     historyDelegate: historyDelegate) + (
                         message.hasIdentity ? .jv_empty : .isVirtual
                     ),
-                extraActions: obtainItemExtra(for: message),
                 payload: JMTimelineMessagePayload(
                     kindID: #function,
                     sender: obtainItemSender(for: message),
+                    footer: obtainItemExtra(for: message),
                     renderOptions: JMTimelineMessageRenderOptions(
                         position: position
                     ),
@@ -1682,6 +1810,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
         let position = obtainItemPosition(for: message)
         let contentKind = detectSenderType(for: message)
         let palette = obtainItemPalette(for: message)
+        let sender = detectSenderType(for: message)
         let isFailure = message.delivery.isFailure
         
         let messageInfo = JMTimelineMediaDocumentInfo(
@@ -1696,12 +1825,27 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 iconTintColor: _generateDocumentItem_iconColor(sender: contentKind),
                 titleColor: _generateDocumentItem_textColor(sender: contentKind, isDeleted: message.isDeleted),
                 subtitleColor: _generateDocumentItem_textColor(sender: contentKind, isDeleted: message.isDeleted).jv_withAlpha(0.6)
+            ),
+            caption: media.caption,
+            plainStyle:  JMTimelineCompositePlainStyle(
+                textColor: _generatePlainItem_textColor(sender: sender, isDeleted: message.isDeleted),
+                identityColor: _generatePlainItem_identityColor(sender: sender),
+                linkColor: _generatePlainItem_linkColor(sender: sender),
+                font: _generatePlainItem_regularFont(isDeleted: message.isDeleted),
+                boldFont: _generatePlainItem_boldFont(),
+                italicsFont: _generatePlainItem_italicsFont(),
+                strikeFont: _generatePlainItem_regularFont(isDeleted: message.isDeleted),
+                lineHeight: 22,
+                alignment: .natural,
+                underlineStyle: .single,
+                parseMarkdown: message.isMarkdown
             )
         )
         
         let messageMeta = generateMessageMeta(
             message: message
         )
+        let hasCaption = (messageInfo.caption != nil)
         
         return JMTimelineMessageItem(
             uid: uid,
@@ -1712,10 +1856,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 historyDelegate: historyDelegate) + (
                     message.hasIdentity ? .jv_empty : .isVirtual
                 ),
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineMessagePayload(
-                kindID: #function,
+                kindID: #function + (hasCaption ? "withCaption" : "withoutCaption"),
                 sender: obtainItemSender(for: message),
+                footer: obtainItemExtra(for: message),
                 renderOptions: JMTimelineMessageRenderOptions(
                     position: position
                 ),
@@ -1740,7 +1884,8 @@ final class ChatTimelineFactory: JMTimelineFactory {
                                 isFailure: isFailure
                             ),
                             provider: provider,
-                            interactor: interactor)
+                            interactor: interactor
+                        )
                     }
                 }
             )
@@ -1813,10 +1958,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
                 historyDelegate: historyDelegate),
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineMessagePayload(
                 kindID: #function,
                 sender: obtainItemSender(for: message),
+                footer: obtainItemExtra(for: message),
                 renderOptions: JMTimelineMessageRenderOptions(
                     position: position
                 ),
@@ -1883,10 +2028,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
                 historyDelegate: historyDelegate),
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineMessagePayload(
                 kindID: #function,
                 sender: obtainItemSender(for: message),
+                footer: obtainItemExtra(for: message),
                 renderOptions: JMTimelineMessageRenderOptions(
                     position: position
                 ),
@@ -1950,10 +2095,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
                 historyDelegate: historyDelegate),
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineMessagePayload(
                 kindID: #function,
                 sender: obtainItemSender(for: message),
+                footer: obtainItemExtra(for: message),
                 renderOptions: JMTimelineMessageRenderOptions(
                     position: position
                 ),
@@ -2023,17 +2168,17 @@ final class ChatTimelineFactory: JMTimelineFactory {
         let stateIcon: UIImage?
         switch call.type {
         case .outgoing where call.isFailed:
-            stateIcon = UIImage(named: "call_out_fail", in: Bundle(for: JVDesign.self), compatibleWith: nil)
+            stateIcon = UIImage.jv_named("call_out_fail")
         case .outgoing:
-            stateIcon = UIImage(named: "call_out", in: Bundle(for: JVDesign.self), compatibleWith: nil)
+            stateIcon = UIImage.jv_named("call_out")
         case .callback where call.isFailed:
-            stateIcon = UIImage(named: "call_out_fail", in: Bundle(for: JVDesign.self), compatibleWith: nil)
+            stateIcon = UIImage.jv_named("call_out_fail")
         case .callback:
-            stateIcon = UIImage(named: "call_out", in: Bundle(for: JVDesign.self), compatibleWith: nil)
+            stateIcon = UIImage.jv_named("call_out")
         case .incoming where call.isFailed:
-            stateIcon = UIImage(named: "call_in_fail", in: Bundle(for: JVDesign.self), compatibleWith: nil)
+            stateIcon = UIImage.jv_named("call_in_fail")
         default:
-            stateIcon = UIImage(named: "call_in", in: Bundle(for: JVDesign.self), compatibleWith: nil)
+            stateIcon = UIImage.jv_named("call_in")
         }
         
         let stateTitle: String
@@ -2102,10 +2247,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 logicOptions: message.jv_logicOptions(
                     supportSizeCaching: true,
                     historyDelegate: historyDelegate),
-                extraActions: obtainItemExtra(for: message),
                 payload: JMTimelineMessagePayload(
                     kindID: #function + "playable",
                     sender: obtainItemSender(for: message),
+                    footer: obtainItemExtra(for: message),
                     renderOptions: JMTimelineMessageRenderOptions(
                         position: position
                     ),
@@ -2150,10 +2295,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 logicOptions: message.jv_logicOptions(
                     supportSizeCaching: true,
                     historyDelegate: historyDelegate),
-                extraActions: obtainItemExtra(for: message),
                 payload: JMTimelineMessagePayload(
                     kindID: #function + "recordless",
                     sender: obtainItemSender(for: message),
+                    footer: obtainItemExtra(for: message),
                     renderOptions: JMTimelineMessageRenderOptions(
                         position: position
                     ),
@@ -2215,7 +2360,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
                     value: subject
                 )
             ],
-            message: text,
+            message: text.jv_decodedAndFixedEncoding() ?? text,
             style: JMTimelineCompositePlainStyle(
                 textColor: _generateEmailItem_textColor(sender: contentKind),
                 identityColor: _generateEmailItem_identityColor(sender: contentKind),
@@ -2242,10 +2387,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
                 historyDelegate: historyDelegate),
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineMessagePayload(
                 kindID: #function,
                 sender: obtainItemSender(for: message),
+                footer: obtainItemExtra(for: message),
                 renderOptions: JMTimelineMessageRenderOptions(
                     position: position
                 ),
@@ -2351,10 +2496,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 logicOptions: message.jv_logicOptions(
                     supportSizeCaching: true,
                     historyDelegate: historyDelegate),
-                extraActions: obtainItemExtra(for: message),
                 payload: JMTimelineMessagePayload(
                     kindID: #function + "joinable",
                     sender: obtainItemSender(for: message),
+                    footer: obtainItemExtra(for: message),
                     renderOptions: JMTimelineMessageRenderOptions(
                         position: position
                     ),
@@ -2399,10 +2544,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
                 logicOptions: message.jv_logicOptions(
                     supportSizeCaching: true,
                     historyDelegate: historyDelegate),
-                extraActions: obtainItemExtra(for: message),
                 payload: JMTimelineMessagePayload(
                     kindID: #function + "finished",
                     sender: obtainItemSender(for: message),
+                    footer: obtainItemExtra(for: message),
                     renderOptions: JMTimelineMessageRenderOptions(
                         position: position
                     ),
@@ -2538,10 +2683,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
                 historyDelegate: historyDelegate),
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineMessagePayload(
                 kindID: #function + (isEmoji ? "emoji" : "plain"),
                 sender: obtainItemSender(for: message),
+                footer: obtainItemExtra(for: message),
                 renderOptions: JMTimelineMessageRenderOptions(
                     position: position
                 ),
@@ -2684,10 +2829,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
             logicOptions: message.jv_logicOptions(
                 supportSizeCaching: true,
                 historyDelegate: historyDelegate),
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineMessagePayload(
                 kindID: #function,
                 sender: obtainItemSender(for: message),
+                footer: obtainItemExtra(for: message),
                 renderOptions: JMTimelineMessageRenderOptions(
                     position: position
                 ),
@@ -2755,7 +2900,6 @@ final class ChatTimelineFactory: JMTimelineFactory {
             date: message.anchorDate,
             layoutValues: generateMessageLayoutValues(),
             logicOptions: [],
-            extraActions: obtainItemExtra(for: message),
             payload: JMTimelineSystemInfo(
                 icon: message.contextImageURL(
                     transparent: false
@@ -2813,7 +2957,10 @@ final class ChatTimelineFactory: JMTimelineFactory {
     }
     
     private func obtainItemChannelIcons(for message: MessageEntity) -> [UIImage] {
-        if let icon = message.channel?.icon {
+        if let _ = message.referralSource {
+            return .jv_empty
+        }
+        else if let icon = message.channel?.icon {
             return [icon]
         }
         else {
@@ -2862,7 +3009,16 @@ final class ChatTimelineFactory: JMTimelineFactory {
     }
     
     private func obtainItemSender(for message: MessageEntity) -> JMTimelineItemSender {
-        if let _ = message.call, let _ = message.client {
+        if let _ = message.referralSource {
+            return JMTimelineItemSender(
+                ID: noneSenderUUID,
+                icon: nil,
+                name: loc["Message.Sender.ReferralSource"],
+                mark: nil,
+                style: _obtainItemSender_style(contentKind: .info)
+            )
+        }
+        else if let _ = message.call, let _ = message.client {
             if let agent = message.senderAgent {
                 let ID = agent.hashedID
                 let icon = agent.repicItem(transparent: false, scale: nil)
@@ -2933,7 +3089,7 @@ final class ChatTimelineFactory: JMTimelineFactory {
                         backgroundColor: nil,
                         source: .avatar(
                             URL: agent.m_avatar_link.flatMap(URL.init),
-                            image: UIImage(named: "avatar_bot", in: .jv_shared, compatibleWith: nil),
+                            image: UIImage.jv_named("avatar_bot"),
                             color: nil,
                             transparent: false
                         ),
@@ -3039,26 +3195,36 @@ final class ChatTimelineFactory: JMTimelineFactory {
         }
     }
     
-    private func obtainItemExtra(for message: MessageEntity) -> JMTimelineExtraActions {
+    private func obtainItemExtra(for message: MessageEntity) -> ChatTimelineMessageExtras {
+        guard !message.isDeleted else {
+            return ChatTimelineMessageExtras(caption: nil, reactions: .jv_empty, actions: .jv_empty)
+        }
+        
+        let caption: String? = switch translatorService.state(of: message) {
+        case .awaiting: loc["Message.Status.Translating"]
+        case .translated(presentation: .original): loc["Message.Action.ShowTranslation"]
+        case .translated(presentation: .translation): loc["Message.Action.ShowOriginal"]
+        default: nil
+        }
+        
         let reactions = message.reactions
         
-        guard
-            !(reactions.isEmpty),
-            !(message.isDeleted)
-        else { return JMTimelineExtraActions(reactions: [], actions: []) }
-        
-        return JMTimelineExtraActions(
+        return ChatTimelineMessageExtras(
+            caption: caption,
             reactions: reactions.map { reaction in
-                JMTimelineReactionMeta(
+                ChatTimelineMessageExtrasReaction(
                     emoji: reaction.emoji,
                     number: reaction.reactors.count,
-                    participated: reaction.reactors.contains(where: { userContext.isPerson(ofKind: $0.subjectKind, withID: $0.subjectID) })
+                    participated: reaction.reactors.contains(
+                        where: { userContext.isPerson(ofKind: $0.subjectKind, withID: $0.subjectID) }
+                    )
                 )
             },
-            actions: (reactions.isEmpty
-                      ? []
-                      : [JMTimelineActionMeta(ID: String(), icon: UIImage(named: "add_emoji", in: Bundle(for: JVDesign.self), compatibleWith: nil) ?? UIImage())]
-                     )
+            actions: (
+                reactions.isEmpty
+                ? .jv_empty
+                : [ChatTimelineMessageExtrasAction(ID: String(), icon: UIImage.jv_named("add_emoji") ?? UIImage())]
+            )
         )
     }
     
@@ -3072,6 +3238,9 @@ final class ChatTimelineFactory: JMTimelineFactory {
             return .call
         }
         else if let _ = message.order {
+            return .info
+        }
+        else if let _ = message.referralSource {
             return .info
         }
         else if case .order = content {
@@ -3269,8 +3438,8 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
-    private func obtainReactionStyle() -> JMTimelineReactionStyle {
-        return JMTimelineReactionStyle(
+    private func obtainReactionStyle() -> ChatTimelineMessageExtrasReactionStyle {
+        return ChatTimelineMessageExtrasReactionStyle(
             height: min(UIScreen.main.bounds.width, UIScreen.main.bounds.height) * 0.075,
             baseFont: JVDesign.fonts.resolve(.regular(30), scaling: .caption1),
             regularBackgroundColor: JVDesign.colors.resolve(usage: .agentBackground),

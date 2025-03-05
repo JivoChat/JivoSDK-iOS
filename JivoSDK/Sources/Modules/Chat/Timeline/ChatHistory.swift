@@ -22,13 +22,27 @@ fileprivate class JMTimelineHistoryContext {
     }
 }
 
+struct ChatHistoryConfig: JMTimelineHistoryConfig {
+    typealias GroupingFront = FrontItem
+    enum FrontItem: Int, CaseIterable {
+        case bottom = 0
+        case prechat = 1
+        case typing = 2
+    }
+    
+    typealias GroupingBack = BackItem
+    enum BackItem: Int, CaseIterable {
+        case top = 0
+    }
+}
+
 final class ChatHistory {
     var messages: [MessageEntity] = [] // First elements is the earliest messages, last elements is the latest messages
     
     var updateHistoryHandler: ((Bool) -> Void)?
     var needScrollHandler: (() -> Void)?
     
-    private let timelineHistory: JMTimelineHistory
+    private let timelineHistory: JMTimelineHistory<ChatHistoryConfig>
     private let databaseDriver: JVIDatabaseDriver
     private let factory: ChatTimelineFactory
     private let collectionViewManager: DTCollectionViewManager
@@ -44,8 +58,10 @@ final class ChatHistory {
     private var recentUid: String?
 //    private var momentaryUid: String?
 
+    private var isTyping = false
+    
     init(
-        timelineHistory: JMTimelineHistory,
+        timelineHistory: JMTimelineHistory<ChatHistoryConfig>,
         databaseDriver: JVIDatabaseDriver,
         factory: ChatTimelineFactory,
         collectionViewManager: DTCollectionViewManager,
@@ -75,28 +91,46 @@ final class ChatHistory {
     }
     
     func setTopItem(_ item: JMTimelineItem?) {
-        guard timelineHistory.setTopItem(item) else { return }
-        informHistoryHandler()
+        if timelineHistory.placeStandalone(item: item, target: .top, animated: false) {
+            informHistoryHandler()
+        }
     }
     
     func setTyping(sender: JVDisplayable?, text: String?) {
-        if let text = text {
-            let item = factory.generateTypingItem(sender: sender, text: text)
-            timelineHistory.setTyping(item: item)
+        let item: JMTimelineItem?
+        if let text {
+            item = factory.generateTypingItem(sender: sender, text: text)
         }
         else {
-            timelineHistory.setTyping(item: nil)
+            item = nil
         }
         
-        informHistoryHandler()
+        if timelineHistory.placeStandalone(item: item, target: .typing, animated: true) {
+            informHistoryHandler()
+        }
     }
     
     func setBottomItem(_ item: JMTimelineItem?) {
         guard item != currentBottomItem else { return }
         currentBottomItem = item
         
-        guard timelineHistory.setBottomItem(item) else { return }
-        informHistoryHandler()
+        if timelineHistory.placeStandalone(item: item, target: .bottom, animated: false) {
+            informHistoryHandler()
+        }
+    }
+    
+    func setPrechat(captions: [String]?) {
+        let item: JMTimelineItem?
+        if let captions, captions.jv_hasElements {
+            item = factory.generatePrechatButtons(captions: captions)
+        }
+        else {
+            item = nil
+        }
+        
+        if timelineHistory.placeStandalone(item: item, target: .prechat, animated: false) {
+            informHistoryHandler()
+        }
     }
     
     func fill(with messages: [MessageEntity], partialLoaded: Bool, unreadPosition: ChatEntity.UnreadMarkPosition) {

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 final class UuidSubUserAgentGenerator: IUuidSubUserAgentGenerator {
     private let bundle: Bundle

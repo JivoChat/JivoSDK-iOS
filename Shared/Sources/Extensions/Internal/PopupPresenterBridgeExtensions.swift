@@ -37,6 +37,16 @@ extension IPopupPresenterBridge {
             ])
     }
     
+    func informFeatureAvailableSincePro() {
+        displayAlert(
+            within: .auto,
+            title: loc["Dialog.FeatureForPro.Description"],
+            message: nil,
+            items: [
+                .dismiss(.close)
+            ])
+    }
+    
     #if ENV_APP
     func warnFeatureNeedsPro(telemeteryService: ITelemetryService?) {
         displayAlert(
@@ -109,14 +119,14 @@ extension IPopupPresenterBridge {
     func informTimeBreak() {
         informShortly(
             message: loc["Alert.TimeBreak.Title"],
-            icon: UIImage(named: "coffee_break"),
+            icon: UIImage.jv_named("coffee_break"),
             options: [.template])
     }
     
     func informStatusChange() {
         informShortly(
             message: loc["Alert.StatusUpdate.Title"],
-            icon: UIImage(named: "checkmark.circle"),
+            icon: UIImage.jv_named("checkmark.circle"),
             options: [.template, .scale])
     }
     

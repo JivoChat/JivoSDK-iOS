@@ -176,7 +176,7 @@ class JMTimelineMessageCanvasRegion: UIView, JMTimelineStylable {
         childrenGap = gap
     }
     
-    var childrenGap = CGFloat(0)
+    var childrenGap = CGFloat.zero
     
     var isEmpty: Bool {
         return currentBlocks.isEmpty

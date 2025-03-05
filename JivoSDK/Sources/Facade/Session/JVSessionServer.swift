@@ -10,8 +10,7 @@ import Foundation
 /**
  Primary Jivo servers, by geographical region
  */
-@objc(JVSessionServer)
-public enum JVSessionServer: Int {
+public enum JVSessionServer: String, CaseIterable {
     case auto
     case asia
     case europe

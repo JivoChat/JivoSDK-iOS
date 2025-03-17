@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 
 struct WaveformConfiguration {
     let size: CGSize

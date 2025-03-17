@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import TypedTextAttributes
 
 extension Optional where Wrapped == String {
@@ -19,7 +20,9 @@ extension String {
     static let jv_empty = String()
     static let jv_newline = "\n"
     static let jv_space = " "
-
+    static let jv_dot = "."
+    static let jv_enumerator = ", "
+    
     enum JVSearchingMode {
         case plain
         case email
@@ -54,15 +57,15 @@ extension String {
     func jv_unescape() -> String? {
         return removingPercentEncoding
     }
-
+    
     func jv_fromHTML() -> String {
         return NSString(string: self).replacingOccurrences(of: "&nbsp;", with: "\u{00a0}")
     }
-
+    
     func jv_unbreakable() -> String {
         return (self as NSString).replacingOccurrences(of: " ", with: " ")
     }
-
+    
     func jv_substringFrom(index: Int) -> String {
         if count < index {
             return self
@@ -72,7 +75,7 @@ extension String {
             return String(self[pointer...])
         }
     }
-
+    
     func jv_substringTo(index: Int) -> String {
         if count <= index {
             return self
@@ -114,7 +117,7 @@ extension String {
     func jv_toInt() -> Int {
         return (self as NSString).integerValue
     }
-
+    
     func jv_toHexInt() -> UInt64? {
         return jv_valuable.flatMap({ UInt64($0, radix: 16) })
     }
@@ -163,19 +166,19 @@ extension String {
         let slices = (self as NSString).components(separatedBy: symbols)
         return (slices.filter(\.isEmpty).count == unicodeScalars.count + 1)
     }
-
+    
     func jv_styledWith(lineHeight: CGFloat? = nil, foregroundColor: UIColor? = nil) -> NSAttributedString {
         var attributes = TextAttributes()
         if let value = lineHeight { attributes = attributes.minimumLineHeight(value).maximumLineHeight(value) }
         if let value = foregroundColor { attributes = attributes.foregroundColor(value) }
         return NSAttributedString(string: self, attributes: attributes)
     }
-
+    
     func jv_convertToNonBreakable() -> String {
         // replace regular space with non-break space
         return replacingOccurrences(of: " ", with: " ")
     }
-
+    
     func jv_quoted() -> String {
         return "\"\(self)\""
     }
@@ -253,6 +256,31 @@ extension String {
         }
         
         return false
+    }
+    
+    func jv_decodedAndFixedEncoding() -> String? {
+        guard let htmlDecoded = self.decodeHTMLEntities() else { return nil }
+        
+        if let data = htmlDecoded.data(using: .isoLatin1) {
+            return String(data: data, encoding: .utf8)
+        }
+        
+        return htmlDecoded
+    }
+    
+    private func decodeHTMLEntities() -> String? {
+        guard let data = self.data(using: .utf8) else { return nil }
+        
+        let options: [NSAttributedString.DocumentReadingOptionKey: Any] = [
+            .documentType: NSAttributedString.DocumentType.html,
+            .characterEncoding: String.Encoding.utf8.rawValue
+        ]
+        
+        if let attributedString = try? NSAttributedString(data: data, options: options, documentAttributes: nil) {
+            return attributedString.string
+        }
+        
+        return self
     }
 }
 

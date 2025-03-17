@@ -50,7 +50,7 @@ final class JMTimelineCompositeCallPlayableBlock: JMTimelineBlock {
         backView.layer.borderWidth = 1
         addSubview(backView)
         
-        let resumeIcon = UIImage(named: "player_resume", in: Bundle(for: JVDesign.self), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+        let resumeIcon = UIImage.jv_named("player_resume")?.withRenderingMode(.alwaysTemplate)
         playButton.setImage(resumeIcon, for: .normal)
         playButton.setImage(resumeIcon, for: .highlighted)
         playButton.contentVerticalAlignment = .fill
@@ -58,7 +58,7 @@ final class JMTimelineCompositeCallPlayableBlock: JMTimelineBlock {
         playButton.addTarget(self, action: #selector(handlePlayButton), for: .touchUpInside)
         addSubview(playButton)
         
-        let pauseIcon = UIImage(named: "player_pause", in: Bundle(for: JVDesign.self), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+        let pauseIcon = UIImage.jv_named("player_pause")?.withRenderingMode(.alwaysTemplate)
         pauseButton.setImage(pauseIcon, for: .normal)
         pauseButton.setImage(pauseIcon, for: .highlighted)
         pauseButton.contentVerticalAlignment = .fill

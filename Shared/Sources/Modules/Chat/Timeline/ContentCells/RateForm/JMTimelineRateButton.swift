@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 class JMTimelineRateButton: UIButton {
     let choice: Int
@@ -22,17 +23,17 @@ class JMTimelineRateButton: UIButton {
         
         switch (mark, total) {
         case (.star, _):
-            setImage(UIImage(named: "star_active", in: Bundle(for: JVDesign.self), compatibleWith: nil), for: .selected)
-            setImage(UIImage(named: "star_inactive", in: Bundle(for: JVDesign.self), compatibleWith: nil), for: .normal)
+            setImage(UIImage.jv_named("star_active"), for: .selected)
+            setImage(UIImage.jv_named("star_inactive"), for: .normal)
         case (.smile, 5):
-            setImage(UIImage(named: "smile_rate_\(filenameIndex)_active", in: Bundle(for: JVDesign.self), compatibleWith: nil), for: .selected)
-            setImage(UIImage(named: "smile_rate_\(filenameIndex)_inactive", in: Bundle(for: JVDesign.self), compatibleWith: nil), for: .normal)
+            setImage(UIImage.jv_named("smile_rate_\(filenameIndex)_active"), for: .selected)
+            setImage(UIImage.jv_named("smile_rate_\(filenameIndex)_inactive"), for: .normal)
         case (.smile, 3):
-            setImage(UIImage(named: "smile_rate_\(2 * filenameIndex - 1)_active", in: Bundle(for: JVDesign.self), compatibleWith: nil), for: .selected)
-            setImage(UIImage(named: "smile_rate_\(2 * filenameIndex - 1)_inactive", in: Bundle(for: JVDesign.self), compatibleWith: nil), for: .normal)
+            setImage(UIImage.jv_named("smile_rate_\(2 * filenameIndex - 1)_active"), for: .selected)
+            setImage(UIImage.jv_named("smile_rate_\(2 * filenameIndex - 1)_inactive"), for: .normal)
         case (.smile, 2), (.smile, _):
-            setImage(UIImage(named: "thumbs_rate_\(filenameIndex)_active", in: Bundle(for: JVDesign.self), compatibleWith: nil), for: .selected)
-            setImage(UIImage(named: "thumbs_rate_\(filenameIndex)_inactive", in: Bundle(for: JVDesign.self), compatibleWith: nil), for: .normal)
+            setImage(UIImage.jv_named("thumbs_rate_\(filenameIndex)_active"), for: .selected)
+            setImage(UIImage.jv_named("thumbs_rate_\(filenameIndex)_inactive"), for: .normal)
         }
     }
     

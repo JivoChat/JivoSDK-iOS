@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import MessageUI
 
 protocol IEmailComposingBridge: AnyObject {

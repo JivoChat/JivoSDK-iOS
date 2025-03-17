@@ -2,10 +2,10 @@ import 'package:jivosdk_plugin/bridge.dart';
 
 class User {
     String email;
-    String supportJwt;
+    String jwt;
     String? fullName;
     String? phoneNumber;
-    User(this.email, this.supportJwt, this.fullName, this.phoneNumber);
+    User(this.email, this.jwt, this.fullName, this.phoneNumber);
 }
 
 class UserManager {
@@ -20,7 +20,7 @@ class UserManager {
         if (user != null) {
             Jivo.session.startUp(
                 channelID: 'YOUR_CHANNEL_ID',
-                userToken: user?.supportJwt ?? '');
+                userToken: user?.jwt ?? '');
           
             Jivo.session.setContactInfo(
                 name: user?.fullName,

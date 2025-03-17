@@ -7,9 +7,11 @@
 //
 
 import Foundation
+import UIKit
 import JMRepicKit
 
 enum JMRepicActivity {
+    case chatResolved
     case calling
     case taskActive
     case taskFired
@@ -135,25 +137,36 @@ extension JMRepicView {
         case .calling?:
             setIndicator(
                 fillColor: JVDesign.colors.resolve(usage: .activityCall),
-                icon: UIImage(named: "activity_oncall")?.withRenderingMode(.alwaysTemplate),
+                icon: UIImage.jv_named("activity_oncall")?.withRenderingMode(.alwaysTemplate),
                 config: .activityIndicatorConfig(context: context)
             )
-
         case .taskActive?:
             setIndicator(
                 fillColor: JVDesign.colors.resolve(usage: .activityActiveTask),
-                icon: UIImage(named: "activity_reminder")?.withRenderingMode(.alwaysTemplate),
+                icon: UIImage.jv_named("activity_reminder")?.withRenderingMode(.alwaysTemplate),
                 config: .activityIndicatorConfig(context: context)
             )
-            
         case .taskFired?:
             setIndicator(
                 fillColor: JVDesign.colors.resolve(usage: .activityFiredTask),
-                icon: UIImage(named: "activity_reminder")?.withRenderingMode(.alwaysTemplate),
+                icon: UIImage.jv_named("activity_reminder")?.withRenderingMode(.alwaysTemplate),
                 config: .activityIndicatorConfig(context: context)
             )
-            
-        default:
+        case .chatResolved?:
+            if #available(iOS 13.0, *) {
+                setIndicator(
+                    fillColor: JVDesign.colors.resolve(alias: .systemGreen),
+                    icon: UIImage.jv_named("chat_resolved_icon_mini"),
+                    config: JMRepicIndicatorConfig(
+                        sideProvider: { max(16, $0 * 0.3) },
+                        borderWidthProvider: { max(2, $0 * 0.035) },
+                        borderColor: context.resolvedColor,
+                        contentMarginProvider: { $0 * 0.031 },
+                        contentTintColor: JVDesign.colors.resolve(usage: .white)
+                    )
+                )
+            }
+        case nil:
             setIndicator(
                 fillColor: .clear,
                 icon: nil,
@@ -190,28 +203,28 @@ extension JMRepicView {
         case .active where worktimeEnabled:
             setIndicator(
                 fillColor: .clear,
-                icon: UIImage(named: "status_\(context.rawValue)_online"),
+                icon: UIImage.jv_named("status_\(context.rawValue)_online"),
                 config: .statusIndicatorConfig(indicatorScale: scale, context: context)
             )
             
         case .active:
             setIndicator(
                 fillColor: .clear,
-                icon: UIImage(named: "status_\(context.rawValue)_online_sleep"),
+                icon: UIImage.jv_named("status_\(context.rawValue)_online_sleep"),
                 config: .statusIndicatorConfig(indicatorScale: scale, context: context)
             )
 
         case .away where worktimeEnabled:
             setIndicator(
                 fillColor: .clear,
-                icon: UIImage(named: "status_\(context.rawValue)_away"),
+                icon: UIImage.jv_named("status_\(context.rawValue)_away"),
                 config: .statusIndicatorConfig(indicatorScale: scale, context: context)
             )
 
         case .away:
             setIndicator(
                 fillColor: .clear,
-                icon: UIImage(named: "status_\(context.rawValue)_away_sleep"),
+                icon: UIImage.jv_named("status_\(context.rawValue)_away_sleep"),
                 config: .statusIndicatorConfig(indicatorScale: scale, context: context)
             )
 

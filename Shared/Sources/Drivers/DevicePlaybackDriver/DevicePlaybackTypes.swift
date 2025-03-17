@@ -7,7 +7,7 @@
 //
 
 import Foundation
-
+import UIKit
 
 struct DevicePlaybackOptions: OptionSet {
     let rawValue: Int

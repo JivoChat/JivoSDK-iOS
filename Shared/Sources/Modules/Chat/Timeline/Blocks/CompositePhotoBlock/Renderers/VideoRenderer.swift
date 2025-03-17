@@ -23,7 +23,7 @@ final class VideoRenderer: UIView, Renderer {
         playImageUnderlay.layer.zPosition = 1
         addSubview(playImageUnderlay)
 
-        playImage.image = UIImage(named: "player_resume", in: Bundle(for: JVDesign.self), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+        playImage.image = UIImage.jv_named("player_resume")?.withRenderingMode(.alwaysTemplate)
         playImage.tintColor = JVDesign.colors.resolve(usage: .oppositeForeground)
         playImage.layer.zPosition = 1
         addSubview(playImage)

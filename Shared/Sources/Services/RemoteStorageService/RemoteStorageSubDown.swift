@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import JMTimelineKit
 import JMCodingKit
 import Gzip
@@ -200,7 +201,18 @@ class RemoteStorageSubDown: IRemoteStorageServiceDown {
     }
     
     private func handleResource(params: CachedParams, originURL: URL, localURL: URL, mime: String, on completionQueue: DispatchQueue) {
-        if mime.hasPrefix("image/") {
+        if mime.hasPrefix("image/svg") {
+            linkAndInform(
+                params: params,
+                mime: mime,
+                originURL: originURL,
+                localURL: localURL,
+                kind: .svg,
+                ext: "svg",
+                completionQueue: completionQueue
+            )
+        }
+        else if mime.hasPrefix("image/") {
             let data = (try? Data(contentsOf: localURL)) ?? Data()
             let image = UIImage(data: data) ?? UIImage()
             

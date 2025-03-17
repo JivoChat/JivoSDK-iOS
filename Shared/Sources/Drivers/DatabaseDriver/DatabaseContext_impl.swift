@@ -35,7 +35,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
             object: nil,
             queue: nil,
             using: { [weak self] notification in
-                dispatcher.addOperation { [weak self] in
+                dispatcher.enqueueOperation { [weak self] in
                     self?.handleUpdates(notification: notification)
                 }
             })
@@ -386,6 +386,7 @@ final class JVDatabaseContext: JVIDatabaseContext {
                 }
                 else {
                     let entityName = String(describing: type)
+                    
                     if let object = NSEntityDescription.insertNewObject(forEntityName: entityName, into: context) as? OT {
                         obj = object
                         newlyAdded = true

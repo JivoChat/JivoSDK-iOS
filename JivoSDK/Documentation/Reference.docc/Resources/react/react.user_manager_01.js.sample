@@ -1,4 +1,4 @@
-import Jivo from './jivosdk_module'
+import Jivo from 'rtn-jivo-sdk';
 
 class UserManager {
     constructor() {
@@ -12,10 +12,10 @@ class UserManager {
 
     _configureJivoSession() {
         if (this.user) {
-            Jivo.startUp("YOUR_CHANNEL_ID", this.user.supportJwt)
+            Jivo.session.setup("YOUR_CHANNEL_ID", this.user.jwt)
         }
         else {
-            Jivo.shutDown()
+            Jivo.session.shutDown()
         }
     }
 }

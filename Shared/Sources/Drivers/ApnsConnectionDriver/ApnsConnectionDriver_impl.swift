@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import JMCodingKit
 
 final class ApnsConnectionDriver: IApnsConnectionDriver {

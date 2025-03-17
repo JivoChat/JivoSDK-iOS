@@ -16,7 +16,7 @@ final class ChatReplyAttachmentControl: UIView {
     private let dismissButton = ChatReplyAttachmentDismissButton()
     private var content = UIView()
     
-    init(payload: ChatPhotoPickerObjectPayload) {
+    init(payload: PickedAttachmentObjectPayload) {
         self.payload = payload
         
         super.init(frame: .zero)
@@ -26,7 +26,7 @@ final class ChatReplyAttachmentControl: UIView {
         
         dismissButton.backgroundColor = JVDesign.colors.resolve(usage: .destructiveBrightButtonBackground)
         dismissButton.imageView?.tintColor = JVDesign.colors.resolve(usage: .destructiveButtonForeground)
-        dismissButton.setImage(UIImage(named: "close", in: Bundle(for: SdkChatReplyControl.self), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate), for: .normal)
+        dismissButton.setImage(UIImage.jv_named("close")?.withRenderingMode(.alwaysTemplate), for: .normal)
         dismissButton.addTarget(self, action: #selector(handleDismissTap), for: .touchUpInside)
         addSubview(dismissButton)
         
@@ -39,7 +39,7 @@ final class ChatReplyAttachmentControl: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
-    var payload: ChatPhotoPickerObjectPayload {
+    var payload: PickedAttachmentObjectPayload {
         didSet {
             content.removeFromSuperview()
             content = generateContent(for: payload)
@@ -78,7 +78,7 @@ final class ChatReplyAttachmentControl: UIView {
         )
     }
     
-    private func generateContent(for payload: ChatPhotoPickerObjectPayload) -> UIView {
+    private func generateContent(for payload: PickedAttachmentObjectPayload) -> UIView {
         switch payload {
         case .progress(let progress):
             return ChatReplyAttachmentProgressContent(progress: progress)

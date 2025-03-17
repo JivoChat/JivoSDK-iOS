@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 import CollectionAndTableViewCompatible
 
 class OptionsTableViewDataSource: TableViewDataSource {

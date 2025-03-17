@@ -6,11 +6,12 @@
 //
 
 import Foundation
+import UIKit
 
 /**
  Determines UNNotificationPresentationOptions, based on event parameters
  */
-public typealias JVNotificationsOptionsResolver = (JVNotificationsTarget, JVNotificationsEvent) -> UNNotificationPresentationOptions
+public typealias JVNotificationsOptionsResolver = (JVNotificationsTarget, JVNotificationsCategory) -> UNNotificationPresentationOptions
 
 /**
  Transfers UNNotificationPresentationOptions into system for its internal needs

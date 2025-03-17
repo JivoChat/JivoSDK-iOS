@@ -8,17 +8,17 @@
 import Foundation
 
 protocol ISdkApnsService: AnyObject {
-    var notificationsDelegate: JVNotificationsDelegate? { get set }
+    var notificationsCallbacks: JVNotificationsCallbacks? { get set }
     func setAsking(moment: JVNotificationsPermissionAskingMoment)
     func requestForPermission(at moment: JVNotificationsPermissionAskingMoment)
 }
 
 final class SdkApnsService: ISdkApnsService {
-    weak var notificationsDelegate: JVNotificationsDelegate?
+    weak var notificationsCallbacks: JVNotificationsCallbacks?
     
     private let apnsDriver: IApnsDriver
     
-    private var askingMoment: JVNotificationsPermissionAskingMoment? = .onConnect
+    private var askingMoment: JVNotificationsPermissionAskingMoment? = .sessionSetup
     
     init(apnsDriver: IApnsDriver) {
         self.apnsDriver = apnsDriver
@@ -29,13 +29,12 @@ final class SdkApnsService: ISdkApnsService {
     }
     
     func requestForPermission(at moment: JVNotificationsPermissionAskingMoment) {
-        guard moment == askingMoment
-        else {
+        guard moment == askingMoment else {
             return
         }
         
-        if let delegate = notificationsDelegate {
-            delegate.jivoNotifications(accessRequested: .shared, proceedBlock: performDriverRequest)
+        if let handler = notificationsCallbacks?.accessIntroHandler {
+            handler(performDriverRequest)
         }
         else {
             performDriverRequest()

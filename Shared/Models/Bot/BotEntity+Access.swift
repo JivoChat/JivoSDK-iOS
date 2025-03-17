@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import JMRepicKit
 
 extension BotEntity: JVDisplayable {
@@ -42,9 +43,13 @@ extension BotEntity: JVDisplayable {
         return "bot:\(id)"
     }
     
+    func typingContext() -> TypingContext {
+        return .standard
+    }
+    
     func repicItem(transparent: Bool, scale: CGFloat?) -> JMRepicItem? {
         let url = m_avatar_link.flatMap(URL.init)
-        let icon = UIImage(named: "avatar_bot", in: .jv_shared, compatibleWith: nil)
+        let icon = UIImage.jv_named("avatar_bot")
         let image = JMRepicItemSource.avatar(URL: url, image: icon, color: nil, transparent: transparent)
         return JMRepicItem(backgroundColor: nil, source: image, scale: scale ?? 1.0, clipping: .dual)
     }

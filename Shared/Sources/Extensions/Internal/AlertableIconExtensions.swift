@@ -11,7 +11,7 @@ import UIKit
 
 extension PopupInformingIcon {
     class func timeBreak() -> PopupInformingIcon? {
-        if let icon = UIImage(named: "coffee_break") {
+        if let icon = UIImage.jv_named("coffee_break") {
             return PopupInformingIcon(
                 title: loc["Alert.TimeBreak.Title"],
                 icon: icon,

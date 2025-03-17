@@ -57,7 +57,7 @@ final class JMTimelineContainerReactionControl: UIView {
     private var actionElementContainer: ElementContainer?
     private var isSelected = false
 
-    init(reaction meta: JMTimelineReactionMeta) {
+    init(reaction meta: ChatTimelineMessageExtrasReaction) {
         isSelected = meta.participated
         
         super.init(frame: .zero)
@@ -86,7 +86,7 @@ final class JMTimelineContainerReactionControl: UIView {
         updateDesign()
     }
     
-    init(action meta: JMTimelineActionMeta) {
+    init(action meta: ChatTimelineMessageExtrasAction) {
         isSelected = false
         
         super.init(frame: .zero)

@@ -36,9 +36,9 @@ final class JMTimelineDateHeaderCanvas: JMTimelineCanvas {
         
         shadowLayer.backgroundColor = JVDesign.colors.resolve(usage: .primaryBackground).cgColor
         shadowLayer.shadowColor = JVDesign.colors.resolve(usage: .focusingShadow).cgColor
-        shadowLayer.shadowOpacity = 0.5
-        shadowLayer.shadowRadius = 0.5
-        shadowLayer.shadowOffset = CGSize(width: 0, height: 0.5)
+        shadowLayer.shadowOpacity = 0.15
+        shadowLayer.shadowRadius = 2
+        shadowLayer.shadowOffset = CGSize(width: 0, height: 0)
         layer.insertSublayer(shadowLayer, at: 0)
         
         dateLabel.backgroundColor = JVDesign.colors.resolve(usage: .primaryBackground)

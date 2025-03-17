@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 import MessageUI
 
 enum MailComposeError: Error {

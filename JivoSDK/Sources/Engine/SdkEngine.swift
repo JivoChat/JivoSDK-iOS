@@ -4,6 +4,7 @@
 //
 
 import Foundation
+import UIKit
 import KeychainSwift
 import JMTimelineKit
 import JMCodingKit
@@ -89,11 +90,19 @@ final class SdkEngine: ISdkEngine {
                     namespace: .jv_empty
                 ),
                 JVLocalizerSearchingRule(
+                    location: Bundle.main.path(forResource: lang, ofType: "lproj", inDirectory: "Jivo_JivoSDK.bundle"),
+                    namespace: .jv_empty
+                ),
+                JVLocalizerSearchingRule(
                     location: Bundle.main.path(forResource: "Base", ofType: "lproj"),
                     namespace: "jivosdk:"
                 ),
                 JVLocalizerSearchingRule(
                     location: Bundle(for: Jivo.self).path(forResource: "Base", ofType: "lproj"),
+                    namespace: .jv_empty
+                ),
+                JVLocalizerSearchingRule(
+                    location: Bundle.main.path(forResource: "Base", ofType: "lproj", inDirectory: "Jivo_JivoSDK.bundle"),
                     namespace: .jv_empty
                 ),
             ]

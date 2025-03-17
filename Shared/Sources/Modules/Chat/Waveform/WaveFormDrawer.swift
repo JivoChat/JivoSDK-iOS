@@ -17,32 +17,28 @@ final class WaveFormDrawer {
         samples: [Float],
         configuration: WaveformConfiguration
     ) -> UIImage? {
-        UIGraphicsBeginImageContextWithOptions(configuration.size, false, UIScreen.main.scale)
-        guard let context = UIGraphicsGetCurrentContext() else { return nil }
-        context.setAllowsAntialiasing(true)
-        context.setShouldAntialias(true)
-        drawBackground(context, configuration)
-        context.saveGState()
-        
-        context.setLineWidth(configuration.lineWidth)
-        context.setLineCap(.round)
-        
-        let amountOfLines = Int((configuration.size.width + configuration.space) / (configuration.lineWidth + configuration.space))
-        
-        var resultedSamples = samples
-        
-        while resultedSamples.count < amountOfLines { resultedSamples.append(0) }
-        
-        let sampleParts = normalize(resultedSamples.chunked(into: resultedSamples.count / amountOfLines))
-        let localMaxes = sampleParts.compactMap({ Float($0.reduce(0, +)) / Float($0.count) })
-        
-        drawGraph(localMaxes, context, configuration)
-        
-        context.restoreGState()
-        
-        let graphImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        return graphImage
+        return UIGraphicsImageRenderer(size: configuration.size).image { context in
+            context.cgContext.setAllowsAntialiasing(true)
+            context.cgContext.setShouldAntialias(true)
+            drawBackground(context.cgContext, configuration)
+            context.cgContext.saveGState()
+            
+            context.cgContext.setLineWidth(configuration.lineWidth)
+            context.cgContext.setLineCap(.round)
+            
+            let amountOfLines = Int((configuration.size.width + configuration.space) / (configuration.lineWidth + configuration.space))
+            
+            var resultedSamples = samples
+            
+            while resultedSamples.count < amountOfLines { resultedSamples.append(0) }
+            
+            let sampleParts = normalize(resultedSamples.chunked(into: resultedSamples.count / amountOfLines))
+            let localMaxes = sampleParts.compactMap({ Float($0.reduce(0, +)) / Float($0.count) })
+            
+            drawGraph(localMaxes, context.cgContext, configuration)
+            
+            context.cgContext.restoreGState()
+        }
     }
     
     private func drawBackground(

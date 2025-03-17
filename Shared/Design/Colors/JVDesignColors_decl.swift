@@ -149,6 +149,7 @@ enum JVDesignColorUsage {
     case primarySeparator
     case secondarySeparator
     case darkSeparator
+    case timelineSeparator
     // controls
     case navigatorTint
     case focusedTint
@@ -220,8 +221,12 @@ enum JVDesignColorUsage {
     case waPreviewTemplateAgentMessageTime
     case waPreviewTemplateButtonsSeparatorColor
     
+    case waTemplateCellShadow
+    
     case listBackground
     case separatorColor_b9b9bb
     
     case pickerTint
+    
+    case chatResolvedButton
 }

@@ -30,20 +30,22 @@ final class JMTimelineDeliveryView: UIView {
         case .hidden:
             statusImage.image = nil
         case .queued:
-            statusImage.image = UIImage(named: "message_queued", in: Bundle(for: JVDesign.self), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            statusImage.image = UIImage.jv_named("message_queued")?.withRenderingMode(.alwaysTemplate)
         case .sent:
-            statusImage.image = UIImage(named: "message_sent", in: Bundle(for: JVDesign.self), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            statusImage.image = UIImage.jv_named("message_sent")?.withRenderingMode(.alwaysTemplate)
         case .delivered:
-            statusImage.image = UIImage(named: "message_sent", in: Bundle(for: JVDesign.self), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            statusImage.image = UIImage.jv_named("message_sent")?.withRenderingMode(.alwaysTemplate)
         case .seen:
-            statusImage.image = UIImage(named: "message_seen", in: Bundle(for: JVDesign.self), compatibleWith: nil)?.withRenderingMode(.alwaysTemplate)
+            statusImage.image = UIImage.jv_named("message_seen")?.withRenderingMode(.alwaysTemplate)
         case .failed:
-            statusImage.image = UIImage(named: "message_failed", in: Bundle(for: JVDesign.self), compatibleWith: nil)
+            statusImage.image = UIImage.jv_named("message_failed")
         }
         
         if icons.count == channelsImages.count {
-            zip(channelsImages, icons).forEach { image, icon in
-                image.image = icon.withRenderingMode(.alwaysTemplate)
+            zip(channelsImages, icons).forEach { imageView, icon in
+                let image: UIImage = icon.withRenderingMode(.alwaysTemplate)
+                imageView.image = image
+                imageView.contentMode = .scaleAspectFit
             }
         }
         else {
@@ -52,7 +54,9 @@ final class JMTimelineDeliveryView: UIView {
             }
             
             channelsImages = icons.map {
-                UIImageView(image: $0.withRenderingMode(.alwaysTemplate))
+                let iv = UIImageView(image: $0.withRenderingMode(.alwaysTemplate))
+                iv.contentMode = .scaleAspectFit
+                return iv
             }
             
             channelsImages.forEach {

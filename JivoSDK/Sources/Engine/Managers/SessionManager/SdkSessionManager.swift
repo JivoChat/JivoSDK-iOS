@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import JWTDecode
 import JMCodingKit
 
@@ -45,7 +46,18 @@ struct SdkSessionUserIdentity: Equatable {
             let info = try decode(jwt: input)
             token = input
             payload = info.body as? [String: AnyHashable]
-            id = info.body["id"] as? String
+            
+            let idValue = info.body["id"]
+            if idValue == nil {
+                id = nil
+            }
+            else if let idValue = idValue as? String {
+                id = idValue
+            }
+            else {
+                assertionFailure("The client-specific 'id' key within JWT payload must have String value")
+                id = nil
+            }
         }
         catch {
             token = input
@@ -302,7 +314,7 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
     }
     
     private func _startUp_perform() {
-        apnsService.requestForPermission(at: .onConnect)
+        apnsService.requestForPermission(at: .sessionSetup)
         
         if sessionContext.raise(connectionState: .identifying) {
             _requestConfig()
@@ -644,6 +656,8 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
 //        case (.connectionBreak, .unknown):
 //            sessionContext.authorizationState = .unavailable
         case (.blacklist, _):
+            sessionContext.authorizationState = .unavailable
+        case (.sanctions, _):
             sessionContext.authorizationState = .unavailable
         default:
             break

@@ -119,10 +119,10 @@ import Foundation
 @objc(Jivo)
 public final class Jivo: NSObject {
     static let shared = Jivo()
-    let session = JVSessionController()
-    let display = JVDisplayController()
-    let notifications = JVNotificationsController()
-    let debugging = JVDebuggingController()
+    @objc let session = JVSessionController()
+    @objc let display = JVDisplayController()
+    @objc let notifications = JVNotificationsController()
+    @objc let debugging = JVDebuggingController()
 }
 
 func inform(messageProvider: () -> String) {

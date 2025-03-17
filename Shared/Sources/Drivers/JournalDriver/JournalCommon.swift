@@ -8,7 +8,10 @@
 
 import Foundation
 import XCGLogger
+
+#if canImport(SwiftGraylog)
 import SwiftGraylog
+#endif
 
 fileprivate let globalJournalQueue = prepareLoggingQueue()
 fileprivate(set) var globalJournalLevel = JournalLevel.full
@@ -153,12 +156,14 @@ struct JournalChild {
                 }
                 
                 if target.contains(.remote), let key = pointOfInterest {
-                    Graylog.jv_send(
-                        brief: key,
-                        details: message,
-                        file: file,
-                        line: line,
-                        includeCaches: true)
+//                    #if canImport(SwiftGraylog)
+//                    Graylog.jv_send(
+//                        brief: key,
+//                        details: message,
+//                        file: file,
+//                        line: line,
+//                        includeCaches: true)
+//                    #endif
                 }
             }
         }
@@ -230,15 +235,17 @@ struct JournalChild {
             }
             
             if target.contains(.remote), let key = pointOfInterest {
-                Graylog.jv_send(
-                    brief: key,
-                    details: generator.generateEntry(
-                        meta: meta,
-                        recentCall: UUID(),
-                        historyOfCalls: []),
-                    file: file,
-                    line: line,
-                    includeCaches: true)
+//                #if canImport(SwiftGraylog)
+//                Graylog.jv_send(
+//                    brief: key,
+//                    details: generator.generateEntry(
+//                        meta: meta,
+//                        recentCall: UUID(),
+//                        historyOfCalls: []),
+//                    file: file,
+//                    line: line,
+//                    includeCaches: true)
+//                #endif
             }
         }
         

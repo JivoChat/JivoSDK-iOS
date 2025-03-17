@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import UIKit
 
 final class OptionsJoint: SdkModuleJoint<OptionsJointInput, OptionsJointOutput> {
     private let engine: ISdkEngine

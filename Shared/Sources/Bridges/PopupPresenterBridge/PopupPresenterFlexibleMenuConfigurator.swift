@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 class PopupPresenterFlexibleMenuConfigurator {
     let items: [PopupPresenterFlexibleMenuItem]

@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import QuartzCore
 import DTModelStorage
 
 final class JMTimelineMessageStoryMentionRegion: JMTimelineMessageCanvasRegion {

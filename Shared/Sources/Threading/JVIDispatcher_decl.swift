@@ -8,8 +8,13 @@
 import Foundation
 
 protocol JVIDispatcher: AnyObject {
-    func addOperation(_ block: @Sendable @escaping () -> Void)
+    func enqueueOperation(_ block: @escaping () -> Void)
 }
 
 extension OperationQueue: JVIDispatcher {
+    func enqueueOperation(_ block: @escaping () -> Void) {
+        addOperation {
+            block()
+        }
+    }
 }

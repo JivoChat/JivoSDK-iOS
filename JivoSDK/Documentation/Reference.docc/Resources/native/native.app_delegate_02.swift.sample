@@ -47,7 +47,10 @@ final class AppDelegate: UIResponder
     }
     
     func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        Jivo.notifications.didReceive(response: response)
+        if Jivo.notifications.didReceive(response: response) {
+            // JivoSDK would like to appear onscreen here
+        }
+        
         completionHandler()
     }
 }

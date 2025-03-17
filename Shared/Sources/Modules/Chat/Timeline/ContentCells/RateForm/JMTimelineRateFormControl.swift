@@ -67,7 +67,7 @@ final class JMTimelineRateFormControl: UIView, UITextFieldDelegate {
     
     private lazy var closeButton: UIButton = {
         let button = UIButton()
-        button.setImage(UIImage(named: "close", in: Bundle(for: JVDesign.self), compatibleWith: nil), for: .normal)
+        button.setImage(UIImage.jv_named("close"), for: .normal)
         button.jv_contentEdgeInsets = UIEdgeInsets(jv_by: 11.0)
         return button
     }()

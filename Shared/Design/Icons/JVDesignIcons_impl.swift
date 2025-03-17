@@ -86,14 +86,12 @@ final class JVDesignIcons: JVDesignEnvironmental, JVIDesignIcons {
             }
         }
         
-        for bundle in [Bundle(for: JVDesign.self), .main] {
-            if let icon = UIImage(named: assetName, in: bundle, compatibleWith: nil) {
-                switch rendering {
-                case .original:
-                    return icon.withRenderingMode(.alwaysOriginal)
-                case .template:
-                    return icon.withRenderingMode(.alwaysTemplate)
-                }
+        if let icon = UIImage.jv_named(assetName) {
+            switch rendering {
+            case .original:
+                return icon.withRenderingMode(.alwaysOriginal)
+            case .template:
+                return icon.withRenderingMode(.alwaysTemplate)
             }
         }
         

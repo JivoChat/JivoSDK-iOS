@@ -8,7 +8,12 @@
 
 import Foundation
 import SwiftDate
+
+#if canImport(libPhoneNumber)
+import libPhoneNumber
+#elseif canImport(libPhoneNumber_iOS)
 import libPhoneNumber_iOS
+#endif
 
 final class FormattingProvider: IFormattingProvider {
     private let preferencesDriver: IPreferencesDriver

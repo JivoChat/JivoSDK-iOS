@@ -12,19 +12,11 @@ public enum JVClientIdentity {
     case anonymous
 }
 
-@objc(JVClient)
 public final class JVClient: NSObject {
-    private weak var controller: JVSessionController?
-    
-    init(controller: JVSessionController?) {
-        self.controller = controller
-    }
-    
     /**
      Assigns contact info to user,
      to reach him easier in future
      */
-    @objc(setContactInfo:)
     public func setContactInfo(_ info: JVClientContactInfo?) {
         controller?._setContactInfo(info)
     }
@@ -33,7 +25,6 @@ public final class JVClient: NSObject {
      Assigns custom data to user,
      if needed for your business
      */
-    @objc(setCustomData:)
     public func setCustomData(fields: [JVClientCustomDataField]) {
         controller?._setCustomData(fields: fields)
     }
@@ -42,7 +33,6 @@ public final class JVClient: NSObject {
      Closes current connection, clears the local database,
      and unsubscribes device from Push Notifications
      */
-    @objc(shutDown)
     public func shutDown() {
         controller?._shutDown()
         controller = nil
@@ -51,8 +41,20 @@ public final class JVClient: NSObject {
     /**
      Register your handler to observe the unread counter updates
      */
-    public func listenToUnreadCounter(handler: ((_ number: Int) -> Void)?) {
+    public func listenToUnreadCounter(handler: @escaping (Int) -> Void) {
         controller?.defaultDelegate.unreadCounterHandler = handler
-        controller?.delegate = controller?.defaultDelegate
+        
+        controller?.listenToUnreadCounter { number in
+            handler(number)
+        }
+    }
+    
+    /*
+     For private purposes
+     */
+    private weak var controller: JVSessionController?
+    
+    init(controller: JVSessionController?) {
+        self.controller = controller
     }
 }

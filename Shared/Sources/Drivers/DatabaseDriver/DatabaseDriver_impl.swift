@@ -46,10 +46,11 @@ class JVDatabaseDriver: JVIDatabaseDriver {
         self.environment = environment
         self.localizer = localizer
         
-        let momName = "JVDatabase"
-        guard let momURL = Bundle(for: DatabaseEntity.self).url(forResource: momName, withExtension: "momd"),
-              let momContent = NSManagedObjectModel(contentsOf: momURL)
-        else {
+        guard let momUrl = Bundle(for: DatabaseEntity.self).jv_findDatabaseScheme(basename: "JVDatabase") else {
+            fatalError()
+        }
+        
+        guard let momContent = NSManagedObjectModel(contentsOf: momUrl) else {
             fatalError()
         }
         
@@ -58,33 +59,47 @@ class JVDatabaseDriver: JVIDatabaseDriver {
             managedObjectModel: momContent
         )
         
-        if let fileURL = fileURL {
-            let storeDescription = NSPersistentStoreDescription()
-            storeDescription.url = fileURL
-            container.persistentStoreDescriptions = [storeDescription]
-        }
-        
         setupPersistentContainer(
             fileManager: fileManager,
+            fileUrl: fileURL,
             step: .initial)
     }
     
-    private func setupPersistentContainer(fileManager: FileManager, step: _PersistentContainerSetupStep) {
+    private func setupPersistentContainer(fileManager: FileManager, fileUrl: URL?, step: _PersistentContainerSetupStep) {
+        if let fileUrl {
+            let storeDescription = NSPersistentStoreDescription()
+            storeDescription.type = NSSQLiteStoreType
+            storeDescription.url = fileUrl
+            container.persistentStoreDescriptions = [storeDescription]
+        }
+        else {
+            let storeDescription = NSPersistentStoreDescription()
+            storeDescription.type = NSInMemoryStoreType
+            container.persistentStoreDescriptions = [storeDescription]
+        }
+        
+        let containerName = container.name
         container.loadPersistentStores { [unowned self] info, error in
             if let error = error {
+                fileManager.jv_removeItem(at: info.url, strategy: .satellites)
+                
                 switch step {
                 case .initial:
-                    print("Persistent Store failure for '\(container.name)' with error: \(error)")
-                    fileManager.jv_removeItem(at: info.url, strategy: .satellites)
+                    print("Persistent Store failure for '\(containerName)' with error: \(error)")
                     setupPersistentContainer(
                         fileManager: fileManager,
+                        fileUrl: fileUrl,
                         step: .recovery)
                 case .recovery:
-                    fatalError("Failed to setup the Persistent Store")
+                    print("Failed to setup the Persistent Store, roll back to In-Memory")
+                    setupPersistentContainer(
+                        fileManager: fileManager,
+                        fileUrl: nil,
+                        step: .recovery)
                 }
             }
             else if let url = info.url {
-                print("Persistent Store is ready for '\(container.name)' with file: \(url)")
+                print("Persistent Store is ready for '\(containerName)' with file: \(url)")
             }
         }
     }

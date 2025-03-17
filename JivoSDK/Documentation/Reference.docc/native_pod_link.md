@@ -1,6 +1,6 @@
-# Link to SDK
+# Link to SDK using CocoaPods
 
-Using CocoaPods
+Alternative option
 
 ## Repos
 

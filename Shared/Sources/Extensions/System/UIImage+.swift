@@ -35,6 +35,21 @@ extension UIImage {
         }
     }
     
+    static func jv_named(_ name: String) -> UIImage? {
+        if let image = UIImage(named: name, in: .jv_resourcesBundle, compatibleWith: nil) {
+            return image
+        }
+        else if let image = UIImage(named: name, in: .jv_shared, compatibleWith: nil) {
+            return image
+        }
+        else if let image = UIImage(named: name, in: .main, compatibleWith: nil) {
+            return image
+        }
+        else {
+            return nil
+        }
+    }
+    
     func jv_rounded() -> UIImage? {
         let layer = CALayer()
         layer.frame = CGRect(origin: .zero, size: size)

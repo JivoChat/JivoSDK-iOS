@@ -16,6 +16,7 @@ Jivo Mobile SDK (hereinafter referred to as SDK) is the mobile framework for int
 
 ### For native project
 
+- <doc:native_swiftpm_link>
 - <doc:native_pod_link>
 - <doc:native_api_ref>
 - <doc:native_usage_basics>

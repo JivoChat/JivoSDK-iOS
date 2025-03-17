@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import UIKit
 import JMTimelineKit
 import JMMarkdownKit
 import Gzip
@@ -23,6 +24,7 @@ protocol JVChatTimelineInteractor: JMTimelineInteractor {
     func stopPlayingMedia(item: URL)
     func stopPlayingAllMedias()
     
+    func toggleTranslation(uuid: String)
     func toggleMessageReaction(uuid: String, emoji: String)
     func presentMessageReactions(uuid: String)
     
@@ -59,4 +61,7 @@ protocol JVChatTimelineInteractor: JMTimelineInteractor {
     
     func requestHistoryPast(item: JMTimelineItem)
     func requestHistoryFuture(item: JMTimelineItem)
+    
+    func resolveCurrentChat()
+    func activatePrechat(caption: String)
 }

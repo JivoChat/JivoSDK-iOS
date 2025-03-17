@@ -14,7 +14,7 @@ final class TimelineContactFormFieldControl: UITextField {
         super.init(frame: .zero)
         
         font = obtainCaptionFont()
-        rightView = UIImageView(image: UIImage(named: "checkmark_green", in: Bundle(for: JVDesign.self), compatibleWith: nil))
+        rightView = UIImageView(image: UIImage.jv_named("checkmark_green"))
         
         injectDecorations()
     }

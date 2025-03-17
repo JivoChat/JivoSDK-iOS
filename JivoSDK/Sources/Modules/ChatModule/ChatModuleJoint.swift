@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 import PhotosUI
 import MobileCoreServices
 
@@ -96,8 +97,8 @@ final class ChatModuleJoint
                 title: loc["JV_SpecialMenu_Popup_Title"],
                 message: nil,
                 items: [
-                    .action(loc["JV_SpecialMenu_Popup_ExportAction"], .noicon, .regular { [weak self] _ in
-                        Jivo.debugging.exportLogs(within: self?.view)
+                    .action(loc["JV_SpecialMenu_Popup_ExportJournal"], .noicon, .regular { [weak self] _ in
+                        Jivo.debugging.exportUI(within: self?.view)
                     }),
                     .dismiss(.cancel)
                 ])
@@ -202,7 +203,7 @@ final class ChatModuleJoint
     }
     
     private func setupAttachmentMenu(anchor: UIButton) {
-        guard typingCacheService.canAttachMore
+        guard typingCacheService.canAttachMore(context: .standard)
         else {
             pipeline?.notify(input: .documentsLimitExceeded)
             return

@@ -18,7 +18,7 @@ Same as ``Jivo``.``Jivo/session``.``JVSessionController/setPreferredServer(_:)``
 ```
 Jivo.startUp(channelID, userToken)
 ```
-Same as ``Jivo``.``Jivo/session``.``JVSessionController/startUp(channelID:userToken:)``
+Same as ``Jivo``.``Jivo/session``.``JVSessionController/setup(widgetID:clientIdentity:)``
 
 ```
 Jivo.setContactInfo(info)
@@ -99,7 +99,7 @@ Same as ``Jivo``.``Jivo/notifications``.``JVNotificationsController/handleIncomi
 ```
 Jivo.setDebuggingLevel(level)
 ```
-Same as ``Jivo``.``Jivo/debugging``.``JVDebuggingController/level``
+Same as ``Jivo``.``Jivo/debugging``.``JVDebuggingController/setLevel(_:)``
 
 `level` is one of possible strings:
 - silent

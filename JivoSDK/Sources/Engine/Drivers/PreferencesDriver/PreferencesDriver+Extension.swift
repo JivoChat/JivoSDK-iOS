@@ -7,7 +7,6 @@
 //
 
 import Foundation
-import JFEmojiPicker
 
 
 extension PreferencesToken {
@@ -46,15 +45,6 @@ extension IPreferencesDriver {
             defaults: [
                 retrieveAccessor(forToken: .isOnline).key: true,
                 retrieveAccessor(forToken: .vibroEnabled).key: true,
-                
-                // MOB-2601: populate the external Emoji struct
-                // to get the startup favorite pickable Emoji items
-                "com.levantAJ.EmojiPicker.frequentlyUsed": (try? JSONEncoder().encode([
-                    Emoji(emojis: ["🙂"], selectedEmoji: nil),
-                    Emoji(emojis: ["😁"], selectedEmoji: nil),
-                    Emoji(emojis: ["🤔"], selectedEmoji: nil),
-                    Emoji(emojis: ["👍", "👍🏻", "👍🏼", "👍🏽", "👍🏾", "👍🏿"], selectedEmoji: nil)
-                ])) ?? Data()
             ]
         )
         

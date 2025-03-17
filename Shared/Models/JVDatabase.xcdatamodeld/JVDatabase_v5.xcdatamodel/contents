@@ -1,0 +1,496 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="23605" systemVersion="24C101" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+    <entity name="AgentEntity" representedClassName=".AgentEntity" parentEntity="ParticipantEntity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_avatar_link" optional="YES" attributeType="String"/>
+        <attribute name="m_calling_destination" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_calling_options" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_channels" optional="YES" attributeType="String"/>
+        <attribute name="m_display_name" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_draft" optional="YES" attributeType="String"/>
+        <attribute name="m_email" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_email_verified" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="m_has_session" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_is_admin" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="m_is_operator" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="m_is_owner" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_is_supervisor" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_is_working" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="m_last_message_date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="m_ordering_group" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_ordering_name" optional="YES" attributeType="String"/>
+        <attribute name="m_ordering_unread" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_phone" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_public_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_state_id" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_status_comment" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_title" optional="YES" attributeType="String" defaultValueString=""/>
+        <relationship name="b_tasks" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="TaskEntity" inverseName="m_agent" inverseEntity="TaskEntity"/>
+        <relationship name="m_chat" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ChatEntity" inverseName="b_agent" inverseEntity="ChatEntity"/>
+        <relationship name="m_last_message" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MessageEntity"/>
+        <relationship name="m_session" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="AgentSessionEntity" inverseName="b_agent" inverseEntity="AgentSessionEntity"/>
+        <relationship name="m_status" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="AgentStatusEntity" inverseName="b_agents" inverseEntity="AgentStatusEntity"/>
+        <relationship name="m_worktime" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="AgentWorktimeEntity" inverseName="b_agent" inverseEntity="AgentWorktimeEntity"/>
+    </entity>
+    <entity name="AgentSessionEntity" representedClassName=".AgentSessionEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_allow_mobile_calls" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_email" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_global_file_size_limit" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_global_pricelist_id" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_is_active" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_is_admin" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_is_operator" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="m_is_owner" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_is_supervisor" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_is_working" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="m_is_working_hidden" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_site_id" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_vox_login" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_vox_password" optional="YES" attributeType="String" defaultValueString=""/>
+        <relationship name="b_agent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="AgentEntity" inverseName="m_session" inverseEntity="AgentEntity"/>
+        <relationship name="m_channels" toMany="YES" deletionRule="Nullify" destinationEntity="ChannelEntity"/>
+    </entity>
+    <entity name="AgentStatusEntity" representedClassName=".AgentStatusEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_emoji" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_id" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_position" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_title" optional="YES" attributeType="String" defaultValueString=""/>
+        <relationship name="b_agents" toMany="YES" deletionRule="Nullify" destinationEntity="AgentEntity" inverseName="m_status" inverseEntity="AgentEntity"/>
+    </entity>
+    <entity name="AgentWorktimeEntity" representedClassName=".AgentWorktimeEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_agent_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_friConfig" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_is_dirty" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_is_enabled" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_last_update" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="m_monConfig" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_satConfig" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_sunConfig" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_thuConfig" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_timezone_id" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_tueConfig" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_wedConfig" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="b_agent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="AgentEntity" inverseName="m_worktime" inverseEntity="AgentEntity"/>
+        <relationship name="m_timezone" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TimezoneEntity" inverseName="b_agent_worktimes" inverseEntity="TimezoneEntity"/>
+    </entity>
+    <entity name="AiCopilotSkillEntity" representedClassName=".AiCopilotSkillEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_emoji" attributeType="String" defaultValueString=""/>
+        <attribute name="m_id" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_title" attributeType="String" defaultValueString=""/>
+    </entity>
+    <entity name="ArchiveEntity" representedClassName=".ArchiveEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_archite_total" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_id" optional="YES" attributeType="String" defaultValueString=":archive:"/>
+        <attribute name="m_is_cleaned_up" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_last_id" optional="YES" attributeType="String"/>
+        <attribute name="m_latest" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="m_total" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="m_hits" toMany="YES" deletionRule="Nullify" destinationEntity="ArchiveHitEntity"/>
+    </entity>
+    <entity name="ArchiveHitCallItemEntity" representedClassName=".ArchiveHitCallItemEntity" parentEntity="ArchiveHitItemEntity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_cost" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="m_cost_currency" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_status" optional="YES" attributeType="String" defaultValueString=""/>
+        <relationship name="m_call" optional="YES" maxCount="1" deletionRule="No Action" destinationEntity="CallEntity"/>
+    </entity>
+    <entity name="ArchiveHitChatItemEntity" representedClassName=".ArchiveHitChatItemEntity" parentEntity="ArchiveHitItemEntity" syncable="YES" codeGenerationType="category"/>
+    <entity name="ArchiveHitEntity" representedClassName=".ArchiveHitEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_score" attributeType="Float" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="m_sorting_rank" optional="YES" attributeType="String" defaultValueString=""/>
+        <relationship name="m_item" maxCount="1" deletionRule="Cascade" destinationEntity="ArchiveHitItemEntity" inverseName="b_hit" inverseEntity="ArchiveHitItemEntity"/>
+    </entity>
+    <entity name="ArchiveHitItemEntity" representedClassName=".ArchiveHitItemEntity" isAbstract="YES" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_duration" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_events_number" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_latest_chat_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_response_timeout" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_type" optional="YES" attributeType="String" defaultValueString=""/>
+        <relationship name="b_hit" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="ArchiveHitEntity" inverseName="m_item" inverseEntity="ArchiveHitEntity"/>
+        <relationship name="m_agents" toMany="YES" deletionRule="Nullify" destinationEntity="AgentEntity"/>
+        <relationship name="m_chat" optional="YES" maxCount="1" deletionRule="No Action" destinationEntity="ChatEntity"/>
+    </entity>
+    <entity name="BotEntity" representedClassName=".BotEntity" parentEntity="ParticipantEntity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_avatar_link" optional="YES" attributeType="String"/>
+        <attribute name="m_display_name" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_title" optional="YES" attributeType="String" defaultValueString=""/>
+    </entity>
+    <entity name="CallEntity" representedClassName=".CallEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="CannedPhraseEntity" representedClassName=".CannedPhraseEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_message" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_message_hash_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_session_score" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="m_total_score" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_was_deleted" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+    </entity>
+    <entity name="ChannelEntity" representedClassName=".ChannelEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_agents_ids" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_guests_number" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_joint_alias" optional="YES" attributeType="String"/>
+        <attribute name="m_joint_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_joint_phone" optional="YES" attributeType="String"/>
+        <attribute name="m_joint_type" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_joint_url" optional="YES" attributeType="String"/>
+        <attribute name="m_joint_verified_name" optional="YES" attributeType="String"/>
+        <attribute name="m_public_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_site_url" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_state_id" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="b_clients" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ClientEntity" inverseName="m_channel" inverseEntity="ClientEntity"/>
+    </entity>
+    <entity name="ChatAttendeeEntity" representedClassName=".ChatAttendeeEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_comment" optional="YES" attributeType="String"/>
+        <attribute name="m_notifications" attributeType="Integer 16" defaultValueString="-1" usesScalarValueType="YES"/>
+        <attribute name="m_received_message_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_relation" optional="YES" attributeType="String"/>
+        <attribute name="m_to_assist" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_unread_number" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="m_agent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="AgentEntity"/>
+        <relationship name="m_invited_by" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="AgentEntity"/>
+    </entity>
+    <entity name="ChatEntity" representedClassName=".ChatEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_about" optional="YES" attributeType="String"/>
+        <attribute name="m_department" optional="YES" attributeType="String"/>
+        <attribute name="m_draft" optional="YES" attributeType="String"/>
+        <attribute name="m_has_active_call" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_icon" optional="YES" attributeType="String"/>
+        <attribute name="m_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_inactive_since" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="m_is_group" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_is_main" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_is_resolved" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_is_resolved_before" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_last_activity_timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="m_last_message_valid" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="m_loaded_entiry_history" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_loaded_partial_history" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_ordering_block" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_request_cancelled_by_system" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_termination_date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="m_title" optional="YES" attributeType="String"/>
+        <attribute name="m_transfer_assisting" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_transfer_cancelled" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_transfer_comment" optional="YES" attributeType="String"/>
+        <attribute name="m_transfer_date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="m_transfer_fail_reason" optional="YES" attributeType="String"/>
+        <attribute name="m_unread_number" attributeType="Integer 16" defaultValueString="-1" usesScalarValueType="YES"/>
+        <relationship name="b_agent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="AgentEntity" inverseName="m_chat" inverseEntity="AgentEntity"/>
+        <relationship name="m_active_ring" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MessageEntity"/>
+        <relationship name="m_agents" toMany="YES" deletionRule="Nullify" destinationEntity="AgentEntity"/>
+        <relationship name="m_attendee" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="ChatAttendeeEntity"/>
+        <relationship name="m_attendees" toMany="YES" deletionRule="Nullify" destinationEntity="ChatAttendeeEntity"/>
+        <relationship name="m_client" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ClientEntity" inverseName="b_chats" inverseEntity="ClientEntity"/>
+        <relationship name="m_last_message" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MessageEntity"/>
+        <relationship name="m_owning_agent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="AgentEntity"/>
+        <relationship name="m_preview_message" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MessageEntity"/>
+        <relationship name="m_request_cancelled_by_agent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="AgentEntity"/>
+        <relationship name="m_topic" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TopicEntity"/>
+        <relationship name="m_transfer_to_agent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="AgentEntity"/>
+        <relationship name="m_transfer_to_department" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DepartmentEntity"/>
+    </entity>
+    <entity name="ClientCustomFieldEntity" representedClassName=".ClientCustomFieldEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_content" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_key" optional="YES" attributeType="String"/>
+        <attribute name="m_link" optional="YES" attributeType="String"/>
+        <attribute name="m_title" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="ClientEntity" representedClassName=".ClientEntity" parentEntity="ParticipantEntity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_avatar_link" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_channel_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_channel_name" optional="YES" attributeType="String"/>
+        <attribute name="m_chat_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_comment" optional="YES" attributeType="String"/>
+        <attribute name="m_display_name" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_email_by_agent" optional="YES" attributeType="String"/>
+        <attribute name="m_email_by_client" optional="YES" attributeType="String"/>
+        <attribute name="m_emails_extra" optional="YES" attributeType="String"/>
+        <attribute name="m_guest_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_has_active_call" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_has_startup" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="m_id" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_integration" optional="YES" attributeType="String"/>
+        <attribute name="m_integration_link" optional="YES" attributeType="String"/>
+        <attribute name="m_is_blocked" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_is_online" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="m_navigates_number" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_phone_by_agent" optional="YES" attributeType="String"/>
+        <attribute name="m_phone_by_client" optional="YES" attributeType="String"/>
+        <attribute name="m_phones_extra" optional="YES" attributeType="String"/>
+        <attribute name="m_public_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_visits_number" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="b_chats" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ChatEntity" inverseName="m_client" inverseEntity="ChatEntity"/>
+        <relationship name="b_messages" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="MessageEntity" inverseName="m_client" inverseEntity="MessageEntity"/>
+        <relationship name="m_active_session" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="ClientSessionEntity" inverseName="b_client" inverseEntity="ClientSessionEntity"/>
+        <relationship name="m_assigned_agent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="AgentEntity"/>
+        <relationship name="m_channel" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ChannelEntity" inverseName="b_clients" inverseEntity="ChannelEntity"/>
+        <relationship name="m_custom_data" toMany="YES" deletionRule="Cascade" destinationEntity="ClientCustomFieldEntity"/>
+        <relationship name="m_proactive_rule" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="ClientProactiveRuleEntity"/>
+        <relationship name="m_task" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TaskEntity" inverseName="m_client" inverseEntity="TaskEntity"/>
+    </entity>
+    <entity name="ClientProactiveRuleEntity" representedClassName=".ClientProactiveRuleEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="m_text" optional="YES" attributeType="String" defaultValueString=""/>
+        <relationship name="m_agent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="AgentEntity"/>
+    </entity>
+    <entity name="ClientSessionEntity" representedClassName=".ClientSessionEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_creation_ts" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="m_last_ip" optional="YES" attributeType="String" defaultValueString=""/>
+        <relationship name="b_client" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ClientEntity" inverseName="m_active_session" inverseEntity="ClientEntity"/>
+        <relationship name="m_current_page" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="PageEntity"/>
+        <relationship name="m_geo" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="ClientSessionGeoEntity" inverseName="b_session" inverseEntity="ClientSessionGeoEntity"/>
+        <relationship name="m_history" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="PageEntity"/>
+        <relationship name="m_start_page" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="PageEntity"/>
+        <relationship name="m_utm" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="ClientSessionUtmEntity" inverseName="b_client_session" inverseEntity="ClientSessionUtmEntity"/>
+    </entity>
+    <entity name="ClientSessionGeoEntity" representedClassName=".ClientSessionGeoEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_city" optional="YES" attributeType="String"/>
+        <attribute name="m_country" optional="YES" attributeType="String"/>
+        <attribute name="m_country_code" optional="YES" attributeType="String"/>
+        <attribute name="m_organization" optional="YES" attributeType="String"/>
+        <attribute name="m_region" optional="YES" attributeType="String"/>
+        <relationship name="b_session" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ClientSessionEntity" inverseName="m_geo" inverseEntity="ClientSessionEntity"/>
+    </entity>
+    <entity name="ClientSessionUtmEntity" representedClassName=".ClientSessionUtmEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_campaign" optional="YES" attributeType="String"/>
+        <attribute name="m_content" optional="YES" attributeType="String"/>
+        <attribute name="m_keyword" optional="YES" attributeType="String"/>
+        <attribute name="m_medium" optional="YES" attributeType="String"/>
+        <attribute name="m_source" optional="YES" attributeType="String"/>
+        <relationship name="b_client_session" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ClientSessionEntity" inverseName="m_utm" inverseEntity="ClientSessionEntity"/>
+        <relationship name="b_guest" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="GuestEntity" inverseName="m_utm" inverseEntity="GuestEntity"/>
+    </entity>
+    <entity name="DepartmentEntity" representedClassName=".DepartmentEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_agents_ids" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_brief" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_channels_ids" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_icon" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_name" optional="YES" attributeType="String" defaultValueString=""/>
+    </entity>
+    <entity name="Entity" representedClassName=".DatabaseEntity" isAbstract="YES" syncable="YES">
+        <attribute name="m_pk_num" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_pk_str" optional="YES" attributeType="String"/>
+        <attribute name="m_uid" attributeType="String"/>
+    </entity>
+    <entity name="EulaEntity" representedClassName=".EulaEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_agent_id" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_module" optional="YES" attributeType="String" defaultValueString=""/>
+    </entity>
+    <entity name="GuestEntity" representedClassName=".GuestEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_agent_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_channel_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_city_name" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_client_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_country_code" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_country_name" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_disappear_date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="m_email" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_last_update" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="m_name" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_navigates_number" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_organization" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_page_link" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_page_title" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_phone" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_region_code" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_region_name" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_source_ip" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_source_port" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_start_date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="m_status" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_visible" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_visits_number" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_widget_version" optional="YES" attributeType="String" defaultValueString=""/>
+        <relationship name="m_attendees" toMany="YES" deletionRule="Nullify" destinationEntity="ChatAttendeeEntity"/>
+        <relationship name="m_bots" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="BotEntity"/>
+        <relationship name="m_proactive_agent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="AgentEntity"/>
+        <relationship name="m_utm" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="ClientSessionUtmEntity" inverseName="b_guest" inverseEntity="ClientSessionUtmEntity"/>
+    </entity>
+    <entity name="MediaUploadEntity" representedClassName=".MediaUploadEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_chat_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_file_path" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_recipient_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_recipient_type" optional="YES" attributeType="String" defaultValueString=""/>
+    </entity>
+    <entity name="MessageBodyEntity" representedClassName=".MessageBodyEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_buttons" optional="YES" attributeType="String"/>
+        <attribute name="m_call_id" optional="YES" attributeType="String"/>
+        <attribute name="m_created_at" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="m_email" optional="YES" attributeType="String"/>
+        <attribute name="m_end_call_side" optional="YES" attributeType="String"/>
+        <attribute name="m_event" optional="YES" attributeType="String"/>
+        <attribute name="m_from" optional="YES" attributeType="String"/>
+        <attribute name="m_notify_at" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="m_order_id" optional="YES" attributeType="String"/>
+        <attribute name="m_phone" optional="YES" attributeType="String"/>
+        <attribute name="m_reason" optional="YES" attributeType="String"/>
+        <attribute name="m_record_link" optional="YES" attributeType="String"/>
+        <attribute name="m_status" optional="YES" attributeType="String"/>
+        <attribute name="m_subject" optional="YES" attributeType="String"/>
+        <attribute name="m_task_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_task_status" optional="YES" attributeType="String"/>
+        <attribute name="m_text" optional="YES" attributeType="String"/>
+        <attribute name="m_to" optional="YES" attributeType="String"/>
+        <attribute name="m_transitioned_at" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="m_type" optional="YES" attributeType="String"/>
+        <attribute name="m_updated_at" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <relationship name="b_message" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MessageEntity" inverseName="m_body" inverseEntity="MessageEntity"/>
+        <relationship name="m_agent" optional="YES" maxCount="1" deletionRule="No Action" destinationEntity="AgentEntity"/>
+        <relationship name="m_department" optional="YES" maxCount="1" deletionRule="No Action" destinationEntity="DepartmentEntity"/>
+    </entity>
+    <entity name="MessageEntity" representedClassName=".MessageEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_can_be_sent" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_chat_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_client_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="m_date_freezed" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_details" optional="YES" attributeType="String"/>
+        <attribute name="m_flags" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_has_read" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_icon_link" optional="YES" attributeType="String"/>
+        <attribute name="m_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_interactive_id" optional="YES" attributeType="String"/>
+        <attribute name="m_is_hidden" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_is_incoming" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="YES"/>
+        <attribute name="m_is_markdown" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_is_offline" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_local_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_must_be_sent" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_ordering_index" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_reactions" optional="YES" attributeType="Binary"/>
+        <attribute name="m_sender_bot_flag" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_sending_date" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="m_sending_failed" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_status" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_target" optional="YES" attributeType="Binary"/>
+        <attribute name="m_text" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_type" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_updated_timepoint" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="m_was_deleted" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <relationship name="m_body" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="MessageBodyEntity" inverseName="b_message" inverseEntity="MessageBodyEntity"/>
+        <relationship name="m_channel" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ChannelEntity"/>
+        <relationship name="m_client" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ClientEntity" inverseName="b_messages" inverseEntity="ClientEntity"/>
+        <relationship name="m_media" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="MessageMediaEntity" inverseName="b_message" inverseEntity="MessageMediaEntity"/>
+        <relationship name="m_quoted_message" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MessageEntity"/>
+        <relationship name="m_referral_source" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ReferralSourceEntity"/>
+        <relationship name="m_sender" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ParticipantEntity"/>
+        <relationship name="m_sender_agent" optional="YES" maxCount="1" deletionRule="No Action" destinationEntity="AgentEntity"/>
+        <relationship name="m_sender_bot" optional="YES" maxCount="1" deletionRule="No Action" destinationEntity="BotEntity"/>
+        <relationship name="m_sender_client" optional="YES" maxCount="1" deletionRule="No Action" destinationEntity="ClientEntity"/>
+        <relationship name="m_updated_agent" optional="YES" maxCount="1" deletionRule="No Action" destinationEntity="AgentEntity"/>
+    </entity>
+    <entity name="MessageImageEntity" representedClassName=".MessageImageEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_file_name" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_upload_ts" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="m_url" optional="YES" attributeType="String" defaultValueString=""/>
+    </entity>
+    <entity name="MessageMediaEntity" representedClassName=".MessageMediaEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_duration" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_emoji" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_full_link" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_height" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_latitude" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="m_link" optional="YES" attributeType="String"/>
+        <attribute name="m_longitude" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="m_mime" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_name" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_phone" optional="YES" attributeType="String"/>
+        <attribute name="m_size" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_text" optional="YES" attributeType="String"/>
+        <attribute name="m_thumb_link" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_title" optional="YES" attributeType="String"/>
+        <attribute name="m_type" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_width" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <relationship name="b_message" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MessageEntity" inverseName="m_media" inverseEntity="MessageEntity"/>
+    </entity>
+    <entity name="MessageSnippetEntity" representedClassName=".MessageSnippetEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_html" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_icon_url" optional="YES" attributeType="String"/>
+        <attribute name="m_title" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_url" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="MessageTransferEntity" representedClassName=".MessageTransferEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_agent_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_comment" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="PageEntity" representedClassName=".PageEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_time" optional="YES" attributeType="String"/>
+        <attribute name="m_title" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_url" optional="YES" attributeType="String" defaultValueString=""/>
+    </entity>
+    <entity name="ParticipantEntity" representedClassName=".ParticipantEntity" isAbstract="YES" parentEntity="Entity" syncable="YES" codeGenerationType="category"/>
+    <entity name="PushCredentialsEntity" representedClassName=".PushCredentialsEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_channel_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_client_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_date" attributeType="Date" defaultDateTimeInterval="697185660" usesScalarValueType="NO"/>
+        <attribute name="m_device_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_device_live_token" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_endpoint" optional="YES" attributeType="String"/>
+        <attribute name="m_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_site_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_status" optional="YES" attributeType="String" defaultValueString=""/>
+    </entity>
+    <entity name="QuickPhraseEntity" representedClassName=".QuickPhraseEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_id" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_is_standard" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
+        <attribute name="m_lang" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_tags" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_text" optional="YES" attributeType="String" defaultValueString=""/>
+    </entity>
+    <entity name="ReferralSourceEntity" representedClassName=".ReferralSourceEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_id" optional="YES" attributeType="String"/>
+        <attribute name="m_image_link" optional="YES" attributeType="String"/>
+        <attribute name="m_meta_json" optional="YES" attributeType="String"/>
+        <attribute name="m_navigate_link" optional="YES" attributeType="String"/>
+        <attribute name="m_text" optional="YES" attributeType="String"/>
+        <attribute name="m_title" optional="YES" attributeType="String"/>
+    </entity>
+    <entity name="TaskEntity" representedClassName=".TaskEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_client_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_created_timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="m_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_modified_timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="m_notify_timstamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="m_site_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_status" optional="YES" attributeType="String" defaultValueString=""/>
+        <attribute name="m_text" optional="YES" attributeType="String" defaultValueString=""/>
+        <relationship name="m_agent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="AgentEntity" inverseName="b_tasks" inverseEntity="AgentEntity"/>
+        <relationship name="m_client" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ClientEntity" inverseName="m_task" inverseEntity="ClientEntity"/>
+    </entity>
+    <entity name="TimezoneEntity" representedClassName=".TimezoneEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_display_gmt" optional="YES" attributeType="String"/>
+        <attribute name="m_display_name_en" optional="YES" attributeType="String"/>
+        <attribute name="m_display_name_ru" optional="YES" attributeType="String"/>
+        <attribute name="m_id" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_identifier" optional="YES" attributeType="String"/>
+        <attribute name="m_sorting_offset" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_sorting_region_en" optional="YES" attributeType="String"/>
+        <attribute name="m_sorting_region_ru" optional="YES" attributeType="String"/>
+        <relationship name="b_agent_worktimes" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="AgentWorktimeEntity" inverseName="m_timezone" inverseEntity="AgentWorktimeEntity"/>
+    </entity>
+    <entity name="TopicEntity" representedClassName=".TopicEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_created_at" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
+        <attribute name="m_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_title" optional="YES" attributeType="String"/>
+        <relationship name="m_parent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TopicEntity"/>
+    </entity>
+    <entity name="WaTemplateEntity" representedClassName=".WaTemplateEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
+        <attribute name="m_category" optional="YES" attributeType="String"/>
+        <attribute name="m_components" optional="YES" attributeType="String"/>
+        <attribute name="m_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_language" optional="YES" attributeType="String"/>
+        <attribute name="m_local_id" optional="YES" attributeType="String"/>
+        <attribute name="m_name" optional="YES" attributeType="String"/>
+        <attribute name="m_status" optional="YES" attributeType="String"/>
+        <attribute name="m_wa_account_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+    </entity>
+</model>

@@ -8,7 +8,6 @@
 
 import Foundation
 import SwiftDate
-import libPhoneNumber_iOS
 
 protocol IFormattingProvider: AnyObject {
     var dateFormatter: DateFormatter { get }

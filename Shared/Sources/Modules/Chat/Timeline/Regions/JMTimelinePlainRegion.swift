@@ -10,7 +10,6 @@ import Foundation
 import DTModelStorage
 import JMTimelineKit
 
-
 final class JMTimelineMessagePlainRegion: JMTimelineMessageCanvasRegion {
     private let quotingBlock = JMTimelineCompositeQuotingBlock(sideOffset: 0)
     private let plainBlock = JMTimelineCompositePlainBlock()

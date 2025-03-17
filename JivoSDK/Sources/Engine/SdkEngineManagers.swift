@@ -6,7 +6,7 @@
 //
 
 import Foundation
-
+import UIKit
 
 struct SdkEngineManagers {
     let pipeline: SdkManagerPipeline

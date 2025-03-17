@@ -86,7 +86,7 @@ final class ChipsControl: UIView {
         let layout = getLayout(size: bounds.size)
         context.clear(rect)
 
-        if let arrow = UIImage(named: "ph_arrow") {
+        if let arrow = UIImage.jv_named("ph_arrow") {
             for rect in layout.arrowsFrames {
                 arrow.draw(in: rect)
             }
@@ -114,7 +114,7 @@ fileprivate struct Layout {
     let bounds: CGRect
     let elementsControls: [ChipsElementControl]
     
-    private let padding = UIEdgeInsets(top: 5, left: 5, bottom: 5, right: 5)
+    private let padding = UIEdgeInsets(top: 5, left: 0, bottom: 5, right: 0)
     private let arrowSize = CGSize(width: 8, height: 16)
     private let arrowGap = CGFloat(5)
     

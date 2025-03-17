@@ -3,7 +3,7 @@ import JivoSDK
 
 struct User {
     let email: String
-    let supportJwt: String
+    let jwt: String
     let fullName: String?
     let phoneNumber: String?
 }
@@ -18,7 +18,7 @@ final class UserManager {
     
     private func configureJivoSession() {
         if let user {
-            let client = Jivo.session.setup(widgetID: "YOUR_CHANNEL_ID", clientIdentity: .jwt(user.supportJwt))
+            Jivo.session.setup(widgetID: "YOUR_CHANNEL_ID", clientIdentity: .jwt(user.jwt))
         }
         else {
             Jivo.session.shutDown()

@@ -14,9 +14,8 @@ protocol ResponderProxy {
     func register(_ responder: UIResponder, for actions: [Selector])
 }
 
-final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
+final class ExtendedTextView: InputTextArea, UITextViewDelegate, ResponderProxy {
     private let placeholderLabel = UILabel()
-    private let textView = InputTextArea()
     
     var limit: Int?
     var startEditingHandler: ((String) -> Void)?
@@ -25,19 +24,19 @@ final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
     var finishEditingHandler: ((String) -> Void)?
 
     init(linesLimit: Int) {
-        super.init(frame: .zero)
+        super.init()
         
-        textView.backgroundColor = UIColor.clear
-        textView.textColor = JVDesign.colors.resolve(usage: .primaryForeground)
-        textView.textContainerInset = .zero
-        textView.textContainer.lineFragmentPadding = 0
-        textView.delegate = self
-        textView.inputAccessoryView = UIView()
-        addSubview(textView)
+        backgroundColor = UIColor.clear
+        textColor = JVDesign.colors.resolve(usage: .primaryForeground)
+        textContainerInset = .zero
+        textContainer.lineFragmentPadding = 0
+        delegate = self
+        inputAccessoryView = UIView()
         
         placeholderLabel.textColor = JVDesign.colors.resolve(usage: .secondaryForeground).jv_withAlpha(0.45)
         placeholderLabel.numberOfLines = linesLimit
         placeholderLabel.lineBreakMode = (linesLimit == 1 ? .byTruncatingTail : .byWordWrapping)
+        placeholderLabel.isUserInteractionEnabled = false
         addSubview(placeholderLabel)
     }
     
@@ -45,19 +44,10 @@ final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
         fatalError("init(coder:) has not been implemented")
     }
     
-    var font: UIFont? {
-        get { return textView.font }
-        set { placeholderLabel.font = newValue; textView.font = newValue }
-    }
-    
-    var textContainerInset: UIEdgeInsets {
-        get { return textView.textContainerInset }
-        set { textView.textContainerInset = newValue }
-    }
-    
-    var contentOffset: CGPoint {
-        get { return textView.contentOffset }
-        set { textView.contentOffset = newValue }
+    override var font: UIFont? {
+        didSet {
+            placeholderLabel.font = font
+        }
     }
     
     var placeholder: String? {
@@ -77,25 +67,11 @@ final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
         }
     }
     
-    var text: String? {
-        get {
-            return textView.text
-        }
-        set {
-            textView.text = newValue
+    override var text: String? {
+        didSet {
             adjustTextColor()
-            
-            placeholderLabel.isHidden = textView.hasText
+            placeholderLabel.isHidden = hasText
         }
-    }
-    
-    var textColor: UIColor? {
-        get { return textView.textColor }
-        set { textView.textColor = newValue }
-    }
-    
-    var hasText: Bool {
-        return textView.hasText
     }
     
     var isOverLimit: Bool {
@@ -104,35 +80,30 @@ final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
         return (text.count > limit)
     }
     
-    var isScrollEnabled: Bool {
-        get { return textView.isScrollEnabled }
-        set { textView.isScrollEnabled = newValue }
-    }
-    
     var caretPosition: Int? {
-        let beginning = textView.beginningOfDocument
-        let end = textView.endOfDocument
+        let beginning = beginningOfDocument
+        let end = endOfDocument
         
-        if let range = textView.selectedTextRange {
-            return textView.offset(from: beginning, to: range.start)
+        if let range = selectedTextRange {
+            return offset(from: beginning, to: range.start)
         }
         else {
-            return textView.hasText ? textView.offset(from: beginning, to: end) - 1 : nil
+            return hasText ? offset(from: beginning, to: end) - 1 : nil
         }
     }
     
     func insertAtCaret(symbol: String, replacement: String) {
-        guard let content = textView.text else {
+        guard let content = text else {
             text = replacement
             return
         }
         
-        guard let range = textView.selectedTextRange else {
+        guard let range = selectedTextRange else {
             text = content + symbol + replacement
             return
         }
         
-        let searchingRange = NSMakeRange(0, textView.offset(from: textView.beginningOfDocument, to: range.start))
+        let searchingRange = NSMakeRange(0, offset(from: beginningOfDocument, to: range.start))
         let foundRange = (content as NSString).range(of: symbol, options: .backwards, range: searchingRange, locale: nil)
         
         guard foundRange.location != NSNotFound else {
@@ -140,17 +111,17 @@ final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
             return
         }
         
-        guard let startPosition = textView.position(from: textView.beginningOfDocument, offset: foundRange.upperBound) else {
+        guard let startPosition = position(from: beginningOfDocument, offset: foundRange.upperBound) else {
             replace(range, withText: symbol + replacement)
             return
         }
         
-        guard let replacingRange = textView.textRange(from: startPosition, to: range.end) else {
+        guard let replacingRange = textRange(from: startPosition, to: range.end) else {
             replace(range, withText: symbol + replacement)
             return
         }
         
-        if let tail = textView.text(in: replacingRange), tail.jv_containsSymbols(from: .mentioningGap) {
+        if let tail = text(in: replacingRange), tail.jv_containsSymbols(from: .mentioningGap) {
             replace(range, withText: symbol + replacement)
             return
         }
@@ -158,29 +129,8 @@ final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
         replace(replacingRange, withText: replacement)
     }
     
-    override var isFirstResponder: Bool {
-        return textView.isFirstResponder
-    }
-    
-    override var canBecomeFirstResponder: Bool {
-        return textView.canBecomeFirstResponder
-    }
-    
-    override func becomeFirstResponder() -> Bool {
-        return textView.becomeFirstResponder()
-    }
-    
-    override func resignFirstResponder() -> Bool {
-        return textView.resignFirstResponder()
-    }
-    
-    override var inputAccessoryView: UIView? {
-        get { return textView.inputAccessoryView }
-        set { textView.inputAccessoryView = newValue }
-    }
-    
-    func insertText(_ text: String) {
-        textView.insertText(text)
+    override func insertText(_ text: String) {
+        super.insertText(text)
         adjustTextColor()
     }
     
@@ -189,16 +139,15 @@ final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
     }
     
     func calculateContentOffset(for maxHeight: CGFloat) -> CGFloat? {
-        return textView.jv_calculateContentOffset(for: maxHeight)
+        return jv_calculateContentOffset(for: maxHeight)
     }
     
     func calculateSize(for width: CGFloat, numberOfLines: Int?) -> CGSize {
-        return textView.jv_calculateSize(for: width, numberOfLines: numberOfLines)
+        return jv_calculateSize(for: width, numberOfLines: numberOfLines)
     }
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        textView.frame = bounds
         
         if placeholderOffset == .zero {
             let size = placeholderLabel.jv_calculateSize(forWidth: bounds.width)
@@ -212,7 +161,7 @@ final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
     
     override func sizeThatFits(_ size: CGSize) -> CGSize {
         let placeholderSize = placeholderLabel.sizeThatFits(size)
-        let textViewSize = textView.sizeThatFits(size)
+        let textViewSize = super.sizeThatFits(size)
         
         return CGSize(
             width: textViewSize.width,
@@ -240,12 +189,12 @@ final class ExtendedTextView: UIView, UITextViewDelegate, ResponderProxy {
         finishEditingHandler?(textView.text.jv_orEmpty)
     }
     
-    private func replace(_ range: UITextRange, withText: String) {
-        textView.replace(range, withText: withText)
+    override func replace(_ range: UITextRange, withText: String) {
+        super.replace(range, withText: withText)
         adjustTextColor()
     }
     
     private func adjustTextColor() {
-        textView.textColor = JVDesign.colors.resolve(usage: isOverLimit ? .warningForeground : .primaryForeground)
+        textColor = JVDesign.colors.resolve(usage: isOverLimit ? .warningForeground : .primaryForeground)
     }
 }

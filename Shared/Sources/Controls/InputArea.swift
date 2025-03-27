@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-final class InputTextArea: UITextView {
+class InputTextArea: UITextView {
     private let height: CGFloat?
     
     init(height: CGFloat? = nil) {

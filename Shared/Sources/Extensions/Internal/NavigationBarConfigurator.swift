@@ -16,13 +16,14 @@ protocol NavigationBarConfigurator where Self: UIViewController {}
 extension NavigationBarConfigurator {
     func configureNavigationBar(button: NavigationBarCloseButton, target: AnyObject? = nil, backButtonTapAction: Selector? = nil) {
         let cancelButton = UIBarButtonItem(image: nil, style: .plain, target: target, action: backButtonTapAction)
+        cancelButton.tintColor = JVDesign.colors.resolve(usage: .primaryForeground)
         navigationItem.leftBarButtonItem = cancelButton
         
         switch button {
         case .back:
-            cancelButton.image = JVDesign.icons.find(preset: .back)
+            cancelButton.image = JVDesign.icons.find(preset: .back)?.withRenderingMode(.alwaysTemplate)
         case .dismiss:
-            cancelButton.image = JVDesign.icons.find(preset: .dismiss)
+            cancelButton.image = JVDesign.icons.find(preset: .dismiss)?.withRenderingMode(.alwaysTemplate)
         }
         
         navigationController?.navigationBar.titleTextAttributes = [

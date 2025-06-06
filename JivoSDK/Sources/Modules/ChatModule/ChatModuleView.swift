@@ -14,6 +14,8 @@ import JMRepicKit
 enum ChatModuleViewIntent {
     case didLoad
     case willAppear
+    case becomeFocus
+    case resignFocus
     case prepareAttachButton(button: UIButton)
     case textDidChange(text: String)
     case attachmentDidDismiss(index: Int)
@@ -288,11 +290,20 @@ final class JVChatModuleViewController
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        
         pipeline.notify(intent: .willAppear)
+        
+        if let _ = tabBarController {
+            pipeline.notify(intent: .becomeFocus)
+        }
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
+        
+        if let _ = tabBarController {
+            pipeline.notify(intent: .resignFocus)
+        }
     }
     
     private func getLayout(size: CGSize) -> Layout {

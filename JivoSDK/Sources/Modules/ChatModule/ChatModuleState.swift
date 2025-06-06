@@ -38,7 +38,15 @@ final class ChatModuleState {
     
     var placeholderForInput = String()
     var inputText = String()
-    var isForeground: Bool
+    
+    var pauseReasons = PauseReason.none
+    struct PauseReason: OptionSet {
+        let rawValue: Int
+        init(rawValue: Int) { self.rawValue = rawValue }
+        static let none = Self.init(rawValue: 0 << 0)
+        static let inactiveApp = Self.init(rawValue: 1 << 0)
+        static let unfocusedView = Self.init(rawValue: 1 << 1)
+    }
     
     init(uiConfig: SdkChatModuleVisualConfig, authorizationState: SessionAuthorizationState, recentStartupMode: SdkSessionManagerStartupMode) {
         self.uiConfig = uiConfig
@@ -46,6 +54,12 @@ final class ChatModuleState {
         self.recentStartupMode = recentStartupMode
         
         inputText = uiConfig.inputPrefill
-        isForeground = UIApplication.shared.applicationState.jv_isOnscreen
+        
+        if UIApplication.shared.applicationState.jv_isOnscreen {
+            pauseReasons = .none
+        }
+        else {
+            pauseReasons = .inactiveApp
+        }
     }
 }

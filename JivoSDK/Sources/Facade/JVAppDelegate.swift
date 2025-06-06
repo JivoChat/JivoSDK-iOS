@@ -54,8 +54,12 @@ open class JVAppDelegate: UIResponder
     }
     
     open func userNotificationCenter(_ center: UNUserNotificationCenter, didReceive response: UNNotificationResponse, withCompletionHandler completionHandler: @escaping () -> Void) {
-        Jivo.notifications.didReceive(response: response)
-        completionHandler()
+        if Jivo.notifications.didReceive(response: response) {
+            completionHandler()
+        }
+        else {
+            completionHandler()
+        }
     }
     
     open func jivoApp(bannerPresentation sdk: Jivo, target: JVNotificationsTarget, category: JVNotificationsCategory, notification: UNNotification) -> UNNotificationPresentationOptions {

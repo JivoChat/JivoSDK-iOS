@@ -324,6 +324,12 @@ final class ChatModuleCore
         switch intent {
         case .willAppear:
             handleWillAppear()
+        case .becomeFocus:
+            state.pauseReasons.remove(.unfocusedView)
+            reconnectIfNeeded()
+        case .resignFocus:
+            state.pauseReasons.insert(.unfocusedView)
+            managerPipeline.notify(event: .turnInactive(.connection))
         case .textDidChange(let text):
             handleTextInput(text: text)
         case .attachmentDidDismiss(let index):
@@ -383,11 +389,15 @@ final class ChatModuleCore
     }
     
     private func reconnectIfNeeded() {
-        guard !(networking.isConnected) else {
+        if networking.isConnected {
             return
         }
-        
-        sessionManager.establishConnection()
+        else if !state.pauseReasons.isEmpty {
+            return
+        }
+        else {
+            sessionManager.establishConnection()
+        }
     }
     
     private func handleImage(image: UIImage) {
@@ -811,17 +821,17 @@ final class ChatModuleCore
     }
     
     @objc private func handleAppDidBecomeActive() {
-        state.isForeground = true
+        state.pauseReasons.remove(.inactiveApp)
         reconnectIfNeeded()
     }
     
     @objc private func handleAppDidEnterBackground() {
-        state.isForeground = false
+        state.pauseReasons.insert(.inactiveApp)
         managerPipeline.notify(event: .turnInactive(.connection))
     }
     
     @objc private func handleAppWillEnterForeground() {
-        state.isForeground = true
+        state.pauseReasons.remove(.inactiveApp)
     }
     
     private func mediaBecameUnavailableHandler(url: URL, mime: String?) {

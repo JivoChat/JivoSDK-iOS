@@ -47,7 +47,7 @@ final class ChatModulePresenter
         switch event {
         case .hasUpdates:
             break
-        case .authorizationStateUpdated where state.isForeground:
+        case .authorizationStateUpdated where state.pauseReasons.isEmpty:
             feedPrimaryLayout()
             feedHistoryLoading()
         case .authorizationStateUpdated:

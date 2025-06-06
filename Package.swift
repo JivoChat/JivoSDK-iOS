@@ -67,13 +67,6 @@ let package = Package(
             exclude: [
                 "JivoSDK/Sources/Info.plist",
                 "Shared/Design/fontello_entypo.ttf",
-                "JivoMobile/Resources", /*-on_export(delete_row)-*/
-                "JivoMobile/Pods", /*-on_export(delete_row)-*/
-                "JivoMobile/build", /*-on_export(delete_row)-*/
-                "JivoSDK/Pods", /*-on_export(delete_row)-*/
-                "JivoSDK/build", /*-on_export(delete_row)-*/
-                "JivoSDK/Demo", /*-on_export(delete_row)-*/
-                ".build", /*-on_export(delete_row)-*/
             ],
             sources: ["JivoSDK/Sources", "Shared/Sources", "Shared/Models", "Shared/Design"],
             resources: [

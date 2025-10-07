@@ -8,6 +8,12 @@
 import UIKit
 
 final class PopupFlexibleMenuViewController: UITableViewController {
+    private struct UIConstants {
+        static let width: CGFloat = 290.0
+        static let headerHeight: CGFloat = 8.0
+        static let footerHeight: CGFloat = 8.0
+    }
+    
     var items = [PopupPresenterFlexibleMenuItem]() {
         didSet {
             tableView.reloadData()
@@ -36,16 +42,11 @@ final class PopupFlexibleMenuViewController: UITableViewController {
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
         tableView.frame.size = CGSize(
-            width: 290.0,
+            width: UIConstants.width,
             height: tableView.contentSize.height
         )
         
         preferredContentSize = tableView.frame.size
-    }
-    
-    override func traitCollectionDidChange(_ previousTraitCollection: UITraitCollection?) {
-        super.traitCollectionDidChange(previousTraitCollection)
-        view.setNeedsDisplay()
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
@@ -68,33 +69,43 @@ final class PopupFlexibleMenuViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, viewForHeaderInSection section: Int) -> UIView? {
-        let headerView = UIView.init(frame: CGRect.init(x: 0, y: 0, width: tableView.frame.width, height: 8.0))
+        let headerView: UIView = .init(
+            frame: .init(
+                x: 0,
+                y: 0,
+                width: tableView.frame.width,
+                height: UIConstants.headerHeight
+            )
+        )
+        
         headerView.backgroundColor = JVDesign.colors.resolve(usage: .groupingBackground)
         return headerView
     }
     
     override func tableView(_ tableView: UITableView, heightForHeaderInSection section: Int) -> CGFloat {
-        return 8.0
+        return UIConstants.headerHeight
     }
     
     override func tableView(_ tableView: UITableView, viewForFooterInSection section: Int) -> UIView? {
-        let footerView = UIView.init(frame: CGRect.init(x: 0, y: 0, width: tableView.frame.width, height: 8.0))
+        let footerView: UIView = .init(
+            frame: .init(
+                x: 0,
+                y: 0,
+                width: tableView.frame.width,
+                height: UIConstants.footerHeight
+            )
+        )
+        
         footerView.backgroundColor = JVDesign.colors.resolve(usage: .groupingBackground)
+        
         return footerView
-    }
-    
-    override func tableView(_ tableView: UITableView, heightForFooterInSection section: Int) -> CGFloat {
-        return 8.0
     }
     
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: false)
         
         let item = items[indexPath.row]
-        
-        if case .action(_, _, _, _, let handler) = item {
-            handler?()
-        }
+        if case .action(_, _, _, _, let handler) = item { handler?() }
         
         dismiss(animated: true)
     }

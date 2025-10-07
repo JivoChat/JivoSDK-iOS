@@ -32,6 +32,7 @@ final class PopupFlexibleMenuItemCell: UITableViewCell {
         leadingLabel.numberOfLines = 1
         
         chevronImageView.contentMode = .scaleAspectFit
+        
         if #available(iOS 13.0, *) {
             let image = UIImage(systemName: "chevron.right")?.withRenderingMode(.alwaysTemplate)
             chevronImageView.image = image
@@ -151,7 +152,7 @@ fileprivate struct Layout {
             x: 20.0,
             y: bounds.height - 1.0,
             width: bounds.width - 20.0,
-            height: 1.0
+            height: 1/3
         )
     }
 }

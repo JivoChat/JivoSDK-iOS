@@ -28,11 +28,11 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
     private let underlayView = UIView()
     private let waitingIndicator = UIActivityIndicatorView(style: .jv_auto)
     
+    private let underlayInset: CGFloat = 1.0
     private var ratio = CGFloat(1.0)
     private var decorationColor: UIColor?
     
     private var renderer: (UIView & Renderer)?
-    private weak var decoration: UIView?
     private var originalUrl: URL?
     private var resource: RemoteStorageFileResource?
     private var originalSize: CGSize?
@@ -47,12 +47,12 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
         
         super.init()
         
-        layer.cornerRadius = Self.defaultCornerRadius
+        layer.cornerRadius = JMTimelineMessageCornerRadius - underlayInset
         clipsToBounds = true
         accessibilityIgnoresInvertColors = true
 
         underlayView.backgroundColor = JVDesign.colors.resolve(usage: .chattingBackground)
-        underlayView.layer.cornerRadius = Self.defaultCornerRadius
+        underlayView.layer.cornerRadius = JMTimelineMessageCornerRadius - underlayInset
         underlayView.clipsToBounds = true
         addSubview(underlayView)
         
@@ -68,7 +68,15 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
         fatalError("init(coder:) has not been implemented")
     }
     
-    func configure(url: URL, originalSize: CGSize, cropped: Bool, allowFullscreen: Bool, style: JMTimelineCompositePhotoStyle, provider: JVChatTimelineProvider, interactor: JVChatTimelineInteractor) {
+    func configure(
+        url: URL,
+        originalSize: CGSize,
+        cropped: Bool,
+        allowFullscreen: Bool,
+        style: JMTimelineCompositePhotoStyle,
+        provider: JVChatTimelineProvider,
+        interactor: JVChatTimelineInteractor
+    ) {
         self.originalUrl = url
         self.resource = nil
         self.originalSize = originalSize
@@ -79,9 +87,6 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
         contentMode = style.contentMode
         layer.maskedCorners = style.corners
         
-        decorationColor = style.decorationColor
-        decoration?.tintColor = decorationColor
-
         linkTo(provider: provider, interactor: interactor)
         
         renderer?.reset()
@@ -141,6 +146,10 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
             return .zero
         }
         
+        if renderer is ErrorRenderer {
+            return CGSize(width: 150, height: 150)
+        }
+        
         let scale = UIScreen.main.scale
         
         if cropped {
@@ -167,7 +176,7 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
     
     override func layoutSubviews() {
         super.layoutSubviews()
-        underlayView.frame = bounds.insetBy(dx: 1, dy: 1)
+        underlayView.frame = bounds.insetBy(dx: underlayInset, dy: underlayInset)
         waitingIndicator.frame = bounds
     }
     
@@ -214,37 +223,5 @@ final class JMTimelineCompositePhotoBlock: JMTimelineBlock {
         case .preview:
             interactor?.requestMedia(url: meta.originUrl, kind: kind, mime: meta.mime) { _ in }
         }
-    }
-}
-
-fileprivate final class DecorativeBorder: UIView {
-    init() {
-        super.init(frame: .zero)
-        
-        isOpaque = false
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
-    }
-    
-    override var tintColor: UIColor! {
-        didSet {
-            setNeedsDisplay()
-        }
-    }
-    
-    override func draw(_ rect: CGRect) {
-        let clippingPath = UIBezierPath(
-            roundedRect: rect.insetBy(dx: 2, dy: 2),
-            cornerRadius: JVDesign.layout.timelineMessageRadius - 1
-        )
-        
-        let parentPath = UIBezierPath(rect: rect)
-        parentPath.append(clippingPath)
-        parentPath.usesEvenOddFillRule = true
-        
-        tintColor?.setFill()
-        parentPath.fill()
     }
 }

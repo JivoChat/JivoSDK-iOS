@@ -300,6 +300,15 @@ final class ChatTimelineInteractor: UIResponder, JVChatTimelineInteractor {
     }
     
     func requestHistoryFuture(item: JMTimelineItem) {
+        
+    }
+    
+    func completeTask(taskID: Int, clientID: Int, taskName: String?) {
+        
+    }
+    
+    func openTaskEditor(taskInfo: JMTimelineTaskInfo) {
+        
     }
     
     func activatePrechat(caption: String) {

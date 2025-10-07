@@ -177,10 +177,6 @@ extension ChatEntity: JVPresentable {
         }
     }
     
-    var isResolved: Bool {
-        return m_is_resolved
-    }
-    
     var agents: [AgentEntity] {
         return attendees.compactMap { $0.agent }
     }
@@ -361,13 +357,13 @@ extension ChatEntity: JVPresentable {
             default:
                 return false
             }
+        case .archive:
+            return attendee == nil
         case .team:
             if case .team = attendee?.relation { return true }
             return false
         case .groups:
             return isGroup
-        case .archive:
-            return attendee == nil
         }
     }
     

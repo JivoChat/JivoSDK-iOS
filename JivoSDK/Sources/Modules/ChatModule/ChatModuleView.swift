@@ -107,9 +107,18 @@ final class JVChatModuleViewController
         
         super.init(pipeline: pipeline)
         
-        navigationItem.titleView = titleControl
         navigationItem.largeTitleDisplayMode = .never
+        if #available(iOS 26.0, *) {
+            navigationItem.subtitleView = titleControl
+        }
+        else {
+            navigationItem.titleView = titleControl
+        }
+        
         navigationItem.rightBarButtonItem = UIBarButtonItem(customView: makeInfoLabel())
+        if #available(iOS 26.0, *) {
+            navigationItem.rightBarButtonItem?.hidesSharedBackground = true
+        }
         
         if #available(iOS 13.0, *) {
             navigationItem.jv_configureOpaque()
@@ -130,6 +139,10 @@ final class JVChatModuleViewController
                 button: .dismiss,
                 target: self,
                 backButtonTapAction: #selector(handleDismissButtonTap))
+        }
+        
+        if #available(iOS 26.0, *) {
+            navigationItem.leftBarButtonItem?.hidesSharedBackground = true
         }
         
         recreateTableView()
@@ -329,6 +342,10 @@ final class JVChatModuleViewController
         cv.alwaysBounceVertical = true
         cv.contentInsetAdjustmentBehavior = .never
         cv.isHidden = isHidden
+        if #available(iOS 26.0, *) {
+            cv.topEdgeEffect.isHidden = true
+        }
+        
         view.insertSubview(cv, at: 0)
 //        view.insertSubview(historyPlaceholder, aboveSubview: cv)
         collectionView = cv

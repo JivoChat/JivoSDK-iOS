@@ -28,6 +28,7 @@ enum FormattingDateStyle {
     case taskFireDate
     case taskFireTime
     case taskFireDateTime
+    case taskFireDateRelative
     case taskFireRelative
     case worktime
 }

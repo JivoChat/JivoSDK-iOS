@@ -151,8 +151,10 @@ extension MessageEntity {
             switch task.status {
             case .created, .updated:
                 status = JVTaskStatus.active.rawValue
-            case .completed, .deleted:
-                status = JVTaskStatus.unknown.rawValue
+            case .completed:
+                status = JVTaskStatus.completed.rawValue
+            case .deleted:
+                status = JVTaskStatus.deleted.rawValue
             case .fired:
                 status = JVTaskStatus.fired.rawValue
             case .unknown:
@@ -165,6 +167,7 @@ extension MessageEntity {
                     ID: task.taskID,
                     agentID: agentID,
                     agent: nil,
+                    isImportant: task.isImportant,
                     text: task.text,
                     createdTs: task.createdAt?.timeIntervalSince1970,
                     modifiedTs: task.updatedAt?.timeIntervalSince1970,

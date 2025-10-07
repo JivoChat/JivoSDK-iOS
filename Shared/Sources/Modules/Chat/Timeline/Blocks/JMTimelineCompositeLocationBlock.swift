@@ -23,12 +23,13 @@ final class JMTimelineCompositeLocationBlock: JMTimelineBlock {
     private let internalControl = InternalControl()
     
     private var coordinate: CLLocationCoordinate2D?
+    private let underlayInset: CGFloat = 1.0
 
     override init() {
         super.init()
         
         addSubview(internalControl)
-        layer.cornerRadius = Self.defaultCornerRadius
+        layer.cornerRadius = JMTimelineMessageCornerRadius - underlayInset
         clipsToBounds = true
         isUserInteractionEnabled = true
         
@@ -93,13 +94,14 @@ fileprivate final class InternalControl: MKMapView {
     func configure(coordinate: CLLocationCoordinate2D, ratio: CGFloat) {
         self.ratio = ratio
         
+        backgroundColor = .clear
+        
         mapType = .standard
         
         region = MKCoordinateRegion(
             center: coordinate,
             span: MKCoordinateSpan(latitudeDelta: 0.005, longitudeDelta: 0.005)
         )
-        
         let annotation = MKPointAnnotation()
         annotation.coordinate = coordinate
         addAnnotation(annotation)

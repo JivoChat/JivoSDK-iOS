@@ -26,4 +26,11 @@ extension Data {
             return nil
         }
     }
+    
+    func jv_base64urlEncode() -> String {
+        return base64EncodedString()
+            .replacingOccurrences(of: "+", with: "-")
+            .replacingOccurrences(of: "/", with: "_")
+            .replacingOccurrences(of: "=", with: "")
+    }
 }

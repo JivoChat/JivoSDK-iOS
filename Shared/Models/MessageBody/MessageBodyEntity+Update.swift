@@ -28,6 +28,7 @@ extension MessageBodyEntity {
             m_record_link = c.recordLink
             m_task_id = c.taskID?.jv_toInt64(.standard) ?? 0
             m_created_at = c.createdTs.flatMap { Date(timeIntervalSince1970: $0) }
+            m_is_important = c.isImportant ?? false
             m_updated_at = c.updatedTs.flatMap { Date(timeIntervalSince1970: $0) }
             m_transitioned_at = c.transitionTs.flatMap { Date(timeIntervalSince1970: $0) }
             m_notify_at = c.notifyTs.flatMap { Date(timeIntervalSince1970: $0) }
@@ -54,6 +55,7 @@ final class JVMessageBodyGeneralChange: JVDatabaseModelChange {
     public let reason: String?
     public let recordLink: String?
     public let taskID: Int?
+    public let isImportant: Bool?
     public let createdTs: TimeInterval?
     public let updatedTs: TimeInterval?
     public let transitionTs: TimeInterval?
@@ -85,6 +87,7 @@ final class JVMessageBodyGeneralChange: JVDatabaseModelChange {
         let taskAgentID = task["agent_id"].int
         let taskText = task["text"].string
         taskID = task["reminder_id"].int
+        isImportant = task["is_important"].boolValue
         createdTs = task["created_ts"].double
         updatedTs = task["updated_ts"].double
         transitionTs = task["transition_ts"].double

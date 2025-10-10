@@ -6,6 +6,7 @@
 //  Copyright © 2018 JivoSite. All rights reserved.
 //
 
+import Foundation
 import JMTimelineKit
 
 struct JMTimelineMessagePlainInfo: JMTimelineInfo {

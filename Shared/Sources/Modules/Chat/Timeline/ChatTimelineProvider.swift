@@ -16,6 +16,7 @@ protocol JVChatTimelineProvider: JMTimelineProvider {
     func mentionProvider(origin: JMMarkdownMentionOrigin) -> JMMarkdownMentionMeta?
     func retrieveResource(from url: URL, canvasWidth: CGFloat, completion: @escaping (RemoteStorageFileResource?) -> Void)
     func requestWaveformPoints(from url: URL, completion: @escaping (RemoteStorageFileResource?) -> Void)
+    func formattedDateForTaskNotification(_ date: Date) -> String
 }
 
 final class ChatTimelineProvider: JVChatTimelineProvider {
@@ -43,6 +44,10 @@ final class ChatTimelineProvider: JVChatTimelineProvider {
     
     func formattedDateForMessageEvent(_ date: Date) -> String {
         return formattingProvider.format(date: date, style: .messageTime)
+    }
+    
+    func formattedDateForTaskNotification(_ date: Date) -> String {
+        return formattingProvider.format(date: date, style: .taskFireRelative)
     }
     
     func formattedTimeForPlayback(_ timestamp: TimeInterval) -> String {

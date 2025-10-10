@@ -347,10 +347,6 @@ extension ChatEntity {
         else if let c = change as? JVChatTopicAssignChange {
             m_topic = c.topicId.flatMap { context.upsert(of: TopicEntity.self, with: JVTopicEmptyChange(id: $0)) }
         }
-        else if let c = change as? JVChatResolvedChange {
-            m_is_resolved = c.isResolved
-            m_is_resolved_before = true
-        }
         else {
             assertionFailure()
         }
@@ -1157,26 +1153,6 @@ final class JVChatTopicAssignChange: JVDatabaseModelChange {
     init(ID: Int, topicId: Int?) {
         self.ID = ID
         self.topicId = topicId
-        super.init()
-    }
-    
-    required init(json: JsonElement) {
-        fatalError("init(json:) has not been implemented")
-    }
-}
-
-final class JVChatResolvedChange: JVDatabaseModelChange {
-    public let ID: Int
-    public let isResolved: Bool
-    
-    override var primaryValue: Int {
-        return ID
-    }
-    
-    init(ID: Int, isResolved: Bool) {
-        self.ID = ID
-        self.isResolved = isResolved
-        
         super.init()
     }
     

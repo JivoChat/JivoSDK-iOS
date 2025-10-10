@@ -41,7 +41,7 @@ final class JournalDriver: IJournalDriver {
     private let archiveURL: URL
     
     private let logger = JournalDriverLogger
-    private let maximumFileSize = UInt64(4_097_152) // 2 MB
+    private let maximumFileSize = UInt64(10 * 1024 * 1024) // 10 MB
     
     var fileSizeLimit: UInt64 { return maximumFileSize }
     let fileDestination: AutoRotatingFileDestination

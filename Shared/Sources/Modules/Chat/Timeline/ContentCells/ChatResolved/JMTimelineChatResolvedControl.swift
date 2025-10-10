@@ -5,6 +5,7 @@
 //  Created by Julia Popova on 28.06.2024.
 //
 
+import Foundation
 import UIKit
 
 enum JVMessageBodyChatResolvedStatus: String {

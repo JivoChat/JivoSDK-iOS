@@ -6,6 +6,7 @@
 //  Copyright © 2019 JivoSite. All rights reserved.
 //
 
+import Foundation
 import UIKit
 
 

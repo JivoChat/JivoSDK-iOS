@@ -6,6 +6,7 @@
 //  Copyright © 2021 jivosite.mobile. All rights reserved.
 //
 
+import Foundation
 import UIKit
 
 extension UIColor {

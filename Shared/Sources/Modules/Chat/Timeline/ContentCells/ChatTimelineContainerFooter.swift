@@ -21,12 +21,13 @@ final class ChatTimelineContainerFooter: UIView {
     private var reactionControls = [JMTimelineContainerReactionControl]()
     private var actionsControls = [JMTimelineContainerReactionControl]()
 
-    func configure(caption: String?, reactions: [ChatTimelineMessageExtrasReaction], actions: [ChatTimelineMessageExtrasAction]) {
+    func configure(caption: String?, captionAlignment: NSTextAlignment, reactions: [ChatTimelineMessageExtrasReaction], actions: [ChatTimelineMessageExtrasAction]) {
         if let caption {
             let label = WideLabel()
             label.text = caption
             label.font = JVDesign.fonts.resolve(.regular(13), scaling: .footnote)
             label.textColor = JVDesign.colors.resolve(usage: .secondaryForeground)
+            label.textAlignment = captionAlignment
             captionLabel = label
             
             label.isUserInteractionEnabled = true
@@ -89,7 +90,9 @@ fileprivate struct Layout {
         var origin = CGPoint()
         return allControls.map { control in
             let size = control.jv_size(forWidth: bounds.width)
-            defer { origin.x += size.width + reactionGap }
+            defer {
+                origin.x += size.width + reactionGap
+            }
             
             if origin.x + size.width <= bounds.width {
                 return CGRect(origin: origin, size: size)

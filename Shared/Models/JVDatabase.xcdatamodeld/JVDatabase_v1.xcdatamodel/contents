@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22225" systemVersion="22G74" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22758" systemVersion="23E224" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="JVAgent" representedClassName=".JVAgent" parentEntity="JVParticipant" syncable="YES" codeGenerationType="category">
         <attribute name="m_avatar_link" optional="YES" attributeType="String"/>
         <attribute name="m_calling_destination" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -230,7 +230,8 @@
         <relationship name="m_channel" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVChannel" inverseName="b_clients" inverseEntity="JVChannel"/>
         <relationship name="m_custom_data" toMany="YES" deletionRule="Cascade" destinationEntity="JVClientCustomField"/>
         <relationship name="m_proactive_rule" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="JVClientProactiveRule"/>
-        <relationship name="m_task" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVTask" inverseName="m_client" inverseEntity="JVTask"/>
+        <relationship name="m_task" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVTask"/>
+        <relationship name="m_tasks" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="JVTask" inverseName="m_client" inverseEntity="JVTask"/>
     </entity>
     <entity name="JVClientCustomField" representedClassName=".JVClientCustomField" parentEntity="JVDatabaseModel" syncable="YES" codeGenerationType="category">
         <attribute name="m_content" optional="YES" attributeType="String" defaultValueString=""/>
@@ -454,7 +455,7 @@
         <attribute name="m_status" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_text" optional="YES" attributeType="String" defaultValueString=""/>
         <relationship name="m_agent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVAgent" inverseName="b_tasks" inverseEntity="JVAgent"/>
-        <relationship name="m_client" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVClient" inverseName="m_task" inverseEntity="JVClient"/>
+        <relationship name="m_client" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="JVClient" inverseName="m_tasks" inverseEntity="JVClient"/>
     </entity>
     <entity name="JVTimezone" representedClassName=".JVTimezone" parentEntity="JVDatabaseModel" syncable="YES" codeGenerationType="category">
         <attribute name="m_display_gmt" optional="YES" attributeType="String"/>

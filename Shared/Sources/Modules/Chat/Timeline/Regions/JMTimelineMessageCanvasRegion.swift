@@ -11,6 +11,8 @@ import MapKit
 import JMOnetimeCalculator
 import JMTimelineKit
 
+let JMTimelineMessageCornerRadius: CGFloat = 16.0
+let JMTimelineMessageCanvasRegionViewTag = 0xF020220714
 
 struct JMTimelineMessageMeta {
     let timepoint: String
@@ -18,8 +20,6 @@ struct JMTimelineMessageMeta {
     let icons: [UIImage]
     let status: String
 }
-
-let JMTimelineMessageCanvasRegionViewTag = 0xF020220714
 
 class JMTimelineMessageCanvasRegion: UIView, JMTimelineStylable {
     let quoteControl = UIView()
@@ -182,36 +182,6 @@ class JMTimelineMessageCanvasRegion: UIView, JMTimelineStylable {
         return currentBlocks.isEmpty
     }
     
-//    override func apply(style: JMTimelineStyle) {
-//        super.apply(style: style)
-//
-//        let style = style.convert(to: JMTimelineCompositeStyle.self)
-//
-//        decorationView.backgroundColor = nil
-//        decorationView.layer.borderColor = style.borderColor?.cgColor
-//        decorationView.layer.borderWidth = style.borderWidth ?? 0
-//
-//        statusLabel.textColor = style.statusColor
-//        statusLabel.font = style.statusFont
-//
-//        deliveryView.tintColor = style.deliveryViewTintColor
-//
-//        if renderMode == .contentBehindTime {
-//            timeLabel.backgroundColor = style.timeOverlayBackgroundColor
-//            timeLabel.textColor = style.timeOverlayForegroundColor
-//            timeLabel.font = style.timeFont
-//            timeLabel.textAlignment = .center
-//        }
-//        else {
-//            timeLabel.backgroundColor = UIColor.clear
-//            timeLabel.textColor = style.timeRegularForegroundColor
-//            timeLabel.font = style.timeFont
-//            timeLabel.textAlignment = .right
-//        }
-//
-//        footer.apply(style: style.reactionStyle)
-//    }
-    
     override func sizeThatFits(_ size: CGSize) -> CGSize {
         let layout = getLayout(size: size)
         return layout.totalSize
@@ -238,7 +208,7 @@ class JMTimelineMessageCanvasRegion: UIView, JMTimelineStylable {
     }
     
     func generateBackground(color: UIColor) -> UIImage? {
-        let cornerRadius: CGFloat = 16
+        let cornerRadius: CGFloat = JMTimelineMessageCornerRadius
         let size = CGSize(width: cornerRadius * 2 + 1, height: cornerRadius * 2 + 1)
         
         UIGraphicsBeginImageContextWithOptions(size, false, 0)

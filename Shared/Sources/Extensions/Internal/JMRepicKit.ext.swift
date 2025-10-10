@@ -113,7 +113,7 @@ extension JMRepicView {
                     switch task.status {
                     case .active: setActivity(.taskActive, context: repicContext)
                     case .fired: setActivity(.taskFired, context: repicContext)
-                    case .unknown: setActivity(nil, context: repicContext)
+                    case .unknown, .completed, .deleted: setActivity(nil, context: repicContext)
                     }
                 }
                 else {

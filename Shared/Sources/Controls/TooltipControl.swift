@@ -5,6 +5,7 @@
 //  Created by Yulia Popova on 28.06.2023.
 //
 
+import Foundation
 import UIKit
 import SwiftUI
 
@@ -21,6 +22,13 @@ final class TooltipControl: UIControl {
         var cornerRadius = CGFloat(5)
         var tipHeight = CGFloat(8)
         var tipWidth = CGFloat(20)
+        
+        var singeTitleFont = JVDesign.fonts.resolve(.regular(14), scaling: .body)
+        var titleFont = JVDesign.fonts.resolve(.bold(14), scaling: .body)
+        var subtitleFont = JVDesign.fonts.resolve(.regular(14), scaling: .body)
+        
+        var bodyForegroundColor = JVDesign.colors.resolve(alias: .white)
+        var titleForegroundColor = JVDesign.colors.resolve(alias: .white)
         var backgroundColor = JVDesign.colors.resolve(alias: .brightBlue)
         
         var margins = UIEdgeInsets(
@@ -76,8 +84,8 @@ final class TooltipControl: UIControl {
         let resultedString = NSMutableAttributedString()
         
         let titleStringAttrs = [
-            NSAttributedString.Key.foregroundColor: JVDesign.colors.resolve(alias: .white),
-            NSAttributedString.Key.font: JVDesign.fonts.resolve(subtitle == nil ? .regular(14) : .bold(14), scaling: .body)
+            NSAttributedString.Key.foregroundColor: configuration.titleForegroundColor,
+            NSAttributedString.Key.font: subtitle == nil ? configuration.singeTitleFont : configuration.titleFont
         ]
         let titleString = NSAttributedString(
             string: title,
@@ -88,8 +96,8 @@ final class TooltipControl: UIControl {
         
         if let subtitle = subtitle {
             let subtitleStringAttrs = [
-                NSAttributedString.Key.foregroundColor: JVDesign.colors.resolve(alias: .white),
-                NSAttributedString.Key.font: JVDesign.fonts.resolve(.regular(14), scaling: .body)
+                NSAttributedString.Key.foregroundColor: configuration.bodyForegroundColor,
+                NSAttributedString.Key.font: configuration.subtitleFont
             ]
             let subtitleString = NSAttributedString(
                 string: subtitle,

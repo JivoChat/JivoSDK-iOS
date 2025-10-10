@@ -12,13 +12,8 @@ enum JVTaskStatus: String {
     case unknown
     case active = "active"
     case fired = "fired"
-    var iconName: String? {
-        switch self {
-        case .unknown: return nil
-        case .active: return "reminder_active"
-        case .fired: return "reminder_fired"
-        }
-    }
+    case completed = "completed"
+    case deleted = "deleted"
 }
 
 extension TaskEntity {
@@ -47,11 +42,15 @@ extension TaskEntity {
     }
     
     var notifyAt: Date {
-        return Date(timeIntervalSince1970: m_notify_timstamp)
+        return Date(timeIntervalSince1970: m_notify_timestamp)
     }
     
     var status: JVTaskStatus {
         return JVTaskStatus(rawValue: m_status.jv_orEmpty) ?? .unknown
+    }
+    
+    var isImportant: Bool {
+        return m_is_important
     }
     
     var iconName: String? {
@@ -62,6 +61,10 @@ extension TaskEntity {
             return "reminder_fired"
         case .unknown:
             return nil
+        case .completed:
+            return nil
+        case .deleted:
+            return nil
         }
     }
     
@@ -69,11 +72,12 @@ extension TaskEntity {
         return JVMessageBodyTask(
             taskID: Int(m_id),
             agent: m_agent,
+            isImportant: m_is_important,
             text: m_text.jv_orEmpty,
             createdAt: Date(timeIntervalSince1970: m_created_timestamp),
             updatedAt: Date(timeIntervalSince1970: m_modified_timestamp),
             transitionedAt: Date(timeIntervalSince1970: m_modified_timestamp),
-            notifyAt: Date(timeIntervalSince1970: m_notify_timstamp),
+            notifyAt: Date(timeIntervalSince1970: m_notify_timestamp),
             status: JVMessageBodyTaskStatus(rawValue: m_status.jv_orEmpty) ?? .fired
         )
     }

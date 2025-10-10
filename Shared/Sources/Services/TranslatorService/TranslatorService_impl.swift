@@ -39,6 +39,10 @@ final class TranslatorService: ITranslatorService {
     }
     
     func storeTranslation(text: String, for message: MessageEntity) {
+        guard messageIdToStateMap.keys.contains(message.ID) else {
+            return
+        }
+        
         messageIdToStateMap[message.ID] = .translated(text)
         messageIdsWithEnabledTranslation.insert(message.ID)
     }

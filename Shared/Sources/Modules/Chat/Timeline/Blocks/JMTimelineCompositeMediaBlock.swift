@@ -35,9 +35,11 @@ struct JMTimelineCompositeMediaStyle: JMTimelineStyle {
     let titleColor: UIColor
     let subtitleColor: UIColor
     
-    init(iconTintColor: UIColor,
-                titleColor: UIColor,
-                subtitleColor: UIColor) {
+    init(
+        iconTintColor: UIColor,
+        titleColor: UIColor,
+        subtitleColor: UIColor
+    ) {
         self.iconTintColor = iconTintColor
         self.titleColor = titleColor
         self.subtitleColor = subtitleColor

@@ -33,7 +33,7 @@ enum InputMode: Int, Codable {
 protocol ITypingCacheService: AnyObject {
     func currentInput(context: TypingContext) -> TypingCacheInput
     func canAttachMore(context: TypingContext) -> Bool
-    func cache(context: TypingContext, mode: InputMode)
+    func cache(context: TypingContext, mode: InputMode?)
     func cache(context: TypingContext, text: String?)
     func cache(context: TypingContext, attachment: PickedAttachmentObject) -> TypingCacheAttachmentReaction
     func discardAttachment(context: TypingContext, index: Int)
@@ -77,10 +77,11 @@ final class TypingCacheService: ITypingCacheService {
                 context: context,
                 text: .jv_empty,
                 attachments: .jv_empty,
-                mode: .regular,
+                mode: nil,
                 aiSummarizeNumber: 0,
                 whatsappTarget: nil,
-                actualityTimestamp: Date())
+                actualityTimestamp: Date()
+            )
         }
     }
     
@@ -93,7 +94,7 @@ final class TypingCacheService: ITypingCacheService {
         }
     }
     
-    func cache(context: TypingContext, mode: InputMode) {
+    func cache(context: TypingContext, mode: InputMode?) {
         requirePatchRecord(context: context) { record in
             record.mode = mode
         }

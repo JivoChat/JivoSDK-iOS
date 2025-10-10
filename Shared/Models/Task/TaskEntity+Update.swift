@@ -17,6 +17,7 @@ extension TaskEntity {
         
         if let c = change as? JVTaskGeneralChange {
             m_id = c.ID.jv_toInt64(.standard)
+            m_is_important = c.isImportant
             m_site_id = c.siteID?.jv_toInt64(.standard) ?? 0
             m_client_id = c.clientID?.jv_toInt64(.standard) ?? 0
             m_client = c.client.flatMap { context.client(for: $0.ID, needsDefault: true) }
@@ -24,7 +25,7 @@ extension TaskEntity {
             m_text = c.text
             m_created_timestamp = c.createdTs ?? m_created_timestamp
             m_modified_timestamp = c.modifiedTs ?? m_modified_timestamp
-            m_notify_timstamp = c.notifyTs
+            m_notify_timestamp = c.notifyTs
             m_status = c.status
         }
         else if let _ = change as? JVTaskCompleteChange {
@@ -35,6 +36,7 @@ extension TaskEntity {
 
 final class JVTaskGeneralChange: JVDatabaseModelChange, NSCoding {
     public let ID: Int
+    public let isImportant: Bool
     public let siteID: Int?
     public let clientID: Int?
     public let client: JVClientGeneralChange?
@@ -47,6 +49,7 @@ final class JVTaskGeneralChange: JVDatabaseModelChange, NSCoding {
     public let status: String
 
     private let codableIdKey = "id"
+    private let codableIsImportantKey = "is_important"
     private let codableSiteKey = "site"
     private let codableClientIDKey = "client"
     private let codableClientKey = "client_object"
@@ -70,6 +73,7 @@ final class JVTaskGeneralChange: JVDatabaseModelChange, NSCoding {
     init(ID: Int,
          agentID: Int,
          agent: JVAgentGeneralChange?,
+         isImportant: Bool,
          text: String,
          createdTs: TimeInterval?,
          modifiedTs: TimeInterval?,
@@ -81,6 +85,7 @@ final class JVTaskGeneralChange: JVDatabaseModelChange, NSCoding {
         self.client = nil
         self.agentID = agentID
         self.agent = agent
+        self.isImportant = isImportant
         self.text = text
         self.createdTs = createdTs
         self.modifiedTs = modifiedTs
@@ -91,6 +96,7 @@ final class JVTaskGeneralChange: JVDatabaseModelChange, NSCoding {
 
     required init(json: JsonElement) {
         ID = json["reminder_id"].intValue
+        isImportant = json["is_important"].boolValue
         siteID = json["site_id"].int
         clientID = json["client_id"].int
         client = json["client"].parse()
@@ -106,6 +112,7 @@ final class JVTaskGeneralChange: JVDatabaseModelChange, NSCoding {
     
     init?(coder: NSCoder) {
         ID = coder.decodeInteger(forKey: codableIdKey)
+        isImportant = (coder.decodeObject(forKey: codableIsImportantKey) as? Bool) ?? false
         siteID = coder.decodeObject(forKey: codableSiteKey) as? Int
         clientID = coder.decodeObject(forKey: codableClientIDKey) as? Int
         client = coder.decodeObject(forKey: codableClientKey) as? JVClientGeneralChange
@@ -121,6 +128,7 @@ final class JVTaskGeneralChange: JVDatabaseModelChange, NSCoding {
     
     func encode(with coder: NSCoder) {
         coder.encode(ID, forKey: codableIdKey)
+        coder.encode(isImportant, forKey: codableIsImportantKey)
         coder.encode(siteID, forKey: codableSiteKey)
         coder.encode(clientID, forKey: codableClientIDKey)
         coder.encode(client, forKey: codableClientKey)
@@ -135,6 +143,24 @@ final class JVTaskGeneralChange: JVDatabaseModelChange, NSCoding {
 }
 
 final class JVTaskCompleteChange: JVDatabaseModelChange {
+    public let ID: Int
+
+    override var primaryValue: Int {
+        return ID
+    }
+
+    init(ID: Int) {
+        self.ID = ID
+        super.init()
+    }
+
+    public required init(json: JsonElement) {
+        self.ID = 0
+        super.init()
+    }
+}
+
+final class JVTaskDeleteChange: JVDatabaseModelChange {
     public let ID: Int
 
     override var primaryValue: Int {

@@ -40,10 +40,6 @@ enum JMTimelineResource {
     case video(URL)
     case raw(Data)
     case failure(errorDescription: String? = nil)
-    
-//#if ENV_APP
-//    case lottie(LottieAnimation)
-//#endif
 }
 
 fileprivate enum ChatTimelineBackgroundType {
@@ -167,33 +163,43 @@ final class ChatTimelineFactory: JMTimelineFactory {
     
     override func register(manager: DTCollectionViewManager, providers: JMTimelineDataSourceProviders) {
         manager.registerFooter(JMTimelineDateHeaderView.self)
-        manager.register(JMTimelineLoaderCell.self)
-        manager.register(JMTimelineMessageCell.self)
-        manager.register(JMTimelineSystemCell.self)
-        manager.register(JMTimelineTimepointCell.self)
-        manager.register(JMTimelineContactFormCell.self)
-        manager.register(JMTimelineRateFormCell.self)
-        manager.register(JMTimelineChatResolvedCell.self)
-        manager.register(ChatTimelinePrechatCell.self)
-
         manager.referenceSizeForFooterView(withItem: JMTimelineDateItem.self, providers.headerSizeProvider)
+        
+        manager.register(JMTimelineLoaderCell.self)
         manager.sizeForCell(withItem: JMTimelineLoaderItem.self, providers.cellSizeProvider)
-        manager.sizeForCell(withItem: JMTimelineMessageItem.self, providers.cellSizeProvider)
-        manager.sizeForCell(withItem: JMTimelineSystemItem.self, providers.cellSizeProvider)
-        manager.sizeForCell(withItem: JMTimelineTimepointItem.self, providers.cellSizeProvider)
-        manager.sizeForCell(withItem: JMTimelineContactFormItem.self, providers.cellSizeProvider)
-        manager.sizeForCell(withItem: JMTimelineRateFormItem.self, providers.cellSizeProvider)
-        manager.sizeForCell(withItem: JMTimelineChatResolvedItem.self, providers.cellSizeProvider)
-        manager.sizeForCell(withItem: ChatTimelinePrechatItem.self, providers.cellSizeProvider)
-
         manager.willDisplay(JMTimelineLoaderCell.self, providers.willDisplayHandler)
+        
+        manager.register(JMTimelineMessageCell.self)
+        manager.sizeForCell(withItem: JMTimelineMessageItem.self, providers.cellSizeProvider)
         manager.willDisplay(JMTimelineMessageCell.self, providers.willDisplayHandler)
+        
+        manager.register(JMTimelineSystemCell.self)
+        manager.sizeForCell(withItem: JMTimelineSystemItem.self, providers.cellSizeProvider)
         manager.willDisplay(JMTimelineSystemCell.self, providers.willDisplayHandler)
+
+        manager.register(JMTimelineTimepointCell.self)
+        manager.sizeForCell(withItem: JMTimelineTimepointItem.self, providers.cellSizeProvider)
         manager.willDisplay(JMTimelineTimepointCell.self, providers.willDisplayHandler)
+        
+        manager.register(JMTimelineContactFormCell.self)
+        manager.sizeForCell(withItem: JMTimelineContactFormItem.self, providers.cellSizeProvider)
         manager.willDisplay(JMTimelineContactFormCell.self, providers.willDisplayHandler)
+        
+        manager.register(JMTimelineRateFormCell.self)
+        manager.sizeForCell(withItem: JMTimelineRateFormItem.self, providers.cellSizeProvider)
         manager.willDisplay(JMTimelineRateFormCell.self, providers.willDisplayHandler)
+        
+        manager.register(JMTimelineChatResolvedCell.self)
+        manager.sizeForCell(withItem: JMTimelineChatResolvedItem.self, providers.cellSizeProvider)
         manager.willDisplay(JMTimelineChatResolvedCell.self, providers.willDisplayHandler)
+        
+        manager.register(ChatTimelinePrechatCell.self)
+        manager.sizeForCell(withItem: ChatTimelinePrechatItem.self, providers.cellSizeProvider)
         manager.willDisplay(ChatTimelinePrechatCell.self, providers.willDisplayHandler)
+        
+        manager.register(JMTimelineTaskCell.self)
+        manager.sizeForCell(withItem: JMTimelineTaskItem.self, providers.cellSizeProvider)
+        manager.willDisplay(JMTimelineTaskCell.self, providers.willDisplayHandler)
 
         manager.didSelect(JMTimelineSystemCell.self, providers.didSelectHandler)
     }
@@ -235,17 +241,22 @@ final class ChatTimelineFactory: JMTimelineFactory {
         
         if case .chatResolved = message.content { return generateChatResolvedItem() }
         
+        switch message.taskStatus {
+        case .unknown: break
+        default:
+            return generateTaskItem(for: message)
+        }
+        
         switch message.content {
         case .left: return generateSystemItem(for: message)
         case .join: return generateSystemItem(for: message)
         case .transfer: return generateSystemItem(for: message)
-        case .task: return generateReminderItem(for: message)
+        case .task: return generateTaskItem(for: message)
         case .comment: return generateCommentItem(for: message)
         case .bot: return generateBotItem(for: message, position: position)
         case .order: return generateOrderItem(for: message)
         case .contactForm(let status): return generateContactFormItem(for: message, status: status)
-        case .rateForm(let status):
-            return generateRateFormItem(for: message, status: status)
+        case .rateForm(let status): return generateRateFormItem(for: message, status: status)
         default: break
         }
 
@@ -520,61 +531,6 @@ final class ChatTimelineFactory: JMTimelineFactory {
         )
     }
     
-    func generateReminderItem(for reminder: TaskEntity) -> JMTimelineItem {
-        let payload = reminder.convertToMessageBody()
-        return JMTimelineSystemItem(
-            uid: ChatTimelineFiredReminderUUID,
-            date: Date(),
-            layoutValues: JMTimelineItemLayoutValues(
-                margins: UIEdgeInsets(top: 5, left: 0, bottom: 5, right: 0),
-                groupingCoef: 0
-            ),
-            logicOptions: [.isVirtual],
-            payload: JMTimelineSystemInfo(
-                icon: nil,
-                text: systemMessagingService.generateTaskPreview(
-                    task: payload,
-                    by: reminder.agent!,
-                    status: payload.status
-                ),
-                style: _generateReminderItem_style(
-                    font: obtainSystemSmallFont(),
-                    textColor: .secondaryForeground,
-                    alignment: .center
-                ),
-                interactiveID: nil,
-                provider: provider,
-                interactor: interactor,
-                buttons: [
-                    JMTimelineSystemButtonMeta(
-                        ID: ChatTimelineActionID.reminderComplete.rawValue,
-                        title: loc["Reminder.CompleteAction"]
-                    )
-                ]
-            )
-        )
-    }
-    
-    private func _generateReminderItem_style(
-        font: UIFont,
-        textColor: JVDesignColorUsage,
-        alignment: NSTextAlignment
-    ) -> JMTimelineCompositePlainStyle {
-        return JMTimelineCompositePlainStyle(
-            textColor: JVDesign.colors.resolve(usage: textColor),
-            identityColor: JVDesign.colors.resolve(usage: .identityDetectionForeground),
-            linkColor: JVDesign.colors.resolve(usage: .linkDetectionForeground),
-            font: font,
-            boldFont: nil,
-            italicsFont: nil,
-            strikeFont: nil,
-            lineHeight: 17,
-            alignment: alignment,
-            underlineStyle: nil,
-            parseMarkdown: false
-        )
-    }
-    
     func generateTimepointItem(date: Date, caption: String) -> JMTimelineItem {
         return JMTimelineTimepointItem(
             uid: UUID().uuidString,
@@ -606,6 +562,8 @@ final class ChatTimelineFactory: JMTimelineFactory {
             return JMTimelineRateFormCanvas()
         case _ as JMTimelineChatResolvedItem:
             return JMTimelineChatResolvedCanvas()
+        case _ as JMTimelineTaskItem:
+            return JMTimelineTaskCanvas()
         case _ as JMTimelineTimepointItem:
             return JMTimelineTimepointCanvas()
         case _ as ChatTimelinePrechatItem:
@@ -1172,6 +1130,29 @@ final class ChatTimelineFactory: JMTimelineFactory {
             logicOptions: [.enableSizeCaching, .isVirtual],
             payload: .init(
                 keyboardAnchorControl: keyboardAnchorControl,
+                provider: provider,
+                interactor: interactor
+            )
+        )
+    }
+    
+    func generateTaskItem(for message: MessageEntity) -> JMTimelineItem {
+        return JMTimelineTaskItem(
+            uid: "\(message.task?.taskID ?? 0)_task",
+            date: message.anchorDate,
+            layoutValues: generateSystemLayoutValues(),
+            logicOptions: [.enableSizeCaching],
+            payload: .init(
+                taskStatus: message.taskStatus,
+                taskID: message.task?.taskID ?? 0,
+                notificationEnabled: message.task?.isImportant ?? false,
+                clientID: message.clientID,
+                notifyAt: message.task?.notifyAt,
+                createdAt: message.task?.createdAt,
+                updatedAt: message.task?.updatedAt,
+                username: message.task?.agent?.displayName(kind: .original),
+                userRepic: message.task?.agent?.repicItem(transparent: true, scale: 1.0) ?? nil,
+                taskName: message.task?.text,
                 provider: provider,
                 interactor: interactor
             )
@@ -2878,49 +2859,6 @@ final class ChatTimelineFactory: JMTimelineFactory {
                             interactor: interactor)
                     }
                 }
-            )
-        )
-    }
-    
-    private func generateReminderItem(for message: MessageEntity) -> JMTimelineItem {
-        guard let reminder = message.task else {
-            return generateSystemItem(for: message)
-        }
-        
-        guard let object = databaseDriver.object(TaskEntity.self, primaryId: reminder.taskID) else {
-            return generateSystemItem(for: message)
-        }
-        
-        guard message.taskStatus == .fired, object.status == .fired else {
-            return generateSystemItem(for: message)
-        }
-        
-        return JMTimelineSystemItem(
-            uid: message.UUID,
-            date: message.anchorDate,
-            layoutValues: generateMessageLayoutValues(),
-            logicOptions: [],
-            payload: JMTimelineSystemInfo(
-                icon: message.contextImageURL(
-                    transparent: false
-                ),
-                text: systemMessagingService.generatePreviewPlain(
-                    isGroup: isGroup,
-                    message: message),
-                style: _generateSystemItem_style(
-                    font: obtainMediumSystemFont(),
-                    textColor: .primaryForeground,
-                    alignment: .natural
-                ),
-                interactiveID: message.interactiveID,
-                provider: provider,
-                interactor: interactor,
-                buttons: [
-                    JMTimelineSystemButtonMeta(
-                        ID: ChatTimelineActionID.reminderComplete.rawValue,
-                        title: loc["Reminder.CompleteAction"]
-                    )
-                ]
             )
         )
     }

@@ -51,6 +51,7 @@ enum JVDesignColorAlias {
     case orangeRed
     case greenLight
     case greenJivo
+    case adaptiveGreenJivo
     case greenSber
     case skyBlue
     case brightBlue
@@ -76,12 +77,13 @@ enum JVDesignColorUsage {
     case accentBlue
     case accentGraphite
     // backgrounds
+    case primaryBackground
+    case secondaryBackground
+    case tertiaryBackground
     case statusBarBackground
     case statusBarFailureBackground
     case navigatorBackground
     case statusHatBackground
-    case primaryBackground
-    case secondaryBackground
     case slightBackground
     case highlightBackground
     case groupingBackground
@@ -95,6 +97,17 @@ enum JVDesignColorUsage {
     case flashingBackground
     case chattingBackground
     case placeholderBackground
+    case onboardingBackground
+    // labels
+    case primaryLabel
+    case secondaryLabel
+    case tertiaryLabel
+    case quaternaryLabel
+    // fills
+    case primaryFill
+    case secondaryFill
+    case tertiaryFill
+    case quaternaryFill
     // shadow
     case dimmingShadow
     case lightDimmingShadow
@@ -150,6 +163,7 @@ enum JVDesignColorUsage {
     case secondarySeparator
     case darkSeparator
     case timelineSeparator
+    case nonOpaqueSeparator
     // controls
     case navigatorTint
     case focusedTint
@@ -210,7 +224,6 @@ enum JVDesignColorUsage {
     
     case waveformColor
     
-    // WA Templates Feature
     case waPreviewTimeBadgeBackground
     case waPreviewTimeBadgeForeground
     case waPreviewTemplateAgentBubble

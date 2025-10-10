@@ -6,6 +6,7 @@
 //  Copyright © 2022 jivosite.mobile. All rights reserved.
 //
 
+import Foundation
 import UIKit
 
 protocol Renderer: AnyObject {

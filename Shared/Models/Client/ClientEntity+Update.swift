@@ -82,6 +82,10 @@ extension ClientEntity {
 
             m_task = context.upsert(of: TaskEntity.self, with: c.task) ?? m_task
             
+            if let tasks = c.tasks {
+                e_tasks.setSet(Set(context.upsert(of: TaskEntity.self, with: tasks)))
+            }
+            
             if let customData = c.customData {
                 e_custom_data.setSet(Set(context.insert(of: ClientCustomFieldEntity.self, with: customData)))
             }
@@ -151,6 +155,10 @@ extension ClientEntity {
         return mutableSetValue(forKeyPath: #keyPath(ClientEntity.m_custom_data))
     }
     
+    private var e_tasks: NSMutableSet {
+        return mutableSetValue(forKeyPath: #keyPath(ClientEntity.m_tasks))
+    }
+    
     private func simplifyPhoneNumber(_ phone: String) -> String {
         let badSymbols = NSCharacterSet(charactersIn: "+0123456789").inverted
         return phone.components(separatedBy: badSymbols).joined()
@@ -181,6 +189,7 @@ final class JVClientGeneralChange: JVDatabaseModelChange {
     public let connectionLost: Bool?
     public let hasStartup: Bool
     public let task: JVTaskGeneralChange?
+    public let tasks: [JVTaskGeneralChange]?
     public let customData: [JVClientCustomDataGeneralChange]?
     public let isBlocked: Bool
 
@@ -217,6 +226,7 @@ final class JVClientGeneralChange: JVDatabaseModelChange {
         connectionLost = nil
         hasStartup = true
         task = nil
+        tasks = []
         customData = nil
         isBlocked = false
         super.init()
@@ -300,6 +310,8 @@ final class JVClientGeneralChange: JVDatabaseModelChange {
         }
 
         task = json["reminder"].parse()
+        tasks = json["reminders"].parseList()
+        
         isBlocked = (json.has(key: "blacklist") != nil)
 
         super.init(json: json)

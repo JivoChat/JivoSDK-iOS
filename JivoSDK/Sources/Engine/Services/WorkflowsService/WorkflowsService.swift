@@ -9,7 +9,7 @@
 import Foundation
 
 protocol IWorkflowsService {
-    func scheduleWorkflow(_ workflow: AnyWorkflow) -> AnyWorkflow?
+//    func scheduleWorkflow(_ workflow: AnyWorkflow) -> AnyWorkflow?
 }
 
 class WorkflowsService: IWorkflowsService {
@@ -26,31 +26,31 @@ class WorkflowsService: IWorkflowsService {
     
     // MARK: - Public methods
     
-    func scheduleWorkflow(_ workflow: AnyWorkflow) -> AnyWorkflow? {
-        for operation in workflowsQueue.operations {
-            guard let w = operation as? AnyWorkflow else {
-                operation.cancel()
-                assertionFailure()
-                continue
-            }
-            
-            guard w.type == workflow.type else {
-                continue
-            }
-            
-            if w.isExecuting {
-                return w
-            }
-            else {
-                w.cancel()
-                break
-            }
-        }
-        
-        if let operation = workflow as? Operation {
-            workflowsQueue.addOperation(operation)
-        }
-        
-        return workflow
-    }
+//    func scheduleWorkflow(_ workflow: AnyWorkflow) -> AnyWorkflow? {
+//        for operation in workflowsQueue.operations {
+//            guard let w = operation as? AnyWorkflow else {
+//                operation.cancel()
+//                assertionFailure()
+//                continue
+//            }
+//            
+//            guard w.type == workflow.type else {
+//                continue
+//            }
+//            
+//            if w.isExecuting {
+//                return w
+//            }
+//            else {
+//                w.cancel()
+//                break
+//            }
+//        }
+//        
+//        if let operation = workflow as? Operation {
+//            workflowsQueue.addOperation(operation)
+//        }
+//        
+//        return workflow
+//    }
 }

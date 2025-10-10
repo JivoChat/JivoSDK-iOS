@@ -6,6 +6,7 @@
 //  Copyright © 2022 jivosite.mobile. All rights reserved.
 //
 
+import Foundation
 import UIKit
 
 final class ErrorRenderer: UIView, Renderer {
@@ -20,6 +21,7 @@ final class ErrorRenderer: UIView, Renderer {
         contentView.isHidden = false
         
         imageView.image = image
+        imageView.contentMode = .scaleAspectFit
         imageView.tintColor = JVDesign.colors.resolve(usage: .secondaryForeground)
         
         errorDescriptionLabel.text = errorDescription
@@ -27,7 +29,7 @@ final class ErrorRenderer: UIView, Renderer {
         imageScale = style.iconScale
         
         backgroundColor = style.backgroundColor
-        errorDescriptionLabel.font = obtainFailureFont()
+        errorDescriptionLabel.font = JVDesign.fonts.resolve(.light(12), scaling: .subheadline)
         errorDescriptionLabel.textColor = style.errorDescriptionColor
         errorDescriptionLabel.textAlignment = .center
         
@@ -87,11 +89,11 @@ extension ErrorRenderer {
         let errorDescriptionLabel: UIView
         
         var imageViewToErrorDescriptionLabelMargin: CGFloat {
-            return 15
+            return 5
         }
         
         var errorDescriptionHMargin: CGFloat {
-            return 15
+            return 5
         }
         
         var contentViewFrame: CGRect {
@@ -130,8 +132,4 @@ extension ErrorRenderer {
             return CGRect(origin: errorDescriptionFrameOrigin, size: errorDescriptionSize)
         }
     }
-}
-
-fileprivate func obtainFailureFont() -> UIFont {
-    return JVDesign.fonts.resolve(.light(14), scaling: .subheadline)
 }

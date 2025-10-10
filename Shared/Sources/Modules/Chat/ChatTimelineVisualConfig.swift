@@ -5,6 +5,7 @@
 //  Created by Julia Popova on 27.12.2023.
 //
 
+import Foundation
 import UIKit
 
 struct ChatTimelineVisualConfig {

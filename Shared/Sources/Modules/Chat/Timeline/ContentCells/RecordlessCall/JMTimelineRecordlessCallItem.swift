@@ -6,5 +6,7 @@
 //  Copyright © 2018 JivoSite. All rights reserved.
 //
 
+import Foundation
+
 final class JMTimelineRecordlessCallItem: JMTimelineMessageCallItem {
 }

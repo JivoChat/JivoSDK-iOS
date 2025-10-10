@@ -6,6 +6,7 @@
 //  Copyright © 2023 JivoSite. All rights reserved.
 //
 
+import Foundation
 import UIKit
 
 extension UIView {

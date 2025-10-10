@@ -131,6 +131,7 @@ struct JVMessageBodyCall {
 struct JVMessageBodyTask {
     let taskID: Int
     let agent: AgentEntity?
+    let isImportant: Bool
     let text: String
     let createdAt: Date?
     let updatedAt: Date?
@@ -205,6 +206,7 @@ extension MessageBodyEntity {
         return JVMessageBodyTask(
             taskID: Int(m_task_id),
             agent: agent,
+            isImportant: m_is_important,
             text: m_text ?? String(),
             createdAt: m_created_at,
             updatedAt: m_updated_at,

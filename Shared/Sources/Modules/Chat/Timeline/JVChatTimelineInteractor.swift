@@ -64,4 +64,7 @@ protocol JVChatTimelineInteractor: JMTimelineInteractor {
     
     func resolveCurrentChat()
     func activatePrechat(caption: String)
+    
+    func completeTask(taskID: Int, clientID: Int, taskName: String?)
+    func openTaskEditor(taskInfo: JMTimelineTaskInfo)
 }

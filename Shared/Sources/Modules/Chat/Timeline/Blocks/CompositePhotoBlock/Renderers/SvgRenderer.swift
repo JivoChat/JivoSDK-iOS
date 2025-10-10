@@ -5,6 +5,7 @@
 //  Created by Stan Potemkin on 10.12.2024.
 //
 
+import Foundation
 import UIKit
 
 #if canImport(SVGKit)

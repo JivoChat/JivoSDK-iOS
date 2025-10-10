@@ -5,6 +5,7 @@
 //  Created by Stan Potemkin on 07.11.2024.
 //
 
+import Foundation
 import JMTimelineKit
 
 struct ChatTimelinePrechatInfo: JMTimelineInfo {

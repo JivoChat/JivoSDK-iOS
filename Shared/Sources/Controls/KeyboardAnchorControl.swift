@@ -63,7 +63,14 @@ final class KeyboardAnchorControl: UIView {
     }
     
     private func syncKeyboardFrame() {
-        keyboardFrame = superview?.frame.offsetBy(dx: 0, dy: bounds.height) ?? .zero
-        keyboardFrameChangedBlock(keyboardVisible, keyboardFrame)
+        DispatchQueue.main.asyncAfter(
+            deadline: .now() + 0.05,
+            execute: { [weak self] in
+                guard let self = self else { return }
+                
+                keyboardFrame = superview?.frame.offsetBy(dx: 0, dy: bounds.height) ?? .zero
+                keyboardFrameChangedBlock(keyboardVisible, keyboardFrame)
+            }
+        )
     }
 }

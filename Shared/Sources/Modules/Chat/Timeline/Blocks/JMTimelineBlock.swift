@@ -10,10 +10,6 @@ import Foundation
 import UIKit
 import JMTimelineKit
 
-extension JMTimelineBlock {
-    static let defaultCornerRadius = 10.0
-}
-
 class JMTimelineBlock: UIView, JMTimelineBlockCallable {
     private(set) weak var provider: JVChatTimelineProvider?
     private(set) weak var interactor: JVChatTimelineInteractor?

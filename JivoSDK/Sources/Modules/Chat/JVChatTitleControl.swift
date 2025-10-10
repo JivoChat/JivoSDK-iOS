@@ -6,6 +6,7 @@
 //  Copyright © 2020 jivosite.mobile. All rights reserved.
 //
 
+import Foundation
 import UIKit
 import JMRepicKit
 
@@ -107,7 +108,7 @@ class JVChatTitleControl: UIView {
     
     fileprivate func getLayout(size: CGSize) -> Layout {
         return Layout(
-            bounds: bounds,
+            bounds: CGRect(origin: .zero, size: size),
             safeAreaInsets: safeAreaInsets,
             contentInsets: UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0),
             spacing: 14,

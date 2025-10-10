@@ -5,6 +5,7 @@
 //  Created by Anton Karpushko on 03.12.2020.
 //
 
+import Foundation
 import UIKit
 import CollectionAndTableViewCompatible
 

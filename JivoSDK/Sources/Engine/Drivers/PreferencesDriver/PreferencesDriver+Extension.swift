@@ -40,6 +40,8 @@ struct QuickLink: Codable {
 extension IPreferencesDriver {
 //    let quickAnswersObserver = JVBroadcastUniqueTool<[String]>()
 
+//    PreferencesToken
+    
     func registerDefaultValues() {
         register(
             defaults: [

@@ -6,6 +6,7 @@
 //  Copyright © 2020 jivosite.mobile. All rights reserved.
 //
 
+import Foundation
 import UIKit
 
 #if canImport(SwiftUI)

@@ -5,6 +5,7 @@
 //  Created by Stan Potemkin on 31.10.2024.
 //
 
+import Foundation
 import UIKit
 import JMTimelineKit
 

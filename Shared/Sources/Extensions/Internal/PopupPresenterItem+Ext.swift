@@ -50,4 +50,6 @@ extension PopupPresenterItem.ActionIconPreset {
     static let text = Self.init(assetName: nil, systemName: "text.justify.left")
     static let questionmark = Self.init(assetName: nil, systemName: "questionmark.circle")
     static let textQuote = Self.init(assetName: nil, systemName: "text.quote")
+    static let checkmarkSquare = Self.init(assetName: nil, systemName: "checkmark.square")
+    static let plusCircle = Self.init(assetName: nil, systemName: "plus.circle")
 }

@@ -240,6 +240,46 @@ final class JVDesignColors: JVDesignEnvironmental, JVIDesignColors {
             return dynamicColor(light: .native(UIColor(jv_hex: 0xE6DDD5, alpha: 1.0)), dark: .native(UIColor(jv_hex: 0x131517, alpha: 1.0)))
         case .chatResolvedButton:
             return dynamicColor(light: .native(UIColor(jv_hex: 0x000000, alpha: 0.7)), dark: .native(UIColor(jv_hex: 0xFFFFFF, alpha: 1.0)))
+        case .tertiaryBackground:
+            return dynamicColor(light: .native(UIColor(jv_hex: 0x000000, alpha: 0.7)), dark: .native(UIColor(red: 44/255, green: 44/255, blue: 46/255, alpha: 1)))
+
+        case .primaryLabel:
+            return dynamicColor(
+                light: .native(UIColor.black),
+                dark: .native(UIColor.white)
+            )
+        case .secondaryLabel:
+            return dynamicColor(
+                light: .native(
+                    UIColor(red: 60/255, green: 60/255, blue: 67/255, alpha: 0.6)
+                ),
+                dark: .native(
+                    UIColor(red: 235/255, green: 235/255, blue: 245/255, alpha: 0.6)
+                )
+            )
+        case .tertiaryLabel:
+            return UIColor(red: 60/255, green: 60/255, blue: 67/255, alpha: 0.3)
+        case .quaternaryLabel:
+            return UIColor(red: 60/255, green: 60/255, blue: 67/255, alpha: 0.18)
+        case .primaryFill:
+            return UIColor(red: 120/255, green: 120/255, blue: 128/255, alpha: 0.2)
+        case .secondaryFill:
+            return UIColor(red: 120/255, green: 120/255, blue: 128/255, alpha: 0.16)
+        case .tertiaryFill:
+            return UIColor(red: 120/255, green: 120/255, blue: 128/255, alpha: 0.12)
+        case .quaternaryFill:
+            return UIColor(red: 120/255, green: 120/255, blue: 128/255, alpha: 0.08)
+        case .nonOpaqueSeparator:
+            return UIColor(red: 84/255, green: 84/255, blue: 86/255, alpha: 0.6)
+        case .onboardingBackground:
+            return dynamicColor(
+                light: .native(
+                    UIColor(red: 1, green: 1, blue: 1, alpha: 1.0)
+                ),
+                dark: .native(
+                    UIColor(red: 37/255, green: 37/255, blue: 37/255, alpha: 1.0)
+                )
+            )
         }
     }
     
@@ -303,6 +343,7 @@ fileprivate let f_colors: [JVDesignColorBrightness: [JVDesignColorAlias: UIColor
         .orangeRed: UIColor(jv_hex: 0xFF3B30),
         .greenLight: UIColor(jv_hex: 0x4CD964),
         .greenJivo: UIColor(jv_hex: 0x00BC31),
+        .adaptiveGreenJivo: UIColor(jv_hex: 0x18C139),
         .greenSber: UIColor(jv_hex: 0x21A038),
         .blueVk: UIColor(jv_hex: 0x0077FF),
         .skyBlue: UIColor(jv_hex: 0x5AC8FA),
@@ -327,6 +368,7 @@ fileprivate let f_colors: [JVDesignColorBrightness: [JVDesignColorAlias: UIColor
         .accentGraphite: UIColor(jv_hex: 0x445669),
         .orangeRed: UIColor(jv_hex: 0xFF3B30),
         .greenJivo: UIColor(jv_hex: 0x008A0B),
+        .adaptiveGreenJivo: UIColor(jv_hex: 0x23893C),
         .greenSber: UIColor(jv_hex: 0x21A038),
         .blueVk: UIColor(jv_hex: 0x0077FF),
         .sunflowerYellow: UIColor(jv_hex: 0xFFCC00),

@@ -29,11 +29,13 @@ struct JMTimelineItemSender {
     let mark: String?
     let style: JMTimelineMessageSenderStyle
     
-    init(ID: String,
-                icon: JMRepicItem?,
-                name: String?,
-         mark: String?,
-                style: JMTimelineMessageSenderStyle) {
+    init(
+        ID: String,
+        icon: JMRepicItem?,
+        name: String?,
+        mark: String?,
+        style: JMTimelineMessageSenderStyle
+    ) {
         self.ID = ID
         self.icon = icon
         self.name = name

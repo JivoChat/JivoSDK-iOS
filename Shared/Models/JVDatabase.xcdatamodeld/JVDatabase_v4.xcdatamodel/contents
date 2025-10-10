@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22222" systemVersion="23E224" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="22758" systemVersion="23E224" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="AgentEntity" representedClassName=".AgentEntity" parentEntity="ParticipantEntity" syncable="YES" codeGenerationType="category">
         <attribute name="m_avatar_link" optional="YES" attributeType="String"/>
         <attribute name="m_calling_destination" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="YES"/>
@@ -232,7 +232,8 @@
         <relationship name="m_channel" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ChannelEntity" inverseName="b_clients" inverseEntity="ChannelEntity"/>
         <relationship name="m_custom_data" toMany="YES" deletionRule="Cascade" destinationEntity="ClientCustomFieldEntity"/>
         <relationship name="m_proactive_rule" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="ClientProactiveRuleEntity"/>
-        <relationship name="m_task" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TaskEntity" inverseName="m_client" inverseEntity="TaskEntity"/>
+        <relationship name="m_task" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="TaskEntity"/>
+        <relationship name="m_tasks" toMany="YES" deletionRule="Nullify" destinationEntity="TaskEntity" inverseName="m_client" inverseEntity="TaskEntity"/>
     </entity>
     <entity name="ClientProactiveRuleEntity" representedClassName=".ClientProactiveRuleEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
         <attribute name="m_date" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
@@ -329,6 +330,7 @@
         <attribute name="m_end_call_side" optional="YES" attributeType="String"/>
         <attribute name="m_event" optional="YES" attributeType="String"/>
         <attribute name="m_from" optional="YES" attributeType="String"/>
+        <attribute name="m_is_important" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="m_notify_at" optional="YES" attributeType="Date" usesScalarValueType="NO"/>
         <attribute name="m_order_id" optional="YES" attributeType="String"/>
         <attribute name="m_phone" optional="YES" attributeType="String"/>
@@ -449,13 +451,14 @@
         <attribute name="m_client_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_created_timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="m_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
+        <attribute name="m_is_important" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="YES"/>
         <attribute name="m_modified_timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
-        <attribute name="m_notify_timstamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
+        <attribute name="m_notify_timestamp" attributeType="Double" defaultValueString="0.0" usesScalarValueType="YES"/>
         <attribute name="m_site_id" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="YES"/>
         <attribute name="m_status" optional="YES" attributeType="String" defaultValueString=""/>
         <attribute name="m_text" optional="YES" attributeType="String" defaultValueString=""/>
         <relationship name="m_agent" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="AgentEntity" inverseName="b_tasks" inverseEntity="AgentEntity"/>
-        <relationship name="m_client" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ClientEntity" inverseName="m_task" inverseEntity="ClientEntity"/>
+        <relationship name="m_client" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ClientEntity" inverseName="m_tasks" inverseEntity="ClientEntity"/>
     </entity>
     <entity name="TimezoneEntity" representedClassName=".TimezoneEntity" parentEntity="Entity" syncable="YES" codeGenerationType="category">
         <attribute name="m_display_gmt" optional="YES" attributeType="String"/>

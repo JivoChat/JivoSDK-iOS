@@ -5,6 +5,7 @@
 //  Created by Julia Popova on 15.10.2023.
 //
 
+import Foundation
 import UIKit
 
 final class JMTimelineRateFormFieldControl: UITextField {

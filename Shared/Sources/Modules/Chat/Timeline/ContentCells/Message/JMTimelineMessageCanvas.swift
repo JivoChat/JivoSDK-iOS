@@ -213,9 +213,10 @@ class JMTimelineMessageCanvas: JMTimelineCanvas {
             bottomEdge?.removeFromSuperview()
             bottomEdge = nil
         }
-
+        
         footer.configure(
             caption: item.payload.footer.caption,
+            captionAlignment: item.payload.renderOptions.position.footerCaptionAlignment(),
             reactions: item.payload.footer.reactions,
             actions: item.payload.footer.actions)
         
@@ -564,5 +565,16 @@ fileprivate struct Layout {
     
     private var iconHorizontalSpace: CGFloat {
         return iconSize.width + iconGap
+    }
+}
+
+fileprivate extension JMTimelineItemPosition {
+    func footerCaptionAlignment() -> NSTextAlignment {
+        switch self {
+        case .left:
+            return .left
+        case .right:
+            return .right
+        }
     }
 }

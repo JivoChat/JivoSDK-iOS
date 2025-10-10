@@ -65,7 +65,7 @@ final class JMTimelineCompositePlainBlock: JMTimelineBlock {
     
     init(sideOffset: CGFloat) {
         self.sideOffset = sideOffset
-//        
+        
         super.init()
         addSubview(internalControl)
     }
@@ -75,7 +75,8 @@ final class JMTimelineCompositePlainBlock: JMTimelineBlock {
     }
     
     override func sizeThatFits(_ size: CGSize) -> CGSize {
-        return internalControl.sizeThatFits(CGSize(width: size.width - (2 * sideOffset), height: size.height))
+        let controlSize = internalControl.sizeThatFits(CGSize(width: size.width - (2 * sideOffset), height: size.height))
+        return CGSize(width: controlSize.width + (2 * sideOffset), height: controlSize.height)
     }
     
     override func layoutSubviews() {

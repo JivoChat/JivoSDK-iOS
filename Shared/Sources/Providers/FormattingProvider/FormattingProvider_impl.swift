@@ -39,7 +39,7 @@ final class FormattingProvider: IFormattingProvider {
 
     func format(date: Date, style: FormattingDateStyle) -> String {
         dateFormatter.calendar = calendar
-        dateFormatter.locale = systemLocale
+        dateFormatter.locale = JVLocaleProvider.activeLocale
         
         switch style {
         case .lastMessageDate where date.isToday:
@@ -93,6 +93,14 @@ final class FormattingProvider: IFormattingProvider {
             dateFormatter.doesRelativeDateFormatting = false
 
         case .taskFireRelative:
+            dateFormatter.dateFormat = "d MMM yyyy"
+            dateFormatter.doesRelativeDateFormatting = false
+            
+        case .taskFireDateRelative where date.year == Date().year:
+            dateFormatter.dateFormat = "d MMM"
+            dateFormatter.doesRelativeDateFormatting = false
+
+        case .taskFireDateRelative:
             dateFormatter.dateFormat = "d MMM yyyy"
             dateFormatter.doesRelativeDateFormatting = false
 

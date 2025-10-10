@@ -6,6 +6,7 @@
 //  Copyright © 2022 JivoSite. All rights reserved.
 //
 
+import Foundation
 import UIKit
 
 extension UIButton {

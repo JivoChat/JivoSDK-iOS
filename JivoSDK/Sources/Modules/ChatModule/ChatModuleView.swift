@@ -77,6 +77,7 @@ final class JVChatModuleViewController
     private lazy var waitingIndicator = UIView()
     private lazy var replyUnderlay = UIView()
     private lazy var replyControl = SdkChatReplyControl()
+    private lazy var debugControl = SdkDebugControl()
     
     private let keyboardAnchorControl: KeyboardAnchorControl
     private let timelineController: JMTimelineController<ChatHistoryConfig, ChatTimelineInteractor>
@@ -108,17 +109,22 @@ final class JVChatModuleViewController
         super.init(pipeline: pipeline)
         
         navigationItem.largeTitleDisplayMode = .never
+        
+        #if !JV_USE_XCODE_PRIOR_TO_26
         if #available(iOS 26.0, *) {
             navigationItem.subtitleView = titleControl
         }
         else {
             navigationItem.titleView = titleControl
         }
+        #else
+        navigationItem.titleView = titleControl
+        #endif
         
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: makeInfoLabel())
-        if #available(iOS 26.0, *) {
-            navigationItem.rightBarButtonItem?.hidesSharedBackground = true
-        }
+        titleControl.isUserInteractionEnabled = true
+        titleControl.addGestureRecognizer(
+            UILongPressGestureRecognizer(target: self, action: #selector(handleTitleControlLongPress))
+        )
         
         if #available(iOS 13.0, *) {
             navigationItem.jv_configureOpaque()
@@ -141,9 +147,11 @@ final class JVChatModuleViewController
                 backButtonTapAction: #selector(handleDismissButtonTap))
         }
         
+        #if !JV_USE_XCODE_PRIOR_TO_26
         if #available(iOS 26.0, *) {
             navigationItem.leftBarButtonItem?.hidesSharedBackground = true
         }
+        #endif
         
         recreateTableView()
     }
@@ -156,21 +164,6 @@ final class JVChatModuleViewController
         if let timelineView = collectionView as? JMTimelineView<ChatTimelineInteractor> {
             timelineController.detach(timelineView: timelineView)
         }
-    }
-    
-    private func makeInfoLabel() -> UIView {
-        let label = UILabel()
-        label.text = "ver " + Bundle(for: Jivo.self).jv_formatVersion(.marketingShort)
-        label.textColor = JVDesign.colors.resolve(usage: .unnoticeableForeground)
-        label.font = JVDesign.fonts.resolve(.semibold(12), scaling: .caption2)
-        label.isUserInteractionEnabled = true
-        label.sizeToFit()
-
-        label.addGestureRecognizer(
-            UILongPressGestureRecognizer(target: self, action: #selector(handleInfoLabelLongPress))
-        )
-        
-        return label
     }
     
     override func handlePresenter(update: ChatModulePresenterUpdate) {
@@ -236,6 +229,8 @@ final class JVChatModuleViewController
         replyUnderlay.accessibilityLabel = "replyUnderlay"
         view.addSubview(replyUnderlay)
         
+        replyUnderlay.addSubview(debugControl)
+        
         replyControl.tintColor = uiConfig.replyCursorColor
         replyControl.inputAccessoryView = keyboardAnchorControl
         replyUnderlay.addSubview(replyControl)
@@ -289,7 +284,8 @@ final class JVChatModuleViewController
         placeholderView.view.frame = layout.placeholderViewFrame
         waitingIndicator.frame = layout.waitingIndicatorFrame
         replyUnderlay.frame = layout.replyUnderlayFrame
-        replyControl.frame = layout.replyControlBounds
+        replyControl.frame = layout.replyControlFrame
+        debugControl.frame = layout.debugControlFrame
         titleControl.frame = layout.titleBarFrame
         
         if let collectionView = collectionView {
@@ -299,6 +295,8 @@ final class JVChatModuleViewController
             collectionView.contentOffset.y = max(-layout.collectionViewContentInsets.top, contentOffsetY + contentInsetDelta)
             collectionView.scrollIndicatorInsets = layout.collectionViewIndicatorInsets
         }
+        
+        debugControl.alpha = (safeAreaInsets.bottom > 0 ? 1.0 : 0)
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -325,6 +323,7 @@ final class JVChatModuleViewController
             safeAreaInsets: view.safeAreaInsets,
             navigationBarFrame: navigationController?.navigationBar.bounds ?? CGRect.zero,
             replyControl: replyControl,
+            debugControl: debugControl,
             bottomGap: 6,
             keyboardHeight: keyboardHeight
         )
@@ -342,9 +341,12 @@ final class JVChatModuleViewController
         cv.alwaysBounceVertical = true
         cv.contentInsetAdjustmentBehavior = .never
         cv.isHidden = isHidden
+        
+        #if !JV_USE_XCODE_PRIOR_TO_26
         if #available(iOS 26.0, *) {
             cv.topEdgeEffect.isHidden = true
         }
+        #endif
         
         view.insertSubview(cv, at: 0)
 //        view.insertSubview(historyPlaceholder, aboveSubview: cv)
@@ -427,7 +429,7 @@ final class JVChatModuleViewController
         view.endEditing(true)
     }
     
-    @objc private func handleInfoLabelLongPress() {
+    @objc private func handleTitleControlLongPress() {
         pipeline.notify(intent: .specialMenu)
     }
 }
@@ -436,7 +438,8 @@ fileprivate struct Layout {
     let bounds: CGRect
     let safeAreaInsets: UIEdgeInsets
     let navigationBarFrame: CGRect
-    let replyControl: SdkChatReplyControl
+    let replyControl: UIView
+    let debugControl: UIView
     let bottomGap: CGFloat
     let keyboardHeight: CGFloat
 
@@ -457,12 +460,12 @@ fileprivate struct Layout {
     }
     
     var collectionViewContentInsets: UIEdgeInsets {
-        let replyingHeight = max(safeAreaInsets.bottom, keyboardHeight) + replyControlBounds.height + bottomGap
+        let replyingHeight = max(safeAreaInsets.bottom, keyboardHeight) + replyControlFrame.height + bottomGap
         return UIEdgeInsets(top: replyingHeight, left: 0, bottom: 0, right: 0)
     }
     
     var collectionViewIndicatorInsets: UIEdgeInsets {
-        let replyingHeight = max(safeAreaInsets.bottom, keyboardHeight) + replyControlBounds.height
+        let replyingHeight = max(safeAreaInsets.bottom, keyboardHeight) + replyControlFrame.height
         return UIEdgeInsets(top: replyingHeight, left: 0, bottom: 0, right: 0)
     }
     
@@ -475,16 +478,22 @@ fileprivate struct Layout {
     }
     
     var replyUnderlayFrame: CGRect {
-        let anchor = replyControlBounds
+        let anchor = replyControlFrame
         let topY = bounds.height - max(safeAreaInsets.bottom, keyboardHeight) - anchor.height
         let workaroundGap = CGFloat(5)
         let height = anchor.height + safeAreaInsets.bottom + workaroundGap
         return CGRect(x: 0, y: topY, width: bounds.width, height: height)
     }
     
-    var replyControlBounds: CGRect {
+    var replyControlFrame: CGRect {
         let height = replyControl.jv_height(forWidth: bounds.width)
         return CGRect(x: 0, y: 0, width: bounds.width, height: height)
+    }
+    
+    var debugControlFrame: CGRect {
+        let size = debugControl.intrinsicContentSize
+        let topY = (replyUnderlayFrame.height + replyControlFrame.maxY) * 0.5 - size.height
+        return CGRect(x: 0, y: topY, width: bounds.width, height: size.height)
     }
 }
 

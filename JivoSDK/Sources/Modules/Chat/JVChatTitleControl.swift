@@ -146,22 +146,31 @@ fileprivate struct Layout {
     }
     
     var imageViewFrame: CGRect {
-        return CGRect(origin: CGPoint(x: contentInsets.left, y: bounds.height * 0.5 - imageViewSize.height * 0.5), size: imageViewSize)
+        let topY = (bounds.height - imageViewSize.height) * 0.5
+        return CGRect(origin: CGPoint(x: contentInsets.left, y: topY), size: imageViewSize)
     }
     
     var titleLabelSize: CGSize {
-        return CGSize(width: totalSize.width - (imageViewFrame.maxX + spacing) - spacing, height: titleLabel.intrinsicContentSize.height)
+        let width = totalSize.width - (imageViewFrame.maxX + spacing)
+        let height = titleLabel.intrinsicContentSize.height
+        return CGSize(width: width, height: height)
     }
     
     var titleLabelFrame: CGRect {
-        return CGRect(origin: CGPoint(x: imageViewFrame.maxX + spacing, y: bounds.height * 0.5 - titleLabelSize.height - lineSpacing * 0.5), size: titleLabelSize)
+        let topY = (bounds.height - lineSpacing) * 0.5 - titleLabelSize.height
+        let leftX = imageViewFrame.maxX + spacing
+        return CGRect(origin: CGPoint(x: leftX, y: topY), size: titleLabelSize)
     }
     
     var subtitleLabelSize: CGSize {
-        return subtitleLabel.intrinsicContentSize
+        let width = totalSize.width - (imageViewFrame.maxX + spacing)
+        let height = subtitleLabel.intrinsicContentSize.height
+        return CGSize(width: width, height: height)
     }
     
     var subtitleLabelFrame: CGRect {
-        return CGRect(origin: CGPoint(x: imageViewFrame.maxX + spacing, y: bounds.height * 0.5 + lineSpacing * 0.5), size: subtitleLabelSize)
+        let topY = (bounds.height + lineSpacing) * 0.5
+        let leftX = imageViewFrame.maxX + spacing
+        return CGRect(origin: CGPoint(x: leftX, y: topY), size: subtitleLabelSize)
     }
 }

@@ -1,6 +1,7 @@
 // swift-tools-version: 5.9
 // The swift-tools-version declares the minimum version of Swift required to build this package.
 
+import Foundation
 import PackageDescription
 
 let package = Package(
@@ -75,6 +76,11 @@ let package = Package(
                 .copy("Shared/Resources/Fonts/roboto.medium.ttf"),
                 .copy("Shared/Resources/Fonts/roboto.regular.ttf"),
                 .copy("Shared/Design/fontello_entypo.ttf"),
-            ]),
+            ],
+            .swiftSettings: (
+                ProcessInfo.processInfo.environment["JV_USE_XCODE_PRIOR_TO_26"] == "1"
+                ? [.define("JV_USE_XCODE_PRIOR_TO_26")]
+                : nil
+            )
     ]
 )

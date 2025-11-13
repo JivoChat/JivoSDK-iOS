@@ -77,7 +77,7 @@ let package = Package(
                 .copy("Shared/Resources/Fonts/roboto.regular.ttf"),
                 .copy("Shared/Design/fontello_entypo.ttf"),
             ],
-            .swiftSettings: (
+            swiftSettings: (
                 ProcessInfo.processInfo.environment["JV_USE_XCODE_PRIOR_TO_26"] == "1"
                 ? [.define("JV_USE_XCODE_PRIOR_TO_26")]
                 : nil

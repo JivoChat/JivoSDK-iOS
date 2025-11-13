@@ -82,5 +82,6 @@ let package = Package(
                 ? [.define("JV_USE_XCODE_PRIOR_TO_26")]
                 : nil
             )
+        )
     ]
 )

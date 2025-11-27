@@ -15,6 +15,7 @@ extension Bundle {
         static let version = "CFBundleVersion"
         static let name = "CFBundleName"
         static let displayName = "CFBundleDisplayName"
+        static let designRequiresCompatibility = "UIDesignRequiresCompatibility"
         static let packageVersion = "JVPackageVersion"
         private init() {}
     }
@@ -27,6 +28,19 @@ extension Bundle {
     
     var jv_name: String? {
         return (infoDictionary?[InfoKey.displayName] ?? infoDictionary?[InfoKey.name]) as? String
+    }
+    
+    var jv_designRequiresCompatibility: Bool? {
+        return infoDictionary?[InfoKey.designRequiresCompatibility] as? Bool
+    }
+    
+    func js_shouldDesignForGlass() -> Bool {
+        if #available(iOS 26.0, *) {
+            return !(jv_designRequiresCompatibility == true)
+        }
+        else {
+            return false
+        }
     }
 }
 

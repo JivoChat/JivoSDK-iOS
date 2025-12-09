@@ -190,6 +190,10 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             return false
         }
         
+        if uuidProvider.isFirstRun {
+            keychainDriver.userScope().clearAll()
+        }
+        
         let path = keychainDriver.userScope().retrieveAccessor(forToken: .connectionUrlPath).string
         sessionContext.authorizingPath = path
         

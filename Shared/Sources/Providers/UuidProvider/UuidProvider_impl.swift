@@ -15,6 +15,7 @@ final class UUIDProvider: IUUIDProvider {
     private let keychainDriver: IKeychainDriver
     private let installationIDPreference: IPreferencesAccessor
 
+    let isFirstRun: Bool
     private let launchUUID = UUID()
     
     init(bundle: Bundle, package: UuidSubUserAgentPackage, keychainDriver: IKeychainDriver, installationIDPreference: IPreferencesAccessor) {
@@ -22,6 +23,8 @@ final class UUIDProvider: IUUIDProvider {
         self.package = package
         self.keychainDriver = keychainDriver
         self.installationIDPreference = installationIDPreference
+        
+        isFirstRun = !installationIDPreference.hasObject
     }
     
     var currentDeviceID: String {

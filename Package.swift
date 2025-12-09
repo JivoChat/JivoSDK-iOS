@@ -15,7 +15,6 @@ let package = Package(
         .package(url: "https://github.com/FluidGroup/TypedTextAttributes.git", from: "2.0.0"),
         .package(url: "https://github.com/malcommac/SwiftDate.git", from: "7.0.0"),
         .package(url: "https://github.com/evgenyneu/keychain-swift.git", from: "24.0.0"),
-        .package(url: "https://github.com/1024jp/GzipSwift.git", from: "6.1.0"),
         .package(url: "https://github.com/auth0/JWTDecode.swift.git", exact: "3.1.0"),
         .package(url: "https://github.com/iziz/libPhoneNumber-iOS.git", exact: "1.1.0"),
         .package(url: "https://github.com/DaveWoodCom/XCGLogger.git", from: "7.1.5"),
@@ -37,6 +36,7 @@ let package = Package(
         .package(url: "https://github.com/JivoChat/JMTimelineKit.git", exact: "6.0.0"),
         .package(url: "https://github.com/JivoSite/pure-parser.git", exact: "2.0.0"),
         .package(url: "https://github.com/JivoChat/ReachabilitySwift.git", exact: "6.0.0"),
+        .package(url: "https://github.com/JivoChat/GzipSwift.git", from: "6.1.1"),
     ],
     targets: [
         .target(

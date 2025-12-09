@@ -11,8 +11,8 @@ import PhotosUI
 import MobileCoreServices
 
 enum ChatModuleJointInput {
-    case pickDocument(url: URL)
-    case pickImage(UIImage)
+    case pickDocument(url: URL, name: String?)
+    case pickImage(UIImage, name: String?)
     case documentsLimitExceeded
     case performMessageCopy
     case performMessageResend
@@ -242,13 +242,16 @@ final class ChatModuleJoint
         view.view.endEditing(false)
         photoPickingBridge.presentPicker(within: view, source: source) { [weak self] result in
             switch result {
-            case .success(let medias):
-                switch medias.first {
-                case .image(let image):
-                    self?.pipeline?.notify(input: .pickImage(image))
-                case .video(let url):
-                    self?.pipeline?.notify(input: .pickDocument(url: url))
-                case .none:
+            case .success(let results):
+                if let result = results.first {
+                    switch result.media {
+                    case .image(let image):
+                        self?.pipeline?.notify(input: .pickImage(image, name: result.name))
+                    case .video(let url):
+                        self?.pipeline?.notify(input: .pickDocument(url: url, name: result.name))
+                    }
+                }
+                else {
                     return
                 }
                 
@@ -294,7 +297,7 @@ final class ChatModuleJoint
                 return
             }
             
-            self?.pipeline?.notify(input: .pickDocument(url: primaryUrl))
+            self?.pipeline?.notify(input: .pickDocument(url: primaryUrl, name: primaryUrl.lastPathComponent))
         }
     }
     

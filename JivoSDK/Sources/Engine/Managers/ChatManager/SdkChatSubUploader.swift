@@ -35,7 +35,7 @@ protocol ISdkChatSubUploader {
 class SdkChatSubUploader: ISdkChatSubUploader {
     // MARK: Constants
     private let JPEG_DATA_COMPRESSION_QUALITY = CGFloat(1.0)
-    private let UNTITLED_IMAGE_NAME = "Untitled image"
+    private let UNTITLED_IMAGE_NAME = "untitled_image.jpeg"
 
     var uploadingAttachments: [PickedAttachmentObject] = []
     
@@ -107,15 +107,27 @@ class SdkChatSubUploader: ISdkChatSubUploader {
             return completion(.failure(.sizeLimitExceeded(megabytes: SdkConfig.uploadingLimit.megabytes)))
         }
         
-        let imageName = meta.name ?? meta.url?.lastPathComponent ?? meta.assetLocalId ?? UNTITLED_IMAGE_NAME
-        let imageMime = meta.url.flatMap(mimeFrom(url:)) ?? "image/jpeg"
+        let imageName = (
+            meta.name
+        ) ?? {
+            if #available(iOS 18.2, *) {
+                meta.url?.suggestedFilename
+            }
+            else {
+                meta.url?.lastPathComponent
+            }
+        }() ?? (
+            meta.assetLocalId
+        ) ?? (
+            UNTITLED_IMAGE_NAME
+        )
         
         uploadData(
             endpoint: endpoint,
             data: imageData,
-            fileName: imageName,
+            fileName: imageName + ".jpeg",
             uuid: uuid,
-            mimeType: imageMime,
+            mimeType: meta.url.flatMap(mimeFrom(url:)) ?? "image/jpeg",
             clientId: clientId,
             channelId: channelId,
             siteId: siteId,

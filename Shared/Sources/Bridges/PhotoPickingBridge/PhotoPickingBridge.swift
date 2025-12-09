@@ -20,7 +20,12 @@ enum PhotoPickingBridgeError: Error {
     case extractionFailed
 }
 
-typealias PhotoPickingCompletion = (Result<[PhotoPickingMedia], PhotoPickingBridgeError>) -> Void
+typealias PhotoPickingCompletion = (Result<[PhotoPickingResult], PhotoPickingBridgeError>) -> Void
+struct PhotoPickingResult {
+    let media: PhotoPickingMedia
+    let name: String?
+}
+
 enum PhotoPickingMedia {
     case image(UIImage)
     case video(URL)
@@ -190,7 +195,12 @@ final class PhotoPickingBridge: NSObject, IPhotoPickingBridge, PHPickerViewContr
                         
                         DispatchQueue.main.async { [unowned self] in
                             if let image = object as? UIImage {
-                                completion?(.success([.image(image)]))
+                                let info = PhotoPickingResult(
+                                    media: .image(image),
+                                    name: result.itemProvider.suggestedName
+                                )
+                                
+                                completion?(.success([info]))
                             }
                             else if let _ = object {
                                 completion?(.failure(.extractionFailed))
@@ -211,7 +221,12 @@ final class PhotoPickingBridge: NSObject, IPhotoPickingBridge, PHPickerViewContr
                         
                         DispatchQueue.main.async { [unowned self] in
                             if let url = url {
-                                completion?(.success([.video(url)]))
+                                let info = PhotoPickingResult(
+                                    media: .video(url),
+                                    name: result.itemProvider.suggestedName
+                                )
+                                
+                                completion?(.success([info]))
                             }
                             else {
                                 completion?(.failure(.extractionFailed))
@@ -227,18 +242,28 @@ final class PhotoPickingBridge: NSObject, IPhotoPickingBridge, PHPickerViewContr
     
     internal func imagePickerController(_ picker: UIImagePickerController, didFinishPickingMediaWithInfo info: [UIImagePickerController.InfoKey : Any]) {
         let originalImage = info[UIImagePickerController.InfoKey.originalImage]
-        let originalVideo = info[UIImagePickerController.InfoKey.mediaURL]
+        let originalVideoUrl = info[UIImagePickerController.InfoKey.mediaURL]
 
         if let image = originalImage as? UIImage {
-            completion?(.success([.image(image)]))
+            let info = PhotoPickingResult(
+                media: .image(image),
+                name: nil
+            )
+            
+            completion?(.success([info]))
         }
         else if let _ = originalImage {
             completion?(.failure(.extractionFailed))
         }
-        else if let video = originalVideo as? URL {
-            completion?(.success([.video(video)]))
+        else if let url = originalVideoUrl as? URL {
+            let info = PhotoPickingResult(
+                media: .video(url),
+                name: nil
+            )
+            
+            completion?(.success([info]))
         }
-        else if let _ = originalVideo {
+        else if let _ = originalVideoUrl {
             completion?(.failure(.extractionFailed))
         }
         else {

@@ -357,10 +357,10 @@ final class ChatModuleCore
             performMessageCopy()
         case .performMessageResend:
             performMessageResend()
-        case .pickDocument(let url):
-            handleDocument(url: url)
-        case .pickImage(let image):
-            handleImage(image: image)
+        case .pickDocument(let url, let name):
+            handleDocument(url: url, name: name)
+        case .pickImage(let image, let name):
+            handleImage(image: image, name: name)
         case .requestDeveloperLogs:
             performJournalRequest()
         default:
@@ -400,8 +400,8 @@ final class ChatModuleCore
         }
     }
     
-    private func handleImage(image: UIImage) {
-        handleMeta(.image(image)) { [weak self] object in
+    private func handleImage(image: UIImage, name: String?) {
+        handleMeta(.image(image), name: name) { [weak self] object in
             guard let typingCacheService = self?.typingCacheService
             else {
                 return
@@ -441,7 +441,7 @@ final class ChatModuleCore
     }
     
 
-    private func handleDocument(url: URL) {
+    private func handleDocument(url: URL, name: String?) {
         let object: PickedAttachmentObject
         if let image = UIImage(contentsOfFile: url.path) {
             object = PickedAttachmentObject(
@@ -452,7 +452,7 @@ final class ChatModuleCore
                         url: url,
                         assetLocalId: nil,
                         date: nil,
-                        name: url.lastPathComponent.uppercased()
+                        name: name ?? url.lastPathComponent.uppercased()
                     )
                 )
             )
@@ -880,7 +880,7 @@ final class ChatModuleCore
         ))))
     }
     
-    private func handleMeta(_ meta: ChatPickedMeta?, callback: @escaping (PickedAttachmentObject) -> Void) {
+    private func handleMeta(_ meta: ChatPickedMeta?, name: String?, callback: @escaping (PickedAttachmentObject) -> Void) {
 //        guard let chat = chat, let recipient = chat.recipient else { return }
         let recipient = JVSenderData(type: .agent, ID: 0)
         
@@ -905,7 +905,7 @@ final class ChatModuleCore
                             )
                         )
                         
-                    case .photo(let image, let url, let date, let name):
+                    case .photo(let image, let url, let date, let identifier):
                         callback(
                             PickedAttachmentObject(
                                 uuid: uuid,
@@ -915,7 +915,7 @@ final class ChatModuleCore
                                         url: url,
                                         assetLocalId: nil,
                                         date: date,
-                                        name: name
+                                        name: name ?? identifier
                                     )
                                 )
                             )
@@ -949,7 +949,7 @@ final class ChatModuleCore
                             url: nil,
                             assetLocalId: nil,
                             date: nil,
-                            name: nil
+                            name: name
                         )
                     )
                 )

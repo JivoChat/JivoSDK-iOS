@@ -9,6 +9,7 @@
 import Foundation
 
 protocol IUUIDProvider: AnyObject {
+    var isFirstRun: Bool { get }
     var currentDeviceID: String { get }
     var currentInstallationID: String { get }
     var currentLaunchID: String { get }

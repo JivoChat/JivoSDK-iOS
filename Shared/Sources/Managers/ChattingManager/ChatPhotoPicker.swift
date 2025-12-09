@@ -34,14 +34,6 @@ struct PickedAttachmentObject: Equatable {
     let uuid: UUID
     let payload: PickedAttachmentObjectPayload
     
-    init(
-        uuid: UUID,
-        payload: PickedAttachmentObjectPayload
-    ) {
-        self.uuid = uuid
-        self.payload = payload
-    }
-    
     static func ==(lhs: PickedAttachmentObject, rhs: PickedAttachmentObject) -> Bool {
         guard lhs.uuid == rhs.uuid else { return false }
         return true

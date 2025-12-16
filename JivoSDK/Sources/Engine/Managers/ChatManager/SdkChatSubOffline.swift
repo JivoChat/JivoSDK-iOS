@@ -12,6 +12,7 @@ protocol ISdkChatSubOffline: AnyObject {
     var userDataReceivingMode: AgentDataReceivingMode { get set }
     func reactToActiveConnection()
     func reactToInactiveConnection()
+    func reset()
 }
 
 extension SdkChatSubOffline {
@@ -38,6 +39,7 @@ class SdkChatSubOffline: ISdkChatSubOffline {
 
     private var areChannelAgentsOffline = false
     private var areChatAgentsOffline = false
+    private var hadConversationRecently = false
     
     private var offlineMessageTimer: Timer?
     
@@ -91,6 +93,10 @@ class SdkChatSubOffline: ISdkChatSubOffline {
         socketConnectedAt = .distantPast
     }
     
+    func reset() {
+        hadConversationRecently = false
+    }
+    
     private func handleChatEvent(_ event: SdkChatEvent) {
         switch event {
         case let .channelAgentsUpdated(agents):
@@ -98,6 +104,7 @@ class SdkChatSubOffline: ISdkChatSubOffline {
         case let .chatAgentsUpdated(agents):
             let activeAgents = agents.compactMap(\.resolved).filter { $0.state == .active }
             areChatAgentsOffline = activeAgents.isEmpty
+            hadConversationRecently = hadConversationRecently || !agents.isEmpty
         default:
             break
         }
@@ -197,6 +204,9 @@ class SdkChatSubOffline: ISdkChatSubOffline {
             return .missing
         }
         else if Date().timeIntervalSince(socketConnectedAt) < 2 {
+            return .missing
+        }
+        else if hadConversationRecently {
             return .missing
         }
         

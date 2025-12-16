@@ -71,6 +71,7 @@ protocol ISdkChatManager: ISdkManager, ChatTimelineFactoryHistoryDelegate {
     var inactivityPlaceholder: String? { get }
     var globalRateConfig: JMTimelineRateConfig?  { get set }
     func restoreChat()
+    func readyToChat()
     func makeAllAgentsOffline()
     func sendTyping(text: String)
     func sendMessage(trigger: SdkManagerTrigger, text: String, attachments: [PickedAttachmentObject]) throws
@@ -983,6 +984,16 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         notifyObservers(event: .chatAgentsUpdated(agentsRefs), onQueue: .main)
     }
     
+    func readyToChat() {
+        thread.async { [unowned self] in
+            _readyToChat()
+        }
+    }
+    
+    private func _readyToChat() {
+        subOffline.reset()
+    }
+    
     func makeAllAgentsOffline() {
         thread.async { [unowned self] in
             _makeAllAgentsOffline()
@@ -1416,6 +1427,10 @@ final class SdkChatManager: SdkManager, ISdkChatManager {
         
         let chatAgents = chatContext.chatAgents.values.compactMap(\.resolved)
         storeChatAgents(chatAgents, exclusive: false)
+        
+        if userDataReceivingMode == .chat, !chatAgents.contains(where: \.isAvailable) {
+            userDataReceivingMode = .channel
+        }
 
         switch userDataReceivingMode {
         case .channel:

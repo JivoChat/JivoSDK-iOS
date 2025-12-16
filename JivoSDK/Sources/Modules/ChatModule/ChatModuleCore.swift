@@ -309,19 +309,10 @@ final class ChatModuleCore
         notifyMenuState(licensing: clientContext.licensing)
     }
     
-    /**
-     case willAppear
-     case textDidChange(text: String)
-     case attachmentDidDismiss(index: Int)
-     case sendMessage(text: String)
-     case messageTap(itemUUID: String, interaction: ChatTimelineTap)
-     case mediaTap(url: URL, mime: String?)
-     case requestAttachmentMenu(anchor: UIView)
-     case requestDeveloperMenu(anchor: UIView)
-     case dismiss
-     */
     override func handleView(intent: ChatModuleViewIntent) {
         switch intent {
+        case .didLoad:
+            chatManager.readyToChat()
         case .willAppear:
             handleWillAppear()
         case .becomeFocus:

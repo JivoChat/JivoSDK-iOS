@@ -54,7 +54,14 @@ class KeychainDriver: IKeychainDriver {
     }
     
     final func clearAll() {
-        storage.clear()
+        if namespace.isEmpty {
+            storage.clear()
+        }
+        else {
+            storage.allKeys
+                .filter { $0.hasPrefix(namespace) }
+                .forEach { storage.delete($0) }
+        }
     }
     
     private func constructPath(key: String) -> String {

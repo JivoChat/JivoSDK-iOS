@@ -30,6 +30,7 @@ protocol ISdkJoint {
 
 struct SdkInputConfig {
     var locale: Locale?
+    var userInterfaceStyle: UIUserInterfaceStyle?
     var customizationTextMapping = [JVDisplayElement: String]()
     var customizationColorMapping = [JVDisplayElement: UIColor]()
     var customizationImageMapping = [JVDisplayElement: UIImage]()
@@ -98,6 +99,11 @@ class SdkJoint: ISdkJoint {
         }
     
         navigationBarSnapshot = navigationController.configureBar()
+        
+        if #available(iOS 13.0, *), let userInterfaceStyle = config.userInterfaceStyle {
+            module.view.overrideUserInterfaceStyle = userInterfaceStyle
+        }
+        
         displayCallbacks.jv_customizeHeader(
             navigationBar: navigationController.navigationBar,
             navigationItem: module.view.navigationItem)
@@ -131,6 +137,11 @@ class SdkJoint: ISdkJoint {
         
         //        navigationController.configureTabBarItem()
         navigationController.configureModality()
+        
+        if #available(iOS 13.0, *), let userInterfaceStyle = config.userInterfaceStyle {
+            navigationController.overrideUserInterfaceStyle = userInterfaceStyle
+        }
+        
         displayCallbacks.jv_customizeHeader(
             navigationBar: navigationController.navigationBar,
             navigationItem: module.view.navigationItem)
@@ -160,6 +171,11 @@ class SdkJoint: ISdkJoint {
         
         let container = JVNavigationContainer(rootViewController: built.view)
         container.configureModality()
+        
+        if #available(iOS 13.0, *), let userInterfaceStyle = config.userInterfaceStyle {
+            container.overrideUserInterfaceStyle = userInterfaceStyle
+        }
+        
         displayCallbacks.jv_customizeHeader(
             navigationBar: container.navigationBar,
             navigationItem: built.view.navigationItem)
@@ -198,6 +214,11 @@ class SdkJoint: ISdkJoint {
         
         let container = JVNavigationContainer(rootViewController: built.view)
         container.configureModality()
+        
+        if #available(iOS 13.0, *), let userInterfaceStyle = config.userInterfaceStyle {
+            container.overrideUserInterfaceStyle = userInterfaceStyle
+        }
+        
         displayCallbacks.jv_customizeHeader(
             navigationBar: container.navigationBar,
             navigationItem: built.view.navigationItem)

@@ -56,6 +56,20 @@ public final class JVDisplayController: NSObject {
     }
     
     /**
+     Sets the custom theme style instead of system one
+     */
+    public func setTheme(_ style: UIUserInterfaceStyle) {
+        _setTheme(style: style)
+    }
+    
+    @objc(__setTheme:)
+    public func __setTheme(_ styleIndex: Int) {
+        if let style = UIUserInterfaceStyle(rawValue: styleIndex) {
+            _setTheme(style: style)
+        }
+    }
+    
+    /**
      Here you can customize captions and texts for some elements
      
      - Parameter text:
@@ -250,6 +264,14 @@ public final class JVDisplayController: NSObject {
 extension JVDisplayController {
     private func _isOnscreen() -> Bool {
         return joint.isDisplaying
+    }
+    
+    private func _setTheme(style: UIUserInterfaceStyle) {
+        journal(layer: .facade) {"FACADE[display] set @theme[\(String(describing: style))]"}
+        
+        joint.modifyConfig { config in
+            config.userInterfaceStyle = style
+        }
     }
     
     private func _setLocale(_ locale: Locale?) {

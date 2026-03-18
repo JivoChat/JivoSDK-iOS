@@ -259,6 +259,7 @@ final class SdkEngine: ISdkEngine {
             outputThread: threads.workerThread,
             parsingQueue: parsingQueue,
             slicer: NetworkingSlicer(
+                namespace: namespace,
                 defaultTimeInterval: 0.4,
                 prolongedTimeInterval: 0.5,
                 timersTolerance: 0.1

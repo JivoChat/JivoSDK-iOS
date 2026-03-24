@@ -111,7 +111,7 @@ final class JVChatModuleViewController
         navigationItem.largeTitleDisplayMode = .never
         
         #if !JV_USE_XCODE_PRIOR_TO_26
-        if #available(iOS 26.0, *), Bundle.main.js_shouldDesignForGlass() {
+        if #available(iOS 26.0, *), Bundle.main.jv_shouldDesignForGlass() {
             navigationItem.subtitleView = titleControl
         }
         else {

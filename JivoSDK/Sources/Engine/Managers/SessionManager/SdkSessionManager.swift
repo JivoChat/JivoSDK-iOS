@@ -38,10 +38,13 @@ enum SdkSessionManagerContactInfoAllowance {
 
 struct SdkSessionUserIdentity: Equatable {
     let token: String
+    let jwt: JWT?
     let payload: [String: AnyHashable]?
     let id: String?
     
     init(input: String) {
+        jwt = try? decode(jwt: input)
+        
         do {
             let info = try decode(jwt: input)
             token = input
@@ -65,6 +68,10 @@ struct SdkSessionUserIdentity: Equatable {
             id = nil
         }
     }
+    
+    var isExpired: Bool {
+        return jwt?.expired ?? false
+    } 
     
     static func ==(lhs: Self, rhs: Self) -> Bool {
         if lhs.token == rhs.token {
@@ -194,8 +201,15 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
             keychainDriver.userScope().clearAll()
         }
         
-        let path = keychainDriver.userScope().retrieveAccessor(forToken: .connectionUrlPath).string
-        sessionContext.authorizingPath = path
+        let connectionUrlPath = keychainDriver.userScope().retrieveAccessor(forToken: .connectionUrlPath)
+        let path = connectionUrlPath.string
+        if let path, !_canUseConnectionPath(path) {
+            connectionUrlPath.erase()
+            sessionContext.authorizingPath = nil
+        }
+        else {
+            sessionContext.authorizingPath = path
+        }
         
         if let lastStoredSiteId = keychainDriver.userScope().retrieveAccessor(forToken: .siteID).number,
            let lastStoredChannelId = keychainDriver.userScope().retrieveAccessor(forToken: .channelId).string {
@@ -221,6 +235,24 @@ class SdkSessionManager: SdkManager, ISdkSessionManager {
         }
         
         return true
+    }
+    
+    private func _canUseConnectionPath(_ path: String) -> Bool {
+        // site_id:channel_id:user_id:jwt
+        
+        let content = path.jv_trimmed(charset: CharacterSet(charactersIn: "/"))
+        let pieces = content.split(separator: ":")
+        
+        if pieces.count != 4 {
+            return true
+        }
+        else if let jwt = pieces.last {
+            let identity = SdkSessionUserIdentity(input: String(jwt))
+            return !identity.isExpired
+        }
+        else {
+            return true
+        }
     }
     
     // MARK: - Public methods

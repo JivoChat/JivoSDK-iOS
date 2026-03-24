@@ -26,8 +26,8 @@ final class NetworkingEventDispatcher: INetworkingEventDispatcher {
         self.parsingQueue = parsingQueue
         self.slicer = slicer
         
-        slicer?.signal.attachObserver { [unowned self] events in
-            self.handleSlicedEvents(events)
+        slicer?.signal.attachObserver { [weak self] events in
+            self?.handleSlicedEvents(events)
         }
     }
     

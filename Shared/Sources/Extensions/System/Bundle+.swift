@@ -35,6 +35,10 @@ extension Bundle {
     }
     
     func js_shouldDesignForGlass() -> Bool {
+        return jv_shouldDesignForGlass()
+    }
+    
+    func jv_shouldDesignForGlass() -> Bool {
         if #available(iOS 26.0, *) {
             return !(jv_designRequiresCompatibility == true)
         }

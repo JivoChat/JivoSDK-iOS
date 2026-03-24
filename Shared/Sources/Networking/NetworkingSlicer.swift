@@ -25,22 +25,43 @@ final class NetworkingSlicer: INetworkingSlicer {
     private let prolongedTimeInterval: TimeInterval
     private let timersTolerance: TimeInterval
     
+    private let state: State
+    private final class State {
+        private let queue: DispatchQueue
+        var isTimingStarted = false
+        var accumulatedBundles: [NetworkingEventBundle] = []
+        var isDefaultTimePeriodElapsed = false
+        
+        init(namespace: String) {
+            queue = DispatchQueue(label: "\(namespace).networking.slicer")
+        }
+        
+        func sync<T>(block: @escaping @Sendable (State) -> T) -> T {
+            return queue.sync {
+                block(self)
+            }
+        }
+        
+        func async(block: @escaping @Sendable (State) -> Void) {
+            return queue.async { [weak self] in
+                if let self {
+                    block(self)
+                }
+            }
+        }
+    }
+    
     private var unrelatedPackagesTimer: Timer?
     private var relatedPackagesTimer: Timer?
     
-    // Internal state
-    
-    private var isTimersStarted = false
-    private var isDefaultTimePeriodElapsed = false
-    
-    private var accumulatedBundles: [NetworkingEventBundle] = []
-    
     // MARK: - Init/deinit
     
-    init(defaultTimeInterval: TimeInterval, prolongedTimeInterval: TimeInterval, timersTolerance: TimeInterval = 0) {
+    init(namespace: String, defaultTimeInterval: TimeInterval, prolongedTimeInterval: TimeInterval, timersTolerance: TimeInterval = 0) {
         self.defaultTimeInterval = defaultTimeInterval
         self.prolongedTimeInterval = prolongedTimeInterval
         self.timersTolerance = timersTolerance
+        
+        state = State(namespace: namespace)
     }
     
     deinit {
@@ -50,22 +71,25 @@ final class NetworkingSlicer: INetworkingSlicer {
     // MARK: - Public methods
     
     func take(_ bundle: NetworkingEventBundle) {
-        accumulatedBundles.append(bundle)
-        
-        if !(isTimersStarted) {
-            initializeTimers()
+        state.async { [weak self] ref in
+            ref.accumulatedBundles.append(bundle)
+            
+            if !ref.isTimingStarted {
+                ref.isTimingStarted = true
+                DispatchQueue.main.async {
+                    self?.sync_initializeTimers()
+                }
+            }
         }
     }
     
     // MARK: - Private methods
     
-    private func initializeTimers() {
+    private func sync_initializeTimers() {
         invalidateTimers()
         
         recreateUnrelatedPackagesTimer()
         recreateRelatedPackagesTimer()
-        
-        isTimersStarted = true
     }
     
     private func invalidateTimers() {
@@ -75,7 +99,9 @@ final class NetworkingSlicer: INetworkingSlicer {
         unrelatedPackagesTimer = nil
         relatedPackagesTimer = nil
         
-        isTimersStarted = false
+        state.async { ref in
+            ref.isTimingStarted = false
+        }
     }
     
     private func recreateUnrelatedPackagesTimer() {
@@ -99,17 +125,28 @@ final class NetworkingSlicer: INetworkingSlicer {
     }
     
     private func unrelatedPackagesTimerDidFire(timer: Timer) {
-        defer {
-            isDefaultTimePeriodElapsed = true
+        let (shouldBroadcast, shouldRecreateTimer) = state.sync { ref in
+            defer {
+                ref.isDefaultTimePeriodElapsed = true
+            }
+            
+            guard let firstBundleType = ref.accumulatedBundles.first?.payload.type else {
+                return (false, true)
+            }
+            
+            if !ref.accumulatedBundles.contains(where: { $0.payload.type != firstBundleType }) {
+                return (true, true)
+            }
+            else {
+                return (false, false)
+            }
         }
         
-        guard let firstBundleType = accumulatedBundles.first?.payload.type else {
-            recreateRelatedPackagesTimer()
-            return
-        }
-        
-        if accumulatedBundles.first(where: { $0.payload.type != firstBundleType }) == nil {
+        if shouldBroadcast {
             broadcastAccumulatedPackages()
+        }
+        
+        if shouldRecreateTimer {
             recreateRelatedPackagesTimer()
         }
     }
@@ -118,11 +155,22 @@ final class NetworkingSlicer: INetworkingSlicer {
         recreateUnrelatedPackagesTimer()
         broadcastAccumulatedPackages()
         
-        isDefaultTimePeriodElapsed = false
+        state.async { ref in
+            ref.isDefaultTimePeriodElapsed = false
+        }
     }
     
     private func broadcastAccumulatedPackages() {
-        signal.broadcast(accumulatedBundles)
-        accumulatedBundles = []
+        let bundles: [NetworkingEventBundle] = state.sync { ref in
+            let result = ref.accumulatedBundles
+            ref.accumulatedBundles = []
+            return result
+        }
+        
+        if !bundles.isEmpty {
+            DispatchQueue.main.async { [weak self] in
+                self?.signal.broadcast(bundles)
+            }
+        }
     }
 }
